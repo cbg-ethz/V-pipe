@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+  {% include head.html %}
+   <style>
+   header {
+  display: none;
+    }
+
+    nav {
+      display: none;
+    }
+
+    .page-heading {
+      display: none;
+    }
+
+    p img {
+      align: center;
+      min-width: 200px;
+      width: 90%;
+    }
+</style>
+  <body>
+    {% include header.html %}
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        {{ content }}
+      </div>
+    </main>
+  </body>
+</html>
+

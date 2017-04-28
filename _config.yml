@@ -1,0 +1,15 @@
+author: David Seifert
+timezone: Europe/Zurich
+title: V-pipe
+email: vpipe
+description: > # this means to ignore newlines until "baseurl:"
+  Viral NGS Pipeline
+baseurl: "/V-pipe" # the subpath of your site, e.g. /blog
+url: "https://cbg-ethz.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+markdown: kramdown
+theme: minima
+
+
+
