@@ -7,6 +7,11 @@ layout: default
 
 V-pipe is a workflow designed for clinical applications of next generation sequencing (NGS) data to viral pathogens. It produces a number of results in a curated format.
 
+<div align="center" style="margin: 2%;">
+  <a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe" style="color:black;">Link to repository!</a>
+</div>
+
+
 ![Pipeline](img/pipeline.svg)
 
 ## Features
