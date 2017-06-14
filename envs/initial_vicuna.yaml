@@ -1,0 +1,11 @@
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+dependencies:
+  - vicuna
+  - bwa
+  - samtools
+  - picard
+  - InDelFixer
+  - ConsensusFixer

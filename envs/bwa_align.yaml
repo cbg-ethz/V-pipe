@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+dependencies:
+  - bwa
+  - mafft
