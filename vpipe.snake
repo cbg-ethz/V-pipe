@@ -19,24 +19,24 @@ class VpipeConfig(object):
     __RECORD__ = typing.NamedTuple(
         "__RECORD__", [('value', typing.Any), ('type', type)])
     __MEMBER_DEFAULT__ = collections.OrderedDict([
-        # general parameters
-        ('general': {
+        ('general', {
             'threads': __RECORD__(value=4, type=int),
         }),
-        ('input': {
+        ('input', {
             'datadir': __RECORD__(value='samples', type=str),
             'samples_file': __RECORD__(value='samples.tsv', type=str),
             'fastq_suffix': __RECORD__(value='', type=str),
+            'trim_cutoff': __RECORD__(value=200, type=float),
         }),
-        ('output': {
+        ('output', {
             'QA': __RECORD__(value=False, type=bool),
             'snv': __RECORD__(value=True, type=bool),
             'local': __RECORD__(value=True, type=bool),
             'global': __RECORD__(value=True, type=bool),
         }),
-        ('applications': {
+        ('applications', {
             'gunzip': __RECORD__(value="gunzip", type=str),
-            'prinseq': __RECORD__(value="prinseq-lite", type=str),
+            'prinseq': __RECORD__(value="prinseq-lite.pl", type=str),
             'vicuna': __RECORD__(value="vicuna", type=str),
             'bwa': __RECORD__(value="bwa", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
@@ -45,18 +45,18 @@ class VpipeConfig(object):
             'convert_reference': __RECORD__(value="convert_reference", type=str),
             'extract_seq': __RECORD__(value="extract_seq", type=str),
             'coverage_stats': __RECORD__(value="coverage_stats", type=str),
+            'remove_gaps_msa': __RECORD__(value="remove_gaps_msa", type=str),
         }),
 
-        # rule parameters
-        ('gunzip': {
+        ('gunzip', {
             'mem': __RECORD__(value=30000, type=int),
             'time': __RECORD__(value=60, type=int),
         }),
-        ('extract': {
+        ('extract', {
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=20, type=int),
         }),
-        ('preprocessing': {
+        ('preprocessing', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
@@ -64,22 +64,22 @@ class VpipeConfig(object):
             'qual_threshold': __RECORD__(value=30, type=int),
             'min_len': __RECORD__(value=0.8, type=float),
         }),
-        ('initial_vicuna': {
+        ('initial_vicuna', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=600, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('initial_vicuna_msa': {
+        ('initial_vicuna_msa', {
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('create_vicuna_initial': {
+        ('create_vicuna_initial', {
             'conda': __RECORD__(value='', type=str),
         }),
-        ('hmm_align': {
+        ('hmm_align', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=1435, type=int),
             'threads': __RECORD__(value=0, type=int),
@@ -87,29 +87,29 @@ class VpipeConfig(object):
 
             'leave_msa_temp': __RECORD__(value=False, type=bool),
         }),
-        ('sam2bam': {
+        ('sam2bam', {
             'mem': __RECORD__(value=5000, type=int),
             'time': __RECORD__(value=30, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('bwa_align': {
+        ('bwa_align', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('coverage_QA': {
+        ('coverage_QA', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('msa': {
+        ('msa', {
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('convert_to_hxb2': {
+        ('convert_to_hxb2', {
             'mem': __RECORD__(value=8000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
@@ -137,10 +137,9 @@ class VpipeConfig(object):
                         cur_value = vpipe_configfile.get(section, value)
                     state = 'user'
                 except (configparser.NoSectionError, configparser.NoOptionError):
-                    if value == 'threads':
-                        if section != 'general':
-                            cur_value = defaults.value if defaults.value else VpipeConfig.__MEMBER_DEFAULT__[
-                                'general']['threads']
+                    if value == 'threads' and section != 'general':
+                        cur_value = defaults.value if defaults.value else VpipeConfig.__MEMBER_DEFAULT__[
+                                'general']['threads'][0]
                     elif value == 'conda':
                         cur_value = "envs/{}.yaml".format(section)
                     else:
@@ -167,98 +166,112 @@ class VpipeConfig(object):
 config = VpipeConfig()
 
 
-# 2. glob patients + samples into list and store as TSV
-#
-# This list is reused on subsequent runs
+# 2. glob patients/samples + store as TSV if file is not provided
 
-if os.path.isfile(config.input.samples_file):
+
+if os.path.isfile(config.input['samples_file']):
     # file containing samples exist, proceed
     # to build list of target files
     print("Sample file '{}' exists, will create targets from those entries".format(
-        config.input.samples_file))
+        config.input['samples_file']))
 else:
     # sample file does not exist, have to first glob
     # all patients' data and then construct sample
     # list that would pass QA checks
-    print("Sample file '{}' does **NOT** exist, need to glob patients".format(config.input.samples_file))
+    print("Sample file '{}' does **NOT** exist, need to glob patients".format(config.input['samples_file']))
 
     patient_sample_pairs = glob_wildcards(
-        "{}/{{patient_date}}/raw_data/{{file}}.fastq.gz".format(config.input.datadir))
+        "{}/{{patient_date}}/raw_data/{{file}}_R1{}.fastq.gz".format(config.input['datadir'], config.input['fastq_suffix']))
 
-    samples = {}
+    with open('samples.tsv', 'w') as outfile:
+        for i in patient_sample_pairs.patient_date:
+            (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
+            outfile.write('{}\t{}\n'.format(patient, date))
 
-    for i in patient_sample_pairs:
-        (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
-
-        if patient in samples:
-            samples[patient].append(date)
-        else:
-            samples[patient] = [date]
-
-    # have to preprocess patient files to filter likely failures
-    print(samples)
-
-    # TODO:
+    # TODO: have to preprocess patient files to filter likely failures
     # 1.) Determine 5%/95% length of FASTQ files
     # 2.) Determine whether FASTQ would survive
 
 
-# 3. load patients from TSV
+# 3. load patients from TSV and create list of samples
 #
-# This list was either generated in the previous step
-# or provided by the user
+# This list is reused on subsequent runs
 
 patient_list = []
+patient_dict = {}
 patient_record = typing.NamedTuple(
     "patient_record", [('patient_id', str), ('date', str)])
-with open(config.input.samples_file, newline='') as csvfile:
+
+with open(config.input['samples_file'], newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter='\t')
-
+    
     for row in spamreader:
-        if len(i) < 2:
-            print("ERROR: Line '{}' does not contain at least two entries!".format(
-                spamreader.line_num))
-        elif len(i) == 2 and 0 <
+        assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
+                              spamreader.line_num)
+        patient_tuple = patient_record(patient_id=row[0], date=row[1])
+        patient_list.append(patient_tuple)
+        
+        if len(row) == 2:
+            # All samples are assumed to have same read length and 'trim_cutoff'
+            # must correspond to the threshold value in the length of the reads
+            # after quality trimming
+            assert config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be larger than 1, whereas 'trim_cutoff'={}".format(config.input['trim_cutoff'])
+            
+            assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
+                                                      row[0], row[1])
+            patient_dict[patient_tuple] = int(config.input['trim_cutoff'])
 
-    patient_list = [patient_record(patient_id=row[0], date=row[1])]
+        elif len(row) == 3: 
+            assert config.input['trim_cutoff'] < 0 or config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_cutoff'={}".format(config.input['trim_cutoff'])
+            # Extract read length from input.samples_file. Samples may have 
+            # different read lengths. Reads will be filtered out if read length
+            # after trimming is less than trim_cutoff * read_length. If snvs 
+            # are expected as output, third column should be provided
+            assert patient_list not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
+                                                      row[0], row[1])
+            patient_dict[patient_tuple] = int(config.input['trim_cutoff'] * row[3])
 
 # 4. generate list of target files
+all_files = []
 alignments = []
+vicuna_refs = []
 references = []
-consensus_skeletons = []
 trimmed_files = []
 results = []
 for p in patient_list:
     alignments.append(
-        "{sample_dir}/{patient}/{date}/alignments/HXB2_aln.bam".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
-    if config.output.QA:
+        "{sample_dir}/{patient}/{date}/alignments/HXB2_aln.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    if config.output['QA']:
         alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
         alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     vicuna_refs.append(
-        "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+        "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     references.append(
-        "{sample_dir}/{patient}/{date}/references/ref_".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+        "{sample_dir}/{patient}/{date}/references/ref_".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     trimmed_files.append(
-        "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+        "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     trimmed_files.append(
-        "{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+        "{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # SNV
-    if config.output.snv:
-        result.append(
-            "{sample_dir}/{patient}/{date}/results/SNV/snvs.tsv".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+    if config.output['snv']:
+        results.append(
+            "{sample_dir}/{patient}/{date}/results/SNV/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # local haplotypes
-    if config.output.snv:
-        result.append(
-            "{sample_dir}/{patient}/{date}/results/local/snvs.tsv".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+    if config.output['local']:
+        results.append(
+            "{sample_dir}/{patient}/{date}/results/local/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # global haplotypes
-    if config.output.snv:
-        result.append(
-            "{sample_dir}/{patient}/{date}/results/global/snvs.tsv".format(sample_dir=config.input.datadir, patient=p.patient_id, date=p.date))
+    if config.output['global']:
+        results.append(
+            "{sample_dir}/{patient}/{date}/results/global/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
+    # merge lists contaiing expected output
+    all_files = alignments + results
 
 
 # DUMMY RULES
@@ -281,9 +294,9 @@ rule gunzip:
         lsfoutfile = "/dev/null",
         lsferrfile = "/dev/null",
         scratch = '10000',
-        mem = config.gunzip.mem,
-        time = config.gunzip.time,
-        GUNZIP = config.applications.gunzip,
+        mem = config.gunzip['mem'],
+        time = config.gunzip['time'],
+        GUNZIP = config.applications['gunzip'],
     threads:
         1
     shell:
@@ -294,12 +307,12 @@ rule gunzip:
 
 def construct_input_fastq(wildcards):
     inferred_values = glob_wildcards(
-        wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input.fastq_suffix + ".fastq.gz")
+        wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq.gz")
     list_output = []
 
     for i in inferred_values.file:
         list_output.append(wildcards.dataset + "/raw_data/" +
-                           i + "R" + wildcards.pair + config.input.fastq_suffix + ".fastq")
+                           i + "R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
 
     return list_output
 
@@ -313,8 +326,8 @@ rule extract:
         lsfoutfile = "{dataset}/extracted_data/extract.lsfout.log",
         lsferrfile = "{dataset}/extracted_data/extract.lsferr.log",
         scratch = '2000',
-        mem = config.extract.mem,
-        time = config.extract.time,
+        mem = config.extract['mem'],
+        time = config.extract['time'],
     benchmark:
         "{dataset}/extracted_data/extract.benchmark"
     threads:
@@ -343,11 +356,11 @@ rule preprocessing:
         lsfoutfile = "{dataset}/preprocessed_data/prinseq.lsfout.log",
         lsferrfile = "{dataset}/preprocessed_data/prinseq.lsferr.log",
         scratch = '2000',
-        mem = config.preprocessing.mem,
-        time = config.preprocessing.time,
-        PRINSEQ = config.applications.prinseq,
+        mem = config.preprocessing['mem'],
+        time = config.preprocessing['time'],
+        PRINSEQ = config.applications['prinseq'],
     conda:
-        config.preprocessing.conda
+        config.preprocessing['conda']
     benchmark:
         "{dataset}/preprocessed_data/prinseq.benchmark"
     threads:
@@ -391,21 +404,22 @@ rule initial_vicuna:
         lsfoutfile = "{dataset}/initial_consensus/vicuna.lsfout.log",
         lsferrfile = "{dataset}/initial_consensus/vicuna.lsferr.log",
         scratch = '1000',
-        mem = config.initial_vicuna.mem,
-        time = config.initial_vicuna.time,
-        VICUNA = config.applications.vicuna,
-        BWA = config.applications.bwa,
-        SAMTOOLS = config.applications.samtools,
+        mem = config.initial_vicuna['mem'],
+        time = config.initial_vicuna['time'],
+        VICUNA = config.applications['vicuna'],
+        BWA = config.applications['bwa'],
+        SAMTOOLS = config.applications['samtools'],
         WORK_DIR = "{dataset}/initial_consensus",
     conda:
-        config.initial_vicuna.conda
+        config.initial_vicuna['conda']
     benchmark:
         '{dataset}/initial_consensus/vicuna_consensus.benchmark'
     threads:
-        config.initial_vicuna.threads
+        config.initial_vicuna['threads']
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
         source functions.sh
 
@@ -480,16 +494,16 @@ rule initial_vicuna_msa:
         lsfoutfile = "references/MAFFT_initial_aln.lsfout.log",
         lsferrfile = "references/MAFFT_initial_aln.lsferr.log",
         scratch = '1250',
-        mem = config.initial_vicuna_msa.mem,
-        time = config.initial_vicuna_msa.time,
-        MAFFT = config.applications.mafft,
-        REMOVE_GAPS = config.applications.remove_gaps_msa,
+        mem = config.initial_vicuna_msa['mem'],
+        time = config.initial_vicuna_msa['time'],
+        MAFFT = config.applications['mafft'],
+        REMOVE_GAPS = config.applications['remove_gaps_msa'],
     conda:
-        config.initial_vicuna_msa.conda
+        config.initial_vicuna_msa['conda']
     benchmark:
         "references/MAFFT_initial_aln.benchmark"
     threads:
-        config.initial_vicuna_msa.threads
+        config.initial_vicuna_msa['threads']
     shell:
         """
         cat {input} > initial_ALL.fasta
@@ -507,15 +521,16 @@ rule create_vicuna_initial:
     output:
         "{dataset}/references/initial_consensus.fasta"
     params:
-        EXTRACT_SEQ = config.applications.extract_seq,
+        EXTRACT_SEQ = config.applications['extract_seq'],
     conda:
-        config.create_vicuna_initial.conda
+        config.create_vicuna_initial['conda']
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        mkdir -p patients/{wildcards.sample}/references/
+        mkdir -p {wildcards.dataset}/references/
         {params.EXTRACT_SEQ} {input} -o {output} -s "${{CONSENSUS_NAME}}"
         """
 
@@ -528,10 +543,11 @@ rule create_simple_initial:
         "{dataset}/references/initial_consensus.fasta"
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        mkdir -p patients/{wildcards.sample}/references/
+        mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" {output}
         """
@@ -545,10 +561,11 @@ rule create_denovo_initial:
         "{dataset}/references/initial_consensus.fasta"
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        mkdir -p patients/{wildcards.sample}/references/
+        mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" {output}
         """
@@ -586,35 +603,36 @@ rule hmm_align:
         lsfoutfile = "{dataset}/alignments/ngshmmalign.lsfout.log",
         lsferrfile = "{dataset}/alignments/ngshmmalign.lsferr.log",
         scratch = '1250',
-        mem = config.hmm_align.mem,
-        time = config.hmm_align.time,
-        LEAVE_TEMP = '-l' if config.hmm_align.leave_msa_temp else '',
-        MAFFT = config.applications.mafft,
-        NGSHMMALIGN = config.applications.ngshmmalign,
+        mem = config.hmm_align['mem'],
+        time = config.hmm_align['time'],
+        LEAVE_TEMP = '-l' if config.hmm_align['leave_msa_temp'] else '',
+        MAFFT = config.applications['mafft'],
+        NGSHMMALIGN = config.applications['ngshmmalign'],
     conda:
-        config.hmm_align.conda
+        config.hmm_align['conda']
     benchmark:
         "{dataset}/alignments/ngshmmalign.benchmark"
     threads:
-        config.hmm_align.threads
+        config.hmm_align['threads']
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
         # 1. clean previous run
-        rm -rf   patients/{wildcards.sample}/alignments
-        rm -f    patients/{wildcards.sample}/references/ref_ambig.fasta
-        rm -f    patients/{wildcards.sample}/references/ref_majority.fasta
-        mkdir -p patients/{wildcards.sample}/alignments
-        mkdir -p patients/{wildcards.sample}/references
+        rm -rf   {wildcards.dataset}/alignments
+        rm -f    {wildcards.dataset}/references/ref_ambig.fasta
+        rm -f    {wildcards.dataset}/references/ref_majority.fasta
+        mkdir -p {wildcards.dataset}/alignments
+        mkdir -p {wildcards.dataset}/references
 
         # 2. perform alignment # -l = leave temps
         {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.R1} {input.R2}
 
         # 3. move references into place
-        mv patients/{wildcards.sample}/{{alignments,references}}/ref_ambig.fasta
-        mv patients/{wildcards.sample}/{{alignments,references}}/ref_majority.fasta
+        mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
+        mv {wildcards.dataset}/{{alignments,references}}/ref_majority.fasta
         """
 
 rule sam2bam:
@@ -627,11 +645,11 @@ rule sam2bam:
         lsfoutfile = "{file}_sam2bam.lsfout.log",
         lsferrfile = "{file}_sam2bam.lsferr.log",
         scratch = '1250',
-        mem = config.sam2bam.mem,
-        time = config.sam2bam.time,
-        SAMTOOLS = config.applications.samtools,
+        mem = config.sam2bam['mem'],
+        time = config.sam2bam['time'],
+        SAMTOOLS = config.applications['samtools'],
     conda:
-        config.sam2bam.conda
+        config.sam2bam['conda']
     benchmark:
         "{file}_sam2bam.benchmark"
     threads:
@@ -657,36 +675,36 @@ rule bwa_align:
         lsfoutfile = "{dataset}/QA_alignments/bwa_{kind}.lsfout.log",
         lsferrfile = "{dataset}/QA_alignments/bwa_{kind}.lsferr.log",
         scratch = '1250',
-        mem = config.bwa_align.mem,
-        time = config.bwa_align.time,
-        BWA = config.applications.bwa,
-        MAFFT = config.applications.mafft,
+        mem = config.bwa_align['mem'],
+        time = config.bwa_align['time'],
+        BWA = config.applications['bwa'],
+        MAFFT = config.applications['mafft'],
     conda:
-        config.bwa_align.conda
+        config.bwa_align['conda']
     benchmark:
         "{dataset}/QA_alignments/bwa_{kind}.benchmark"
     threads:
-        config.bwa_align.threads
+        config.bwa_align['threads']
     shell:
         """
         # 1. cleanup old run
         rm -f {output.SAM} {output.MSA}
 
         # 2. concatenate references
-        mkdir -p patients/{wildcards.sample}/QA_alignments
-        cat {input.patient_ref} {input.virusmix_ref} > patients/{wildcards.sample}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
+        mkdir -p {wildcards.dataset}/QA_alignments
+        cat {input.patient_ref} {input.virusmix_ref} > {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
 
         # 3. indexing
-        {params.BWA} index patients/{wildcards.sample}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
+        {params.BWA} index {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
 
         # 4. align
-        {params.BWA} mem -t {threads} patients/{wildcards.sample}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.R1} {input.R2} > {output.SAM}
+        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.R1} {input.R2} > {output.SAM}
 
         # 5. MSA
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} patients/{wildcards.sample}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA}
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA}
 
         # 6. cleanup BWA indices
-        rm -f patients/{wildcards.sample}/QA_alignments/bwa_refs_{wildcards.kind}.fasta.*
+        rm -f {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta.*
         """
 
 # 4b. Call coverage statistics
@@ -700,23 +718,24 @@ rule coverage_QA:
         lsfoutfile = "{dataset}/QA_alignments/coverage_QA_{kind}.lsfout.log",
         lsferrfile = "{dataset}/QA_alignments/coverage_QA_{kind}.lsferr.log",
         scratch = '1250',
-        mem = config.coverage_QA.mem,
-        time = config.coverage_QA.time,
-        COV_STATS = config.applications.coverage_stats,
+        mem = config.coverage_QA['mem'],
+        time = config.coverage_QA['time'],
+        COV_STATS = config.applications['coverage_stats'],
     conda:
-        config.coverage_QA.conda
+        config.coverage_QA['conda']
     benchmark:
         "{dataset}/QA_alignments/coverage_QA_{kind}.benchmark"
     threads:
         1
     shell:
         """
-        CONSENSUS_NAME={wildcards.sample}
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
         # 1. clean previous run
         rm -f {output}
-        mkdir -p patients/{wildcards.sample}/QA_alignments
+        mkdir -p {wildcards.dataset}/QA_alignments
 
         # 2. collect coverage stats
         # we only collect statistics in the loop regions
@@ -728,7 +747,7 @@ rule coverage_QA:
 # 5. construct MSA from all patient files
 def construct_msa_input_files(wildcards):
     output_list = ["{}{}.fasta".format(s, wildcards.kind)
-                   for s in consensus_skeletons]
+                   for s in references]
     output_list.append("references/HXB2.fasta")
 
     return output_list
@@ -743,15 +762,15 @@ rule msa:
         lsfoutfile = "references/MAFFT_{kind}_cohort.lsfout.log",
         lsferrfile = "references/MAFFT_{kind}_cohort.lsferr.log",
         scratch = '1250',
-        mem = config.msa.mem,
-        time = config.msa.time,
-        MAFFT = config.applications.mafft,
+        mem = config.msa['mem'],
+        time = config.msa['time'],
+        MAFFT = config.applications['mafft'],
     conda:
-        config.msa.conda
+        config.msa['conda']
     benchmark:
         "references/MAFFT_{kind}_cohort.benchmark"
     threads:
-        config.msa.threads
+        config.msa['threads']
     shell:
         """
         cat {input} > ALL_{wildcards.kind}.fasta
@@ -780,11 +799,11 @@ rule convert_to_hxb2:
         lsfoutfile = "{dataset}/alignments/convert_to_HXB2.lsfout.log",
         lsferrfile = "{dataset}/alignments/convert_to_HXB2.lsferr.log",
         scratch = '1250',
-        mem = config.convert_to_hxb2.mem,
-        time = config.convert_to_hxb2.time,
-        CONVERT_REFERENCE = config.applications.convert_reference,
+        mem = config.convert_to_hxb2['mem'],
+        time = config.convert_to_hxb2['time'],
+        CONVERT_REFERENCE = config.applications['convert_reference'],
     conda:
-        config.convert_to_hxb2.conda
+        config.convert_to_hxb2['conda']
     benchmark:
         "{dataset}/alignments/convert_to_HXB2.benchmark"
     threads:
