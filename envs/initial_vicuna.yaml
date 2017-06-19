@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - vicuna
+  - mvicuna
   - bwa
   - samtools
   - picard

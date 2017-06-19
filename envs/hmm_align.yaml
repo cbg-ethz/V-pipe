@@ -3,5 +3,5 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - mafft
+  - mafft=7.305
   - ngshmmalign
