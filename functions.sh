@@ -1,5 +1,3 @@
-module load samtools/1.2
-module load java/1.8.0_91
 
 sortbam() {
 	STEM=${1%.bam}

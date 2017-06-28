@@ -4,3 +4,4 @@ channels:
   - conda-forge
 dependencies:
   - samtools
+  - bzip2
