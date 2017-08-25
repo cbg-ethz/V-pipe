@@ -168,17 +168,12 @@ config = VpipeConfig()
 
 # 2. glob patients/samples + store as TSV if file is not provided
 
-
+# if file containing samples exitst, proceed
+# ro build list of target files
 if os.path.isfile(config.input['samples_file']):
-    # file containing samples exist, proceed
-    # to build list of target files
-    print("Sample file '{}' exists, will create targets from those entries".format(
-        config.input['samples_file']))
-else:
     # sample file does not exist, have to first glob
     # all patients' data and then construct sample
     # list that would pass QA checks
-    print("Sample file '{}' does **NOT** exist, need to glob patients".format(config.input['samples_file']))
 
     patient_sample_pairs = glob_wildcards(
         "{}/{{patient_date}}/raw_data/{{file}}_R1{}.fastq.gz".format(config.input['datadir'], config.input['fastq_suffix']))
