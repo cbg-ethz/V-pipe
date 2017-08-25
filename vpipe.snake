@@ -27,6 +27,7 @@ class VpipeConfig(object):
             'samples_file': __RECORD__(value='samples.tsv', type=str),
             'fastq_suffix': __RECORD__(value='', type=str),
             'trim_cutoff': __RECORD__(value=200, type=float),
+            'reference': __RECORD__(value='HXB2.fasta', type=str),
         }),
         ('output', {
             'QA': __RECORD__(value=False, type=bool),
@@ -46,6 +47,10 @@ class VpipeConfig(object):
             'extract_seq': __RECORD__(value="extract_seq", type=str),
             'coverage_stats': __RECORD__(value="coverage_stats", type=str),
             'remove_gaps_msa': __RECORD__(value="remove_gaps_msa", type=str),
+            'minority_freq': __RECORD__(value="minority_freq", type=str),
+            'extract_coverage_intervals': __RECORD__(value="extract_coverage_intervals", type=str),
+            'shorah': __RECORD__(value="dec.py", type='str'),
+            'haploclique': __RECORD__(value="haploclique", type='str'),
         }),
 
         ('gunzip', {
@@ -77,7 +82,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
         }),
         ('create_vicuna_initial', {
-            'conda': __RECORD__(value='', type=str),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
         }),
         ('hmm_align', {
             'mem': __RECORD__(value=1250, type=int),
@@ -101,7 +106,7 @@ class VpipeConfig(object):
         ('coverage_QA', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=235, type=int),
-            'conda': __RECORD__(value='', type=str),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
         }),
         ('msa', {
             'mem': __RECORD__(value=10000, type=int),
@@ -112,8 +117,44 @@ class VpipeConfig(object):
         ('convert_to_hxb2', {
             'mem': __RECORD__(value=8000, type=int),
             'time': __RECORD__(value=235, type=int),
-            'conda': __RECORD__(value='', type=str),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
         }),
+        ('minor_variants', {
+            'mem': __RECORD__(value=1000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
+        }),
+        ('coverage_intervals', {
+            'mem': __RECORD__(value=1000, type=int),
+            'time': __RECORD__(value=60, type=int),
+        }),
+        ('shorah_regions', {
+            'mem': __RECORD__(value=1000, type=int),
+            'time': __RECORD__(value=20, type=int),
+        }),
+        ('snv', {
+            'mem': __RECORD__(value=10000, type=int),
+            'time': __RECORD__(value=2880, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value='', type=str),
+
+            'shift': __RECORD__(value=3, type=int),
+        }),
+        ('aggregate', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+        }),
+        ('haploclique', {
+            'mem': __RECORD__(value=10000, type=int),
+            'time': __RECORD__(value=1435, type=int),
+            
+            'relax': __RECORD__(value=True, type=bool),
+            'no_singletons': __RECORD__(value=True, type=bool),
+            'no_prob0': __RECORD__(value=True, type=bool),
+            'clique_size_limit': __RECORD__(value=3, type=int),
+            'max_num_cliques': __RECORD__(value=10000, type=int),
+        })
     ])
 
     def __init__(self):
@@ -141,7 +182,7 @@ class VpipeConfig(object):
                         cur_value = defaults.value if defaults.value else VpipeConfig.__MEMBER_DEFAULT__[
                                 'general']['threads'][0]
                     elif value == 'conda':
-                        cur_value = "envs/{}.yaml".format(section)
+                        cur_value = "envs/{}.yaml".format(section) if len(defaults.value) == 0 else defaults.value
                     else:
                         cur_value = defaults.value
                     state = 'DEFAULT'
@@ -163,14 +204,15 @@ class VpipeConfig(object):
             print("ERROR: Section '{}' is not a valid section!".format(name))
             raise
 
+
 config = VpipeConfig()
 
 
 # 2. glob patients/samples + store as TSV if file is not provided
 
-# if file containing samples exitst, proceed
-# ro build list of target files
-if os.path.isfile(config.input['samples_file']):
+# if file containing samples exists, proceed
+# to build list of target files
+if not os.path.isfile(config.input['samples_file']):
     # sample file does not exist, have to first glob
     # all patients' data and then construct sample
     # list that would pass QA checks
@@ -199,32 +241,35 @@ patient_record = typing.NamedTuple(
 
 with open(config.input['samples_file'], newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter='\t')
-    
+
     for row in spamreader:
         assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
                               spamreader.line_num)
         patient_tuple = patient_record(patient_id=row[0], date=row[1])
         patient_list.append(patient_tuple)
-        
+
         if len(row) == 2:
             # All samples are assumed to have same read length and 'trim_cutoff'
             # must correspond to the threshold value in the length of the reads
             # after quality trimming
-            assert config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be larger than 1, whereas 'trim_cutoff'={}".format(config.input['trim_cutoff'])
-            
+            assert config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be larger than 1, whereas 'trim_cutoff'={}".format(
+                config.input['trim_cutoff'])
+
             assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
                                                       row[0], row[1])
             patient_dict[patient_tuple] = int(config.input['trim_cutoff'])
 
-        elif len(row) == 3: 
-            assert config.input['trim_cutoff'] < 0 or config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_cutoff'={}".format(config.input['trim_cutoff'])
-            # Extract read length from input.samples_file. Samples may have 
+        elif len(row) == 3:
+            assert config.input['trim_cutoff'] < 0 or config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_cutoff'={}".format(
+                config.input['trim_cutoff'])
+            # Extract read length from input.samples_file. Samples may have
             # different read lengths. Reads will be filtered out if read length
-            # after trimming is less than trim_cutoff * read_length. If snvs 
+            # after trimming is less than trim_cutoff * read_length. If snvs
             # are expected as output, third column should be provided
             assert patient_list not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
                                                       row[0], row[1])
-            patient_dict[patient_tuple] = int(config.input['trim_cutoff'] * row[3])
+            patient_dict[patient_tuple] = int(
+                config.input['trim_cutoff'] * row[3])
 
 # 4. generate list of target files
 all_files = []
@@ -233,7 +278,10 @@ vicuna_refs = []
 references = []
 trimmed_files = []
 results = []
+datasets = []
+IDs = []
 for p in patient_list:
+
     alignments.append(
         "{sample_dir}/{patient}/{date}/alignments/HXB2_aln.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     if config.output['QA']:
@@ -252,22 +300,27 @@ for p in patient_list:
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
+    datasets.append("{sample_dir}/{patient}/{date}".format(
+        sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    IDs.append(('{}-{}').format(p.patient_id, p.date))
+
     # SNV
     if config.output['snv']:
         results.append(
-            "{sample_dir}/{patient}/{date}/results/SNV/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # local haplotypes
     if config.output['local']:
         results.append(
-            "{sample_dir}/{patient}/{date}/results/local/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/variants/local/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # global haplotypes
     if config.output['global']:
         results.append(
-            "{sample_dir}/{patient}/{date}/results/global/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # merge lists contaiing expected output
     all_files = alignments + results
 
+IDs = ','.join(IDs)
 
 # DUMMY RULES
 rule all:
@@ -333,9 +386,11 @@ rule extract:
         """
 
 rule extractclean:
+    params:
+        DIR = config.input['datadir']
     shell:
         """
-        rm -rf patients/*/*/extracted_data
+        rm -rf {params.DIR}/*/*/extracted_data
         """
 
 
@@ -381,16 +436,18 @@ rule preprocessing:
         """
 
 rule trimmingclean:
+    params:
+        DIR = config.input['datadir']
     shell:
         """
-        rm -rf patients/*/*/preprocessed_data
+        rm -rf {params.DIR}/*/*/preprocessed_data
         """
 
 
 # 3. initial consensus sequence
 rule initial_vicuna:
     input:
-        global_ref = "references/HXB2.fasta",
+        global_ref = "references/{}".format(config.input['reference']),
         R1 = "{dataset}/preprocessed_data/R1.fastq",
         R2 = "{dataset}/preprocessed_data/R2.fastq"
     output:
@@ -566,11 +623,13 @@ rule create_denovo_initial:
         """
 
 rule vicunaclean:
+    params:
+        DIR = config.input['datadir']
     shell:
         """
-        rm -rf patients/*/*/initial_consensus
-        rm -rf patients/*/*/references/vicuna_consensus.fasta
-        rm -rf patients/*/*/references/initial_consensus.fasta
+        rm -rf {params.DIR}/*/*/initial_consensus
+        rm -rf {params.DIR}/*/*/references/vicuna_consensus.fasta
+        rm -rf {params.DIR}/*/*/references/initial_consensus.fasta
         rm -rf references/initial_aln.fasta
         rm -rf references/initial_aln_gap_removed.fasta
         rm -rf references/MAFFT_initial_aln.*
@@ -812,10 +871,225 @@ rule convert_to_hxb2:
 
 
 rule alignclean:
+    params:
+        DIR = config.input['datadir']
     shell:
         """
-        rm -rf patients/*/*/alignments
-        rm -rf patients/*/*/QA_alignments
-        rm -rf patients/*/*/references/ref_ambig.fasta
-        rm -rf patients/*/*/references/ref_majority.fasta
+        rm -rf {params.DIR}/*/*/alignments
+        rm -rf {params.DIR}/*/*/QA_alignments
+        rm -rf {params.DIR}/*/*/references/ref_ambig.fasta
+        rm -rf {params.DIR}/*/*/references/ref_majority.fasta
+        """
+
+# 7. Ouptut minor allele frequencies
+rule minor_variants:
+    input:
+        REF = "references/{}".format(config.input['reference']),
+        BAM = expand("{dataset}/alignments/HXB2_aln.bam", dataset=datasets),
+    output:
+        VARIANTS = "variants/minority_variants.tsv",
+        CONSENSUS = "variants/cohort_consensus.fasta",
+        COVERAGE = "variants/coverage.tsv"
+    params:
+        lsfoutfile = "variants/minority_variants.lsfout.log",
+        lsferrfile = "/dev/null",
+        scratch = '1250',
+        mem = config.minor_variants['mem'],
+        time = config.minor_variants['time'],
+        OUTDIR = "variants",
+        NAMES = IDs,
+        MINORITY_CALLER = config.applications['minority_freq'],
+    conda:
+        config.minor_variants['conda']
+    benchmark:
+        'variants/minority_variants.benchmark'
+    threads:
+        config.minor_variants['threads']
+    shell:
+        """
+        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM}
+        """
+
+# 8. Call single nucleotide variants
+rule coverage_intervals:
+    input:
+        REF = "references/{}".format(config.input['reference']),
+        TSV = "variants/coverage.tsv"
+    output:
+        "variants/coverage_intervals.tsv"
+    params:
+        lsfoutfile = "variants/coverage_intervals.lsfout.log",
+        lsferrfile = "/dev/null",
+        scratch = '1250',
+        mem = config.coverage_intervals['mem'],
+        time = config.coverage_intervals['time'],
+        SHIFT = config.snv['shift'],
+        NAMES = IDs,
+        EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
+    benchmark:
+        'variants/coverage_intervals.benchmark'
+    threads:
+        1
+    run:
+        window_len = ''
+        for d in datasets:
+            read_len = os.path.join(d, "raw_data", "read_length")
+            if os.path.exists(read_len):
+                with open(read_len, 'r') as infile:
+                    read_len = int(infile.readline().rstrip())
+                    window_shifts = int((read_len * 4/5 + params.SHIFT) / params.SHIFT)
+                    aux = window_shifts * params.SHIFT
+            else:
+                aux = 201
+            aux = str(aux)
+            if len(window_len) == 0:
+                window_len = aux
+            else:
+                window_len = window_len + ',' + aux
+
+        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -N {params.NAMES} -w " + str(window_len) + " -o {output}")
+
+
+rule shorah_regions:
+    input:
+        "variants/coverage_intervals.tsv"
+    output:
+        temp(expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
+    params:
+        lsfoutfile = "/dev/null",
+        lsferrfile = "/dev/null",
+        scratch = '1250',
+        mem = config.shorah_regions['mem'],
+        time = config.shorah_regions['time']
+    threads:
+        1
+    run:
+        with open(input[0], 'r') as infile:
+            for line in infile:
+                parts = line.rstrip().split('\t')
+                patientID = parts[0].split('-')
+                sample_date = patientID[-1]
+                patientID = '-'.join(patientID[:-1])
+                if len(parts) == 2:
+                    regions = parts[1].split(',')
+                else:
+                    regions = []
+
+                with open(os.path.join(config.input['datadir'], patientID, sample_date, "variants", "coverage_intervals.tsv"), 'w') as outfile:
+                    outfile.write('\n'.join(regions))
+
+rule snv:
+    input:
+        REF = "variants/cohort_consensus.fasta",
+        BAM = "{dataset}/alignments/HXB2_aln.bam",
+        TSV = "{dataset}/variants/coverage_intervals.tsv",
+    output:
+        dynamic("{dataset}/variants/{region}/snv/SNVs_0.010000_final.csv")
+    params:
+        lsfoutfile = "{dataset}/variants/shorah.lsfout.log",
+        lsferrfile = "{dataset}/variants/shorah.lsferr.log",
+        scratch = '1250',
+        mem = config.snv['mem'],
+        time = config.snv['time'],
+        SHIFT = config.snv['shift'],
+        SHORAH = config.applications['shorah']
+    benchmark:
+        "{dataset}/variants/shorah.benchmark"
+    threads:
+        config.snv['threads']
+    run:
+        read_len = os.path.join(wildcards.dataset, "raw_data", "read_length")
+        if os.path.exists(read_len):
+            with open(read_len, 'r') as infile:
+                read_len = infile.readline().rstrip()
+                read_len = int(read_len)
+        else:
+            read_len = 250
+
+        window_shifts = int((read_len * 4/5 + params.SHIFT) / params.SHIFT)
+        window_len = window_shifts * params.SHIFT
+
+        # run shorah in each of the predetermined regions
+        cwd = os.getcwd()
+        linecounter = 0
+        with open(input.TSV, 'r') as infile:
+            for line in infile:
+                region = line.rstrip()
+
+                linecounter += 1
+                # Create directory for running shorah in a corresponding window
+                dir = os.path.join(cwd, wildcards.dataset, "variants", ''.join(("TMP", str(linecounter))))
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                os.chdir(dir)
+
+                # Get absolute paths for input files
+                ref = os.path.join(cwd, input.REF)
+                bam = os.path.join(cwd, input.BAM)
+
+                args = {
+                    'BAM' : bam,
+                    'REF' : ref,
+                    'WINDOW_LEN' : str(window_len),
+                    'REGION' : region,
+                    'SHORAH' : params.SHORAH
+                }
+                shell("""
+                {SHORAH} -w {WINDOW_LEN} -x 100000 -r {REGION} -S 42 -b {BAM} -f {REF}
+                """.format(**args))
+                os.chdir(cwd)
+
+rule aggregate:
+    input:
+        dynamic("{dataset}/variants/{region}/snv/SNVs_0.010000_final.csv")
+    output:
+        "{dataset}/variants/SNVs/snvs.csv"
+    params:
+        lsfoutfile = "{dataset}/variants/aggregate.lsfout.log",
+        lsferrfile = "/dev/null",
+        scratch = '1250',
+        mem = config.aggregate['mem'],
+        time = config.aggregate['time'],
+    threads:
+        1
+    shell:
+        """
+        array=( {input} )
+        num_files=( ${{#array[@]}} )
+        cat {input} | sort -t, -nk2 | tail -n +${{num_files}} > {output}
+        """
+
+rule haploclique:
+    input:
+        "{dataset}/alignments/HXB2_aln.bam"
+    output:
+        "{dataset}/variants/global/quasispecies.bam"
+    params:
+        lsfoutfile = "{dataset}/variants/global/haploclique.lsfout.log",
+        lsferrfile = "/dev/null",
+        scratch = '1250',
+        mem = config.haploclique['mem'],
+        time = config.haploclique['time'],
+        RELAX = '--edge_quasi_cutoff_cliques=0.85 --edge_quasi_cutoff_mixed=0.85 --edge_quasi_cutoff_single=0.8 --min_overlap_cliques=0.6 --min_overlap_single=0.5' if config.haploclique['relax'] else '',
+        NO_SINGLETONS = '--no_singletons' if config.haploclique['no_singletons'] else '',
+        NO_PROB0 = '--no_prob0' if config.haploclique['no_prob0'] else '',
+        CLIQUE_SIZE_LIMIT = config.haploclique['clique_size_limit'],
+        MAX_NUM_CLIQUES = config.haploclique['max_num_cliques'],
+        OUTPREFIX = "{dataset}/variants/global/quasispecies",
+        HAPLOCLIQUE = config.applications['haploclique']
+    benchmark:
+        "{dataset}/variants/global/haploclique.benchmark"
+    threads:
+        1
+    shell:
+        """
+        {params.HAPLOCLIQUE}  {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --bam {input} {params.OUTPREFIX}
+        """
+
+rule haplocliqueclean:
+    params:
+        DIR = config.input['datadir']
+    shell:
+        """
+        rm {params.DIR}/*/*/variants/global/quasispecies.*
         """

@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - bzip2
-  - samtools
+  - smallgenomeutilities
