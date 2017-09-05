@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - bzip2
+  - smallgenomeutilities
+  - samtools

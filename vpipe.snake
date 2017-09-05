@@ -51,6 +51,7 @@ class VpipeConfig(object):
             'extract_coverage_intervals': __RECORD__(value="extract_coverage_intervals", type=str),
             'shorah': __RECORD__(value="dec.py", type='str'),
             'haploclique': __RECORD__(value="haploclique", type='str'),
+            'compute_mds': __RECORD__(value="compute_mds", type='str')
         }),
 
         ('gunzip', {
@@ -154,6 +155,15 @@ class VpipeConfig(object):
             'no_prob0': __RECORD__(value=True, type=bool),
             'clique_size_limit': __RECORD__(value=3, type=int),
             'max_num_cliques': __RECORD__(value=10000, type=int),
+        }),
+        ('haploclique_visualization', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value='', type=str),
+            
+            'region_start': __RECORD__(value=0, type=int),
+            'region_end': __RECORD__(value=9719, type=int),
+            'msa': __RECORD__(value='', type=str),
         })
     ])
 
@@ -1063,7 +1073,8 @@ rule haploclique:
     input:
         "{dataset}/alignments/HXB2_aln.bam"
     output:
-        "{dataset}/variants/global/quasispecies.bam"
+        FASTA = "{dataset}/variants/global/quasispecies.fasta",
+        BAM = "{dataset}/variants/global/quasispecies.bam",
     params:
         lsfoutfile = "{dataset}/variants/global/haploclique.lsfout.log",
         lsferrfile = "/dev/null",
@@ -1076,7 +1087,7 @@ rule haploclique:
         CLIQUE_SIZE_LIMIT = config.haploclique['clique_size_limit'],
         MAX_NUM_CLIQUES = config.haploclique['max_num_cliques'],
         OUTPREFIX = "{dataset}/variants/global/quasispecies",
-        HAPLOCLIQUE = config.applications['haploclique']
+        HAPLOCLIQUE = config.applications['haploclique'],
     benchmark:
         "{dataset}/variants/global/haploclique.benchmark"
     threads:
@@ -1086,6 +1097,41 @@ rule haploclique:
         {params.HAPLOCLIQUE}  {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --bam {input} {params.OUTPREFIX}
         """
 
+rule haploclique_visualization:
+    input:
+        BAM = "{dataset}/variants/global/quasispecies.bam",
+        FASTA = "{dataset}/variants/global/quasispecies.fasta",
+    output:
+        BAM = "{dataset}/variants/global/quasispecies.sorted.bam",
+        BAI = "{dataset}/variants/global/quasispecies.sorted.bam.bai",
+        PDF = "{dataset}/variants/global/quasispecies_plot.pdf",
+        TSV = "{dataset}/variants/global/quasispecies_mapping.tsv"
+    params:
+        lsfoutfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
+        lsferrfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
+        scratch = '1250',
+        mem = config.haploclique_visualization['mem'],
+        time = config.haploclique_visualization['time'],
+        REGION_START = config.haploclique_visualization['region_start'],
+        REGION_END = config.haploclique_visualization['region_end'],
+        USE_MSA = '-r' if len(config.haploclique_visualization['msa']) > 0 else '',
+        MSA = config.haploclique_visualization['msa'],
+        INPREFIX = "{dataset}/variants/global/quasispecies",
+        COMPUTE_MDS = config.applications['compute_mds'],
+        SAMTOOLS = config.applications['samtools']
+    conda:
+        config.haploclique_visualization['conda']
+    benchmark:
+         "{dataset}/variants/global/haploclique_visualization.benchmark"
+    threads:
+        1
+    shell:
+        """
+        {params.SAMTOOLS} sort {input.BAM} > {output.BAM}
+        {params.SAMTOOLS} index {output.BAM} 
+        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {output.TSV}
+        """
+
 rule haplocliqueclean:
     params:
         DIR = config.input['datadir']
@@ -1093,3 +1139,4 @@ rule haplocliqueclean:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
         """
+    
