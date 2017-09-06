@@ -1077,7 +1077,7 @@ rule haploclique:
         BAM = "{dataset}/variants/global/quasispecies.bam",
     params:
         lsfoutfile = "{dataset}/variants/global/haploclique.lsfout.log",
-        lsferrfile = "/dev/null",
+        lsferrfile = "{dataset}/variants/global/haploclique.lsferr.log",
         scratch = '1250',
         mem = config.haploclique['mem'],
         time = config.haploclique['time'],
@@ -1094,7 +1094,7 @@ rule haploclique:
         1
     shell:
         """
-        {params.HAPLOCLIQUE}  {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --bam {input} {params.OUTPREFIX}
+        {params.HAPLOCLIQUE} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --bam {input} {params.OUTPREFIX}
         """
 
 rule haploclique_visualization:
@@ -1105,10 +1105,9 @@ rule haploclique_visualization:
         BAM = "{dataset}/variants/global/quasispecies.sorted.bam",
         BAI = "{dataset}/variants/global/quasispecies.sorted.bam.bai",
         PDF = "{dataset}/variants/global/quasispecies_plot.pdf",
-        TSV = "{dataset}/variants/global/quasispecies_mapping.tsv"
     params:
         lsfoutfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
-        lsferrfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
+        lsferrfile = "{dataset}/variants/global/haploclique_visualization.lsferr.log",
         scratch = '1250',
         mem = config.haploclique_visualization['mem'],
         time = config.haploclique_visualization['time'],
@@ -1116,6 +1115,7 @@ rule haploclique_visualization:
         REGION_END = config.haploclique_visualization['region_end'],
         USE_MSA = '-r' if len(config.haploclique_visualization['msa']) > 0 else '',
         MSA = config.haploclique_visualization['msa'],
+        TSV = "{dataset}/variants/global/quasispecies_mapping.tsv",
         INPREFIX = "{dataset}/variants/global/quasispecies",
         COMPUTE_MDS = config.applications['compute_mds'],
         SAMTOOLS = config.applications['samtools']
@@ -1129,7 +1129,7 @@ rule haploclique_visualization:
         """
         {params.SAMTOOLS} sort {input.BAM} > {output.BAM}
         {params.SAMTOOLS} index {output.BAM} 
-        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {output.TSV}
+        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV}
         """
 
 rule haplocliqueclean:
