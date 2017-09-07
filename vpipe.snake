@@ -27,7 +27,7 @@ class VpipeConfig(object):
             'samples_file': __RECORD__(value='samples.tsv', type=str),
             'fastq_suffix': __RECORD__(value='', type=str),
             'trim_cutoff': __RECORD__(value=200, type=float),
-            'reference': __RECORD__(value='HXB2.fasta', type=str),
+            'reference': __RECORD__(value='references/HXB2.fasta', type=str),
         }),
         ('output', {
             'QA': __RECORD__(value=False, type=bool),
@@ -115,7 +115,7 @@ class VpipeConfig(object):
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('convert_to_hxb2', {
+        ('convert_to_ref', {
             'mem': __RECORD__(value=8000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
@@ -293,7 +293,7 @@ IDs = []
 for p in patient_list:
 
     alignments.append(
-        "{sample_dir}/{patient}/{date}/alignments/HXB2_aln.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        "{sample_dir}/{patient}/{date}/alignments/REF_aln.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     if config.output['QA']:
         alignments.append(
             "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
@@ -331,6 +331,20 @@ for p in patient_list:
     all_files = alignments + results
 
 IDs = ','.join(IDs)
+
+# 5. Locate reference and parse reference identifier
+try:
+    if os.path.isfile(config.input['reference']):
+        reference_file = config.input['reference']
+    elif os.path.isfile(os.path.join("references", config.input['reference'])):
+        reference_file = os.path.join("references", config.input['reference'])
+except:
+    print("ERROR: Reference file {} does not exists".format(config.input['reference']))
+    raise
+
+with open(reference_file, 'r') as infile:
+    reference_name = infile.readline().rstrip()
+reference_name = reference_name.split('>')[1]
 
 # DUMMY RULES
 rule all:
@@ -457,7 +471,7 @@ rule trimmingclean:
 # 3. initial consensus sequence
 rule initial_vicuna:
     input:
-        global_ref = "references/{}".format(config.input['reference']),
+        global_ref = reference_file,
         R1 = "{dataset}/preprocessed_data/R1.fastq",
         R2 = "{dataset}/preprocessed_data/R2.fastq"
     output:
@@ -645,7 +659,7 @@ rule vicunaclean:
         rm -rf references/MAFFT_initial_aln.*
         """
 
-# change this to switch between VICUNA and creating a simple (HXB2)
+# change this to switch between VICUNA and creating a simple initial
 # initial reference
 ruleorder:
     create_denovo_initial > create_simple_initial > create_vicuna_initial
@@ -812,7 +826,7 @@ rule coverage_QA:
 def construct_msa_input_files(wildcards):
     output_list = ["{}{}.fasta".format(s, wildcards.kind)
                    for s in references]
-    output_list.append("references/HXB2.fasta")
+    output_list.append(reference_file)
 
     return output_list
 
@@ -850,33 +864,34 @@ rule msaclean:
         """
 
 
-# 6. convert alignments to HXB2 alignment
-rule convert_to_hxb2:
+# 6. convert alignments to REF alignment
+rule convert_to_ref:
     input:
         REF_ambig = "references/ALL_aln_ambig.fasta",
         REF_majority = "references/ALL_aln_majority.fasta",
         BAM = "{dataset}/alignments/full_aln.bam",
         REJECTS_BAM = "{dataset}/alignments/rejects.bam",
     output:
-        "{dataset}/alignments/HXB2_aln.bam"
+        "{dataset}/alignments/REF_aln.bam"
     params:
-        lsfoutfile = "{dataset}/alignments/convert_to_HXB2.lsfout.log",
-        lsferrfile = "{dataset}/alignments/convert_to_HXB2.lsferr.log",
+        lsfoutfile = "{dataset}/alignments/convert_to_ref.lsfout.log",
+        lsferrfile = "{dataset}/alignments/convert_to_ref.lsferr.log",
         scratch = '1250',
-        mem = config.convert_to_hxb2['mem'],
-        time = config.convert_to_hxb2['time'],
+        mem = config.convert_to_ref['mem'],
+        time = config.convert_to_ref['time'],
+        REF_NAME = reference_name,
         CONVERT_REFERENCE = config.applications['convert_reference'],
     conda:
-        config.convert_to_hxb2['conda']
+        config.convert_to_ref['conda']
     benchmark:
-        "{dataset}/alignments/convert_to_HXB2.benchmark"
+        "{dataset}/alignments/convert_to_ref.benchmark"
     threads:
         1
     shadow:
         "shallow"
     shell:
         """
-        {params.CONVERT_REFERENCE} -t HXB2 -m {input.REF_ambig} -i {input.BAM} -o {output}
+        {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output}
         """
 
 
@@ -894,8 +909,8 @@ rule alignclean:
 # 7. Ouptut minor allele frequencies
 rule minor_variants:
     input:
-        REF = "references/{}".format(config.input['reference']),
-        BAM = expand("{dataset}/alignments/HXB2_aln.bam", dataset=datasets),
+        REF = reference_file,
+        BAM = expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
     output:
         VARIANTS = "variants/minority_variants.tsv",
         CONSENSUS = "variants/cohort_consensus.fasta",
@@ -923,7 +938,7 @@ rule minor_variants:
 # 8. Call single nucleotide variants
 rule coverage_intervals:
     input:
-        REF = "references/{}".format(config.input['reference']),
+        REF = reference_file,
         TSV = "variants/coverage.tsv"
     output:
         "variants/coverage_intervals.tsv"
@@ -991,7 +1006,7 @@ rule shorah_regions:
 rule snv:
     input:
         REF = "variants/cohort_consensus.fasta",
-        BAM = "{dataset}/alignments/HXB2_aln.bam",
+        BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
         dynamic("{dataset}/variants/{region}/snv/SNVs_0.010000_final.csv")
@@ -1071,7 +1086,7 @@ rule aggregate:
 
 rule haploclique:
     input:
-        "{dataset}/alignments/HXB2_aln.bam"
+        "{dataset}/alignments/REF_aln.bam"
     output:
         FASTA = "{dataset}/variants/global/quasispecies.fasta",
         BAM = "{dataset}/variants/global/quasispecies.bam",
