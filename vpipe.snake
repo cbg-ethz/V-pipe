@@ -163,7 +163,7 @@ class VpipeConfig(object):
             
             'region_start': __RECORD__(value=0, type=int),
             'region_end': __RECORD__(value=9719, type=int),
-            'msa': __RECORD__(value='', type=str),
+            'msa': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
         })
     ])
 
@@ -1102,8 +1102,6 @@ rule haploclique_visualization:
         BAM = "{dataset}/variants/global/quasispecies.bam",
         FASTA = "{dataset}/variants/global/quasispecies.fasta",
     output:
-        BAM = "{dataset}/variants/global/quasispecies.sorted.bam",
-        BAI = "{dataset}/variants/global/quasispecies.sorted.bam.bai",
         PDF = "{dataset}/variants/global/quasispecies_plot.pdf",
     params:
         lsfoutfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
@@ -1118,7 +1116,6 @@ rule haploclique_visualization:
         TSV = "{dataset}/variants/global/quasispecies_mapping.tsv",
         INPREFIX = "{dataset}/variants/global/quasispecies",
         COMPUTE_MDS = config.applications['compute_mds'],
-        SAMTOOLS = config.applications['samtools']
     conda:
         config.haploclique_visualization['conda']
     benchmark:
@@ -1127,8 +1124,6 @@ rule haploclique_visualization:
         1
     shell:
         """
-        {params.SAMTOOLS} sort {input.BAM} > {output.BAM}
-        {params.SAMTOOLS} index {output.BAM} 
         {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV}
         """
 
