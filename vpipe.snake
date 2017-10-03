@@ -149,7 +149,7 @@ class VpipeConfig(object):
         ('haploclique', {
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=1435, type=int),
-            
+
             'relax': __RECORD__(value=True, type=bool),
             'no_singletons': __RECORD__(value=True, type=bool),
             'no_prob0': __RECORD__(value=True, type=bool),
@@ -160,7 +160,7 @@ class VpipeConfig(object):
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
-            
+
             'region_start': __RECORD__(value=0, type=int),
             'region_end': __RECORD__(value=9719, type=int),
             'msa': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
@@ -190,9 +190,10 @@ class VpipeConfig(object):
                 except (configparser.NoSectionError, configparser.NoOptionError):
                     if value == 'threads' and section != 'general':
                         cur_value = defaults.value if defaults.value else VpipeConfig.__MEMBER_DEFAULT__[
-                                'general']['threads'][0]
+                            'general']['threads'][0]
                     elif value == 'conda':
-                        cur_value = "envs/{}.yaml".format(section) if len(defaults.value) == 0 else defaults.value
+                        cur_value = "envs/{}.yaml".format(section) if len(
+                            defaults.value) == 0 else defaults.value
                     else:
                         cur_value = defaults.value
                     state = 'DEFAULT'
@@ -277,7 +278,7 @@ with open(config.input['samples_file'], newline='') as csvfile:
             # after trimming is less than trim_cutoff * read_length. If snvs
             # are expected as output, third column should be provided
             assert patient_list not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
-                                                      row[0], row[1])
+                row[0], row[1])
             patient_dict[patient_tuple] = int(
                 config.input['trim_cutoff'] * row[3])
 
@@ -339,7 +340,8 @@ try:
     elif os.path.isfile(os.path.join("references", config.input['reference'])):
         reference_file = os.path.join("references", config.input['reference'])
 except:
-    print("ERROR: Reference file {} does not exists".format(config.input['reference']))
+    print("ERROR: Reference file {} does not exists".format(
+        config.input['reference']))
     raise
 
 with open(reference_file, 'r') as infile:
@@ -380,6 +382,10 @@ rule gunzip:
 def construct_input_fastq(wildcards):
     inferred_values = glob_wildcards(
         wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq.gz")
+    if len(inferred_values.file) == 0:
+        inferred_values = glob_wildcards(
+            wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
+
     list_output = []
 
     for i in inferred_values.file:
@@ -962,7 +968,8 @@ rule coverage_intervals:
             if os.path.exists(read_len):
                 with open(read_len, 'r') as infile:
                     read_len = int(infile.readline().rstrip())
-                    window_shifts = int((read_len * 4/5 + params.SHIFT) / params.SHIFT)
+                    window_shifts = int(
+                        (read_len * 4 / 5 + params.SHIFT) / params.SHIFT)
                     aux = window_shifts * params.SHIFT
             else:
                 aux = 201
@@ -972,14 +979,16 @@ rule coverage_intervals:
             else:
                 window_len = window_len + ',' + aux
 
-        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -N {params.NAMES} -w " + str(window_len) + " -o {output}")
+        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -N {params.NAMES} -w " +
+              str(window_len) + " -o {output}")
 
 
 rule shorah_regions:
     input:
         "variants/coverage_intervals.tsv"
     output:
-        temp(expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
+        temp(
+            expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
     params:
         lsfoutfile = "/dev/null",
         lsferrfile = "/dev/null",
@@ -1031,7 +1040,7 @@ rule snv:
         else:
             read_len = 250
 
-        window_shifts = int((read_len * 4/5 + params.SHIFT) / params.SHIFT)
+        window_shifts = int((read_len * 4 / 5 + params.SHIFT) / params.SHIFT)
         window_len = window_shifts * params.SHIFT
 
         # run shorah in each of the predetermined regions
@@ -1043,7 +1052,8 @@ rule snv:
 
                 linecounter += 1
                 # Create directory for running shorah in a corresponding window
-                dir = os.path.join(cwd, wildcards.dataset, "variants", ''.join(("TMP", str(linecounter))))
+                dir = os.path.join(cwd, wildcards.dataset, "variants", ''.join(
+                    ("TMP", str(linecounter))))
                 if not os.path.exists(dir):
                     os.makedirs(dir)
                 os.chdir(dir)
@@ -1053,11 +1063,11 @@ rule snv:
                 bam = os.path.join(cwd, input.BAM)
 
                 args = {
-                    'BAM' : bam,
-                    'REF' : ref,
-                    'WINDOW_LEN' : str(window_len),
-                    'REGION' : region,
-                    'SHORAH' : params.SHORAH
+                    'BAM': bam,
+                    'REF': ref,
+                    'WINDOW_LEN': str(window_len),
+                    'REGION': region,
+                    'SHORAH': params.SHORAH
                 }
                 shell("""
                 {SHORAH} -w {WINDOW_LEN} -x 100000 -r {REGION} -S 42 -b {BAM} -f {REF}
@@ -1096,7 +1106,8 @@ rule haploclique:
         scratch = '1250',
         mem = config.haploclique['mem'],
         time = config.haploclique['time'],
-        RELAX = '--edge_quasi_cutoff_cliques=0.85 --edge_quasi_cutoff_mixed=0.85 --edge_quasi_cutoff_single=0.8 --min_overlap_cliques=0.6 --min_overlap_single=0.5' if config.haploclique['relax'] else '',
+        RELAX = '--edge_quasi_cutoff_cliques=0.85 --edge_quasi_cutoff_mixed=0.85 --edge_quasi_cutoff_single=0.8 --min_overlap_cliques=0.6 --min_overlap_single=0.5' if config.haploclique[
+            'relax'] else '',
         NO_SINGLETONS = '--no_singletons' if config.haploclique['no_singletons'] else '',
         NO_PROB0 = '--no_prob0' if config.haploclique['no_prob0'] else '',
         CLIQUE_SIZE_LIMIT = config.haploclique['clique_size_limit'],
@@ -1126,7 +1137,8 @@ rule haploclique_visualization:
         time = config.haploclique_visualization['time'],
         REGION_START = config.haploclique_visualization['region_start'],
         REGION_END = config.haploclique_visualization['region_end'],
-        USE_MSA = '-r' if len(config.haploclique_visualization['msa']) > 0 else '',
+        USE_MSA = '-r' if len(
+            config.haploclique_visualization['msa']) > 0 else '',
         MSA = config.haploclique_visualization['msa'],
         TSV = "{dataset}/variants/global/quasispecies_mapping.tsv",
         INPREFIX = "{dataset}/variants/global/quasispecies",
@@ -1134,7 +1146,7 @@ rule haploclique_visualization:
     conda:
         config.haploclique_visualization['conda']
     benchmark:
-         "{dataset}/variants/global/haploclique_visualization.benchmark"
+        "{dataset}/variants/global/haploclique_visualization.benchmark"
     threads:
         1
     shell:
@@ -1149,4 +1161,3 @@ rule haplocliqueclean:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
         """
-    
