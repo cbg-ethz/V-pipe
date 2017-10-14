@@ -129,10 +129,9 @@ class VpipeConfig(object):
         ('coverage_intervals', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=60, type=int),
-        }),
-        ('shorah_regions', {
-            'mem': __RECORD__(value=1000, type=int),
-            'time': __RECORD__(value=20, type=int),
+
+            'coverage': __RECORD__(value=50, type=int),
+            'liberal':__RECORD__(value=True, type=bool),
         }),
         ('snv', {
             'mem': __RECORD__(value=10000, type=int),
@@ -141,6 +140,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'shift': __RECORD__(value=3, type=int),
+            'keep_files': __RECORD__(value=False, type=bool),
         }),
         ('aggregate', {
             'mem': __RECORD__(value=2000, type=int),
@@ -159,11 +159,11 @@ class VpipeConfig(object):
         ('haploclique_visualization', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
-            'conda': __RECORD__(value='', type=str),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
 
             'region_start': __RECORD__(value=0, type=int),
             'region_end': __RECORD__(value=9719, type=int),
-            'msa': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
+            'msa': __RECORD__(value='', type=str),
         })
     ])
 
@@ -189,8 +189,8 @@ class VpipeConfig(object):
                     state = 'user'
                 except (configparser.NoSectionError, configparser.NoOptionError):
                     if value == 'threads' and section != 'general':
-                        cur_value = defaults.value if defaults.value else VpipeConfig.__MEMBER_DEFAULT__[
-                            'general']['threads'][0]
+                        cur_value = defaults.value if defaults.value else self.__members[
+                            'general']['threads']
                     elif value == 'conda':
                         cur_value = "envs/{}.yaml".format(section) if len(
                             defaults.value) == 0 else defaults.value
@@ -385,13 +385,12 @@ def construct_input_fastq(wildcards):
     if len(inferred_values.file) == 0:
         inferred_values = glob_wildcards(
             wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
-
+    
     list_output = []
 
     for i in inferred_values.file:
         list_output.append(wildcards.dataset + "/raw_data/" +
                            i + "R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
-
     return list_output
 
 
@@ -950,12 +949,14 @@ rule coverage_intervals:
         "variants/coverage_intervals.tsv"
     params:
         lsfoutfile = "variants/coverage_intervals.lsfout.log",
-        lsferrfile = "/dev/null",
+        lsferrfile = "variants/coverage_intervals.lsfout.log",
         scratch = '1250',
         mem = config.coverage_intervals['mem'],
         time = config.coverage_intervals['time'],
+        COVERAGE = config.coverage_intervals['coverage'],
         SHIFT = config.snv['shift'],
         NAMES = IDs,
+        LIBERAL = '-e' if config.coverage_intervals['liberal'] else '', 
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
     benchmark:
         'variants/coverage_intervals.benchmark'
@@ -979,10 +980,10 @@ rule coverage_intervals:
             else:
                 window_len = window_len + ',' + aux
 
-        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -N {params.NAMES} -w " +
-              str(window_len) + " -o {output}")
+        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w " + str(window_len) + " -N {params.NAMES} {params.LIBERAL} -o {output}")
 
-
+localrules:
+    shorah_regions
 rule shorah_regions:
     input:
         "variants/coverage_intervals.tsv"
@@ -993,8 +994,6 @@ rule shorah_regions:
         lsfoutfile = "/dev/null",
         lsferrfile = "/dev/null",
         scratch = '1250',
-        mem = config.shorah_regions['mem'],
-        time = config.shorah_regions['time']
     threads:
         1
     run:
@@ -1018,17 +1017,18 @@ rule snv:
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
-        dynamic("{dataset}/variants/{region}/snv/SNVs_0.010000_final.csv")
+        dynamic("{dataset}/variants/SNVs/{region}/snv/SNVs_0.010000_final.csv")
     params:
-        lsfoutfile = "{dataset}/variants/shorah.lsfout.log",
-        lsferrfile = "{dataset}/variants/shorah.lsferr.log",
+        lsfoutfile = "{dataset}/variants/SNVs/shorah.lsfout.log",
+        lsferrfile = "{dataset}/variants/SNVs/shorah.lsferr.log",
         scratch = '1250',
         mem = config.snv['mem'],
         time = config.snv['time'],
         SHIFT = config.snv['shift'],
+        KEEP_FILES = config.snv['keep_files'], 
         SHORAH = config.applications['shorah']
     benchmark:
-        "{dataset}/variants/shorah.benchmark"
+        "{dataset}/variants/SNVs/shorah.benchmark"
     threads:
         config.snv['threads']
     run:
@@ -1046,42 +1046,57 @@ rule snv:
         # run shorah in each of the predetermined regions
         cwd = os.getcwd()
         linecounter = 0
-        with open(input.TSV, 'r') as infile:
-            for line in infile:
-                region = line.rstrip()
+        if os.path.isfile(input.TSV) and os.path.getsize(input.TSV) > 0:
+            with open(input.TSV, 'r') as infile:
+                for line in infile:
+                    region = line.rstrip()
 
-                linecounter += 1
-                # Create directory for running shorah in a corresponding window
-                dir = os.path.join(cwd, wildcards.dataset, "variants", ''.join(
-                    ("TMP", str(linecounter))))
-                if not os.path.exists(dir):
-                    os.makedirs(dir)
-                os.chdir(dir)
+                    linecounter += 1
+                    # Create directory for running shorah in a corresponding window
+                    dir = os.path.join(cwd, wildcards.dataset, "variants", "SNVs", ''.join(
+                        ("TMP", str(linecounter))))
+                    if not os.path.exists(dir):
+                        os.makedirs(dir)
+                    else:
+                        if not params.KEEP_FILES:
+                            dir_dst = os.path.join(
+                                cwd, wildcards.dataset, "variants", "SNVs", ''.join(("old", str(linecounter))))
+                            os.rename(dir, dir_dst)
+                            os.makedirs(dir)
+                    os.chdir(dir)
 
-                # Get absolute paths for input files
-                ref = os.path.join(cwd, input.REF)
-                bam = os.path.join(cwd, input.BAM)
+                    # Get absolute paths for input files
+                    ref = os.path.join(cwd, input.REF)
+                    bam = os.path.join(cwd, input.BAM)
 
-                args = {
-                    'BAM': bam,
-                    'REF': ref,
-                    'WINDOW_LEN': str(window_len),
-                    'REGION': region,
-                    'SHORAH': params.SHORAH
-                }
-                shell("""
-                {SHORAH} -w {WINDOW_LEN} -x 100000 -r {REGION} -S 42 -b {BAM} -f {REF}
-                """.format(**args))
-                os.chdir(cwd)
+                    args = {
+                        'BAM': bam,
+                        'REF': ref,
+                        'WINDOW_LEN': str(window_len),
+                        'REGION': region,
+                        'SHORAH': params.SHORAH
+                    }
+                    shell("""
+                    {SHORAH} -w {WINDOW_LEN} -x 100000 -r {REGION} -S 42 -b {BAM} -f {REF}
+                    """.format(**args))
+                    os.chdir(cwd)
+        else:
+            outdir = os.path.join(cwd, wildcards.dataset,
+                                  "variants", "SNVs", "TMP1", "snv")
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+            outfile = os.path.join(outdir, "SNVs_0.010000_final.csv")
+            with open(outfile, 'a'):
+                os.utime(outfile, None)
 
 rule aggregate:
     input:
-        dynamic("{dataset}/variants/{region}/snv/SNVs_0.010000_final.csv")
+        dynamic("{dataset}/variants/SNVs/{region}/snv/SNVs_0.010000_final.csv")
     output:
         "{dataset}/variants/SNVs/snvs.csv"
     params:
         lsfoutfile = "{dataset}/variants/aggregate.lsfout.log",
-        lsferrfile = "/dev/null",
+        lsferrfile = "{dataset}/variants/aggregate.lsfout.log",
         scratch = '1250',
         mem = config.aggregate['mem'],
         time = config.aggregate['time'],
@@ -1092,6 +1107,14 @@ rule aggregate:
         array=( {input} )
         num_files=( ${{#array[@]}} )
         cat {input} | sort -t, -nk2 | tail -n +${{num_files}} > {output}
+        """
+
+rule snvclean:
+    params:
+        DIR = config.input['datadir']
+    shell:
+        """
+        rm -rf {params.DIR}/*/*/variants/SNVs
         """
 
 rule haploclique:
