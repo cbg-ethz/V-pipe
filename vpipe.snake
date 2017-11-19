@@ -131,7 +131,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=60, type=int),
 
             'coverage': __RECORD__(value=50, type=int),
-            'liberal':__RECORD__(value=True, type=bool),
+            'liberal': __RECORD__(value=True, type=bool),
         }),
         ('snv', {
             'mem': __RECORD__(value=10000, type=int),
@@ -385,7 +385,7 @@ def construct_input_fastq(wildcards):
     if len(inferred_values.file) == 0:
         inferred_values = glob_wildcards(
             wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
-    
+
     list_output = []
 
     for i in inferred_values.file:
@@ -527,19 +527,20 @@ rule initial_vicuna:
         rm mapped.bam
 
         # 6. create config file
-        cat > vicuna_config.txt <<- _EOF_
-                minMSize    9
-                maxOverhangSize    2
-                Divergence    8
-                max_read_overhang    2
-                max_contig_overhang    10
-                pFqDir    cleaned/
-                batchSize    100000
-                LibSizeLowerBound    100
-                LibSizeUpperBound    800
-                min_output_contig_len    1000
-                outputDIR    ./
-        _EOF_
+        # NOTE: Tabs are required below
+		cat > vicuna_config.txt <<- _EOF_
+			minMSize	9
+			maxOverhangSize	2
+			Divergence	8
+			max_read_overhang	2
+			max_contig_overhang	10
+			pFqDir	cleaned/
+			batchSize	100000
+			LibSizeLowerBound	100
+			LibSizeUpperBound	800
+			min_output_contig_len	1000
+			outputDIR	./
+		_EOF_
 
         # 7. VICUNA
         OMP_NUM_THREADS={threads} {params.VICUNA} vicuna_config.txt
@@ -956,7 +957,7 @@ rule coverage_intervals:
         COVERAGE = config.coverage_intervals['coverage'],
         SHIFT = config.snv['shift'],
         NAMES = IDs,
-        LIBERAL = '-e' if config.coverage_intervals['liberal'] else '', 
+        LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
     benchmark:
         'variants/coverage_intervals.benchmark'
@@ -980,7 +981,8 @@ rule coverage_intervals:
             else:
                 window_len = window_len + ',' + aux
 
-        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w " + str(window_len) + " -N {params.NAMES} {params.LIBERAL} -o {output}")
+        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w " +
+              str(window_len) + " -N {params.NAMES} {params.LIBERAL} -o {output}")
 
 localrules:
     shorah_regions
@@ -1025,7 +1027,7 @@ rule snv:
         mem = config.snv['mem'],
         time = config.snv['time'],
         SHIFT = config.snv['shift'],
-        KEEP_FILES = config.snv['keep_files'], 
+        KEEP_FILES = config.snv['keep_files'],
         SHORAH = config.applications['shorah']
     benchmark:
         "{dataset}/variants/SNVs/shorah.benchmark"
