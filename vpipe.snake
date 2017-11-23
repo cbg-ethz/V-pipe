@@ -923,7 +923,7 @@ rule minor_variants:
         COVERAGE = "variants/coverage.tsv"
     params:
         lsfoutfile = "variants/minority_variants.lsfout.log",
-        lsferrfile = "/dev/null",
+        lsferrfile = "variants/minority_variants.lsfout.log",
         scratch = '1250',
         mem = config.minor_variants['mem'],
         time = config.minor_variants['time'],
