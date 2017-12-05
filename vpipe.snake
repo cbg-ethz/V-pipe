@@ -149,6 +149,7 @@ class VpipeConfig(object):
         ('haploclique', {
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=1435, type=int),
+            'conda': __RECORD__(value='', type=str),
 
             'relax': __RECORD__(value=True, type=bool),
             'no_singletons': __RECORD__(value=True, type=bool),
@@ -1139,6 +1140,8 @@ rule haploclique:
         MAX_NUM_CLIQUES = config.haploclique['max_num_cliques'],
         OUTPREFIX = "{dataset}/variants/global/quasispecies",
         HAPLOCLIQUE = config.applications['haploclique'],
+    conda:
+        config.haploclique['conda']
     benchmark:
         "{dataset}/variants/global/haploclique.benchmark"
     threads:
