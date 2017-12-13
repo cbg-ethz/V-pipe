@@ -39,6 +39,9 @@ class VpipeConfig(object):
             'gunzip': __RECORD__(value="gunzip", type=str),
             'prinseq': __RECORD__(value="prinseq-lite.pl", type=str),
             'vicuna': __RECORD__(value="vicuna", type=str),
+            'indelfixer': __RECORD__(value="IndelFixer.jar", type=str),
+            'consensusfixer': __RECORD__(value="ConsensusFixer.jar", type=str),
+            'picard': __RECORD__(value="picard", type=str),
             'bwa': __RECORD__(value="bwa", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
@@ -490,6 +493,9 @@ rule initial_vicuna:
         time = config.initial_vicuna['time'],
         VICUNA = config.applications['vicuna'],
         BWA = config.applications['bwa'],
+        INDELFIXER = config.applications['indelfixer'],
+        CONSENSUSFIXER = config.applications['consensusfixer'],
+        PICARD = config.applications['picard'],
         SAMTOOLS = config.applications['samtools'],
         WORK_DIR = "{dataset}/initial_consensus",
     conda:
@@ -524,7 +530,7 @@ rule initial_vicuna:
 
         # 5. extract reads
         mkdir -p cleaned
-        SamToFastq I=mapped.bam FASTQ=cleaned/R1.fastq SECOND_END_FASTQ=cleaned/R2.fastq VALIDATION_STRINGENCY=SILENT
+        SamToFastq {params.PICARD} I=mapped.bam FASTQ=cleaned/R1.fastq SECOND_END_FASTQ=cleaned/R2.fastq VALIDATION_STRINGENCY=SILENT
         rm mapped.bam
 
         # 6. create config file
@@ -555,9 +561,9 @@ rule initial_vicuna:
         for i in {{1..3}}
         do
                 mv consensus.fasta old_consensus.fasta
-                InDelFixer -i contig_clean.fasta -g old_consensus.fasta
-                sam2bam reads.sam
-                ConsensusFixer -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01
+                InDelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta
+                sam2bam {params.SAMTOOLS} reads.sam
+                ConsensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01
         done
 
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" consensus.fasta
@@ -743,7 +749,7 @@ rule sam2bam:
         """
         # convert sam -> bam
         source functions.sh
-        sam2bam {input}
+        sam2bam {params.SAMTOOLS} {input}
         """
 
 # 4a. align against 5VM as a QA check

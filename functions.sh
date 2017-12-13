@@ -1,44 +1,44 @@
 
 sortbam() {
-	STEM=${1%.bam}
+	STEM=${2%.bam}
 	RAND_NUM="${RANDOM}"
 
-	OLD="$(dirname ${1})/old_${RAND_NUM}.bam"
-	TEMP="$(dirname ${1})/temp_${RAND_NUM}"
+	OLD="$(dirname ${2})/old_${RAND_NUM}.bam"
+	TEMP="$(dirname ${2})/temp_${RAND_NUM}"
 
-	mv "${1}" "${OLD}"
+	mv "${2}" "${OLD}"
 	echo "Sorting BAM file"
-	samtools sort -o "${1}" -O bam -T "${TEMP}" "${OLD}"
+	$1 sort -o "${2}" -O bam -T "${TEMP}" "${OLD}"
 
 	echo "Indexing BAM file"
-	samtools index "${1}"
+	samtools index "${2}"
 	rm "${OLD}"
 }
 
 sam2bam() {
-	STEM=${1%.sam}
+	STEM=${2%.sam}
 	echo "Writing BAM file"
-	samtools view -bS "${STEM}.sam" > "${STEM}.bam"
-	sortbam "${STEM}.bam"
+	$1 view -bS "${STEM}.sam" > "${STEM}.bam"
+	sortbam $1 "${STEM}.bam"
 }
 
 bam2sam() {
-	STEM=${1%.bam}
-	samtools view -h "${STEM}.bam" > "${STEM}.sam"
+	STEM=${2%.bam}
+	$1 view -h "${STEM}.bam" > "${STEM}.sam"
 }
 
 InDelFixer() {
-	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar /cluster/work/bewi/modules/InDelFixer/current/InDelFixer.jar $@
+	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
 }
 
 ConsensusFixer() {
-	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar /cluster/work/bewi/modules/ConsensusFixer/current/ConsensusFixer.jar $@
+	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
 }
 
 QuasiRecomb() {
-	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx55G -jar /cluster/work/bewi/modules/QuasiRecomb/QuasiRecomb.jar $@
+	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx55G -jar $@
 }
 
 SamToFastq() {
-	java -jar /cluster/work/bewi/modules/picard/current/picard.jar SamToFastq $@
+	java -jar $1 SamToFastq ${@:2}
 }
