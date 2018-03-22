@@ -101,7 +101,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=30, type=int),
             'conda': __RECORD__(value='', type=str),
         }),
-        ('bwa_align', {
+        ('bwa_QA', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
@@ -326,7 +326,7 @@ for p in patient_list:
     # local haplotypes
     if config.output['local']:
         results.append(
-            "{sample_dir}/{patient}/{date}/variants/local/snvs.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/variants/local/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # global haplotypes
     if config.output['global']:
         results.append(
@@ -351,6 +351,7 @@ except:
 with open(reference_file, 'r') as infile:
     reference_name = infile.readline().rstrip()
 reference_name = reference_name.split('>')[1]
+reference_name = reference_name.split(' ')[0]
 
 # DUMMY RULES
 rule all:
@@ -753,7 +754,7 @@ rule sam2bam:
         """
 
 # 4a. align against 5VM as a QA check
-rule bwa_align:
+rule bwa_QA:
     input:
         patient_ref = "{dataset}/references/ref_{kind}.fasta",
         virusmix_ref = "references/5-Virus-Mix.fasta",
@@ -766,16 +767,16 @@ rule bwa_align:
         lsfoutfile = "{dataset}/QA_alignments/bwa_{kind}.lsfout.log",
         lsferrfile = "{dataset}/QA_alignments/bwa_{kind}.lsferr.log",
         scratch = '1250',
-        mem = config.bwa_align['mem'],
-        time = config.bwa_align['time'],
+        mem = config.bwa_QA['mem'],
+        time = config.bwa_QA['time'],
         BWA = config.applications['bwa'],
         MAFFT = config.applications['mafft'],
     conda:
-        config.bwa_align['conda']
+        config.bwa_QA['conda']
     benchmark:
         "{dataset}/QA_alignments/bwa_{kind}.benchmark"
     threads:
-        config.bwa_align['threads']
+        config.bwa_QA['threads']
     shell:
         """
         # 1. cleanup old run
@@ -1026,7 +1027,7 @@ rule snv:
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
-        dynamic("{dataset}/variants/SNVs/{region}/snv/SNVs_0.010000_final.csv")
+        "{dataset}/variants/SNVs/snvs.csv"
     params:
         lsfoutfile = "{dataset}/variants/SNVs/shorah.lsfout.log",
         lsferrfile = "{dataset}/variants/SNVs/shorah.lsferr.log",
@@ -1034,88 +1035,85 @@ rule snv:
         mem = config.snv['mem'],
         time = config.snv['time'],
         SHIFT = config.snv['shift'],
-        KEEP_FILES = config.snv['keep_files'],
+        KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
+        WORK_DIR = "{dataset}/variants/SNVs",
         SHORAH = config.applications['shorah']
+    conda:
+        config.snv['conda']
     benchmark:
         "{dataset}/variants/SNVs/shorah.benchmark"
     threads:
         config.snv['threads']
-    run:
-        read_len = os.path.join(wildcards.dataset, "raw_data", "read_length")
-        if os.path.exists(read_len):
-            with open(read_len, 'r') as infile:
-                read_len = infile.readline().rstrip()
-                read_len = int(read_len)
-        else:
-            read_len = 250
-
-        window_shifts = int((read_len * 4 / 5 + params.SHIFT) / params.SHIFT)
-        window_len = window_shifts * params.SHIFT
-
-        # run shorah in each of the predetermined regions
-        cwd = os.getcwd()
-        linecounter = 0
-        if os.path.isfile(input.TSV) and os.path.getsize(input.TSV) > 0:
-            with open(input.TSV, 'r') as infile:
-                for line in infile:
-                    region = line.rstrip()
-
-                    linecounter += 1
-                    # Create directory for running shorah in a corresponding window
-                    dir = os.path.join(cwd, wildcards.dataset, "variants", "SNVs", ''.join(
-                        ("TMP", str(linecounter))))
-                    if not os.path.exists(dir):
-                        os.makedirs(dir)
-                    else:
-                        if not params.KEEP_FILES:
-                            dir_dst = os.path.join(
-                                cwd, wildcards.dataset, "variants", "SNVs", ''.join(("old", str(linecounter))))
-                            os.rename(dir, dir_dst)
-                            os.makedirs(dir)
-                    os.chdir(dir)
-
-                    # Get absolute paths for input files
-                    ref = os.path.join(cwd, input.REF)
-                    bam = os.path.join(cwd, input.BAM)
-
-                    args = {
-                        'BAM': bam,
-                        'REF': ref,
-                        'WINDOW_LEN': str(window_len),
-                        'REGION': region,
-                        'SHORAH': params.SHORAH
-                    }
-                    shell("""
-                    {SHORAH} -w {WINDOW_LEN} -x 100000 -r {REGION} -S 42 -b {BAM} -f {REF}
-                    """.format(**args))
-                    os.chdir(cwd)
-        else:
-            outdir = os.path.join(cwd, wildcards.dataset,
-                                  "variants", "SNVs", "TMP1", "snv")
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
-            outfile = os.path.join(outdir, "SNVs_0.010000_final.csv")
-            with open(outfile, 'a'):
-                os.utime(outfile, None)
-
-rule aggregate:
-    input:
-        dynamic("{dataset}/variants/SNVs/{region}/snv/SNVs_0.010000_final.csv")
-    output:
-        "{dataset}/variants/SNVs/snvs.csv"
-    params:
-        lsfoutfile = "{dataset}/variants/aggregate.lsfout.log",
-        lsferrfile = "{dataset}/variants/aggregate.lsfout.log",
-        scratch = '1250',
-        mem = config.aggregate['mem'],
-        time = config.aggregate['time'],
-    threads:
-        1
     shell:
         """
-        array=( {input} )
-        num_files=( ${{#array[@]}} )
-        cat {input} | sort -t, -nk2 | tail -n +${{num_files}} > {output}
+        if [[ -f {wildcards.dataset}/raw_data/read_length ]]; then
+            READ_LEN=$(cat {wildcards.dataset}/raw_data/read_length)
+        else
+            READ_LEN=250
+        fi
+        let "WINDOW_SHIFTS=(READ_LEN * 4/5 + {params.SHIFT}) / {params.SHIFT}"
+        let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
+
+        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp"
+        echo "The window length is: ${{WINDOW_LEN}} bp"
+
+        # Get absolute path for input files
+        CWD=${{PWD}}
+        BAM=${{PWD}}/{input.BAM}
+        REF=${{PWD}}/{input.REF}
+        WORK_DIR=${{PWD}}/{params.WORK_DIR}
+
+        # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
+        LINE_COUNTER=0
+        FILES=""
+        while read -r region || [[ -n ${{region}} ]]
+        do
+            echo "Running ShoRAH on region: ${{region}}"
+            LINE_COUNTER=$(( $LINE_COUNTER + 1))
+            # Create directory for running ShoRAH in a corresponding region (if doesn't exist)
+            DIR=${{WORK_DIR}}/REGION_${{LINE_COUNTER}}
+            if [[ ! -d "${{DIR}}" ]]; then
+                echo "Creating directory ${{DIR}}"
+                mkdir -p ${{DIR}}
+            else
+                # Results from previous runs
+                if {params.KEEP_FILES}; then
+                    DIR_DST=${{WORK_DIR}}/old
+                    echo "Moving results from a previous run to ${{DIR_DST}}"
+                    rm -rf ${{DIR_DST}}/REGION_${{LINE_COUNTER}}
+                    mkdir -p ${{DIR_DST}}
+                    mv -f ${{DIR}} ${{DIR_DST}}
+                    mkdir -p ${{DIR}}
+                fi
+            fi
+            # Change to the directory where ShoRAH is to be executed
+            cd ${{DIR}}
+
+            {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -S 42 -b ${{BAM}} -f ${{REF}}
+            if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
+                FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
+            else
+                echo "ERROR: unsuccesful execution of ShoRAH"
+                exit 1
+            fi
+
+            # Change back to working directory
+            cd ${{CWD}}
+        done < {input.TSV}
+
+        # Aggregate results from different regions
+        if [[ -z ${{FILES}} ]]; then
+            if [[ ${{LINE_COUNTER}} > 0 ]]; then
+                echo "ERROR: unsuccesful execution of ShoRAH"
+                exit 1
+            else
+                echo "No alignment region reports sufficient coverage"
+                touch {output}
+            fi
+        else
+            echo "Intermediate files: ${{FILES}}"
+            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output}
+        fi
         """
 
 rule snvclean:
