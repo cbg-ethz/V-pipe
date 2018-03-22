@@ -26,7 +26,7 @@ class VpipeConfig(object):
             'datadir': __RECORD__(value='samples', type=str),
             'samples_file': __RECORD__(value='samples.tsv', type=str),
             'fastq_suffix': __RECORD__(value='', type=str),
-            'trim_cutoff': __RECORD__(value=200, type=float),
+            'trim_percent_cutoff': __RECORD__(value=0.8, type=float),
             'reference': __RECORD__(value='references/HXB2.fasta', type=str),
         }),
         ('output', {
@@ -132,7 +132,8 @@ class VpipeConfig(object):
         ('coverage_intervals', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=60, type=int),
-
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
+            
             'coverage': __RECORD__(value=50, type=int),
             'liberal': __RECORD__(value=True, type=bool),
         }),
@@ -263,28 +264,20 @@ with open(config.input['samples_file'], newline='') as csvfile:
         patient_tuple = patient_record(patient_id=row[0], date=row[1])
         patient_list.append(patient_tuple)
 
-        if len(row) == 2:
-            # All samples are assumed to have same read length and 'trim_cutoff'
-            # must correspond to the threshold value in the length of the reads
-            # after quality trimming
-            assert config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be larger than 1, whereas 'trim_cutoff'={}".format(
-                config.input['trim_cutoff'])
+        assert config.input['trim_percent_cutoff'] > 0 and config.input['trim_percent_cutoff'] < 1, "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
+            config.input['trim_percent_cutoff'])
+        assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
+            row[0], row[1])
 
-            assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
-                                                      row[0], row[1])
-            patient_dict[patient_tuple] = int(config.input['trim_cutoff'])
+        if len(row) == 2:
+            # All samples are assumed to have same read length and the default, 250 bp
+            patient_dict[patient_tuple] = 250
 
         elif len(row) == 3:
-            assert config.input['trim_cutoff'] < 0 or config.input['trim_cutoff'] > 1, "ERROR: 'trim_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_cutoff'={}".format(
-                config.input['trim_cutoff'])
             # Extract read length from input.samples_file. Samples may have
             # different read lengths. Reads will be filtered out if read length
-            # after trimming is less than trim_cutoff * read_length. If snvs
-            # are expected as output, third column should be provided
-            assert patient_list not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
-                row[0], row[1])
-            patient_dict[patient_tuple] = int(
-                config.input['trim_cutoff'] * row[3])
+            # after trimming is less than trim_cutoff * read_length.
+            patient_dict[patient_tuple] = int(row[2])
 
 # 4. generate list of target files
 all_files = []
@@ -429,6 +422,16 @@ rule extractclean:
 
 
 # 2. clipping
+def len_cutoff(wildcards):
+    parts = wildcards.dataset.split('/')
+    patient_ID = parts[1]
+    date = parts[2]
+    patient_tuple = patient_record(patient_id=patient_ID, date=date)
+    read_len = patient_dict[patient_tuple]
+    len_cutoff = int(config.input['trim_percent_cutoff'] * read_len)
+    return len_cutoff
+
+
 rule preprocessing:
     input:
         R1 = "{dataset}/extracted_data/R1.fastq",
@@ -442,6 +445,7 @@ rule preprocessing:
         scratch = '2000',
         mem = config.preprocessing['mem'],
         time = config.preprocessing['time'],
+        LEN_CUTOFF = len_cutoff,
         PRINSEQ = config.applications['prinseq'],
     conda:
         config.preprocessing['conda']
@@ -451,15 +455,9 @@ rule preprocessing:
         1
     shell:
         """
-        if [[ -f {wildcards.dataset}/raw_data/length_cutoff ]]; then
-                CUTOFF=$(cat {wildcards.dataset}/raw_data/length_cutoff)
-        else
-                CUTOFF=200
-        fi
+        echo "The length cutoff is: {params.LEN_CUTOFF}"
 
-        echo "The length cutoff is: ${{CUTOFF}}"
-
-        {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len ${{CUTOFF}}
+        {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF}
 
         mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
         mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
@@ -918,6 +916,7 @@ rule alignclean:
         rm -rf {params.DIR}/*/*/QA_alignments
         rm -rf {params.DIR}/*/*/references/ref_ambig.fasta
         rm -rf {params.DIR}/*/*/references/ref_majority.fasta
+        rm -rf {params.DIR}/*/*/references/initial_consensus.fasta
         """
 
 # 7. Ouptut minor allele frequencies
@@ -950,6 +949,17 @@ rule minor_variants:
         """
 
 # 8. Call single nucleotide variants
+def window_lengths(wildcards):
+    window_len = []
+    for p in patient_list:
+        read_len = patient_dict[p]
+        aux = int((read_len * 4/5 + config.snv['shift']) /  config.snv['shift'])
+        window_len.append(str(aux * config.snv['shift']))
+
+    window_len = ','.join(window_len)
+    return window_len
+
+
 rule coverage_intervals:
     input:
         REF = reference_file,
@@ -962,35 +972,22 @@ rule coverage_intervals:
         scratch = '1250',
         mem = config.coverage_intervals['mem'],
         time = config.coverage_intervals['time'],
+        WINDOW_LEN = window_lengths,
         COVERAGE = config.coverage_intervals['coverage'],
         SHIFT = config.snv['shift'],
         NAMES = IDs,
         LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
+    conda:
+        config.coverage_intervals['conda']
     benchmark:
         'variants/coverage_intervals.benchmark'
     threads:
         1
-    run:
-        window_len = ''
-        for d in datasets:
-            read_len = os.path.join(d, "raw_data", "read_length")
-            if os.path.exists(read_len):
-                with open(read_len, 'r') as infile:
-                    read_len = int(infile.readline().rstrip())
-                    window_shifts = int(
-                        (read_len * 4 / 5 + params.SHIFT) / params.SHIFT)
-                    aux = window_shifts * params.SHIFT
-            else:
-                aux = 201
-            aux = str(aux)
-            if len(window_len) == 0:
-                window_len = aux
-            else:
-                window_len = window_len + ',' + aux
-
-        shell("{params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w " +
-              str(window_len) + " -N {params.NAMES} {params.LIBERAL} -o {output}")
+    shell:
+        """
+        {params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w {params.WINDOW_LEN} -N {params.NAMES} {params.LIBERAL} -o {output}
+        """
 
 localrules:
     shorah_regions
@@ -1021,6 +1018,16 @@ rule shorah_regions:
                 with open(os.path.join(config.input['datadir'], patientID, sample_date, "variants", "coverage_intervals.tsv"), 'w') as outfile:
                     outfile.write('\n'.join(regions))
 
+
+def read_len(wildcards):
+    parts = wildcards.dataset.split('/')
+    patient_ID = parts[1]
+    date = parts[2]
+    patient_tuple = patient_record(patient_id=patient_ID, date=date)
+    read_len = patient_dict[patient_tuple]
+    return read_len
+
+
 rule snv:
     input:
         REF = "variants/cohort_consensus.fasta",
@@ -1034,6 +1041,7 @@ rule snv:
         scratch = '1250',
         mem = config.snv['mem'],
         time = config.snv['time'],
+        READ_LEN = read_len,
         SHIFT = config.snv['shift'],
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
@@ -1046,12 +1054,7 @@ rule snv:
         config.snv['threads']
     shell:
         """
-        if [[ -f {wildcards.dataset}/raw_data/read_length ]]; then
-            READ_LEN=$(cat {wildcards.dataset}/raw_data/read_length)
-        else
-            READ_LEN=250
-        fi
-        let "WINDOW_SHIFTS=(READ_LEN * 4/5 + {params.SHIFT}) / {params.SHIFT}"
+        let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
         let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
 
         echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp"
