@@ -363,12 +363,13 @@ rule gunzip:
     output:
         temp("{file}.fastq")
     params:
-        lsfoutfile = "/dev/null",
-        lsferrfile = "/dev/null",
         scratch = '10000',
         mem = config.gunzip['mem'],
         time = config.gunzip['time'],
         GUNZIP = config.applications['gunzip'],
+    log:
+        outfile = "/dev/null",
+        errfile = "/dev/null",
     threads:
         1
     shell:
@@ -389,6 +390,10 @@ def construct_input_fastq(wildcards):
     for i in inferred_values.file:
         list_output.append(wildcards.dataset + "/raw_data/" +
                            i + "R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
+    if len(list_output) == 0:
+        print("Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
+        sys.exit(1)
+
     return list_output
 
 
@@ -398,18 +403,19 @@ rule extract:
     output:
         temp("{dataset}/extracted_data/R{pair}.fastq")
     params:
-        lsfoutfile = "{dataset}/extracted_data/extract.lsfout.log",
-        lsferrfile = "{dataset}/extracted_data/extract.lsferr.log",
         scratch = '2000',
         mem = config.extract['mem'],
         time = config.extract['time'],
+    log:
+        outfile = "{dataset}/extracted_data/extract_R{pair}.out.log",
+        errfile = "{dataset}/extracted_data/extract_R{pair}.err.log"
     benchmark:
         "{dataset}/extracted_data/extract.benchmark"
     threads:
         1
     shell:
         """
-        cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output}
+        cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
 
 rule extractclean:
@@ -440,13 +446,14 @@ rule preprocessing:
         R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
         R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
     params:
-        lsfoutfile = "{dataset}/preprocessed_data/prinseq.lsfout.log",
-        lsferrfile = "{dataset}/preprocessed_data/prinseq.lsferr.log",
         scratch = '2000',
         mem = config.preprocessing['mem'],
         time = config.preprocessing['time'],
         LEN_CUTOFF = len_cutoff,
         PRINSEQ = config.applications['prinseq'],
+    log:
+        outfile = "{dataset}/preprocessed_data/prinseq.out.log",
+        errfile = "{dataset}/preprocessed_data/prinseq.err.log"
     conda:
         config.preprocessing['conda']
     benchmark:
@@ -455,9 +462,9 @@ rule preprocessing:
         1
     shell:
         """
-        echo "The length cutoff is: {params.LEN_CUTOFF}"
+        echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
 
-        {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF}
+        {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF}  -log {log.outfile} 2> >(tee {log.errfile} >&2) 
 
         mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
         mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
@@ -485,8 +492,6 @@ rule initial_vicuna:
     output:
         "{dataset}/references/vicuna_consensus.fasta"
     params:
-        lsfoutfile = "{dataset}/initial_consensus/vicuna.lsfout.log",
-        lsferrfile = "{dataset}/initial_consensus/vicuna.lsferr.log",
         scratch = '1000',
         mem = config.initial_vicuna['mem'],
         time = config.initial_vicuna['time'],
@@ -497,6 +502,9 @@ rule initial_vicuna:
         PICARD = config.applications['picard'],
         SAMTOOLS = config.applications['samtools'],
         WORK_DIR = "{dataset}/initial_consensus",
+    log:
+        outfile = "{dataset}/initial_consensus/vicuna.out.log",
+        errfile = "{dataset}/initial_consensus/vicuna.err.log",
     conda:
         config.initial_vicuna['conda']
     benchmark:
@@ -510,6 +518,9 @@ rule initial_vicuna:
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
         source functions.sh
 
+        ERRFILE=$(basename {log.errfile})
+        OUTFILE=$(basename {log.outfile})
+
         # 1. copy initial reference for bwa
         rm -rf {params.WORK_DIR}/
         mkdir -p {params.WORK_DIR}/
@@ -517,19 +528,19 @@ rule initial_vicuna:
         cd {params.WORK_DIR}
 
         # 2. create bwa index
-        {params.BWA} index consensus.fasta
+        {params.BWA} index consensus.fasta 2> >(tee $ERRFILE >&2)
 
         # 3. create initial alignment
-        {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R{{1,2}}.fastq > first_aln.sam
+        {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R{{1,2}}.fastq > first_aln.sam 2> >(tee -a $ERRFILE >&2)
         rm consensus.fasta.*
 
         # 4. remove unmapped reads
-        {params.SAMTOOLS} view -b -F 4 first_aln.sam > mapped.bam
+        {params.SAMTOOLS} view -b -F 4 first_aln.sam > mapped.bam 2> >(tee -a $ERRFILE >&2)
         rm first_aln.sam
 
         # 5. extract reads
         mkdir -p cleaned
-        SamToFastq {params.PICARD} I=mapped.bam FASTQ=cleaned/R1.fastq SECOND_END_FASTQ=cleaned/R2.fastq VALIDATION_STRINGENCY=SILENT
+        SamToFastq {params.PICARD} I=mapped.bam FASTQ=cleaned/R1.fastq SECOND_END_FASTQ=cleaned/R2.fastq VALIDATION_STRINGENCY=SILENT 2> >(tee -a $ERRFILE >&2)
         rm mapped.bam
 
         # 6. create config file
@@ -549,7 +560,7 @@ rule initial_vicuna:
 		_EOF_
 
         # 7. VICUNA
-        OMP_NUM_THREADS={threads} {params.VICUNA} vicuna_config.txt
+        OMP_NUM_THREADS={threads} {params.VICUNA} vicuna_config.txt > $OUTFILE 2> >(tee -a $ERRFILE >&2)
         rm vicuna_config.txt
         rm -r cleaned/
 
@@ -560,9 +571,10 @@ rule initial_vicuna:
         for i in {{1..3}}
         do
                 mv consensus.fasta old_consensus.fasta
-                InDelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta
-                sam2bam {params.SAMTOOLS} reads.sam
-                ConsensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01
+                InDelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta 
+>> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+                sam2bam {params.SAMTOOLS} reads.sam >> $OUTFILE 2> >(tee $ERRFILE >&2)
+                ConsensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01 >> $OUTFILE 2> >(tee $ERRFILE >&2)
         done
 
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" consensus.fasta
@@ -579,13 +591,14 @@ rule initial_vicuna_msa:
     output:
         "references/initial_aln_gap_removed.fasta"
     params:
-        lsfoutfile = "references/MAFFT_initial_aln.lsfout.log",
-        lsferrfile = "references/MAFFT_initial_aln.lsferr.log",
         scratch = '1250',
         mem = config.initial_vicuna_msa['mem'],
         time = config.initial_vicuna_msa['time'],
         MAFFT = config.applications['mafft'],
         REMOVE_GAPS = config.applications['remove_gaps_msa'],
+    log:
+        outfile = "references/MAFFT_initial_aln.out.log",
+        errfile = "references/MAFFT_initial_aln.err.log",
     conda:
         config.initial_vicuna_msa['conda']
     benchmark:
@@ -595,10 +608,10 @@ rule initial_vicuna_msa:
     shell:
         """
         cat {input} > initial_ALL.fasta
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} initial_ALL.fasta > references/initial_aln.fasta
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} initial_ALL.fasta > references/initial_aln.fasta 2> >(tee {log.errfile} >&2)
         rm initial_ALL.fasta
 
-        {params.REMOVE_GAPS} references/initial_aln.fasta -o {output} -p 0.5
+        {params.REMOVE_GAPS} references/initial_aln.fasta -o {output} -p 0.5 > {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 localrules:
@@ -690,14 +703,15 @@ rule hmm_align:
         REF_ambig = "{dataset}/references/ref_ambig.fasta",
         REF_majority = "{dataset}/references/ref_majority.fasta",
     params:
-        lsfoutfile = "{dataset}/alignments/ngshmmalign.lsfout.log",
-        lsferrfile = "{dataset}/alignments/ngshmmalign.lsferr.log",
         scratch = '1250',
         mem = config.hmm_align['mem'],
         time = config.hmm_align['time'],
         LEAVE_TEMP = '-l' if config.hmm_align['leave_msa_temp'] else '',
         MAFFT = config.applications['mafft'],
         NGSHMMALIGN = config.applications['ngshmmalign'],
+    log:
+        outfile = "{dataset}/alignments/ngshmmalign.out.log",
+        errfile = "{dataset}/alignments/ngshmmalign.err.log",
     conda:
         config.hmm_align['conda']
     benchmark:
@@ -718,7 +732,7 @@ rule hmm_align:
         mkdir -p {wildcards.dataset}/references
 
         # 2. perform alignment # -l = leave temps
-        {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.R1} {input.R2}
+        {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.R1} {input.R2} > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         # 3. move references into place
         mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
@@ -732,12 +746,13 @@ rule sam2bam:
         BAM = "{file}.bam",
         BAI = "{file}.bam.bai"
     params:
-        lsfoutfile = "{file}_sam2bam.lsfout.log",
-        lsferrfile = "{file}_sam2bam.lsferr.log",
         scratch = '1250',
         mem = config.sam2bam['mem'],
         time = config.sam2bam['time'],
         SAMTOOLS = config.applications['samtools'],
+    log:
+        outfile = "{file}_sam2bam.out.log",
+        errfile = "{file}_sam2bam.err.log",
     conda:
         config.sam2bam['conda']
     benchmark:
@@ -748,7 +763,7 @@ rule sam2bam:
         """
         # convert sam -> bam
         source functions.sh
-        sam2bam {params.SAMTOOLS} {input}
+        sam2bam {params.SAMTOOLS} {input} > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 # 4a. align against 5VM as a QA check
@@ -759,16 +774,17 @@ rule bwa_QA:
         R1 = "{dataset}/preprocessed_data/R1.fastq",
         R2 = "{dataset}/preprocessed_data/R2.fastq",
     output:
-        SAM = temp("{dataset}/QA_alignments/bwa_aln_{kind}.sam"),
+        SAM = temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
         MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     params:
-        lsfoutfile = "{dataset}/QA_alignments/bwa_{kind}.lsfout.log",
-        lsferrfile = "{dataset}/QA_alignments/bwa_{kind}.lsferr.log",
         scratch = '1250',
         mem = config.bwa_QA['mem'],
         time = config.bwa_QA['time'],
         BWA = config.applications['bwa'],
         MAFFT = config.applications['mafft'],
+    log:
+        outfile = "{dataset}/QA_alignments/bwa_{kind}.out.log",
+        errfile = "{dataset}/QA_alignments/bwa_{kind}.err.log",
     conda:
         config.bwa_QA['conda']
     benchmark:
@@ -785,13 +801,13 @@ rule bwa_QA:
         cat {input.patient_ref} {input.virusmix_ref} > {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
 
         # 3. indexing
-        {params.BWA} index {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
+        {params.BWA} index {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta 2> >(tee {log.errfile} >&2)
 
         # 4. align
-        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.R1} {input.R2} > {output.SAM}
+        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.R1} {input.R2} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
 
         # 5. MSA
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA}
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA} 2> >(tee -a {log.errfile} >&2)
 
         # 6. cleanup BWA indices
         rm -f {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta.*
@@ -800,17 +816,18 @@ rule bwa_QA:
 # 4b. Call coverage statistics
 rule coverage_QA:
     input:
-        BAM = "{dataset}/QA_alignments/bwa_aln_{kind}.bam",
+        BAM = "{dataset}/QA_alignments/bwa_QA_{kind}.bam",
         MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     output:
         "{dataset}/QA_alignments/coverage_{kind}.tsv",
     params:
-        lsfoutfile = "{dataset}/QA_alignments/coverage_QA_{kind}.lsfout.log",
-        lsferrfile = "{dataset}/QA_alignments/coverage_QA_{kind}.lsferr.log",
         scratch = '1250',
         mem = config.coverage_QA['mem'],
         time = config.coverage_QA['time'],
         COV_STATS = config.applications['coverage_stats'],
+    log:
+        outfile = "{dataset}/QA_alignments/coverage_QA_{kind}.out.log",
+        errfile = "{dataset}/QA_alignments/coverage_QA_{kind}.err.log",
     conda:
         config.coverage_QA['conda']
     benchmark:
@@ -830,7 +847,7 @@ rule coverage_QA:
         # 2. collect coverage stats
         # we only collect statistics in the loop regions
         # of HIV-1 in order
-        {params.COV_STATS} -t HXB2:6614-6812,7109-7217,7376-7478,7601-7634 -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}"
+        {params.COV_STATS} -t HXB2:6614-6812,7109-7217,7376-7478,7601-7634 -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -849,12 +866,13 @@ rule msa:
     output:
         "references/ALL_aln_{kind}.fasta"
     params:
-        lsfoutfile = "references/MAFFT_{kind}_cohort.lsfout.log",
-        lsferrfile = "references/MAFFT_{kind}_cohort.lsferr.log",
         scratch = '1250',
         mem = config.msa['mem'],
         time = config.msa['time'],
         MAFFT = config.applications['mafft'],
+    log:
+        outfile = "references/MAFFT_{kind}_cohort.out.log",
+        errfile = "references/MAFFT_{kind}_cohort.err.log",
     conda:
         config.msa['conda']
     benchmark:
@@ -864,7 +882,7 @@ rule msa:
     shell:
         """
         cat {input} > ALL_{wildcards.kind}.fasta
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} ALL_{wildcards.kind}.fasta > {output}
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} ALL_{wildcards.kind}.fasta > {output} 2> >(tee {log.errfile} >&2)
         rm ALL_{wildcards.kind}.fasta
         """
 
@@ -886,13 +904,14 @@ rule convert_to_ref:
     output:
         "{dataset}/alignments/REF_aln.bam"
     params:
-        lsfoutfile = "{dataset}/alignments/convert_to_ref.lsfout.log",
-        lsferrfile = "{dataset}/alignments/convert_to_ref.lsferr.log",
         scratch = '1250',
         mem = config.convert_to_ref['mem'],
         time = config.convert_to_ref['time'],
         REF_NAME = reference_name,
         CONVERT_REFERENCE = config.applications['convert_reference'],
+    log:
+        outfile = "{dataset}/alignments/convert_to_ref.out.log",
+        errfile = "{dataset}/alignments/convert_to_ref.err.log",
     conda:
         config.convert_to_ref['conda']
     benchmark:
@@ -903,7 +922,7 @@ rule convert_to_ref:
         "shallow"
     shell:
         """
-        {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output}
+        {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -929,14 +948,15 @@ rule minor_variants:
         CONSENSUS = "variants/cohort_consensus.fasta",
         COVERAGE = "variants/coverage.tsv"
     params:
-        lsfoutfile = "variants/minority_variants.lsfout.log",
-        lsferrfile = "variants/minority_variants.lsfout.log",
         scratch = '1250',
         mem = config.minor_variants['mem'],
         time = config.minor_variants['time'],
         OUTDIR = "variants",
         NAMES = IDs,
         MINORITY_CALLER = config.applications['minority_freq'],
+    log:
+        outfile = "variants/minority_variants.out.log",
+        errfile = "variants/minority_variants.out.log",
     conda:
         config.minor_variants['conda']
     benchmark:
@@ -945,7 +965,9 @@ rule minor_variants:
         config.minor_variants['threads']
     shell:
         """
-        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM}
+        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM} > >(tee {log.outfile}) 2>&1 
+        #2>&1 | tee {log.outfile} 
+        #2>&1 >(tee {log.errfile} >&2)
         """
 
 # 8. Call single nucleotide variants
@@ -967,8 +989,6 @@ rule coverage_intervals:
     output:
         "variants/coverage_intervals.tsv"
     params:
-        lsfoutfile = "variants/coverage_intervals.lsfout.log",
-        lsferrfile = "variants/coverage_intervals.lsfout.log",
         scratch = '1250',
         mem = config.coverage_intervals['mem'],
         time = config.coverage_intervals['time'],
@@ -978,6 +998,9 @@ rule coverage_intervals:
         NAMES = IDs,
         LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
+    log:
+        outfile = "variants/coverage_intervals.out.log",
+        errfile = "variants/coverage_intervals.out.log",
     conda:
         config.coverage_intervals['conda']
     benchmark:
@@ -986,7 +1009,7 @@ rule coverage_intervals:
         1
     shell:
         """
-        {params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w {params.WINDOW_LEN} -N {params.NAMES} {params.LIBERAL} -o {output}
+        {params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w {params.WINDOW_LEN} -N {params.NAMES} {params.LIBERAL} -o {output} > >(tee {log.outfile}) 2>&1  
         """
 
 localrules:
@@ -998,8 +1021,6 @@ rule shorah_regions:
         temp(
             expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
     params:
-        lsfoutfile = "/dev/null",
-        lsferrfile = "/dev/null",
         scratch = '1250',
     threads:
         1
@@ -1036,8 +1057,6 @@ rule snv:
     output:
         "{dataset}/variants/SNVs/snvs.csv"
     params:
-        lsfoutfile = "{dataset}/variants/SNVs/shorah.lsfout.log",
-        lsferrfile = "{dataset}/variants/SNVs/shorah.lsferr.log",
         scratch = '1250',
         mem = config.snv['mem'],
         time = config.snv['time'],
@@ -1046,6 +1065,9 @@ rule snv:
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
         SHORAH = config.applications['shorah']
+    log:
+        outfile = "{dataset}/variants/SNVs/shorah.out.log",
+        errfile = "{dataset}/variants/SNVs/shorah.err.log",
     conda:
         config.snv['conda']
     benchmark:
@@ -1057,13 +1079,15 @@ rule snv:
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
         let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
 
-        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp"
-        echo "The window length is: ${{WINDOW_LEN}} bp"
+        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" > {log.outfile}
+        echo "The window length is: ${{WINDOW_LEN}} bp" >> {log.outfile}
 
         # Get absolute path for input files
         CWD=${{PWD}}
         BAM=${{PWD}}/{input.BAM}
         REF=${{PWD}}/{input.REF}
+        OUTFILE=${{PWD}}/{log.outfile}
+        ERRFILE=${{PWD}}/{log.errfile}
         WORK_DIR=${{PWD}}/{params.WORK_DIR}
 
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
@@ -1071,18 +1095,18 @@ rule snv:
         FILES=""
         while read -r region || [[ -n ${{region}} ]]
         do
-            echo "Running ShoRAH on region: ${{region}}"
+            echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
             LINE_COUNTER=$(( $LINE_COUNTER + 1))
             # Create directory for running ShoRAH in a corresponding region (if doesn't exist)
             DIR=${{WORK_DIR}}/REGION_${{LINE_COUNTER}}
             if [[ ! -d "${{DIR}}" ]]; then
-                echo "Creating directory ${{DIR}}"
+                echo "Creating directory ${{DIR}}" >> $OUTFILE
                 mkdir -p ${{DIR}}
             else
                 # Results from previous runs
                 if {params.KEEP_FILES}; then
                     DIR_DST=${{WORK_DIR}}/old
-                    echo "Moving results from a previous run to ${{DIR_DST}}"
+                    echo "Moving results from a previous run to ${{DIR_DST}}" >> $OUTFILE
                     rm -rf ${{DIR_DST}}/REGION_${{LINE_COUNTER}}
                     mkdir -p ${{DIR_DST}}
                     mv -f ${{DIR}} ${{DIR_DST}}
@@ -1092,11 +1116,11 @@ rule snv:
             # Change to the directory where ShoRAH is to be executed
             cd ${{DIR}}
 
-            {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -S 42 -b ${{BAM}} -f ${{REF}}
+            {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -S 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee $ERRFILE >&2)
             if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
                 FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
             else
-                echo "ERROR: unsuccesful execution of ShoRAH"
+                echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
                 exit 1
             fi
 
@@ -1107,14 +1131,14 @@ rule snv:
         # Aggregate results from different regions
         if [[ -z ${{FILES}} ]]; then
             if [[ ${{LINE_COUNTER}} > 0 ]]; then
-                echo "ERROR: unsuccesful execution of ShoRAH"
+                echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a {log.errfile} >&2)
                 exit 1
             else
-                echo "No alignment region reports sufficient coverage"
+                echo "No alignment region reports sufficient coverage" >> {log.outfile}
                 touch {output}
             fi
         else
-            echo "Intermediate files: ${{FILES}}"
+            echo "Intermediate files: ${{FILES}}" >> {log.outfile}
             cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output}
         fi
         """
@@ -1134,8 +1158,6 @@ rule haploclique:
         FASTA = "{dataset}/variants/global/quasispecies.fasta",
         BAM = "{dataset}/variants/global/quasispecies.bam",
     params:
-        lsfoutfile = "{dataset}/variants/global/haploclique.lsfout.log",
-        lsferrfile = "{dataset}/variants/global/haploclique.lsferr.log",
         scratch = '1250',
         mem = config.haploclique['mem'],
         time = config.haploclique['time'],
@@ -1147,6 +1169,9 @@ rule haploclique:
         MAX_NUM_CLIQUES = config.haploclique['max_num_cliques'],
         OUTPREFIX = "{dataset}/variants/global/quasispecies",
         HAPLOCLIQUE = config.applications['haploclique'],
+    log:
+        outfile = "{dataset}/variants/global/haploclique.out.log",
+        errfile = "{dataset}/variants/global/haploclique.err.log",
     conda:
         config.haploclique['conda']
     benchmark:
@@ -1155,7 +1180,7 @@ rule haploclique:
         1
     shell:
         """
-        {params.HAPLOCLIQUE} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --bam {input} {params.OUTPREFIX}
+        {params.HAPLOCLIQUE} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --log={log.outfile} --bam {input} {params.OUTPREFIX} 2> >(tee {log.errfile} >&2)
         """
 
 rule haploclique_visualization:
@@ -1165,8 +1190,6 @@ rule haploclique_visualization:
     output:
         PDF = "{dataset}/variants/global/quasispecies_plot.pdf",
     params:
-        lsfoutfile = "{dataset}/variants/global/haploclique_visualization.lsfout.log",
-        lsferrfile = "{dataset}/variants/global/haploclique_visualization.lsferr.log",
         scratch = '1250',
         mem = config.haploclique_visualization['mem'],
         time = config.haploclique_visualization['time'],
@@ -1178,6 +1201,9 @@ rule haploclique_visualization:
         TSV = "{dataset}/variants/global/quasispecies_mapping.tsv",
         INPREFIX = "{dataset}/variants/global/quasispecies",
         COMPUTE_MDS = config.applications['compute_mds'],
+    log:
+        outfile = "{dataset}/variants/global/haploclique_visualization.out.log",
+        errfile = "{dataset}/variants/global/haploclique_visualization.err.log",
     conda:
         config.haploclique_visualization['conda']
     benchmark:
@@ -1186,7 +1212,7 @@ rule haploclique_visualization:
         1
     shell:
         """
-        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV}
+        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV} > {log.output} 2> >(tee {log.errfile} >&2)
         """
 
 rule haplocliqueclean:
