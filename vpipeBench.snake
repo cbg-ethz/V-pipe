@@ -1,0 +1,378 @@
+#import random
+import csv
+import collections
+import configparser
+import typing
+import os
+
+# 1. Parse config file
+
+VPIPE_DEBUG = True if os.environ.get('VPIPE_DEBUG') is not None else False
+
+class VpipeBenchConfig(object):
+    'Class used to encapsulate the configuration properties used by benchmarking scripts'
+
+    __RECORD__ = typing.NamedTuple("__RECORD__", [('value', typing.Any), ('type', type)])
+    __MEMBER_DEFAULT__ = collections.OrderedDict([
+        ('general', {
+            'threads': __RECORD__(value=4, type=int),
+            'seed': __RECORD__(value=42, type=int),
+            'simulate': __RECORD__(value=True, type=bool),
+        }),
+        ('input', {
+            'datadir': __RECORD__(value='samples', type=str),
+            'samples_file': __RECORD__(value='samples.tsv', type=str),
+            'reference': __RECORD__(value='', type=str),
+        }),
+        ('applications', {
+            'simBench': __RECORD__(value="scripts/simBench.py", type=str),
+            'art': __RECORD__(value="art_illumina", type=str),
+            'testBench': __RECORD__(value="scripts/testBench.py", type=str),
+            'mafft': __RECORD__(value="mafft", type=str),
+        }),
+        ('simulate_master', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=30, type=int),
+
+            'genome_length': __RECORD__(value=3000, type=int),
+            'seed': __RECORD__(value=0, type=int),
+        }),
+        ('simulate_haplotypes', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=30, type=int),
+
+            'use_master': __RECORD__(value=True, type=bool),
+        }),
+        ('simulate_reads', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=30, type=int),
+            
+            'num_reads': __RECORD__(value=False, type=bool),
+            'paired': __RECORD__(value=True, type=bool),
+        }),
+        ('test_snv', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=60, type=int),
+
+            're_msa': __RECORD__(value=False, type=bool),
+        }),
+    ])
+
+    def __init__(self):
+        self.__members = {}
+        
+        vpipeBench_configfile = configparser.ConfigParser()
+        vpipeBench_configfile.read('vpipe.config')
+
+        for (section, properties) in VpipeBenchConfig.__MEMBER_DEFAULT__.items():
+            self.__members[section] = {}
+            
+            for (value, defaults) in properties.items():
+                try:
+                    if defaults.type == int:
+                        cur_value = vpipeBench_configfile.getint(section, value)
+                    elif defaults.type == float:
+                        cur_value = vpipeBench_configfile.getfloat(section, value)
+                    elif defaults.type == bool:
+                        cur_value = vpipeBench_configfile.getboolean(section, value)
+                    else:
+                        cur_value = vpipeBench_configfile.get(section, value)
+                    state = 'user'
+                except (configparser.NoSectionError, configparser.NoOptionError):
+                    if value == 'threads' and section != 'general':
+                        cur_value = defaults.value if defaults.value else self.__members['general']['threads']
+                    elif value == 'seed' and section != 'general':
+                        cur_value = defaults.value if defaults.value else self.__members['general']['seed']
+                    elif value == 'conda':
+                        cur_value = "envs/{}.yaml".format(section) if len(defaults.value) == 0 else defaults.value
+                    else:
+                        cur_value = defaults.value
+                    state = 'DEFAULT'
+                except ValueError:
+                    print("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(value, section, defaults.type.__name__, vpipeBench_configfile[section][value]))
+                    raise
+
+                if VPIPE_DEBUG:
+                    print("Using {} value '{}' for property '{}' in section '{}'".format(state, cur_value, value, section))
+
+                self.__members[section][value] = cur_value
+
+    def __getattr__(self, name):
+        try:
+             return self.__members[name]
+        except:
+            print("ERROR: Section '{}' is not a valid section!".format(name))
+            raise
+
+configBench = VpipeBenchConfig()
+
+# 2. Parse file containing info about simulated data sets
+sample_dict = {}
+sample_record = typing.NamedTuple("sample_record", [('sample_name', str), ('date', str)])
+datasets = []
+
+with open(configBench.input['samples_file'], newline='') as csvfile:
+    spamreader = csv.reader(csvfile, delimiter='\t')
+
+    for row in spamreader:
+        assert len(row) <= 16, "ERROR: Line '{}' contains more entries than expected".format(spamreader.line_num)
+        sample_tuple = sample_record(sample_name=row[0], date=row[1])
+        
+        datasets.append("{sample_dir}/{ID}/{date}".format(sample_dir=configBench.input['datadir'], ID=row[0], date=row[1]))
+
+        if len(row) == 2:
+            # All data sets are assumed to have default specifications
+            sample_dict[sample_tuple] = {"read_len":250, "haplotype_seqs":None, "num_haplotypes":5, "coverage":500, "fragment_size":'600,100', "freq_dstr":'geom', "geom_ratio":0.75, "mut_rate":0.1, "del_rate":0.0, "ins_rate":0.0, "no_frameshifts":True, "del_len":''}
+
+        else:
+            # All other features (except seed) must be specified
+            sample_dict[sample_tuple] = {"read_len":int(row[2]), "haplotype_seqs":row[3], "num_haplotypes":int(row[4]), "coverage":int(row[5]), "fragment_size":row[6], "freq_dstr":row[7], "geom_ratio":float(row[8]), "mut_rate":float(row[9]), "del_rate":float(row[10]), "ins_rate":float(row[11]), "no_frameshifts":row[12], "del_len":row[13]}
+
+        if len(row) == 15:
+            # Seed is specified
+            sample_dict[sample_tuple]['seed'] = int(row[14])
+        else:
+            # Seed is not provided / note that potential replicates would have the same seed
+            sample_dict[sample_tuple]['seed'] = configBench.general['seed']
+            #random.seed(configBench.general['seed'])
+            #sample_dict[sample_tuple]['seed'] = random.randint(1, 1e6)
+
+# 3. V-pipe expects an reference as input. We need to "mask" this behaviour
+if configBench.input['reference']:
+    # Locate reference file
+    if os.path.isfile(configBench.input['reference']):
+        reference_file = configBench.input['reference']
+    elif os.path.isfile(os.path.join("references", configBench.input['reference'])):
+        reference_file = os.path.join("references", configBench.input['reference'])
+    else:
+        reference_file = configBench.input['reference']
+        reference_name = "master"
+else:
+    reference_file = "references/haplotype_master.fasta"
+    reference_name = "master"
+
+
+# DUMMY RULE
+rule target:
+    input:
+        expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
+        expand("{dataset}/raw_data/simreads_R2.fastq", dataset=datasets),
+        expand("{dataset}/variants/SNVs/true_snvs.tsv", dataset=datasets)
+
+# 4. Simulate haplotype sequences, including the master-haplotype sequence
+rule simulate_master:
+    output:
+        reference_file
+    params:
+        scratch = '2000',
+        mem = configBench.simulate_master['mem'],
+        time = configBench.simulate_master['time'],
+        GENOME_LEN = configBench.simulate_master['genome_length'],
+        SEED = configBench.simulate_master['seed'],
+        OUTDIR_HAP = "references",
+        SIM_BENCH = configBench.applications['simBench'],
+    log:
+        outfile = "references/simulate_master.out.log",
+        errfile = "references/simulate_master.out.log",     
+    shell:
+        """
+        {params.SIM_BENCH} -u -g {params.GENOME_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o master > >(tee {log.outfile}) 2>&1
+        """
+
+localrules:
+    rule_initial_reference
+rule initial_reference:
+    input:
+        reference_file
+    output:
+        "reference/cohort_consensus.fasta"
+    shell:
+        """
+        ln -s {input} {output}
+        touch -h {output}
+        """
+
+#def get_haplotype_seqs(wildcards):
+#    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+#    haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
+#    if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
+#        val = '-f {}'.format(haplotype_seqs)
+#    else:
+#        val = ''
+#    return val
+#        
+#def get_use_master(wildcards):
+#    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+#    use_master = sample_dict[sample_tuple]['use_master']
+#    return '-u' if use_master else ''
+
+def get_no_FR(wildcards):
+    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+    no_FR = sample_dict[sample_tuple]['no_frameshifts']
+    return '-fr' if no_FR else ''
+
+def get_del_len(wildcards):
+    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+    del_len = sample_dict[sample_tuple]['del_len']
+    del_len = del_len.strip()
+    if not del_len or del_len.upper() in ["NA", "N/A"]:
+        val = ''
+    else:
+        val = '-dl {}'.format(del_len)
+    return val
+
+# TODO: How to specify a different input when a set of sequences is given. Meaning 'haplotype_seqs' is not NA.
+rule simulate_haplotypes:
+    input:
+        reference_file
+    output:
+        HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
+    params:
+        scratch = '2000',
+        mem = configBench.simulate_haplotypes['mem'],
+        time = configBench.simulate_haplotypes['time'],
+        USE_MASTER = '-u' if configBench.simulate_haplotypes['use_master'] else '',
+        NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
+        MUT_RATE = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['mut_rate'],
+        DEL_RATE = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['del_rate'],
+        INS_RATE = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['ins_rate'],
+        NO_FR = get_no_FR,
+        DEL_LEN = get_del_len,
+        SEED = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
+        OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
+        SIM_BENCH = configBench.applications['simBench'],
+    log:
+        outfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
+        errfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",     
+    shell:
+        """
+        {params.SIM_BENCH} -f {input} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+        """
+
+# 5. Simulate reads
+rule simulate_reads:
+    input:
+        "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
+    output:
+        R1_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
+        R2_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R2.fastq",
+        R1 = temp("{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq"),
+        R2 = temp("{sample_dir}/{sample_name}/{date}/extracted_data/R2.fastq"),
+    params:
+        scratch = '2000',
+        mem = configBench.simulate_reads['mem'],
+        time = configBench.simulate_reads['time'],
+        NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
+        COVERAGE = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['coverage'],
+        NUM_READS = '-nr' if configBench.simulate_reads['num_reads'] else '',
+        READ_LEN = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['read_len'],
+        PAIRED = '-p' if configBench.simulate_reads['paired'] else '',
+        FRAGMENT_SIZE = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['fragment_size'],
+        FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
+        GEOM_RATIO = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['geom_ratio'],
+        SEED = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
+        OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
+        OUTDIR_READS = "{sample_dir}/{sample_name}/{date}/raw_data",
+        ART = configBench.applications['art'],
+        SIM_BENCH = configBench.applications['simBench'],
+    log:
+        outfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
+        errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",     
+    shell:
+        """
+        {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} {params.PAIRED} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} -gr {params.GEOM_RATIO} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
+        
+        # Move intermediate results 
+        mkdir -p {params.OUTDIR_READS}/reads
+        mv {params.OUTDIR_READS}/*.sam {params.OUTDIR_READS}/reads
+        mv {params.OUTDIR_READS}/*.aln {params.OUTDIR_READS}/reads
+        if [[ -e {params.OUTDIR_READS}/reads_hap0_R1.fq ]]; then
+            mv {params.OUTDIR_READS}/*.fq {params.OUTDIR_READS}/reads
+        fi
+        
+        # To avoid rule ambiguities: Copy simulated data sets to extracted_data folder
+        cp {output.R1_raw} {output.R1}
+        cp {output.R2_raw} {output.R2}
+        """
+
+if configBench.general["simulate"]:
+    ruleorder: simulate_reads > extract
+else:
+    ruleorder: extract > simulate_reads
+
+# 6. Run V-pipe 
+include: "vpipe.snake"
+
+# 7. Test SNVs
+# 7.a. Use snvs before stand-bias test
+def snvfiles(wildcards):
+    snv_files = []
+    inferred_values = glob_wildcards(wildcards.dataset + "/variants/SNVs/REGION_{region}/dec.log")
+    for i in inferred_values.region:
+        snv_files.append(os.path.join(wildcards.dataset, "variants", "SNVs", ''.join(("REGION_", i)), "snv", "SNVs_0.010000.txt"))
+    if len(snv_files) == 0:
+        print("No inferred values for dataset", wildcards.dataset)
+        sys.exit(1)
+    return snv_files
+
+rule aggregate_beforeSB:
+    input:
+        snvfiles
+    output:
+        TXT = temp("{dataset}/variants/SNVs/SNVs_beforeSB.txt"),
+        CSV = "{dataset}/variants/SNVs/SNVs_beforeSB.csv"
+    params:
+        scratch = '1250',
+        mem = '2000',
+        time = '20'
+    log:
+        outfile = "{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
+        errfile = "{dataset}/variants/SNVs/aggregate_beforeSB.err.log"
+    shell:
+        """
+        array=( {input} )
+        num_files=( ${{#array[@]}} )
+        cat {input} | sort -nk2 > {output.TXT}
+        cat {output.TXT} | tr '\t' ',' > {output.CSV}
+        sed -i 1i"Chromosome,Pos,Ref,Var,Frq1,Frq2,Frq3,Pst1,Pst2,Pst3,Fvar,Rvar,Ftot,Rtot,Pval" {output.CSV}
+        """
+
+# TODO wl, ws should be added
+# TODO Switch between snvs and snvs_beforeSB
+rule test_snv:
+    input:
+       SNVs = "{dataset}/variants/SNVs/snvs.csv", #"{dataset}/variants/SNVs/SNVs_beforeSB.csv", 
+       HAPLOTYPE_SEQS = "{dataset}/references/haplotypes/haplotypes.fasta",
+       REF = "variants/cohort_consensus.fasta",
+       TSV = "{dataset}/variants/coverage_intervals.tsv",
+    output:
+        "{dataset}/variants/SNVs/true_snvs.tsv"
+    params:
+        scratch = '2000',
+        mem = configBench.test_snv['mem'],
+        time = configBench.test_snv['time'],
+        RE_MSA = configBench.test_snv['re_msa'],
+        HAPLOTYPE_SEQS_AUX = "{dataset}/raw_data/haplotypes/haplotypes_aux.fasta",
+        OUTDIR = "{dataset}/variants/SNVs",
+        MAFFT = configBench.applications['mafft'],
+        TEST_BENCH = configBench.applications['testBench'],
+    log:
+        outfile = "{dataset}/variants/SNVs/testBench.out.log",
+        errfile = "{dataset}/variants/SNVs/testBench.out.log",
+    shell:
+        """
+        region=`tr '\n' ',' < {input.TSV}`
+        if [[ -n ${{region}} ]]; then
+            echo "Region(s): ${{region}}" >> {log.outfile}
+            if [[ {params.RE_MSA} = True ]]; then
+                # remove indels
+                sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+            else
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} -r ${{region}} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+            fi
+        else
+            echo "No called SNVs"
+            touch {output}
+        fi
+        """
