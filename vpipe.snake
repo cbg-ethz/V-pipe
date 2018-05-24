@@ -11,7 +11,7 @@ import typing
 # validates parameters given by the user to be sensible
 
 VPIPE_DEBUG = True if os.environ.get('VPIPE_DEBUG') is not None else False
-
+VPIPE_BENCH = True if os.environ.get('VPIPE_BENCH') is not None else False
 
 class VpipeConfig(object):
     'Class used to encapsulate the configuration properties used by V-pipe'
@@ -343,20 +343,27 @@ for p in patient_list:
 IDs = ','.join(IDs)
 
 # 5. Locate reference and parse reference identifier
-try:
-    if os.path.isfile(config.input['reference']):
-        reference_file = config.input['reference']
-    elif os.path.isfile(os.path.join("references", config.input['reference'])):
-        reference_file = os.path.join("references", config.input['reference'])
-except:
-    print("ERROR: Reference file {} does not exists".format(
-        config.input['reference']))
-    raise
+if not VPIPE_BENCH:
+    try:
+        if os.path.isfile(config.input['reference']):
+            reference_file = config.input['reference']
+        elif os.path.isfile(os.path.join("references", config.input['reference'])):
+            reference_file = os.path.join("references", config.input['reference'])
+    except:
+        print("ERROR: Reference file {} does not exists".format(
+            config.input['reference']))
+        raise
+    
+    with open(reference_file, 'r') as infile:
+        reference_name = infile.readline().rstrip()
+    reference_name = reference_name.split('>')[1]
+    reference_name = reference_name.split(' ')[0]
 
-with open(reference_file, 'r') as infile:
-    reference_name = infile.readline().rstrip()
-reference_name = reference_name.split('>')[1]
-reference_name = reference_name.split(' ')[0]
+else:
+    try:
+        reference_name
+    except NameError:
+        reference_name = ''
 
 # DUMMY RULES
 rule all:
@@ -907,6 +914,12 @@ rule msaclean:
 
 
 # 6. convert alignments to REF alignment
+def get_reference_name(wildcards):
+    with open(reference_file, 'r') as infile:
+        reference_name = infile.readline().rstrip()
+    reference_name = reference_name.split('>')[1]
+    reference_name = reference_name.split(' ')[0]
+
 rule convert_to_ref:
     input:
         REF_ambig = "references/ALL_aln_ambig.fasta",
@@ -919,7 +932,7 @@ rule convert_to_ref:
         scratch = '1250',
         mem = config.convert_to_ref['mem'],
         time = config.convert_to_ref['time'],
-        REF_NAME = reference_name,
+        REF_NAME = reference_name if reference_name else get_reference_name,
         CONVERT_REFERENCE = config.applications['convert_reference'],
     log:
         outfile = "{dataset}/alignments/convert_to_ref.out.log",
@@ -985,7 +998,6 @@ rule bwa_align:
         scratch = '1250',
         mem = config.bwa_align['mem'],
         time = config.bwa_align['time'],
-        REF_NAME = reference_name,
         TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
         BWA = config.applications['bwa'],
         SAMTOOLS = config.applications['samtools'],
