@@ -1,7 +1,7 @@
-author: David Seifert
+author: V-pipe Dev team
 timezone: Europe/Zurich
 title: V-pipe
-email: vpipe
+email: v-pipe@bsse.ethz.ch
 description: > # this means to ignore newlines until "baseurl:"
   Viral NGS Pipeline
 baseurl: "/V-pipe" # the subpath of your site, e.g. /blog
@@ -11,5 +11,6 @@ url: "https://cbg-ethz.github.io" # the base hostname & protocol for your site, 
 markdown: kramdown
 theme: minima
 
-
+# Google Analytics
+google_analytics: UA-126950686-1
 
