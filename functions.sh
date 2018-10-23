@@ -40,5 +40,9 @@ QuasiRecomb() {
 }
 
 SamToFastq() {
-	java -jar $1 SamToFastq ${@:2}
+    if [[ -z "${CONDA_PREFIX:-}" ]]; then
+        java -jar $1 SamToFastq ${@:2}
+    else
+        $1 SamToFastq ${@:2}
+    fi
 }

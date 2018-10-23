@@ -13,6 +13,7 @@ import typing
 VPIPE_DEBUG = True if os.environ.get('VPIPE_DEBUG') is not None else False
 VPIPE_BENCH = True if os.environ.get('VPIPE_BENCH') is not None else False
 
+
 class VpipeConfig(object):
     'Class used to encapsulate the configuration properties used by V-pipe'
 
@@ -22,6 +23,7 @@ class VpipeConfig(object):
         ('general', {
             'threads': __RECORD__(value=4, type=int),
             'aligner': __RECORD__(value='ngshmmalign', type=str),
+            'haplotype_reconstruction': __RECORD__(value='savage', type=str)
         }),
         ('input', {
             'datadir': __RECORD__(value='samples', type=str),
@@ -55,7 +57,8 @@ class VpipeConfig(object):
             'extract_coverage_intervals': __RECORD__(value="extract_coverage_intervals", type=str),
             'shorah': __RECORD__(value="dec.py", type='str'),
             'haploclique': __RECORD__(value="haploclique", type='str'),
-            'compute_mds': __RECORD__(value="compute_mds", type='str')
+            'compute_mds': __RECORD__(value="compute_mds", type='str'),
+            'savage': __RECORD__(value="savage", type='str')
         }),
 
         ('gunzip', {
@@ -145,7 +148,7 @@ class VpipeConfig(object):
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=60, type=int),
             'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
-            
+
             'coverage': __RECORD__(value=50, type=int),
             'liberal': __RECORD__(value=True, type=bool),
         }),
@@ -181,6 +184,14 @@ class VpipeConfig(object):
             'region_start': __RECORD__(value=0, type=int),
             'region_end': __RECORD__(value=9719, type=int),
             'msa': __RECORD__(value='', type=str),
+        }),
+        ('savage', {
+            'mem': __RECORD__(value=10000, type=int),
+            'time': __RECORD__(value=1435, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value='', type=str),
+
+            'split': __RECORD__(value=20, type=int),
         })
     ])
 
@@ -334,8 +345,12 @@ for p in patient_list:
             "{sample_dir}/{patient}/{date}/variants/local/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # global haplotypes
     if config.output['global']:
-        results.append(
-            "{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        if config.general['haplotype_reconstruction'] == 'savage':
+            results.append("{sample_dir}/{patient}/{date}/variants/global/contigs_stage_c.fasta".format(
+                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        elif config.general['haplotype_reconstruction'] == 'haploclique':
+            results.append("{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(
+                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # merge lists contaiing expected output
     all_files = alignments + results
@@ -348,12 +363,13 @@ if not VPIPE_BENCH:
         if os.path.isfile(config.input['reference']):
             reference_file = config.input['reference']
         elif os.path.isfile(os.path.join("references", config.input['reference'])):
-            reference_file = os.path.join("references", config.input['reference'])
+            reference_file = os.path.join(
+                "references", config.input['reference'])
     except:
         print("ERROR: Reference file {} does not exists".format(
             config.input['reference']))
         raise
-    
+
     with open(reference_file, 'r') as infile:
         reference_name = infile.readline().rstrip()
     reference_name = reference_name.split('>')[1]
@@ -920,6 +936,7 @@ def get_reference_name(wildcards):
     reference_name = reference_name.split('>')[1]
     reference_name = reference_name.split(' ')[0]
 
+
 rule convert_to_ref:
     input:
         REF_ambig = "references/ALL_aln_ambig.fasta",
@@ -1064,11 +1081,14 @@ rule minor_variants:
         """
 
 # 8. Call single nucleotide variants
+
+
 def window_lengths(wildcards):
     window_len = []
     for p in patient_list:
         read_len = patient_dict[p]
-        aux = int((read_len * 4/5 + config.snv['shift']) /  config.snv['shift'])
+        aux = int(
+            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
         window_len.append(str(aux * config.snv['shift']))
 
     window_len = ','.join(window_len)
@@ -1314,4 +1334,40 @@ rule haplocliqueclean:
     shell:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
+        """
+
+rule savage:
+    input:
+        "{dataset}/alignments/REF_aln.bam"
+    output:
+        R1 = temp("{dataset}/variants/global/R1.fastq"),
+        R2 = temp("{dataset}/variants/global/R2.fastq"),
+        FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
+    params:
+        scratch = '1250',
+        mem = config.savage['mem'],
+        time = config.savage['time'],
+        SPLIT = config.savage['split'],
+        PICARD = config.applications['picard'],
+        SAVAGE = config.applications['savage'],
+        WORK_DIR = "{dataset}/variants/global/",
+    log:
+        outfile = "{dataset}/variants/global/savage.out.log",
+        errfile = "{dataset}/variants/global/savage.err.log",
+    conda:
+        config.savage['conda']
+    threads:
+        config.savage['threads']
+    shell:
+        """
+        # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
+        source functions.sh
+        SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee -a {log.errfile} >&2)
+        # Remove /1 and /2 from the read names
+        sed -i -e "s:/1$::" {output.R1}
+        sed -i -e "s:/2$::" {output.R2}
+
+        # change to the sample directory
+        cd {params.WORK_DIR}
+        {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 R1.fastq -p2 R2.fastq
         """
