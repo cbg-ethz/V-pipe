@@ -28,6 +28,7 @@ class VpipeConfig(object):
         ('input', {
             'datadir': __RECORD__(value='samples', type=str),
             'samples_file': __RECORD__(value='samples.tsv', type=str),
+            'paired': __RECORD__(value=True, type=bool),
             'fastq_suffix': __RECORD__(value='', type=str),
             'trim_percent_cutoff': __RECORD__(value=0.8, type=float),
             'reference': __RECORD__(value='references/HXB2.fasta', type=str),
@@ -257,10 +258,10 @@ if not os.path.isfile(config.input['samples_file']):
     # list that would pass QA checks
 
     patient_sample_pairs = glob_wildcards(
-        "{}/{{patient_date}}/raw_data/{{file}}_R1{}.fastq.gz".format(config.input['datadir'], config.input['fastq_suffix']))
+        "{}/{{patient_date}}/raw_data/{{file}}".format(config.input['datadir']))
 
     with open('samples.tsv', 'w') as outfile:
-        for i in patient_sample_pairs.patient_date:
+        for i in set(patient_sample_pairs.patient_date):
             (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
             outfile.write('{}\t{}\n'.format(patient, date))
 
@@ -328,8 +329,9 @@ for p in patient_list:
 
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
-    trimmed_files.append(
-        "{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    if config.input['paired']:
+        trimmed_files.append("{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(
+            sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     datasets.append("{sample_dir}/{patient}/{date}".format(
         sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
@@ -414,17 +416,23 @@ rule gunzip:
 
 
 def construct_input_fastq(wildcards):
-    inferred_values = glob_wildcards(
-        wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq.gz")
-    if len(inferred_values.file) == 0:
+    indir = os.path.join(wildcards.dataset, "raw_data")
+    aux = glob_wildcards(
+        indir + "/{prefix, [^/]+}" + "{ext, (\.fastq|\.fastq\.gz|\.fq|\.fq\.gz)}")
+    if config.input['paired']:
         inferred_values = glob_wildcards(
-            wildcards.dataset + "/raw_data/{file}R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
+            indir + "/{file}R" + wildcards.pair + config.input['fastq_suffix'] + aux.ext[0])
+    else:
+        inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])
 
     list_output = []
-
+    file_extension = aux.ext[0].split(".gz")[0]
     for i in inferred_values.file:
-        list_output.append(wildcards.dataset + "/raw_data/" +
-                           i + "R" + wildcards.pair + config.input['fastq_suffix'] + ".fastq")
+        if config.input['paired']:
+            list_output.append(indir + "/" + i + "R" + wildcards.pair +
+                               config.input['fastq_suffix'] + file_extension)
+        else:
+            list_output.append(indir + "/" + i + file_extension)
     if len(list_output) == 0:
         print("Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
         sys.exit(1)
@@ -473,41 +481,73 @@ def len_cutoff(wildcards):
     return len_cutoff
 
 
-rule preprocessing:
-    input:
-        R1 = "{dataset}/extracted_data/R1.fastq",
-        R2 = "{dataset}/extracted_data/R2.fastq"
-    output:
-        R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
-        R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
-    params:
-        scratch = '2000',
-        mem = config.preprocessing['mem'],
-        time = config.preprocessing['time'],
-        LEN_CUTOFF = len_cutoff,
-        PRINSEQ = config.applications['prinseq'],
-    log:
-        outfile = "{dataset}/preprocessed_data/prinseq.out.log",
-        errfile = "{dataset}/preprocessed_data/prinseq.err.log"
-    conda:
-        config.preprocessing['conda']
-    benchmark:
-        "{dataset}/preprocessed_data/prinseq.benchmark"
-    threads:
-        1
-    shell:
-        """
-        echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
+if config.input['paired']:
+    rule preprocessing:
+        input:
+            R1 = "{dataset}/extracted_data/R1.fastq",
+            R2 = "{dataset}/extracted_data/R2.fastq",
+        output:
+            R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
+            R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
+        params:
+            scratch = '2000',
+            mem = config.preprocessing['mem'],
+            time = config.preprocessing['time'],
+            LEN_CUTOFF = len_cutoff,
+            PRINSEQ = config.applications['prinseq'],
+        log:
+            outfile = "{dataset}/preprocessed_data/prinseq.out.log",
+            errfile = "{dataset}/preprocessed_data/prinseq.err.log"
+        conda:
+            config.preprocessing['conda']
+        benchmark:
+            "{dataset}/preprocessed_data/prinseq.benchmark"
+        threads:
+            1
+        shell:
+            """
+            echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
 
-        {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF}  -log {log.outfile} 2> >(tee {log.errfile} >&2) 
+            {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
-        mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
-        mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
-        rm -f {wildcards.dataset}/preprocessed_data/R_?_singletons.fastq
+            mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
+            mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
+            rm -f {wildcards.dataset}/preprocessed_data/R_?_singletons.fastq
 
-        gzip {wildcards.dataset}/preprocessed_data/R1.fastq
-        gzip {wildcards.dataset}/preprocessed_data/R2.fastq
-        """
+            gzip {wildcards.dataset}/preprocessed_data/R1.fastq
+            gzip {wildcards.dataset}/preprocessed_data/R2.fastq
+            """
+else:
+    rule preprocessing_se:
+        input:
+            R1 = "{dataset}/extracted_data/R1.fastq",
+        output:
+            R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
+        params:
+            scratch = '2000',
+            mem = config.preprocessing['mem'],
+            time = config.preprocessing['time'],
+            LEN_CUTOFF = len_cutoff,
+            PRINSEQ = config.applications['prinseq'],
+        log:
+            outfile = "{dataset}/preprocessed_data/prinseq.out.log",
+            errfile = "{dataset}/preprocessed_data/prinseq.err.log"
+        conda:
+            config.preprocessing['conda']
+        benchmark:
+            "{dataset}/preprocessed_data/prinseq.benchmark"
+        threads:
+            1
+        shell:
+            """
+            echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
+
+            {params.PRINSEQ} -fastq {input.R1} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
+
+            mv {wildcards.dataset}/preprocessed_data/R{{,1}}.fastq
+
+            gzip {wildcards.dataset}/preprocessed_data/R1.fastq
+            """
 
 rule trimmingclean:
     params:
@@ -727,11 +767,18 @@ ruleorder:
 
 
 # 4. aligning
+def input_align(wildcards):
+    list_output = []
+    list_output.append(wildcards.dataset + "/preprocessed_data/R1.fastq")
+    if config.input['paired']:
+        list_output.append(wildcards.dataset + "/preprocessed_data/R2.fastq")
+    return(list_output)
+
+
 rule hmm_align:
     input:
         initial_ref = "{dataset}/references/initial_consensus.fasta",
-        R1 = "{dataset}/preprocessed_data/R1.fastq",
-        R2 = "{dataset}/preprocessed_data/R2.fastq",
+        FASTQ = input_align,
     output:
         good_aln = temp("{dataset}/alignments/full_aln.sam"),
         reject_aln = temp("{dataset}/alignments/rejects.sam"),
@@ -767,7 +814,7 @@ rule hmm_align:
         mkdir -p {wildcards.dataset}/references
 
         # 2. perform alignment # -l = leave temps
-        {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.R1} {input.R2} > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         # 3. move references into place
         mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
@@ -806,8 +853,7 @@ rule bwa_QA:
     input:
         patient_ref = "{dataset}/references/ref_{kind}.fasta",
         virusmix_ref = "references/5-Virus-Mix.fasta",
-        R1 = "{dataset}/preprocessed_data/R1.fastq",
-        R2 = "{dataset}/preprocessed_data/R2.fastq",
+        FASTQ = input_align,
     output:
         SAM = temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
         MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
@@ -839,7 +885,7 @@ rule bwa_QA:
         {params.BWA} index {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta 2> >(tee {log.errfile} >&2)
 
         # 4. align
-        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.R1} {input.R2} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
+        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.FASTQ} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
 
         # 5. MSA
         {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA} 2> >(tee -a {log.errfile} >&2)
@@ -1005,8 +1051,7 @@ rule ref_index:
 
 rule bwa_align:
     input:
-        R1 = "{dataset}/preprocessed_data/R1.fastq",
-        R2 = "{dataset}/preprocessed_data/R2.fastq",
+        FASTQ = input_align,
         REF = reference_file,
         INDEX = "{}.bwt".format(reference_file)
     output:
@@ -1015,6 +1060,7 @@ rule bwa_align:
         scratch = '1250',
         mem = config.bwa_align['mem'],
         time = config.bwa_align['time'],
+        FILTER = '-f 2' if config.input['paired'] else '-F 4',
         TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
         BWA = config.applications['bwa'],
         SAMTOOLS = config.applications['samtools'],
@@ -1029,8 +1075,9 @@ rule bwa_align:
         config.bwa_align['threads']
     shell:
         """
-        {params.BWA} mem -t {threads} {input.REF} {input.R1} {input.R2} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
-        {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+        {params.BWA} mem -t {threads} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+        # Filter alignments: (1) remove unmapped reads (single-end) or keep only reads mapped in proper pairs (paired-end), (2) remove supplementary aligments
+        {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
         rm {params.TMP_SAM}
         """
 
@@ -1336,38 +1383,80 @@ rule haplocliqueclean:
         rm {params.DIR}/*/*/variants/global/quasispecies.*
         """
 
-rule savage:
-    input:
-        "{dataset}/alignments/REF_aln.bam"
-    output:
-        R1 = temp("{dataset}/variants/global/R1.fastq"),
-        R2 = temp("{dataset}/variants/global/R2.fastq"),
-        FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
+if config.input['paired']:
+    rule savage:
+        input:
+            "{dataset}/alignments/REF_aln.bam"
+        output:
+            R1 = temp("{dataset}/variants/global/R1.fastq"),
+            R2 = temp("{dataset}/variants/global/R2.fastq"),
+            FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
+        params:
+            scratch = '1250',
+            mem = config.savage['mem'],
+            time = config.savage['time'],
+            SPLIT = config.savage['split'],
+            PICARD = config.applications['picard'],
+            SAVAGE = config.applications['savage'],
+            WORK_DIR = "{dataset}/variants/global/",
+        log:
+            outfile = "{dataset}/variants/global/savage.out.log",
+            errfile = "{dataset}/variants/global/savage.err.log",
+        conda:
+            config.savage['conda']
+        threads:
+            config.savage['threads']
+        shell:
+            """
+            # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
+            source functions.sh
+            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee -a {log.errfile} >&2)
+            # Remove /1 and /2 from the read names
+            sed -i -e "s:/1$::" {output.R1}
+            sed -i -e "s:/2$::" {output.R2}
+
+            # change to the sample directory
+            cd {params.WORK_DIR}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 R1.fastq -p2 R2.fastq
+            """
+else:
+    rule savage_se:
+        input:
+            "{dataset}/alignments/REF_aln.bam"
+        output:
+            R1 = temp("{dataset}/variants/global/R1.fastq"),
+            FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
+        params:
+            scratch = '1250',
+            mem = config.savage['mem'],
+            time = config.savage['time'],
+            SPLIT = config.savage['split'],
+            PICARD = config.applications['picard'],
+            SAVAGE = config.applications['savage'],
+            WORK_DIR = "{dataset}/variants/global/",
+        log:
+            outfile = "{dataset}/variants/global/savage.out.log",
+            errfile = "{dataset}/variants/global/savage.err.log",
+        conda:
+            config.savage['conda']
+        threads:
+            config.savage['threads']
+        shell:
+            """
+            # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
+            source functions.sh
+            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee -a {log.errfile} >&2)
+
+            # change to the sample directory
+            cd {params.WORK_DIR}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -s R1.fastq
+            """
+
+rule savageclean:
     params:
-        scratch = '1250',
-        mem = config.savage['mem'],
-        time = config.savage['time'],
-        SPLIT = config.savage['split'],
-        PICARD = config.applications['picard'],
-        SAVAGE = config.applications['savage'],
-        WORK_DIR = "{dataset}/variants/global/",
-    log:
-        outfile = "{dataset}/variants/global/savage.out.log",
-        errfile = "{dataset}/variants/global/savage.err.log",
-    conda:
-        config.savage['conda']
-    threads:
-        config.savage['threads']
+        DIR = config.input['datadir']
     shell:
         """
-        # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
-        source functions.sh
-        SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee -a {log.errfile} >&2)
-        # Remove /1 and /2 from the read names
-        sed -i -e "s:/1$::" {output.R1}
-        sed -i -e "s:/2$::" {output.R2}
-
-        # change to the sample directory
-        cd {params.WORK_DIR}
-        {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 R1.fastq -p2 R2.fastq
+        rm -rf {params.DIR}/*/*/variants/global/contigs_stage_?.fasta
+        rm -rf {params.DIR}/*/*/variants/global/stage_?
         """
