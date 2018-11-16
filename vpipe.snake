@@ -383,6 +383,8 @@ else:
     except NameError:
         reference_name = ''
 
+functions = srcdir("functions.sh")
+
 # DUMMY RULES
 rule all:
     input:
@@ -577,6 +579,7 @@ rule initial_vicuna:
         PICARD = config.applications['picard'],
         SAMTOOLS = config.applications['samtools'],
         WORK_DIR = "{dataset}/initial_consensus",
+        FUNCTIONS = functions,
     log:
         outfile = "{dataset}/initial_consensus/vicuna.out.log",
         errfile = "{dataset}/initial_consensus/vicuna.err.log",
@@ -591,7 +594,8 @@ rule initial_vicuna:
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
-        source functions.sh
+
+        source {params.FUNCTIONS}
 
         ERRFILE=$(basename {log.errfile})
         OUTFILE=$(basename {log.outfile})
@@ -832,6 +836,7 @@ rule sam2bam:
         mem = config.sam2bam['mem'],
         time = config.sam2bam['time'],
         SAMTOOLS = config.applications['samtools'],
+        FUNCTIONS = functions,
     log:
         outfile = "{file}_sam2bam.out.log",
         errfile = "{file}_sam2bam.err.log",
@@ -844,7 +849,7 @@ rule sam2bam:
     shell:
         """
         # convert sam -> bam
-        source functions.sh
+        source {params.FUNCTIONS}
         sam2bam {params.SAMTOOLS} {input} > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
@@ -1399,6 +1404,7 @@ if config.input['paired']:
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
             WORK_DIR = "{dataset}/variants/global/",
+            FUNCTIONS = functions,
         log:
             outfile = "{dataset}/variants/global/savage.out.log",
             errfile = "{dataset}/variants/global/savage.err.log",
@@ -1409,7 +1415,7 @@ if config.input['paired']:
         shell:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
-            source functions.sh
+            source {params.FUNCTIONS}
             SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee -a {log.errfile} >&2)
             # Remove /1 and /2 from the read names
             sed -i -e "s:/1$::" {output.R1}
@@ -1434,6 +1440,7 @@ else:
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
             WORK_DIR = "{dataset}/variants/global/",
+            FUNCTIONS = functions,
         log:
             outfile = "{dataset}/variants/global/savage.out.log",
             errfile = "{dataset}/variants/global/savage.err.log",
@@ -1444,7 +1451,7 @@ else:
         shell:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
-            source functions.sh
+            source {params.FUNCTIONS}
             SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee -a {log.errfile} >&2)
 
             # change to the sample directory
