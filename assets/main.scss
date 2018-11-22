@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
 
-<!DOCTYPE html>
-<html lang="{{ page.lang | default: site.lang | default: "en" }}">
-  {% include head.html %}
-   <style>
+@import "minima";
+
      header {
         display: none;
       }
@@ -39,14 +39,4 @@
         min-width: 200px;
         width: 90%;
       }
-  </style>
-  <body>
-    {% include header.html %}
-    <main class="page-content" aria-label="Content">
-      <div class="wrapper">
-        {{ content }}
-      </div>
-    </main>
-  </body>
-</html>
 
