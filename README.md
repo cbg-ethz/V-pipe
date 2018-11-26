@@ -3,8 +3,6 @@
 V-pipe is a workflow designed for analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format.
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=plastic)](https://snakemake.bitbucket.io)
-[![bio.tools](https://img.shields.io/badge/bio-tools-orange.svg?style=plastic)](https://bio.tools/V-Pipe)
-[![omic.tools](https://img.shields.io/badge/omic-tools-blue.svg?style=plastic)](https://omictools.com/v-pipe-tool)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=plastic)](https://opensource.org/licenses/Apache-2.0)
 [![Analytics](https://cgb-ethz-ga-beacon.appspot.com/UA-126950686-1/github/README)](https://github.com/igrigorik/ga-beacon)
 
@@ -52,9 +50,9 @@ V-pipe is a workflow designed for analysis of next generation sequencing (NGS) d
 
 ## Contributions
 
-- David Seifert
-- Susana Posada Céspedes
-- Niko Beerenwinkel
+- [David Seifert](https://orcid.org/0000-0003-4739-5110)
+- [Susana Posada Céspedes](https://orcid.org/0000-0002-7459-8186)
+- [Niko Beerenwinkel](https://orcid.org/0000-0002-0573-6119)
 
 ## Contacts
 
