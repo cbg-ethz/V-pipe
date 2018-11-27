@@ -16,6 +16,11 @@
         display: none;
       }
 
+      p {
+        text-align: justify;
+        text-justify: inter-word;
+      }
+
       .hrefbut {
         margin: auto;
         margin-bottom: 20px;
@@ -33,8 +38,12 @@
       .hrefbut:hover {       
         background-color: rgba(0, 169, 157, 0.2);             
       }
-
-      p img {
+      .hrefbut img[alt=GitHub] {
+        vertical-align: text-bottom;
+        width: 2.4ex;
+        height: 2.4ex;
+      }
+      p img[alt=Logo], p img[alt=Pipeline], p img[alt=Cartoon] {
         align: center;
         min-width: 200px;
         width: 90%;
