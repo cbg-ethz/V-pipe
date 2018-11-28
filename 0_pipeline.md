@@ -17,6 +17,7 @@ permalink: /pipeline/
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
 - **[Conda](https://conda.io/docs/index.html)**
+  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://conda.io/miniconda.html)
 
   Conda is an open source package management system and environment management system. V-pipe uses it to automatically obtain reproducible environments and simplify installation of the individual components of the pipeline, thanks to the [Bioconda channel](https://bioconda.github.io) - a distribution of bioinformatics software.
 
@@ -34,7 +35,7 @@ permalink: /pipeline/
 - **[Vicuna](https://www.broadinstitute.org/viral-genomics/vicuna)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/mvicuna.svg?label=Bioconda)](https://bioconda.github.io/recipes/mvicuna/README.html)
 
-  Vicuna is a de novo assembler designed for generating rough reference contigs of viral NGS data. It can deal with the inherent heterogeneity such as high single-base heterogeneity and structural variants.
+  Vicuna is a *de novo* assembler designed for generating rough reference contigs of viral NGS data. It can deal with the inherent heterogeneity such as high single-base heterogeneity and structural variants.
 
 - **[InDelFixer](https://github.com/cbg-ethz/InDelFixer)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/indelfixer.svg?label=Bioconda)](https://bioconda.github.io/recipes/indelfixer/README.html)
@@ -76,7 +77,7 @@ permalink: /pipeline/
 - **[SAVAGE](https://bitbucket.org/jbaaijens/savage)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/savage.svg?label=Bioconda)](https://bioconda.github.io/recipes/savage/README.html)
 
-  SAVAGE is a tool for viral haplotype reconstruction. It can be executed in two modes: (i) using a reference sequence, or (2) assembling viral haplotypes *de novo*. We employ the latter.
+  SAVAGE is a tool for viral haplotype reconstruction. It can be executed in two modes: (1) using a reference sequence, or (2) assembling viral haplotypes *de novo*. We employ the latter.
 
 - **[Haploclique](https://github.com/cbg-ethz/haploclique)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/haploclique.svg?label=Bioconda)](https://bioconda.github.io/recipes/haploclique/README.html)

@@ -51,28 +51,35 @@
 
       li img[alt=SIB] {
         width: 3em;
+		margin: 0em 2em;
       }
 
       li img[alt=DBSSE] {
         width: 5em;
+		margin: 0em 1em;
       }
 
       li img[alt=ETHZ] {
         width: 5em;
+		margin: 0em 1em;
       }
 
       li img[alt=CBG] {
         width: 7em;
+		margin: 0em 0em;
       }
 
       a.site-title {
           background-image: url({{ site.baseurl }}/img/logo.svg);
           background-repeat: no-repeat;
-          background-size: 6em 2em;
+          background-size: contain;
           width: 6em;
           height: 2em;
 
           text-indent: 100%;
           white-space: nowrap;
           overflow: hidden;
+      }
+      li img[alt~=Bioconda], li img[alt*=install], li img[alt^=Snakemake] {
+         float: right;
       }

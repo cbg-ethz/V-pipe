@@ -17,6 +17,6 @@ permalink: /about/
 
 - [![DBSSE](../img/d_bsse.svg) Department of Biosystems Science and Engineering](https://www.bsse.ethz.ch/)
 
-- [![ETHZ](../img/ethz.png) ETH Zurich](https://www.ethz.ch/)
+- [![ETHZ](../img/ethz.svg) ETH Zurich](https://www.ethz.ch/)
 
-- [![SIB](../img/sib.jpg) SIB Swiss Institute of Bioinformatics](https://www.sib.swiss/)
+- [![SIB](../img/sib.png) SIB Swiss Institute of Bioinformatics](https://www.sib.swiss/)
