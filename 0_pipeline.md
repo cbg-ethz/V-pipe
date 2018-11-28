@@ -5,8 +5,6 @@ permalink: /pipeline/
 ---
 
 
-## Pipeline overview
-
 ![Pipeline](../img/pipeline.svg)
 
 

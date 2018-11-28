@@ -2,7 +2,6 @@
 layout: default
 ---
 
-![Logo](img/logo.svg)
 
 V-pipe is a workflow designed for analysis of next-generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format.
 

@@ -64,3 +64,15 @@
       li img[alt=CBG] {
         width: 7em;
       }
+
+      a.site-title {
+          background-image: url({{ site.baseurl }}/img/logo.svg);
+          background-repeat: no-repeat;
+          background-size: 6em 2em;
+          width: 6em;
+          height: 2em;
+
+          text-indent: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+      }
