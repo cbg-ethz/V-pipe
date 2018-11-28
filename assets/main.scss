@@ -76,3 +76,6 @@
           white-space: nowrap;
           overflow: hidden;
       }
+      li img[alt~=Bioconda], li img[alt*=install], li img[alt^=Snakemake] {
+         float: right;
+      }

@@ -17,6 +17,7 @@ permalink: /pipeline/
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
 - **[Conda](https://conda.io/docs/index.html)**
+  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://conda.io/miniconda.html)
 
   Conda is an open source package management system and environment management system. V-pipe uses it to automatically obtain reproducible environments and simplify installation of the individual components of the pipeline, thanks to the [Bioconda channel](https://bioconda.github.io) - a distribution of bioinformatics software.
 
