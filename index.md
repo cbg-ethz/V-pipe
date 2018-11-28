@@ -18,17 +18,11 @@ V-pipe is a workflow designed for analysis of next-generation sequencing (NGS) d
 
 ## Introduction
 
-Viruses are both important models for evolutionary biology and causes of severe infectious diseases, thus representing major public health and economic concern.
-
-Fast mutating RNA viruses present challenges due to their great genetic diversity and co-occurrence of a heterogeneous mixture of viral strains. These can have implications on viral pathogenesis, virulence and disease progression.
-
-Viral genetics, based on the next-generation sequencing of viral genomes, is now the method of choice for analysing the diversity of intra- and inter- host virus populations, including epidemiological studies and individual treatment optimization in clinical virology.
-
-To facilitate the integration of these methods into applications such as clinical surveillance and diagnosis, we introduce a bioinformatics pipeline: *V-pipe*.
-
-Its purposes are to provide a data analysis workflow for clinical applications of next-generation sequencing data obtained from viral genomes.
-
-V-pipe assesses data quality, performs profile-guided read alignment and infers intra-sample viral genomic diversity on three different spatial scales, namely (i) single-nucleotide variations, (ii) local co-occurrence of SNVs within read-sized regions, and (iii) global haplotype assembly across long genomic stretches.
+Virus populations exist as heterogeneous ensembles of genomes within their hosts. 
+This genetic diversity is associated with viral pathogenesis, virulence, and disease progression, and it can be probed using high-throughput sequencing technologies. 
+V-pipe is a bioinformatics pipeline for the analysis of viral genomic data that allows for assessing intra-host viral genetic diversity. 
+Integrating various open-source software packages, V-pipe supports quality control, read mapping, error correction, and viral haplotype reconstruction. 
+It provides standardized, transparent, and reproducible workflows for research and diagnostic applications.
 
 ![Cartoon](img/workflow_cartoon.svg)
 
