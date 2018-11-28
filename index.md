@@ -9,6 +9,9 @@ V-pipe is a workflow designed for analysis of next-generation sequencing (NGS) d
 <div align="center" style="margin: 2%;">
   <a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe" style="color:black;"><img src="img/mark-github.svg" alt="GitHub" /> Link to repository!</a>
 </div>
+
+[![bio.tools](https://img.shields.io/badge/bio-tools-orange.svg?style=flat)](https://bio.tools/V-Pipe)
+[![ExPASy](https://img.shields.io/badge/expasy-resource-red.svg?style=flat)](https://www.expasy.org/resources/search/querytext:v-pipe)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
 
 ----
