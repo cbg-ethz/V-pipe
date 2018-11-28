@@ -5,11 +5,11 @@
 @import "minima";
 
      header {
-        display: none;
+        // display: none;
       }
 
       nav {
-        display: none;
+        // display: none;
       }
 
       .page-heading {
@@ -28,15 +28,15 @@
         height: 100px;
         width: 250px;
         font-size: 1.1em;
-        line-height: 100px;    
+        line-height: 100px;
         background-color: rgba(0, 169, 157, 0.1);
         box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
         padding: 12px;
 
       }
 
-      .hrefbut:hover {       
-        background-color: rgba(0, 169, 157, 0.2);             
+      .hrefbut:hover {
+        background-color: rgba(0, 169, 157, 0.2);
       }
       .hrefbut img[alt=GitHub] {
         vertical-align: text-bottom;
@@ -48,4 +48,3 @@
         min-width: 200px;
         width: 90%;
       }
-
