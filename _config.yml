@@ -14,3 +14,5 @@ theme: minima
 # Google Analytics
 google_analytics: UA-126950686-1
 
+plugins:
+  - jekyll-sitemap
