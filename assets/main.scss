@@ -16,6 +16,11 @@
         display: none;
       }
 
+      p {
+        text-align: justify;
+        text-justify: inter-word;
+      }
+
       .hrefbut {
         margin: auto;
         margin-bottom: 20px;

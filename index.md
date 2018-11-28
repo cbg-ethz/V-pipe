@@ -4,13 +4,12 @@ layout: default
 
 ![Logo](img/logo.svg)
 
-V-pipe is a workflow designed for analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format.
+V-pipe is a workflow designed for analysis of next-generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format.
 
 
 <div align="center" style="margin: 2%;">
   <a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe" style="color:black;"><img src="img/mark-github.svg" alt="GitHub" /> Link to repository!</a>
 </div>
-[![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.bitbucket.io)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
 
 ----
@@ -54,6 +53,7 @@ V-pipe assesses data quality, performs profile-guided read alignment and infers 
 
 - **[Snakemake](https://snakemake.bitbucket.io)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/snakemake.svg?label=Bioconda)](http://bioconda.github.io/recipes/snakemake/README.html)
+  [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.bitbucket.io)
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
@@ -198,7 +198,7 @@ See [Getting started](https://github.com/cbg-ethz/V-pipe/wiki/getting_started) f
 
 ### V-pipe as a benchmark tool
 
-V-pipe also provides an [unified benchmarking platform](https://github.com/cbg-ethz/V-pipe/wiki/benchmark), by incorporating two additional modules: a read simulator and a module ot evaluate the accuracy of the results.
+V-pipe also provides an [unified benchmarking platform](https://github.com/cbg-ethz/V-pipe/wiki/benchmark), by incorporating two additional modules: a read simulator and a module to evaluate the accuracy of the results.
 
 ### Snakemake rules
 
@@ -233,4 +233,4 @@ We encourage users to use the [issue tracker on GitHub](https://github.com/cbg-e
 
 For further enquiries, you can also contact the V-pipe Dev Team <v-pipe@bsse.ethz.ch>.
 
-A [mailing list for V-pipe users](https://sympa.ethz.ch/sympa/info/v-pipe-users) has also been setup. You can subscribe [there](https://sympa.ethz.ch/sympa/subscribe/v-pipe-users).
+A [mailing list for V-pipe users](https://sympa.ethz.ch/sympa/info/v-pipe-users) has also been setup. You can subscribe [here](https://sympa.ethz.ch/sympa/subscribe/v-pipe-users).
