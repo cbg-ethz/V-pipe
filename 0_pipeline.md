@@ -11,7 +11,7 @@ permalink: /pipeline/
 ## Dependencies
 
 - **[Snakemake](https://snakemake.bitbucket.io)**
-  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/snakemake.svg?label=Bioconda)](http://bioconda.github.io/recipes/snakemake/README.html)
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/snakemake.svg?label=Bioconda)](https://bioconda.github.io/recipes/snakemake/README.html)
   [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.bitbucket.io)
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
@@ -28,7 +28,7 @@ permalink: /pipeline/
   FastQC gives an overview of the raw sequencing data. Flowcells that have been overloaded or otherwise fail during sequencing can easily be determined with FastQC.
 
 - **[PRINSEQ](http://prinseq.sourceforge.net/)**
-  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/prinseq.svg?label=Bioconda)](http://bioconda.github.io/recipes/prinseq/README.html)
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/prinseq.svg?label=Bioconda)](https://bioconda.github.io/recipes/prinseq/README.html)
 
   Trimming and clipping of reads is performed by PRINSEQ. It is currently the most versatile raw read processor with many customization options.
 
