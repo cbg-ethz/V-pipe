@@ -43,10 +43,15 @@
         width: 2.4ex;
         height: 2.4ex;
       }
-      p img[alt=Logo], p img[alt=Pipeline], p img[alt=Cartoon] {
-        align: center;
+      p img[alt=Logo], p img[alt=Pipeline] {
+        text-align: center;
         min-width: 200px;
-        width: 90%;
+        max-width: 90%;
+      }
+      p img[alt=Cartoon] {
+        text-align: center;
+        min-width: 200px;
+        max-width: 100%;
       }
 
       li img[alt=SIB] {
@@ -82,4 +87,20 @@
       }
       li img[alt~=Bioconda], li img[alt*=install], li img[alt^=Snakemake] {
          float: right;
+      }
+
+      .embed-container {
+        position: relative;
+        padding-bottom: 74% /*56.25%*/;
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+      }
+
+      .embed-container iframe, .embed-container object, .embed-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
       }
