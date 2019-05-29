@@ -10,18 +10,21 @@ permalink: /pipeline/
 
 ## Dependencies
 
+- **[Conda](https://conda.io/docs/index.html)**
+  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://conda.io/miniconda.html)
+
+  Conda is an open source package management system and environment management system. V-pipe uses it to automatically obtain reproducible environments and simplify installation of the individual components of the pipeline, thanks to the [Bioconda channel](https://bioconda.github.io) - a distribution of bioinformatics software.
+
+  See the [documentation](http://conda.io/docs/install/quick.html) of conda to install it.
+
 - **[Snakemake](https://snakemake.bitbucket.io)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/snakemake.svg?label=Bioconda)](https://bioconda.github.io/recipes/snakemake/README.html)
   [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.bitbucket.io)
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
-- **[Conda](https://conda.io/docs/index.html)**
-  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://conda.io/miniconda.html)
-
-  Conda is an open source package management system and environment management system. V-pipe uses it to automatically obtain reproducible environments and simplify installation of the individual components of the pipeline, thanks to the [Bioconda channel](https://bioconda.github.io) - a distribution of bioinformatics software.
-
-  See [Documentation](http://conda.io/docs/install/quick.html) to install it.
+  Once you have conda installed, you can in turn [use it to obtain Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda)
+  (This is the recommended way to install it). Snakemake will subsequently obtain all the necessary components to V-pipe.
 
 - **FastQC**
 
