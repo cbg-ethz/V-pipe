@@ -1,5 +1,7 @@
 ---
 layout: default
+image: img/workflow_cartoon2.svg
+image: img/workflow_cartoon2.png
 ---
 
 
@@ -21,6 +23,7 @@ This genetic diversity is associated with viral pathogenesis, virulence, and dis
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-orange.svg?style=flat)](https://bio.tools/V-Pipe)
 [![ExPASy](https://img.shields.io/badge/expasy-resource-red.svg?style=flat)](https://www.expasy.org/resources/search/querytext:v-pipe)
+[![SIB](https://img.shields.io/badge/sib-resource-red.svg?style=flat)](https://www.sib.swiss/research-infrastructure/database-software-tools/sib-resources#v-pipe)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
 
 ----
