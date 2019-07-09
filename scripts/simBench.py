@@ -146,22 +146,16 @@ def mutate(haplotype, mutation_rate, del_rate, ins_rate, noFR=True, del_len=None
     if noFR or del_len:
         # Introduce large indels (multiple of 3, such that they don't introduce frame-shift mutations)
         for i in range(num_deletions):
-            del_locus = np.random.random_integers(
-                0, haplotype.size - 1, size=1)[0]
             if del_len is None:
                 del_len_cur = np.random.choice([3, 6, 9, 12], 1)[0]
             else:
                 del_len_cur = del_len
-            if del_locus + del_len_cur > haplotype.size:
-                if verbose:
-                    print("{}:del-{}".format(del_locus,
-                                             haplotype[del_locus:].tostring().decode()))
-                haplotype[del_locus:] = '-'
-            else:
-                if verbose:
-                    print("{}:del-{}".format(del_locus,
-                                             haplotype[del_locus:del_locus + del_len_cur].tostring().decode()))
-                haplotype[del_locus:del_locus + del_len_cur] = '-'
+            del_locus = np.random.random_integers(
+                0, haplotype.size - del_len_cur, size=1)[0]
+            if verbose:
+                print("{}:del-{}".format(del_locus,
+                                         haplotype[del_locus:del_locus + del_len_cur].tostring().decode()))
+            haplotype[del_locus:del_locus + del_len_cur] = '-'
 
         for i in range(num_insertions):
             ins_locus = np.random.random_integers(
