@@ -1403,7 +1403,7 @@ if config.input['paired']:
             SPLIT = config.savage['split'],
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
-            WORK_DIR = "{dataset}/variants/global/",
+            OUTDIR = "{dataset}/variants/global/",
             FUNCTIONS = functions,
         log:
             outfile = "{dataset}/variants/global/savage.out.log",
@@ -1421,9 +1421,9 @@ if config.input['paired']:
             sed -i -e "s:/1$::" {output.R1}
             sed -i -e "s:/2$::" {output.R2}
 
-            # change to the sample directory
-            cd {params.WORK_DIR}
-            {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 R1.fastq -p2 R2.fastq
+            R1=${{PWD}}/{output.R1}
+            R2=${{PWD}}/{output.R2}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 ${{R1}} -p2 ${{R2}} -o {params.OUTDIR}
             """
 else:
     rule savage_se:
@@ -1439,7 +1439,7 @@ else:
             SPLIT = config.savage['split'],
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
-            WORK_DIR = "{dataset}/variants/global/",
+            OUTDIR = "{dataset}/variants/global/",
             FUNCTIONS = functions,
         log:
             outfile = "{dataset}/variants/global/savage.out.log",
@@ -1454,9 +1454,8 @@ else:
             source {params.FUNCTIONS}
             SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee -a {log.errfile} >&2)
 
-            # change to the sample directory
-            cd {params.WORK_DIR}
-            {params.SAVAGE} -t {threads} --split {params.SPLIT} -s R1.fastq
+            R1=${{PWD}}/{output.R1}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -s ${{R1}} -o {params.OUTDIR}
             """
 
 rule savageclean:
