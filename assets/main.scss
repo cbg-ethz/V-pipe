@@ -105,6 +105,23 @@
         height: 100%;
       }
 
+      .flashNews {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-top: 1px solid #5DBCD2;
+	border-bottom: 1px solid  #5DBCD2;
+	background-color: #CDEAE8;
+	color: #333;
+	width: 90%;
+	margin: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 9pt;
+	text-align: center;
+      }
+
       div.references[role=doc-bibliography] div {
         display: list-item;
         margin-left: 30px;

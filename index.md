@@ -8,6 +8,7 @@ image: img/workflow_cartoon2.png
 V-pipe: A bioinformatics pipeline for viral sequencing data
 
 
+{% include flashNews.html msg="V-pipe will be present at BASEL LIFE 2019 on 9 September 2019 with the &ldquo;<a href='https://www.basellife.org/2019/basel-life-structure/bc2/programme/workshops-and-tutorials.html#c68333'>Tutorial on Bioinformatics pipelines for the analysis of viral NGS data</a>&rdquo;: <a href='https://www.basellife.org/2019/organise-your-attendance/registration.html#basellife19'>Register here</a>" %}
 
 
 # Introduction
