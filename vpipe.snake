@@ -407,8 +407,8 @@ rule gunzip:
         time = config.gunzip['time'],
         GUNZIP = config.applications['gunzip'],
     log:
-        outfile = "/dev/null",
-        errfile = "/dev/null",
+        outfile = temp("{file}_gunzip.out.log"),
+        errfile = temp("{file}_gunzip.err.log"),
     threads:
         1
     shell:
@@ -455,7 +455,7 @@ rule extract:
         outfile = "{dataset}/extracted_data/extract_R{pair}.out.log",
         errfile = "{dataset}/extracted_data/extract_R{pair}.err.log"
     benchmark:
-        "{dataset}/extracted_data/extract.benchmark"
+        "{dataset}/extracted_data/extract_R{pair}.benchmark"
     threads:
         1
     shell:
@@ -586,7 +586,7 @@ rule initial_vicuna:
     conda:
         config.initial_vicuna['conda']
     benchmark:
-        '{dataset}/initial_consensus/vicuna_consensus.benchmark'
+        "{dataset}/initial_consensus/vicuna_consensus.benchmark"
     threads:
         config.initial_vicuna['threads']
     shell:
@@ -1048,7 +1048,7 @@ rule ref_index:
     conda:
         config.ref_index['conda']
     benchmark:
-        'references/ref_index.benchmark'
+        "references/ref_index.benchmark"
     shell:
         """
         {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
@@ -1124,7 +1124,7 @@ rule minor_variants:
     conda:
         config.minor_variants['conda']
     benchmark:
-        'variants/minority_variants.benchmark'
+        "variants/minority_variants.benchmark"
     threads:
         config.minor_variants['threads']
     shell:
@@ -1169,7 +1169,7 @@ rule coverage_intervals:
     conda:
         config.coverage_intervals['conda']
     benchmark:
-        'variants/coverage_intervals.benchmark'
+        "variants/coverage_intervals.benchmark"
     threads:
         1
     shell:
