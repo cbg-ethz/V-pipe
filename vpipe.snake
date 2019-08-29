@@ -344,7 +344,7 @@ for p in patient_list:
     # local haplotypes
     if config.output['local']:
         results.append(
-            "{sample_dir}/{patient}/{date}/variants/local/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+            "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # global haplotypes
     if config.output['global']:
         if config.general['haplotype_reconstruction'] == 'savage':
