@@ -101,7 +101,7 @@ def mutate(haplotype, mutation_rate, del_rate, ins_rate, noFR=True, del_len=None
     Mutate haplotype into a related sequence by introducing mutations at rate mutation_rate and deletions at rate del_rate.
     """
     seed = seed if seed is not None else np.random.random_integers(
-        1, 1000, size=1)
+        1, 1000, size=1)[0]
     # Set seed for reproducibility
     np.random.seed(seed)
 
@@ -294,7 +294,7 @@ args = parse_args()
 outdir_haps = args.outdir_haps if args.outdir_haps is not None else os.getcwd()
 outdir_reads = args.outdir_reads if args.outdir_reads is not None else os.getcwd()
 seed = args.seed if args.seed is not None else np.random.random_integers(
-    1, 1000, size=1)
+    1, 1000, size=1)[0]
 num_haplotypes = args.num_haplotypes
 
 if args.output == "master":
@@ -432,16 +432,21 @@ if args.output == "reads" or args.output == "all":
         os.remove(tmp_file)
 
         # Make headers compatible with output from Illumina platforms (expected by ngshmmalign)
-        sed('/^@.*-[0-9]*\/1$/ s/\/1$/ 1:N:0:5/',
-            ''.join((outprefix, '1.fq')), verbose=args.verbose)
-        sed('/^@.*-[0-9]*\/2$/ s/\/2$/ 2:N:0:5/',
-            ''.join((outprefix, '2.fq')), verbose=args.verbose)
+        if args.paired:
+            sed('/^@.*-[0-9]*\/1$/ s/\/1$/ 1:N:0:5/',
+                ''.join((outprefix, '1.fq')), verbose=args.verbose)
+            sed('/^@.*-[0-9]*\/2$/ s/\/2$/ 2:N:0:5/',
+                ''.join((outprefix, '2.fq')), verbose=args.verbose)
 
         # Rename output file
-        os.rename(''.join((outprefix, '1.fq')),
-                  ''.join((outprefix, '1.fastq')))
-        os.rename(''.join((outprefix, '2.fq')),
-                  ''.join((outprefix, '2.fastq')))
+        if args.paired:
+            os.rename(''.join((outprefix, '1.fq')),
+                      ''.join((outprefix, '1.fastq')))
+            os.rename(''.join((outprefix, '2.fq')),
+                      ''.join((outprefix, '2.fastq')))
+        else:
+            os.rename(''.join((outprefix, '.fq')),
+                      ''.join((outprefix, '1.fastq')))
 
     elif args.freq_dstr == 'geom' or args.freq_dstr == 'cust':
 
@@ -458,9 +463,11 @@ if args.output == "reads" or args.output == "all":
             coverage = freqs * coverage[0]
             coverage = coverage.astype(int)
 
-        # TODO: what if data set is not paired-end?
-        outfiles_R1 = []
-        outfiles_R2 = []
+        if args.paired:
+            outfiles_R1 = []
+            outfiles_R2 = []
+        else:
+            outfiles = []
         for idx in range(num_haplotypes):
             haplotype_file = os.path.join(
                 outdir_haps, ''.join(("haplotype", str(idx), ".fasta")))
@@ -470,19 +477,32 @@ if args.output == "reads" or args.output == "all":
             sed('s/-//g', haplotype_file, verbose=args.verbose)
             outprefix = os.path.join(
                 outdir_reads, ''.join(("reads_hap", str(idx), "_R")))
-            outfiles_R1.append(''.join((outprefix, "1.fq")))
-            outfiles_R2.append(''.join((outprefix, "2.fq")))
+            if args.paired:
+                outfiles_R1.append(''.join((outprefix, "1.fq")))
+                outfiles_R2.append(''.join((outprefix, "2.fq")))
+            else:
+                outfiles.append(''.join((outprefix, ".fq")))
 
             sim_reads(args.art, haplotype_seq=haplotype_file, coverage=coverage[idx], read_len=args.read_length, fragment_mean=fragment_mean,
                       fragment_sd=fragment_sd, outprefix=outprefix, paired=args.paired, num_reads=args.num_reads, seed=seed, verbose=args.verbose)
 
-        sh.cat(outfiles_R1, _out=os.path.join(
-            outdir_reads, "simreads_R1.fastq"))
-        sh.cat(outfiles_R2, _out=os.path.join(
-            outdir_reads, "simreads_R2.fastq"))
+        if args.paired:
+            sh.cat(outfiles_R1, _out=os.path.join(
+                outdir_reads, "simreads_R1.fastq"))
+            sh.cat(outfiles_R2, _out=os.path.join(
+                outdir_reads, "simreads_R2.fastq"))
+            for idx in range(len(outfiles_R1)):
+                os.remove(outfiles_R1[idx])
+                os.remove(outfiles_R2[idx])
+        else:
+            sh.cat(outfiles, _out=os.path.join(
+                outdir_reads, "simreads_R1.fastq"))
+            for f in outfiles:
+                os.remove(f)
 
         # Make headers compatible with output from Illumina platforms (expected by ngshmmalign)
-        sed('/^@.*-[0-9]*\/1$/ s/\/1$/ 1:N:0:5/',
-            os.path.join(outdir_reads, "simreads_R1.fastq"), verbose=args.verbose)
-        sed('/^@.*-[0-9]*\/2$/ s/\/2$/ 2:N:0:5/',
-            os.path.join(outdir_reads, "simreads_R2.fastq"), verbose=args.verbose)
+        if args.paired:
+            sed('/^@.*-[0-9]*\/1$/ s/\/1$/ 1:N:0:5/',
+                os.path.join(outdir_reads, "simreads_R1.fastq"), verbose=args.verbose)
+            sed('/^@.*-[0-9]*\/2$/ s/\/2$/ 2:N:0:5/',
+                os.path.join(outdir_reads, "simreads_R2.fastq"), verbose=args.verbose)
