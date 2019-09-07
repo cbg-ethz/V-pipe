@@ -394,7 +394,7 @@ include: "vpipe.snake"
 def snvfiles(wildcards):
     snv_files = []
     inferred_values = glob_wildcards(
-        wildcards.dataset + "/variants/SNVs/REGION_{region}/dec.log")
+        wildcards.dataset + "/variants/SNVs/REGION_{region}/snv/SNV.txt")
     for i in inferred_values.region:
         snv_files.append(os.path.join(wildcards.dataset, "variants", "SNVs", ''.join(
             ("REGION_", i)), "snv", "SNVs_0.010000.txt"))
