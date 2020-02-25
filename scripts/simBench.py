@@ -48,6 +48,8 @@ def parse_args():
                         help="Indicate if frame-shift mutations should be avoided, and rather long deletions introduced")
     parser.add_argument("-dl", required=False, default=None, metavar='INT',
                         dest='deletion_length', type=int, help="Deletion length in bp")
+    parser.add_argument("-q", required=False, default=False, action='store_true', dest='quality',
+                        help="Indicate whether to simulate high-quality reads") 
     parser.add_argument("-art", required=False, default="art_illumina", metavar='PATH',
                         dest='art', type=str, help="Path to binaries for the read simulator ART")
     parser.add_argument("-s", required=False, default=None, metavar='INT',
@@ -428,7 +430,8 @@ if args.output == "reads" or args.output == "all":
         sed('s/-//g', tmp_file, verbose=args.verbose)
         outprefix = os.path.join(outdir_reads, "simreads_R")
         sim_reads(args.art, haplotype_seq=tmp_file, coverage=coverage[0], read_len=args.read_length, fragment_mean=fragment_mean,
-                  fragment_sd=fragment_sd, outprefix=outprefix, paired=args.paired, num_reads=args.num_reads, seed=seed, verbose=args.verbose)
+                  fragment_sd=fragment_sd, outprefix=outprefix, paired=args.paired, highQ=args.quality, num_reads=args.num_reads,
+                  seed=seed, verbose=args.verbose)
         os.remove(tmp_file)
 
         # Make headers compatible with output from Illumina platforms (expected by ngshmmalign)
@@ -484,7 +487,8 @@ if args.output == "reads" or args.output == "all":
                 outfiles.append(''.join((outprefix, ".fq")))
 
             sim_reads(args.art, haplotype_seq=haplotype_file, coverage=coverage[idx], read_len=args.read_length, fragment_mean=fragment_mean,
-                      fragment_sd=fragment_sd, outprefix=outprefix, paired=args.paired, num_reads=args.num_reads, seed=seed, verbose=args.verbose)
+                      fragment_sd=fragment_sd, outprefix=outprefix, paired=args.paired, highQ=args.quality, num_reads=args.num_reads,
+                      seed=seed, verbose=args.verbose)
 
         if args.paired:
             sh.cat(outfiles_R1, _out=os.path.join(
