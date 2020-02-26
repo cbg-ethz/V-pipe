@@ -442,8 +442,8 @@ rule test_snv:
         scratch = '2000',
         mem = configBench.test_snv['mem'],
         time = configBench.test_snv['time'],
-        RE_MSA = configBench.test_snv['re_msa'],
-        HAPLOTYPE_SEQS_AUX = "{dataset}/raw_data/haplotypes/haplotypes_aux.fasta",
+        RE_MSA = 'true' if configBench.test_snv['re_msa'] else 'false',
+        HAPLOTYPE_SEQS_AUX = "{dataset}/references/haplotypes/haplotypes_aux.fasta",
         OUTDIR = "{dataset}/variants/SNVs",
         MAFFT = configBench.applications['mafft'],
         TEST_BENCH = configBench.applications['testBench'],
@@ -457,7 +457,7 @@ rule test_snv:
         region=`tr '\n' ',' < {input.TSV}`
         if [[ -n ${{region}} ]]; then
             echo "Region(s): ${{region}}" >> {log.outfile}
-            if [[ {params.RE_MSA} = True ]]; then
+            if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
                 {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1

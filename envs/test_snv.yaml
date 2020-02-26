@@ -1,9 +1,10 @@
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - python=3
   - numpy
   - sh
+  - biopython
   - mafft=7.305
