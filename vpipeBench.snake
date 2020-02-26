@@ -55,6 +55,7 @@ class VpipeBenchConfig(object):
         ('test_snv', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=60, type=int),
+            'conda': __RECORD__(value='', type=str),
 
             're_msa': __RECORD__(value=False, type=bool),
         }),
@@ -449,6 +450,8 @@ rule test_snv:
     log:
         outfile = "{dataset}/variants/SNVs/testBench.out.log",
         errfile = "{dataset}/variants/SNVs/testBench.out.log",
+    conda:
+        configBench.test_snv['conda']
     shell:
         """
         region=`tr '\n' ',' < {input.TSV}`
