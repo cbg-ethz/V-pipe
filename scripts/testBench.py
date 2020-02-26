@@ -5,6 +5,9 @@ import argparse
 import csv
 from math import trunc
 
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
 import sh
 import numpy as np
 #import matplotlib.pyplot as plt
@@ -24,6 +27,8 @@ def parse_args():
                                metavar='CSV', dest='snvs', help="File containing called SNVs")
     parser.add_argument("-m", required=False, default=None, metavar='FASTA', dest='haplotype_master',
                         type=str, help="Fasta file containing the sequence with respect to which SNVs were called")
+    parser.add_argument("--ref", required=False, default=None, metavar='FASTA', dest='reference',
+                        type=str, help="Fasta file containing the reference sequence with respect to which reads where aligned")
     parser.add_argument("-d", required=False, default='unif', metavar='str', dest='freq_dstr',
                         type=str, choices=['unif', 'geom'], help="Distribution of haplotype frequencies")
     parser.add_argument("-gr", required=False, default=0.75, metavar='FLOAT', dest='ratio',
@@ -337,9 +342,22 @@ def main():
         header, haplotype_master = read_fasta(args.haplotype_master)
         header = header[0]
         haplotype_master = haplotype_master[0].upper()
-        haplotype_master_array = np.array(haplotype_master, dtype='c')
+        haplotype_master_array = np.array(list(haplotype_master))
         reference_len = haplotype_master_array.size
+        # Expected if cohort consensus has gaps
+        if args.reference is not None:
+            tmp, reference = read_fasta(args.reference)
+            reference = reference[0].upper()
+            reference = np.array(list(reference))
+            assert reference.size == haplotype_master_array.size, "Reference and cohort consensus have different lengths"
+            idxs = haplotype_master_array == '-'
+            haplotype_master_array[idxs] = reference[idxs]
+            args.haplotype_master = os.path.join(outdir, 'cohort_consensus.fasta')
+            cohort_consensus = SeqRecord(Seq(''.join(haplotype_master_array)), id=header, description="")
+            with open(args.haplotype_master, 'w') as outfile:
+                SeqIO.write(cohort_consensus, outfile, "fasta")
 
+        haplotype_master_array = haplotype_master_array.astype('c')
         if args.msa:
             # construct msa: haplotypes + reference/consensus sequence
             infile = os.path.join(outdir, "tmp.fasta")
@@ -366,10 +384,15 @@ def main():
                                haplotype_master_array[idx_master:].size)
                     idxs = haplotype_ref[idx_ref:(
                         idx_ref + left)] == haplotype_master_array[idx_master:]
-                    aux = idxs_ref[idx_ref:(idx_ref + left)][~idxs][0]
-                    idx_master = aux - i
-                    idx_ref = aux + 1
-                    del_idxs[aux] = True
+                    aux = idxs_ref[idx_ref:(idx_ref + left)][~idxs]
+                    if aux.size == 0:
+                        # gaps '-' were placed until the end of haplotype_ref
+                        del_idxs[(idx_ref + left):] = True
+                        break
+                    else:
+                        idx_master = aux[0] - i
+                        idx_ref = aux[0] + 1
+                        del_idxs[aux[0]] = True
 
                 assert np.all(
                     haplotype_ref[~del_idxs] == haplotype_master_array), "After substracting gaps sequences do not agree"
