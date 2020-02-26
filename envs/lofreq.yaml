@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+dependencies:
+  - lofreq
+  - samtools
+  - bcftools

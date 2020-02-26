@@ -23,6 +23,7 @@ class VpipeConfig(object):
         ('general', {
             'threads': __RECORD__(value=4, type=int),
             'aligner': __RECORD__(value='ngshmmalign', type=str),
+            'snv_caller': __RECORD__(value='dec.py', type=str),
             'haplotype_reconstruction': __RECORD__(value='savage', type=str)
         }),
         ('input', {
@@ -59,6 +60,8 @@ class VpipeConfig(object):
             'minority_freq': __RECORD__(value="minority_freq", type=str),
             'extract_coverage_intervals': __RECORD__(value="extract_coverage_intervals", type=str),
             'shorah': __RECORD__(value="dec.py", type='str'),
+            'lofreq': __RECORD__(value="lofreq", type=str),
+            'bcftools': __RECORD__(value="bcftools", type=str),
             'haploclique': __RECORD__(value="haploclique", type='str'),
             'compute_mds': __RECORD__(value="compute_mds", type='str'),
             'savage': __RECORD__(value="savage", type='str')
@@ -178,6 +181,10 @@ class VpipeConfig(object):
 
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
+        }),
+        ('lofreq', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=60, type=int),
         }),
         ('aggregate', {
             'mem': __RECORD__(value=2000, type=int),
@@ -1477,6 +1484,55 @@ rule snvclean:
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/SNVs
+        """
+
+rule lofreq:
+    input:
+        REF = "variants/cohort_consensus.fasta",
+        BAM = "{dataset}/alignments/REF_aln.bam",
+        TSV = "{dataset}/variants/coverage_intervals.tsv",
+    output:
+        BAM = "{dataset}/variants/SNVs/REF_aln_indelqual.bam",
+        SNVs = "{dataset}/variants/SNVs/snvs.vcf"
+    params:
+        scratch = '2000',
+        mem = config.lofreq['mem'],
+        time = config.lofreq['time'],
+        OUTDIR = "{dataset}/variants/SNVs",
+        SAMTOOLS = config.applications['samtools'],
+        BCFTOOLS = config.applications['bcftools'],
+        LOFREQ = config.applications['lofreq'],
+    log:
+        outfile = "{dataset}/variants/SNVs/lofreq.out.log",
+        errfile = "{dataset}/variants/SNVs/lofreq.out.log",
+    shell:
+        """
+        # Add qualities to indels
+        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > >(tee -a {log.outfile}) 2>&1
+        # Index bam file
+        {params.SAMTOOLS} index {output.BAM}
+
+        # Run Lofreq
+        # NOTE: lofreq reads the region as a closed interval and uses 1-based indexing
+        LINE_COUNTER=0
+        FILES=""
+        while read -r region || [[ -n ${{region}} ]]
+        do
+            LINE_COUNTER=$(( $LINE_COUNTER + 1 ))
+            echo "Running Lofreq in region: ${{region}}" >> {log.outfile}
+            OUTFILE_REGION={params.OUTDIR}/snvs_${{LINE_COUNTER}}.vcf
+            {params.LOFREQ} call --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} > >(tee -a {log.outfile}) 2>&1
+            {params.BCFTOOLS} view ${{OUTFILE_REGION}} -Oz -o ${{OUTFILE_REGION}}.gz
+            {params.BCFTOOLS} index ${{OUTFILE_REGION}}.gz
+            FILES="$FILES ${{OUTFILE_REGION}}.gz"
+        done < {input.TSV}
+
+        # Aggregate results from different regions
+        if [[ ((${{LINE_COUNTER}} > 1)) ]]; then
+            {params.BCFTOOLS} merge -o {output.SNVs} ${{FILES}}
+        else
+            mv ${{OUTFILE_REGION}} {output.SNVs}
+        fi
         """
 
 rule haploclique:
