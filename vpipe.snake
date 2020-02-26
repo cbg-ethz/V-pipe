@@ -47,6 +47,8 @@ class VpipeConfig(object):
             'consensusfixer': __RECORD__(value="ConsensusFixer.jar", type=str),
             'picard': __RECORD__(value="picard", type=str),
             'bwa': __RECORD__(value="bwa", type=str),
+            'bowtie_idx': __RECORD__(value="bowtie2-build", type=str),
+            'bowtie': __RECORD__(value="bowtie2", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
             'ngshmmalign': __RECORD__(value="ngshmmalign", type=str),
@@ -128,7 +130,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
         }),
-        ('ref_index', {
+        ('ref_bwa_index', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='envs/bwa_align.yaml', type=str),
@@ -138,6 +140,21 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
+        }),
+        ('ref_bowtie_index', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value='envs/bowtie_align.yaml', type=str),
+        }),
+        ('bowtie_align', {
+            'mem': __RECORD__(value=1250, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value='', type=str),
+
+            'phred': __RECORD__(value='--phred33', type=str),
+            'preset':__RECORD__(value='-local --sensitive-local', type=str),
+            'report': __RECORD__(value='', type=str),
         }),
         ('minor_variants', {
             'mem': __RECORD__(value=1000, type=int),
@@ -1051,60 +1068,168 @@ rule alignclean:
         rm -rf {params.DIR}/*/*/references/initial_consensus.fasta
         """
 
-# 4-6. Alternative: align reads using bwa
-rule ref_index:
-    input:
-        reference_file
-    output:
-        "{}.bwt".format(reference_file)
-    params:
-        scratch = '1250',
-        mem = config.ref_index['mem'],
-        time = config.ref_index['time'],
-        BWA = config.applications['bwa']
-    log:
-        outfile = "references/bwa_index.out.log",
-        errfile = "references/bwa_index.err.log",
-    conda:
-        config.ref_index['conda']
-    benchmark:
-        "references/ref_index.benchmark"
-    shell:
-        """
-        {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
-        """
+# 4-6. Alternative: align reads using bwa or bowtie
+if config.general["aligner"] == "bwa":
+    rule ref_bwa_index:
+        input:
+            reference_file
+        output:
+            "{}.bwt".format(reference_file)
+        params:
+            scratch = '1250',
+            mem = config.ref_bwa_index['mem'],
+            time = config.ref_bwa_index['time'],
+            BWA = config.applications['bwa']
+        log:
+            outfile = "references/bwa_index.out.log",
+            errfile = "references/bwa_index.err.log",
+        conda:
+            config.ref_bwa_index['conda']
+        benchmark:
+            "references/ref_bwa_index.benchmark"
+        shell:
+            """
+            {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
+            """
 
-rule bwa_align:
-    input:
-        FASTQ = input_align,
-        REF = reference_file,
-        INDEX = "{}.bwt".format(reference_file)
-    output:
-        temp("{dataset}/alignments/REF_aln.sam")
-    params:
-        scratch = '1250',
-        mem = config.bwa_align['mem'],
-        time = config.bwa_align['time'],
-        FILTER = '-f 2' if config.input['paired'] else '-F 4',
-        TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
-        BWA = config.applications['bwa'],
-        SAMTOOLS = config.applications['samtools'],
-    log:
-        outfile = "{dataset}/alignments/bwa_align.out.log",
-        errfile = "{dataset}/alignments/bwa_align.err.log",
-    conda:
-        config.bwa_align['conda']
-    benchmark:
-        "{dataset}/alignments/bwa_align.benchmark"
-    threads:
-        config.bwa_align['threads']
-    shell:
-        """
-        {params.BWA} mem -t {threads} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
-        # Filter alignments: (1) remove unmapped reads (single-end) or keep only reads mapped in proper pairs (paired-end), (2) remove supplementary aligments
-        {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
-        rm {params.TMP_SAM}
-        """
+    rule bwa_align:
+        input:
+            FASTQ = input_align,
+            REF = reference_file,
+            INDEX = "{}.bwt".format(reference_file)
+        output:
+            temp("{dataset}/alignments/REF_aln.sam")
+        params:
+            scratch = '1250',
+            mem = config.bwa_align['mem'],
+            time = config.bwa_align['time'],
+            FILTER = '-f 2' if config.input['paired'] else '-F 4',
+            TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
+            BWA = config.applications['bwa'],
+            SAMTOOLS = config.applications['samtools'],
+        log:
+            outfile = "{dataset}/alignments/bwa_align.out.log",
+            errfile = "{dataset}/alignments/bwa_align.err.log",
+        conda:
+            config.bwa_align['conda']
+        benchmark:
+            "{dataset}/alignments/bwa_align.benchmark"
+        threads:
+            config.bwa_align['threads']
+        shell:
+            """
+            {params.BWA} mem -t {threads} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+            # Filter alignments: (1) remove unmapped reads (single-end) or keep only reads mapped in proper pairs (paired-end), (2) remove supplementary aligments
+            {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+            rm {params.TMP_SAM}
+            """
+elif config.general["aligner"] == "bowtie":
+    rule ref_bowtie_index:
+        input:
+            reference_file
+        output:
+            INDEX1 = "{}.1.bt2".format(reference_file),
+            INDEX2 = "{}.2.bt2".format(reference_file),
+            INDEX3 = "{}.3.bt2".format(reference_file),
+            INDEX4 = "{}.4.bt2".format(reference_file),
+            INDEX5 = "{}.rev.1.bt2".format(reference_file),
+            INDEX6 = "{}.rev.2.bt2".format(reference_file),
+        params:
+            scratch = '1250',
+            mem = config.ref_bowtie_index['mem'],
+            time = config.ref_bowtie_index['time'],
+            BOWTIE = config.applications['bowtie_idx']
+        log:
+            outfile = "references/bowtie_index.out.log",
+            errfile = "references/bowtie_index.err.log",
+        conda:
+            config.ref_bowtie_index['conda']
+        benchmark:
+            "references/ref_bowtie_index.benchmark"
+        shell:
+            """
+            {params.BOWTIE} {input} reference_file 2> >(tee {log.errfile} >&2)
+            """
+
+    if config.input['paired']:
+        rule bowtie_align:
+            input:
+                R1 = "{dataset}/preprocessed_data/R1.fastq.gz",
+                R2 = "{dataset}/preprocessed_data/R2.fastq.gz",
+                REF = reference_file,
+                INDEX1 = "{}.1.bt2".format(reference_file),
+                INDEX2 = "{}.2.bt2".format(reference_file),
+                INDEX3 = "{}.3.bt2".format(reference_file),
+                INDEX4 = "{}.4.bt2".format(reference_file),
+                INDEX5 = "{}.rev.1.bt2".format(reference_file),
+                INDEX6 = "{}.rev.2.bt2".format(reference_file)
+            output:
+                temp("{dataset}/alignments/REF_aln.sam")
+            params:
+                scratch = '1250',
+                mem = config.bowtie_align['mem'],
+                time = config.bowtie_align['time'],
+                TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
+                PHRED = config.bowtie_align['phred'],
+                PRESET = config.bowtie_align['preset'],
+                REPORT = config.bowtie_align['report'],
+                BOWTIE = config.applications['bowtie'],
+                SAMTOOLS = config.applications['samtools'],
+            log:
+                outfile = "{dataset}/alignments/bowtie_align.out.log",
+                errfile = "{dataset}/alignments/bowtie_align.err.log",
+            conda:
+                config.bowtie_align['conda']
+            benchmark:
+                "{dataset}/alignments/bowtie_align.benchmark"
+            threads:
+                config.bowtie_align['threads']
+            shell:
+                """
+                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
+                {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                rm {params.TMP_SAM}
+                """
+    else:
+        rule bowtie_align_se:
+            input:
+                R1 = "{dataset}/preprocessed_data/R1.fastq.gz",
+                REF = reference_file,
+                INDEX1 = "{}.1.bt2".format(reference_file),
+                INDEX2 = "{}.2.bt2".format(reference_file),
+                INDEX3 = "{}.3.bt2".format(reference_file),
+                INDEX4 = "{}.4.bt2".format(reference_file),
+                INDEX5 = "{}.rev.1.bt2".format(reference_file),
+                INDEX6 = "{}.rev.2.bt2".format(reference_file)
+            output:
+                temp("{dataset}/alignments/REF_aln.sam")
+            params:
+                scratch = '1250',
+                mem = config.bowtie_align['mem'],
+                time = config.bowtie_align['time'],
+                TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
+                PHRED = config.bowtie_align['phred'],
+                PRESET = config.bowtie_align['preset'],
+                REPORT = config.bowtie_align['report'],
+                BOWTIE = config.applications['bowtie'],
+                SAMTOOLS = config.applications['samtools'],
+            log:
+                outfile = "{dataset}/alignments/bowtie_align.out.log",
+                errfile = "{dataset}/alignments/bowtie_align.err.log",
+            conda:
+                config.bowtie_align['conda']
+            benchmark:
+                "{dataset}/alignments/bowtie_align.benchmark"
+            threads:
+                config.bowtie_align['threads']
+            shell:
+                """
+                {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} -k {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
+                {params.SAMTOOLS} view -h -F 4 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                rm {params.TMP_SAM}
+                """
 
 rule bwaclean:
     input:
@@ -1117,9 +1242,27 @@ rule bwaclean:
         rm -rf {params.DIR}/*/*/alignments
         """
 
+rule bowtieclean:
+    input:
+        INDEX1 = "{}.1.bt2".format(reference_file),
+        INDEX2 = "{}.2.bt2".format(reference_file),
+        INDEX3 = "{}.3.bt2".format(reference_file),
+        INDEX4 = "{}.4.bt2".format(reference_file),
+        INDEX5 = "{}.rev.1.bt2".format(reference_file),
+        INDEX6 = "{}.rev.2.bt2".format(reference_file)
+    params:
+        DIR = config.input['datadir']
+    shell:
+        """
+        rm -f {input}
+        rm -rf {params.DIR}/*/*/alignments
+        """
+
 if config.general["aligner"] == "ngshmmalign":
     ruleorder: convert_to_ref > sam2bam
 elif config.general["aligner"] == "bwa":
+    ruleorder: sam2bam > convert_to_ref
+elif config.general["aligner"] == "bowtie":
     ruleorder: sam2bam > convert_to_ref
 
 # 7. Ouptut minor allele frequencies
