@@ -35,9 +35,11 @@ def parse_args():
     parser.add_argument("-m", required=False, default='600,100', metavar='mean,sd',
                         dest='fragment_size', help="Average fragment size and its standard deviation")
     parser.add_argument("-d", required=False, default='unif', metavar='STR', dest='freq_dstr',
-                        type=str, choices=['unif', 'geom', 'cust'], help="Distribution of haplotype frequencies")
+                        type=str, choices=['unif', 'geom', 'dirichlet', 'cust'], help="Distribution of haplotype frequencies")
     parser.add_argument("-gr", required=False, default=0.75, metavar='FLOAT', dest='geom_ratio',
                         type=float, help="Sucess probability for the geometric distribution")
+    parser.add_argument("-dc", required=False, default=None, metavar='FLOAT,FLOAT,...', dest='dirichlet_alpha',
+                        type=str, help="Concentration parameters of the Dirichlet distribution. For values > 1, more evenly distributed distributions are generated. For values < 1, the vast majority of the mass will be concentrated in a few of the values.")
     parser.add_argument("-mr", required=False, default=0.1, metavar='FLOAT', dest='mutation_rate', type=float,
                         help="Mutation rate for generating variants/haplotypes. If greater than 1 is interpreted as the desired number of mutations to introduce per sequence")
     parser.add_argument("-dr", required=False, default=0.0, metavar='FLOAT', dest='deletion_rate', type=float,
@@ -451,15 +453,30 @@ if args.output == "reads" or args.output == "all":
             os.rename(''.join((outprefix, '.fq')),
                       ''.join((outprefix, '1.fastq')))
 
-    elif args.freq_dstr == 'geom' or args.freq_dstr == 'cust':
+    elif args.freq_dstr == 'geom' or args.freq_dstr == 'dirichlet' or args.freq_dstr == 'cust':
 
         if args.freq_dstr == 'geom':
             if len(coverage) > 1:
-                print(
-                    "More than one value for coverage was specified, only first value is used")
+                print("More than one value for coverage specified, only first value is used")
             freqs = [args.geom_ratio**(i + 1) for i in range(num_haplotypes)]
             freqs = np.asarray(freqs)
             freqs = freqs / np.sum(freqs)
+            np.set_printoptions(precision=4)
+            if args.verbose:
+                print("Relative abundances: ", freqs)
+            coverage = freqs * coverage[0]
+            coverage = coverage.astype(int)
+        elif args.freq_dstr == 'dirichlet':
+            if len(coverage) > 1:
+                print("More than one value for coverage specified, only first value is used")
+            if args.dirichlet_alpha is None:
+                alpha = np.ones(num_haplotypes)
+            else:
+                alpha = [float(x) for x in args.dirichlet_alpha.split(",")]
+                if len(alpha) == 1:
+                    alpha = np.repeat(alpha, num_haplotypes)
+                assert len(alpha) == num_haplotypes, "The number of Dirichlet parameters and number of haplotypes does not coincide"
+            freqs = np.random.dirichlet(alpha)
             np.set_printoptions(precision=4)
             if args.verbose:
                 print("Relative abundances: ", freqs)

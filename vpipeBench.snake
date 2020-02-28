@@ -51,6 +51,7 @@ class VpipeBenchConfig(object):
             'time': __RECORD__(value=30, type=int),
 
             'num_reads': __RECORD__(value=False, type=bool),
+            'high_quality': __RECORD__(value=True, type=bool),
         }),
         ('test_snv', {
             'mem': __RECORD__(value=2000, type=int),
@@ -138,11 +139,11 @@ with open(configBench.input['samples_file'], newline='') as csvfile:
         if len(row) == 2:
             # All data sets are assumed to have default specifications
             sample_dict[sample_tuple] = {"read_len": 250, "haplotype_seqs": None, "num_haplotypes": 5, "coverage": 500, "fragment_size": '600,100',
-                                         "freq_dstr": 'geom', "geom_ratio": 0.75, "mut_rate": 0.1, "del_rate": 0.0, "ins_rate": 0.0, "no_frameshifts": True, "del_len": ''}
+                                         "freq_dstr": 'geom', "freq_param": 0.75, "mut_rate": 0.1, "del_rate": 0.0, "ins_rate": 0.0, "no_frameshifts": True, "del_len": ''}
 
         else:
             # All other features (except seed) must be specified
-            sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(row[5]), "fragment_size": row[6], "freq_dstr": row[7], "geom_ratio": float(
+            sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(row[5]), "fragment_size": row[6], "freq_dstr": row[7], "freq_param": float(
                 row[8]), "mut_rate": float(row[9]), "del_rate": float(row[10]), "ins_rate": float(row[11]), "no_frameshifts": row[12], "del_len": row[13]}
 
         if len(row) == 15:
@@ -200,7 +201,7 @@ rule simulate_master:
         """
 
 localrules:
-    rule_initial_reference
+    initial_reference
 rule initial_reference:
     input:
         reference_file
@@ -214,15 +215,16 @@ rule initial_reference:
         touch -h {output}
         """
 
-# def get_haplotype_seqs(wildcards):
-#    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
-#    haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
-#    if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
-#        val = '-f {}'.format(haplotype_seqs)
-#    else:
-#        val = ''
-#    return val
-#
+def get_haplotype_seqs(wildcards):
+   sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+   haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
+   if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
+       val = haplotype_seqs
+   else:
+       val = ''
+   return val
+
+
 # def get_use_master(wildcards):
 #    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
 #    use_master = sample_dict[sample_tuple]['use_master']
@@ -248,7 +250,6 @@ def get_del_len(wildcards):
     return val
 
 
-# TODO: specify a different input when a set of sequences is given. Meaning 'haplotype_seqs' is not NA.
 rule simulate_haplotypes:
     input:
         reference_file
@@ -259,6 +260,7 @@ rule simulate_haplotypes:
         mem = configBench.simulate_haplotypes['mem'],
         time = configBench.simulate_haplotypes['time'],
         USE_MASTER = '-u' if configBench.simulate_haplotypes['use_master'] else '',
+        HAPLOTYPE_SEQS = get_haplotype_seqs,
         NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(
             sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
         MUT_RATE = lambda wildcards: sample_dict[sample_record(
@@ -278,10 +280,27 @@ rule simulate_haplotypes:
         errfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
     shell:
         """
-        {params.SIM_BENCH} -f {input} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+        if [[ -z {params.HAPLOTYPE_SEQS} ]]; then
+            {params.SIM_BENCH} -f {input} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+        else
+            {params.SIM_BENCH} -f {params.HAPLOTYPE_SEQS} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+        fi
         """
 
 # 5. Simulate reads
+def get_freq_params(wildcards):
+   sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
+   freq_dstr = sample_dict[sample_tuple]['freq_dstr']
+   freq_param = sample_dict[sample_tuple]['freq_param']
+   if freq_dstr == 'geom':
+       val = '-gr {}'.format(freq_param)
+   elif freq_dstr == 'dirichlet':
+       val = '-dc {}'.format(freq_param)
+   else:
+        val = ''
+   return val
+
+
 if configBench.input['paired']:
     rule simulate_reads:
         input:
@@ -302,6 +321,7 @@ if configBench.input['paired']:
             COVERAGE = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['coverage'],
             NUM_READS = '-nr' if configBench.simulate_reads['num_reads'] else '',
+            HIGH_QUAL = '-q' if configBench.simulate_reads['high_quality'] else '',
             READ_LEN = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['read_len'],
             PAIRED = '-p',
@@ -309,8 +329,7 @@ if configBench.input['paired']:
                 sample_name=wildcards.sample_name, date=wildcards.date)]['fragment_size'],
             FREQ_DSTR = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
-            GEOM_RATIO = lambda wildcards: sample_dict[sample_record(
-                sample_name=wildcards.sample_name, date=wildcards.date)]['geom_ratio'],
+            FREQ_PARAMS = get_freq_params,
             SEED = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
             OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
@@ -322,7 +341,7 @@ if configBench.input['paired']:
             errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
         shell:
             """
-            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} {params.PAIRED} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} -gr {params.GEOM_RATIO} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
+            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} {params.PAIRED} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} {params.HIGH_QUAL} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
 
             # Move intermediate results
             mkdir -p {params.OUTDIR_READS}/reads
