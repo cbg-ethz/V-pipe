@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import argparse
 import collections
 import shutil
@@ -51,7 +52,7 @@ def parse_args():
     parser.add_argument("-dl", required=False, default=None, metavar='INT',
                         dest='deletion_length', type=int, help="Deletion length in bp")
     parser.add_argument("-q", required=False, default=False, action='store_true', dest='quality',
-                        help="Indicate whether to simulate high-quality reads") 
+                        help="Indicate whether to simulate high-quality reads")
     parser.add_argument("-art", required=False, default="art_illumina", metavar='PATH',
                         dest='art', type=str, help="Path to binaries for the read simulator ART")
     parser.add_argument("-s", required=False, default=None, metavar='INT',
@@ -457,7 +458,8 @@ if args.output == "reads" or args.output == "all":
 
         if args.freq_dstr == 'geom':
             if len(coverage) > 1:
-                print("More than one value for coverage specified, only first value is used")
+                print(
+                    "More than one value for coverage specified, only first value is used")
             freqs = [args.geom_ratio**(i + 1) for i in range(num_haplotypes)]
             freqs = np.asarray(freqs)
             freqs = freqs / np.sum(freqs)
@@ -468,20 +470,35 @@ if args.output == "reads" or args.output == "all":
             coverage = coverage.astype(int)
         elif args.freq_dstr == 'dirichlet':
             if len(coverage) > 1:
-                print("More than one value for coverage specified, only first value is used")
+                print(
+                    "More than one value for coverage specified, only first value is used")
             if args.dirichlet_alpha is None:
                 alpha = np.ones(num_haplotypes)
             else:
                 alpha = [float(x) for x in args.dirichlet_alpha.split(",")]
                 if len(alpha) == 1:
                     alpha = np.repeat(alpha, num_haplotypes)
-                assert len(alpha) == num_haplotypes, "The number of Dirichlet parameters and number of haplotypes does not coincide"
+                assert len(
+                    alpha) == num_haplotypes, "The number of Dirichlet parameters and number of haplotypes does not coincide"
+            np.random.seed(seed)
             freqs = np.random.dirichlet(alpha)
             np.set_printoptions(precision=4)
             if args.verbose:
                 print("Relative abundances: ", freqs)
             coverage = freqs * coverage[0]
             coverage = coverage.astype(int)
+            # write to output
+            fasta_record = collections.namedtuple("fasta_record", "id seq")
+            output_file = os.path.join(
+                outdir_haps, "haplotype_frequencies.fasta")
+            with open(output_file, 'w') as outfile:
+                for i in range(num_haplotypes):
+                    haplotype_id = ''.join(("haplotype", str(i)))
+                    line = fasta_record(id=haplotype_id, seq=freqs[i])
+                    outfile.write(">{}\n{}\n".format(line.id, line.seq))
+        elif args.freq_dstr == 'cust':
+            print("Not implemented yet!")
+            sys.exit()
 
         if args.paired:
             outfiles_R1 = []

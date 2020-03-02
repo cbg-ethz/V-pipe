@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import argparse
 import csv
 from math import trunc
@@ -30,9 +31,11 @@ def parse_args():
     parser.add_argument("--ref", required=False, default=None, metavar='FASTA', dest='reference',
                         type=str, help="Fasta file containing the reference sequence with respect to which reads where aligned")
     parser.add_argument("-d", required=False, default='unif', metavar='str', dest='freq_dstr',
-                        type=str, choices=['unif', 'geom'], help="Distribution of haplotype frequencies")
+                        type=str, choices=['unif', 'geom', 'dirichlet', 'cust'], help="Distribution of haplotype frequencies")
     parser.add_argument("-gr", required=False, default=0.75, metavar='FLOAT', dest='ratio',
                         type=float, help="Sucess probability for the geometric distribution")
+    parser.add_argument("-df", required=False, default=None, metavar='FASTA', dest='dirichlet_freqs',
+                        type=str, help="File containing haplotype frequencies")
     parser.add_argument("-r", required=False, default=None, metavar='chrm:start-end', dest='region', type=str,
                         help="Region in format 'chrm:start-stop', e.g. 'ch3:1000-3000' using 1-based indexing and assuming a closed interval")
     parser.add_argument("-c", required=False, default=False, action='store_true', dest='snv_caller',
@@ -77,14 +80,22 @@ def read_fasta(fasta_file):
     return haplotype_ids, haplotype_seqs
 
 
-def frequencies(freq_dstr, ratio, num_haplotypes):
+def frequencies(freq_dstr, num_haplotypes, ratio=0.75, infile=None):
     "Compute the expected haplotype frequencies"
     if freq_dstr == 'unif':
         haplotype_freqs = np.repeat(1 / num_haplotypes, num_haplotypes)
     elif freq_dstr == 'geom':
         haplotype_freqs = [ratio**(i + 1) for i in range(num_haplotypes)]
         haplotype_freqs = np.asarray(haplotype_freqs)
-        haplotype_freqs = haplotype_freqs / sum(haplotype_freqs)
+        haplotype_freqs = haplotype_freqs / np.sum(haplotype_freqs)
+    elif freq_dstr == 'dirichlet':
+        # Read haplotype frequencies from output file
+        if infile is None:
+            print("Input file containing haplotype frequencies is expected")
+            sys.exit()
+        ids, haplotype_freqs = read_fasta(infile)
+        haplotype_freqs = np.asarray(haplotype_freqs, dtype=float)
+
     return haplotype_freqs
 
 
@@ -352,8 +363,10 @@ def main():
             assert reference.size == haplotype_master_array.size, "Reference and cohort consensus have different lengths"
             idxs = haplotype_master_array == '-'
             haplotype_master_array[idxs] = reference[idxs]
-            args.haplotype_master = os.path.join(outdir, 'cohort_consensus.fasta')
-            cohort_consensus = SeqRecord(Seq(''.join(haplotype_master_array)), id=header, description="")
+            args.haplotype_master = os.path.join(
+                outdir, 'cohort_consensus.fasta')
+            cohort_consensus = SeqRecord(
+                Seq(''.join(haplotype_master_array)), id=header, description="")
             with open(args.haplotype_master, 'w') as outfile:
                 SeqIO.write(cohort_consensus, outfile, "fasta")
 
@@ -422,7 +435,7 @@ def main():
         haplotype_seqs_array = np.array(haplotype_seqs, dtype='c')
         if freq_dstr != 'unif':
             haplotype_freqs = frequencies(
-                args.freq_dstr, args.ratio, num_haplotypes)
+                args.freq_dstr, num_haplotypes, args.ratio, args.dirichlet_freqs)
             aux = np.repeat(haplotype_seqs_array, np.round(
                 haplotype_freqs * 100).astype(int), axis=0)
             consensus = mode(aux, nan_policy='omit')
@@ -432,7 +445,8 @@ def main():
             print("At some loci the consensus base is ambiguous")
         haplotype_master_array = consensus[0][0]
 
-    haplotype_freqs = frequencies(args.freq_dstr, args.ratio, num_haplotypes)
+    haplotype_freqs = frequencies(
+        args.freq_dstr, num_haplotypes, args.ratio, args.dirichlet_freqs)
     # True haplotypes - expected SNVs
     loci_true, ref_true, snvs_true, freq_true, haps_true = true_snvs(
         haplotype_master_array, haplotype_seqs_array, num_haplotypes, haplotype_freqs, alphabet)
