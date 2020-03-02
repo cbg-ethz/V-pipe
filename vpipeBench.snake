@@ -454,6 +454,7 @@ rule test_snv:
         SNVs = "{dataset}/variants/SNVs/snvs.csv",
         HAPLOTYPE_SEQS = "{dataset}/references/haplotypes/haplotypes.fasta",
         REF = "variants/cohort_consensus.fasta",
+        REF_ALN = reference_file,
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
         "{dataset}/variants/SNVs/true_snvs.tsv"
@@ -479,9 +480,9 @@ rule test_snv:
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} -r ${{region}} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -r ${{region}} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
         else
             echo "No called SNVs"
