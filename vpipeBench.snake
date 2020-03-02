@@ -215,14 +215,16 @@ rule initial_reference:
         touch -h {output}
         """
 
+
 def get_haplotype_seqs(wildcards):
-   sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
-   haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
-   if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
-       val = haplotype_seqs
-   else:
-       val = ''
-   return val
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
+    if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
+        val = haplotype_seqs
+    else:
+        val = ''
+    return val
 
 
 # def get_use_master(wildcards):
@@ -289,16 +291,17 @@ rule simulate_haplotypes:
 
 # 5. Simulate reads
 def get_freq_params(wildcards):
-   sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
-   freq_dstr = sample_dict[sample_tuple]['freq_dstr']
-   freq_param = sample_dict[sample_tuple]['freq_param']
-   if freq_dstr == 'geom':
-       val = '-gr {}'.format(freq_param)
-   elif freq_dstr == 'dirichlet':
-       val = '-dc {}'.format(freq_param)
-   else:
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
+    freq_param = sample_dict[sample_tuple]['freq_param']
+    if freq_dstr == 'geom':
+        val = '-gr {}'.format(freq_param)
+    elif freq_dstr == 'dirichlet':
+        val = '-dc {}'.format(freq_param)
+    else:
         val = ''
-   return val
+    return val
 
 
 if configBench.input['paired']:
@@ -446,30 +449,49 @@ rule aggregate_beforeSB:
         sed -i 1i"Chromosome,Pos,Ref,Var,Frq1,Frq2,Frq3,Pst1,Pst2,Pst3,Fvar,Rvar,Ftot,Rtot,Pval" {output.CSV}
         """
 
+
+def get_freq_aux(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
+    freq_param = sample_dict[sample_tuple]['freq_param']
+    if freq_dstr == 'geom':
+        val = '-gr {}'.format(freq_param)
+    elif freq_dstr == 'dirichlet':
+        infile = os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                              wildcards.date, "references/haplotypes/haplotype_frequencies.fasta")
+        val = '-df {}'.format(infile)
+    else:
+        val = ''
+    return val
+
+
 # TODO wl, ws should be added
 # TODO Switch between snvs and snvs_beforeSB
 rule test_snv:
     input:
         # "{dataset}/variants/SNVs/SNVs_beforeSB.csv",
-        SNVs = "{dataset}/variants/SNVs/snvs.csv",
-        HAPLOTYPE_SEQS = "{dataset}/references/haplotypes/haplotypes.fasta",
+        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv",
+        HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         REF = "variants/cohort_consensus.fasta",
         REF_ALN = reference_file,
-        TSV = "{dataset}/variants/coverage_intervals.tsv",
+        TSV = "{sample_dir}/{sample_name}/{date}/variants/coverage_intervals.tsv",
     output:
-        "{dataset}/variants/SNVs/true_snvs.tsv"
+        "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv"
     params:
         scratch = '2000',
         mem = configBench.test_snv['mem'],
         time = configBench.test_snv['time'],
         RE_MSA = 'true' if configBench.test_snv['re_msa'] else 'false',
-        HAPLOTYPE_SEQS_AUX = "{dataset}/references/haplotypes/haplotypes_aux.fasta",
-        OUTDIR = "{dataset}/variants/SNVs",
+        HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
+        FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
+        FREQ_PARAMS = get_freq_aux,
+        OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
         MAFFT = configBench.applications['mafft'],
         TEST_BENCH = configBench.applications['testBench'],
     log:
-        outfile = "{dataset}/variants/SNVs/testBench.out.log",
-        errfile = "{dataset}/variants/SNVs/testBench.out.log",
+        outfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
+        errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
     conda:
         configBench.test_snv['conda']
     shell:
@@ -480,9 +502,9 @@ rule test_snv:
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -r ${{region}} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
         else
             echo "No called SNVs"
