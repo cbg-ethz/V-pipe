@@ -143,8 +143,8 @@ with open(configBench.input['samples_file'], newline='') as csvfile:
 
         else:
             # All other features (except seed) must be specified
-            sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(row[5]), "fragment_size": row[6], "freq_dstr": row[7], "freq_param": float(
-                row[8]), "mut_rate": float(row[9]), "del_rate": float(row[10]), "ins_rate": float(row[11]), "no_frameshifts": row[12], "del_len": row[13]}
+            sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(
+                row[5]), "fragment_size": row[6], "freq_dstr": row[7], "freq_param": row[8], "mut_rate": float(row[9]), "del_rate": float(row[10]), "ins_rate": float(row[11]), "no_frameshifts": row[12], "del_len": row[13]}
 
         if len(row) == 15:
             # Seed is specified
@@ -290,6 +290,7 @@ rule simulate_haplotypes:
         """
 
 # 5. Simulate reads
+
 def get_freq_params(wildcards):
     sample_tuple = sample_record(
         sample_name=wildcards.sample_name, date=wildcards.date)
