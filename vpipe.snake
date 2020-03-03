@@ -156,7 +156,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'phred': __RECORD__(value='--phred33', type=str),
-            'preset':__RECORD__(value='-local --sensitive-local', type=str),
+            'preset':__RECORD__(value='--local --sensitive-local', type=str),
             'report': __RECORD__(value='', type=str),
         }),
         ('minor_variants', {
@@ -1155,7 +1155,7 @@ elif config.general["aligner"] == "bowtie":
             "references/ref_bowtie_index.benchmark"
         shell:
             """
-            {params.BOWTIE} {input} reference_file 2> >(tee {log.errfile} >&2)
+            {params.BOWTIE} {input} {input} 2> >(tee {log.errfile} >&2)
             """
 
     if config.input['paired']:
