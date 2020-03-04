@@ -23,7 +23,7 @@ class VpipeConfig(object):
         ('general', {
             'threads': __RECORD__(value=4, type=int),
             'aligner': __RECORD__(value='ngshmmalign', type=str),
-            'snv_caller': __RECORD__(value='dec.py', type=str),
+            'snv_caller': __RECORD__(value='shorah', type=str),
             'haplotype_reconstruction': __RECORD__(value='savage', type=str)
         }),
         ('input', {
@@ -156,7 +156,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'phred': __RECORD__(value='--phred33', type=str),
-            'preset':__RECORD__(value='--local --sensitive-local', type=str),
+            'preset': __RECORD__(value='--local --sensitive-local', type=str),
             'report': __RECORD__(value='', type=str),
         }),
         ('minor_variants', {
@@ -185,6 +185,7 @@ class VpipeConfig(object):
         ('lofreq', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=60, type=int),
+            'conda': __RECORD__(value='', type=str),
         }),
         ('aggregate', {
             'mem': __RECORD__(value=2000, type=int),
@@ -363,8 +364,12 @@ for p in patient_list:
 
     # SNV
     if config.output['snv']:
-        results.append(
-            "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        if config.general['snv_caller'] == 'shorah':
+            results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
+                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        elif config.general['snv_caller'] == 'lofreq':
+            results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
+                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # local haplotypes
     if config.output['local']:
         results.append(
@@ -1505,6 +1510,8 @@ rule lofreq:
     log:
         outfile = "{dataset}/variants/SNVs/lofreq.out.log",
         errfile = "{dataset}/variants/SNVs/lofreq.out.log",
+    conda:
+        config.lofreq['conda']
     shell:
         """
         # Add qualities to indels
