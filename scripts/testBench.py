@@ -44,6 +44,8 @@ def parse_args():
                         type=int, help="Window length used by ShoRAH to construct overlapping windows")
     parser.add_argument("-ws", required=False, default=3, metavar='INT', dest='window_shift',
                         type=int, help="Number of window shifts used by ShoRAH to construct overlapping windows")
+    parser.add_argument("-cf", required=False, default="coverage.txt", metavar='TXT', dest='coverage',
+                        type=str, help="File to read coverage per window used by ShoRAH")
     parser.add_argument("-ms", required=False, default=False, action='store_true', dest='msa',
                         help="Indicate if the multiple sequence alignment including reference/consensus sequence should be constructed")
     parser.add_argument("-t", required=False, default=False,  action='store_true', dest='output_true',
@@ -340,6 +342,10 @@ def get_FP_TN(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, 
     return(FP, TN, j)
 
 
+def consecutive(array, stepsize=1):
+    return np.split(array, np.where(np.diff(array) != stepsize)[0]+1)
+
+
 def main():
 
     args = parse_args()
@@ -596,8 +602,106 @@ def main():
         loci = loci[idxs]
         assert loci_inferred[0] >= loci[0] and loci_inferred[-1] <= loci[-1], "Reported SNVs are outside region of interest"
     else:
-        # do something - when region is not specified
-        print("TODO")
+        if not args.snv_caller:
+            idxs = np.zeros(reference_len, dtype=bool)
+            offset = (args.window_len // args.window_shift)
+            # Parse coverage intervals from ShoRAH output
+            with open(args.coverage, 'r') as infile:
+                # Look for regions at least covered by two windows
+                for count, line in enumerate(infile): 
+                    record = line.rstrip().split("\t")
+                    if count >= 2:
+                        if int(record[2]) == start_w + offset:
+                            idxs[loci[(start_w - 1):int(record[3])]] = True
+                            start_w = int(record[2])
+                    else:
+                        start_w = int(record[2])
+
+            loci_region = np.extract(idxs, loci)
+            regions = consecutive(loci_region)
+
+            while loci_true[i] < loci_region[0]:
+                i += 1
+            if DBG:
+                print("DBG loci_true[i]: {}".format(loci_true[i]))
+
+            idx_region = 0
+            for idx in loci_region:
+
+                if len(regions) > idx_region:
+                    if idx == regions[idx_region][0]:
+                        print("Region with enough support: {:d}-{:d}".format(int(regions[idx_region][0]) + 1, int(regions[idx_region][-1])))
+                        idx_region += 1
+
+                if i == i_max or j == j_max:
+                    if i == i_max and j < j_max:
+                        # There are no more expected SNVs, but nevertheless reported by the caller
+                        FP, TN, j = get_FP_TN(
+                            idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, TN)
+
+                    if j == j_max and i < i_max:
+                        # There are no more reported SNVs, but some are expected
+                        FN, TN, i, missed = get_FN_TN(
+                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, haps_true)
+
+                else:
+                    assert loci_true[i] >= idx
+                    assert loci_inferred[j] >= idx
+
+                    if loci_true[i] == idx and loci_inferred[j] == idx:
+                        while loci_true[i] == idx and loci_inferred[j] == idx:
+                            if snvs_true[i] == snvs_inferred[j]:
+                                TP += 1
+                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
+                                if DBG:
+                                    print("At locus {}, true positive reported: {} ({:.6f})".format(
+                                        loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
+                                i += 1
+                                j += 1
+                            elif snvs_true[i] > snvs_inferred[j]:
+                                FP += 1
+                                print("At locus {}, technical error / artefact reported as true variant: {} ({:.6f})".format(
+                                    loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
+                                j += 1
+                            elif snvs_true[i] < snvs_inferred[j]:
+                                FN += 1
+                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
+                                print("At locus {}, SNV missed {} ({:.6f})".format(
+                                    loci_true[i] + 1, snvs_true[i], freq_true[i]))
+                                missed[[int(x)
+                                        for x in haps_true[i].split(',')]] += 1
+                                i += 1
+                            if i == i_max or j == j_max:
+                                break
+
+                        if i < i_max:
+                            FN, i, missed = get_FN(
+                                idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
+                        if j < j_max:
+                            FP, j = get_FP(
+                                idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP)
+
+                        if i == i_max and j == j_max:
+                            # There are no expected nor reported SNVs. Hence, the rest of the positions correspond to true negatives
+                            break
+                    elif loci_true[i] == idx:
+                        FN, i, missed = get_FN(
+                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
+                    elif loci_inferred[j] == idx:
+                        FP, j = get_FP(idx, j, j_max, loci_inferred,
+                                       snvs_inferred, freq_inferred, FP)
+                    else:
+                        if DBG:
+                            print(
+                                "At locus {}, true negative reported".format(idx + 1))
+                        TN += 1
+
+            # Add positions that were not reported as polymorphic by the caller and were not expected as true SNVs
+            if DBG:
+                if loci_region[-1] > idx:
+                    print(
+                        "Loci {}-{}, reported as true negative".format(idx + 1, loci_region[-1]))
+            TN += loci_region[-1] - idx
 
     # Sensitivity
     print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
