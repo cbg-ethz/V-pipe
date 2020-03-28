@@ -51,6 +51,7 @@ class VpipeConfig(object):
             'bowtie_idx': __RECORD__(value="bowtie2-build", type=str),
             'bowtie': __RECORD__(value="bowtie2", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
+            'extract_consensus': __RECORD__(value="extract_consensus", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
             'ngshmmalign': __RECORD__(value="ngshmmalign", type=str),
             'convert_reference': __RECORD__(value="convert_reference", type=str),
@@ -143,11 +144,19 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'min_coverage': __RECORD__(value=50, type=int),
+            'qual_thrd': __RECORD__(value=15, type=int),
+            'min_freq': __RECORD__(value=0.05, type=float),
         }),
         ('ref_bowtie_index', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='envs/bowtie_align.yaml', type=str),
+
+            'min_coverage': __RECORD__(value=50, type=int),
+            'qual_thrd': __RECORD__(value=15, type=int),
+            'min_freq': __RECORD__(value=0.05, type=float),
         }),
         ('bowtie_align', {
             'mem': __RECORD__(value=1250, type=int),
@@ -1110,15 +1119,22 @@ if config.general["aligner"] == "bwa":
             REF = reference_file,
             INDEX = "{}.bwt".format(reference_file)
         output:
-            temp("{dataset}/alignments/REF_aln.sam")
+            SAM = temp("{dataset}/alignments/REF_aln.sam"),
+            REF_amb = "{dataset}/references/ref_ambig.fasta",
+            REF_majority = "{dataset}/references/ref_majority.fasta",
         params:
             scratch = '1250',
             mem = config.bwa_align['mem'],
             time = config.bwa_align['time'],
             FILTER = '-f 2' if config.input['paired'] else '-F 4',
             TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
+            MIN_COVERAGE = config.bwa_align['min_coverage'],
+            QUAL_THRD = config.bwa_align['qual_thrd'],
+            MIN_FREQ = config.bwa_align['min_freq'],
+            OUTDIR = "{dataset}/references",
             BWA = config.applications['bwa'],
             SAMTOOLS = config.applications['samtools'],
+            EXTRACT_CONSENSUS = config.applications['extract_consensus'],
         log:
             outfile = "{dataset}/alignments/bwa_align.out.log",
             errfile = "{dataset}/alignments/bwa_align.err.log",
@@ -1130,10 +1146,17 @@ if config.general["aligner"] == "bwa":
             config.bwa_align['threads']
         shell:
             """
+            CONSENSUS_NAME={wildcards.dataset}
+            CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+            CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+
             {params.BWA} mem -t {threads} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
             # Filter alignments: (1) remove unmapped reads (single-end) or keep only reads mapped in proper pairs (paired-end), (2) remove supplementary aligments
-            {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+            {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
             rm {params.TMP_SAM}
+
+            # NOTE: function below not yet part of the release submitted to bioconda
+            {params.EXTRACT_CONSENSUS} -i {output.SAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
             """
 elif config.general["aligner"] == "bowtie":
     rule ref_bowtie_index:
@@ -1176,7 +1199,9 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5 = "{}.rev.1.bt2".format(reference_file),
                 INDEX6 = "{}.rev.2.bt2".format(reference_file)
             output:
-                temp("{dataset}/alignments/REF_aln.sam")
+                SAM = temp("{dataset}/alignments/REF_aln.sam"),
+                REF_amb = "{dataset}/references/ref_ambig.fasta",
+                REF_majority = "{dataset}/references/ref_majority.fasta",
             params:
                 scratch = '1250',
                 mem = config.bowtie_align['mem'],
@@ -1185,8 +1210,13 @@ elif config.general["aligner"] == "bowtie":
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
                 REPORT = config.bowtie_align['report'],
+                MIN_COVERAGE = config.bwa_align['min_coverage'],
+                QUAL_THRD = config.bwa_align['qual_thrd'],
+                MIN_FREQ = config.bwa_align['min_freq'],
+                OUTDIR = "{dataset}/references",
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
+                EXTRACT_CONSENSUS = config.applications['extract_consensus'],
             log:
                 outfile = "{dataset}/alignments/bowtie_align.out.log",
                 errfile = "{dataset}/alignments/bowtie_align.err.log",
@@ -1198,10 +1228,17 @@ elif config.general["aligner"] == "bowtie":
                 config.bowtie_align['threads']
             shell:
                 """
+                CONSENSUS_NAME={wildcards.dataset}
+                CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+                CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+
                 {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
+
+                # NOTE: function below not yet part of the release submitted to bioconda
+                {params.EXTRACT_CONSENSUS} -i {output.SAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
                 """
     else:
         rule bowtie_align_se:
@@ -1215,7 +1252,9 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5 = "{}.rev.1.bt2".format(reference_file),
                 INDEX6 = "{}.rev.2.bt2".format(reference_file)
             output:
-                temp("{dataset}/alignments/REF_aln.sam")
+                SAM = temp("{dataset}/alignments/REF_aln.sam"),
+                REF_amb = "{dataset}/references/ref_ambig.fasta",
+                REF_majority = "{dataset}/references/ref_majority.fasta",
             params:
                 scratch = '1250',
                 mem = config.bowtie_align['mem'],
@@ -1224,8 +1263,13 @@ elif config.general["aligner"] == "bowtie":
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
                 REPORT = config.bowtie_align['report'],
+                MIN_COVERAGE = config.bwa_align['min_coverage'],
+                QUAL_THRD = config.bwa_align['qual_thrd'],
+                MIN_FREQ = config.bwa_align['min_freq'],
+                OUTDIR = "{dataset}/references",
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
+                EXTRACT_CONSENSUS = config.applications['extract_consensus'],
             log:
                 outfile = "{dataset}/alignments/bowtie_align.out.log",
                 errfile = "{dataset}/alignments/bowtie_align.err.log",
@@ -1237,10 +1281,17 @@ elif config.general["aligner"] == "bowtie":
                 config.bowtie_align['threads']
             shell:
                 """
+                CONSENSUS_NAME={wildcards.dataset}
+                CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+                CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+
                 {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} -k {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -F 4 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h -F 4 -F 2048 {params.TMP_SAM} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
+
+                # NOTE: function below not yet part of the release submitted to bioconda
+                {params.EXTRACT_CONSENSUS} -i {output.SAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
                 """
 
 rule bwaclean:
@@ -1273,8 +1324,10 @@ rule bowtieclean:
 if config.general["aligner"] == "ngshmmalign":
     ruleorder: convert_to_ref > sam2bam
 elif config.general["aligner"] == "bwa":
+    ruleorder: bwa_align > hmm_align
     ruleorder: sam2bam > convert_to_ref
 elif config.general["aligner"] == "bowtie":
+    ruleorder: bowtie_align > hmm_align
     ruleorder: sam2bam > convert_to_ref
 
 # 7. Ouptut minor allele frequencies
