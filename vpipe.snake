@@ -559,6 +559,13 @@ if config.input['paired']:
 
             {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
+            # make sure that the lock held prinseq has been effectively released and propagated
+            # on some networked shares this could otherwise lead to confusion or corruption
+            echo "Waiting for unlocks" >&2
+            for U in {wildcards.dataset}/preprocessed_data/R_{{1,2}}.fastq; do
+                flock -x -o ${{U}} -c "echo ${{U}} unlocked >&2"
+            done
+
             mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
             mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
             rm -f {wildcards.dataset}/preprocessed_data/R_?_singletons.fastq
@@ -593,6 +600,13 @@ else:
 
             {params.PRINSEQ} -fastq {input.R1} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
+            # make sure that the lock held prinseq has been effectively released and propagated
+            # on some network shares this could otherwise lead to confusion or corruption
+            echo "Waiting for unlocks" >&2
+            for U in {wildcards.dataset}/preprocessed_data/R_1.fastq; do
+                flock -x -o ${{U}} -c "echo ${{U}} unlocked >&2"
+            done
+            
             mv {wildcards.dataset}/preprocessed_data/R{{,1}}.fastq
 
             gzip {wildcards.dataset}/preprocessed_data/R1.fastq
