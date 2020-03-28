@@ -51,6 +51,7 @@ class VpipeConfig(object):
             'bowtie_idx': __RECORD__(value="bowtie2-build", type=str),
             'bowtie': __RECORD__(value="bowtie2", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
+            'extract_consensus': __RECORD__(value="extract_consensus", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
             'ngshmmalign': __RECORD__(value="ngshmmalign", type=str),
             'convert_reference': __RECORD__(value="convert_reference", type=str),
@@ -159,6 +160,15 @@ class VpipeConfig(object):
             'preset': __RECORD__(value='--local --sensitive-local', type=str),
             'report': __RECORD__(value='', type=str),
         }),
+        ('consensus_sequences', {
+            'mem': __RECORD__(value=1250, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
+
+            'min_coverage': __RECORD__(value=50, type=int),
+            'qual_thrd': __RECORD__(value=15, type=int),
+            'min_freq': __RECORD__(value=0.05, type=float),
+        }),
         ('minor_variants', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=235, type=int),
@@ -168,8 +178,10 @@ class VpipeConfig(object):
         ('coverage_intervals', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=60, type=int),
+            'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='envs/smallgenomeutilities.yaml', type=str),
 
+            'overlap': __RECORD__(value=False, type=bool),
             'coverage': __RECORD__(value=50, type=int),
             'liberal': __RECORD__(value=True, type=bool),
         }),
@@ -333,6 +345,7 @@ all_files = []
 alignments = []
 vicuna_refs = []
 references = []
+consensus = []
 trimmed_files = []
 results = []
 datasets = []
@@ -351,6 +364,11 @@ for p in patient_list:
         "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     references.append(
         "{sample_dir}/{patient}/{date}/references/ref_".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
+    consensus.append(
+        "{sample_dir}/{patient}/{date}/references/ref_ambig.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    consensus.append(
+        "{sample_dir}/{patient}/{date}/references/ref_majority.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
@@ -384,7 +402,7 @@ for p in patient_list:
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # merge lists contaiing expected output
-    all_files = alignments + results
+    all_files = alignments + consensus + results
 
 IDs = ','.join(IDs)
 
@@ -1110,7 +1128,7 @@ if config.general["aligner"] == "bwa":
             REF = reference_file,
             INDEX = "{}.bwt".format(reference_file)
         output:
-            temp("{dataset}/alignments/REF_aln.sam")
+            temp("{dataset}/alignments/REF_aln.sam"),
         params:
             scratch = '1250',
             mem = config.bwa_align['mem'],
@@ -1176,7 +1194,7 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5 = "{}.rev.1.bt2".format(reference_file),
                 INDEX6 = "{}.rev.2.bt2".format(reference_file)
             output:
-                temp("{dataset}/alignments/REF_aln.sam")
+                temp("{dataset}/alignments/REF_aln.sam"),
             params:
                 scratch = '1250',
                 mem = config.bowtie_align['mem'],
@@ -1215,7 +1233,7 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5 = "{}.rev.1.bt2".format(reference_file),
                 INDEX6 = "{}.rev.2.bt2".format(reference_file)
             output:
-                temp("{dataset}/alignments/REF_aln.sam")
+                temp("{dataset}/alignments/REF_aln.sam"),
             params:
                 scratch = '1250',
                 mem = config.bowtie_align['mem'],
@@ -1270,11 +1288,51 @@ rule bowtieclean:
         rm -rf {params.DIR}/*/*/alignments
         """
 
+
+rule consensus_sequences:
+    input:
+        BAM = "{dataset}/alignments/REF_aln.bam",
+        REF = reference_file,
+    output:
+        REF_amb = "{dataset}/references/ref_ambig.fasta",
+        REF_majority = "{dataset}/references/ref_majority.fasta",
+    params:
+        scratch = '1250',
+        mem = config.consensus_sequences['mem'],
+        time = config.consensus_sequences['time'],
+        MIN_COVERAGE = config.consensus_sequences['min_coverage'],
+        QUAL_THRD = config.consensus_sequences['qual_thrd'],
+        MIN_FREQ = config.consensus_sequences['min_freq'],
+        OUTDIR = "{dataset}/references",
+        EXTRACT_CONSENSUS = config.applications['extract_consensus'],
+    log:
+        outfile = "{dataset}/references/consensus_sequences.out.log",
+        errfile = "{dataset}/references/consensus_sequences.err.log",
+    conda:
+        config.consensus_sequences['conda']
+    benchmark:
+        "{dataset}/alignments/consensus.benchmark"
+    threads:
+        1
+    shell:
+        """
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+
+        # NOTE: function below not yet part of the release submitted to bioconda
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        """
+
+
 if config.general["aligner"] == "ngshmmalign":
+    ruleorder: hmm_align > consensus_sequences
     ruleorder: convert_to_ref > sam2bam
 elif config.general["aligner"] == "bwa":
+    ruleorder: consensus_sequences > hmm_align
     ruleorder: sam2bam > convert_to_ref
 elif config.general["aligner"] == "bowtie":
+    ruleorder: consensus_sequences > hmm_align
     ruleorder: sam2bam > convert_to_ref
 
 # 7. Ouptut minor allele frequencies
@@ -1304,7 +1362,7 @@ rule minor_variants:
         config.minor_variants['threads']
     shell:
         """
-        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM} > >(tee {log.outfile}) 2>&1 
+        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM} > >(tee {log.outfile}) 2>&1
         """
 
 # 8. Call single nucleotide variants
@@ -1322,10 +1380,22 @@ def window_lengths(wildcards):
     return window_len
 
 
+def shifts(wildcards):
+    shifts = []
+    for p in patient_list:
+        read_len = patient_dict[p]
+        aux = int(
+            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
+        shifts.append(str(aux))
+
+    shifts = ','.join(shifts)
+    return shifts
+
+
 rule coverage_intervals:
     input:
-        REF = reference_file,
-        TSV = "variants/coverage.tsv"
+        BAM = expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
+        TSV = "variants/coverage.tsv",
     output:
         "variants/coverage_intervals.tsv"
     params:
@@ -1334,7 +1404,8 @@ rule coverage_intervals:
         time = config.coverage_intervals['time'],
         WINDOW_LEN = window_lengths,
         COVERAGE = config.coverage_intervals['coverage'],
-        SHIFT = config.snv['shift'],
+        OVERLAP = '' if config.coverage_intervals['overlap'] else '-cf variants/coverage.tsv',
+        SHIFT = shifts,
         NAMES = IDs,
         LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
@@ -1346,10 +1417,10 @@ rule coverage_intervals:
     benchmark:
         "variants/coverage_intervals.benchmark"
     threads:
-        1
+        config.coverage_intervals['threads']
     shell:
         """
-        {params.EXTRACT_COVERAGE_INTERVALS} -i {input.TSV} -r {input.REF} -c {params.COVERAGE} -w {params.WINDOW_LEN} -N {params.NAMES} {params.LIBERAL} -o {output} > >(tee {log.outfile}) 2>&1  
+        {params.EXTRACT_COVERAGE_INTERVALS} -c {params.COVERAGE} -w {params.WINDOW_LEN} -s {params.SHIFT} -N {params.NAMES} {params.LIBERAL} {params.OVERLAP} -t {threads} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
         """
 
 localrules:
