@@ -11,7 +11,7 @@ sortbam() {
 	$1 sort -o "${2}" -O bam -T "${TEMP}" "${OLD}"
 
 	echo "Indexing BAM file"
-	samtools index "${2}"
+	$1 index "${2}"
 	rm "${OLD}"
 }
 
