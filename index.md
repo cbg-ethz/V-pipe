@@ -8,7 +8,7 @@ image: img/workflow_cartoon2.png
 V-pipe: A bioinformatics pipeline for viral sequencing data
 
 
-{% include flashNews.html msg="V-pipe will be present at <a href='https://www.digital-id2020.ch/'>Digitalization and Infectious Diseases</a> 20-21 January" %}
+{% include flashNews.html urgent="1" msg="V-pipe is part of the <a href='https://www.sib.swiss/about-sib/news/10660-sib-resources-supporting-sars-cov-2-research'>SIB's effort against SARS-CoV-2</a>, a special SARS-CoV-2 version will be published shortly." %}
 
 
 # Introduction
