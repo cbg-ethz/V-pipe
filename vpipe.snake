@@ -1466,7 +1466,8 @@ rule snv:
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
-        "{dataset}/variants/SNVs/snvs.csv"
+        CSV = "{dataset}/variants/SNVs/snvs.csv",
+        VCF = "{dataset}/variants/SNVs/snvs.vcf"
     params:
         scratch = '1250',
         mem = config.snv['mem'],
@@ -1475,7 +1476,8 @@ rule snv:
         SHIFT = config.snv['shift'],
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
-        SHORAH = config.applications['shorah']
+        SHORAH = config.applications['shorah'],
+        BCFTOOLS = config.applications['bcftools']
     log:
         outfile = "{dataset}/variants/SNVs/shorah.out.log",
         errfile = "{dataset}/variants/SNVs/shorah.err.log",
@@ -1504,6 +1506,7 @@ rule snv:
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
         LINE_COUNTER=0
         FILES=""
+        FILES_VCF=""
         while read -r region || [[ -n ${{region}} ]]
         do
             echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
@@ -1529,8 +1532,11 @@ rule snv:
 
             # NOTE: Execution command for ShoRAH2, not yet in bioconda
             {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
+            {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
             if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
                 FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
+                FILES_VCF="$FILES_VCF ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz"
             else
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
                 exit 1
@@ -1547,11 +1553,16 @@ rule snv:
                 exit 1
             else
                 echo "No alignment region reports sufficient coverage" >> {log.outfile}
-                touch {output}
+                touch {output.CSV}
+                touch {output.VCF}
             fi
         else
-            echo "Intermediate files: ${{FILES}}" >> {log.outfile}
-            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output}
+            echo "Intermediate csv files: ${{FILES}}" >> {log.outfile}
+            echo "Intermediate vcf files: ${{FILES_VCF}}" >> {log.outfile}
+            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output.CSV}
+            {params.BCFTOOLS} concat -o ${{WORK_DIR}}/snvs_tmp.vcf ${{FILES_VCF}}
+            {params.BCFTOOLS} sort ${{WORK_DIR}}/snvs_tmp.vcf  -o {output.VCF}
+            rm -f ${{WORK_DIR}}/snvs_tmp.vcf
         fi
         """
 
@@ -1607,12 +1618,16 @@ rule lofreq:
         done < {input.TSV}
 
         # Aggregate results from different regions
-        if [[ ((${{LINE_COUNTER}} > 1)) ]]; then
-            {params.BCFTOOLS} merge -o {output.SNVs} ${{FILES}}
-        else
-            mv ${{OUTFILE_REGION}} {output.SNVs}
-        fi
+        echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
+        {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}}
+        {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs}
+        rm -f {params.OUTDIR}/snvs_tmp.vcf
         """
+
+if config.general["snv_caller"] == "shorah":
+    ruleorder: snv > lofreq
+elif config.general["snv_caller"] == "lofreq":
+    ruleorder: lofreq > snv
 
 rule haploclique:
     input:
@@ -1764,3 +1779,4 @@ rule savageclean:
         rm -rf {params.DIR}/*/*/variants/global/contigs_stage_?.fasta
         rm -rf {params.DIR}/*/*/variants/global/stage_?
         """
+
