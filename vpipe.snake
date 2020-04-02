@@ -432,6 +432,9 @@ else:
 
 functions = srcdir("functions.sh")
 
+include: "rules/visualization.smk"
+
+
 # DUMMY RULES
 rule all:
     input:
