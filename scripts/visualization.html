@@ -126,6 +126,7 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
     .selectAll("text")
       .attr("transform", "translate(-10,0)rotate(-45)")
       .style("text-anchor", "end")
+      .style("font-family", '"Comic Sans MS", "Comic Sans", cursive')
 
   // add data
   var typeList = Array.from(
@@ -158,6 +159,7 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
         )
           .style("left", (d3.event.pageX) + "px")
           .style("top", (d3.event.pageY - 28) + "px")
+          .style("font-family", '"Comic Sans MS", "Comic Sans", cursive')
         })
       .on("mousemove", function(d) {
         tooltip
@@ -181,6 +183,7 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
           .text(function(d) {
             return (d.end - d.start) > 2000 ? d.name : ""
           })
+          .style("font-family", '"Comic Sans MS", "Comic Sans", cursive')
 
   // add legend
   var size = 10
@@ -209,6 +212,7 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle")
       .style("font-size", size + "px")
+      .style("font-family", '"Comic Sans MS", "Comic Sans", cursive')
 }
 </script>
 
