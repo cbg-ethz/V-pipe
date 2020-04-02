@@ -10,3 +10,7 @@ V-pipe is part of the [SIB resources supporting SARS-CoV-2 research](https://www
 
 [Subscribe to our newsletter](https://sympa.ethz.ch/sympa/subscribe/v-pipe-users) to be informed about upcoming releases.
 
+
+## Tutorials
+
+Check out the [tutorial - currently demonstrating the SARS-CoV-2 version]({{ "/tutorial/sars-cov2/" | relative_url }})
