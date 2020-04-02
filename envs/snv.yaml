@@ -3,5 +3,5 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - shorah
+  - shorah >=1.99.0
   - bcftools
