@@ -218,11 +218,6 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
 <div id="genomic_patches"></div>
 
 <script>
-  // plot dimensions
-  var margin = {top: 10, right: 30, bottom: 90, left: 40}
-  var width = 800 - margin.left - margin.right
-  var height = 300 - margin.top - margin.bottom
-
   // tooltip
   var tooltip = d3.select("body")
     .append("div")
@@ -233,12 +228,14 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
   create_vcf_plot(
     "#mutation_distribution",
     tooltip,
-    margin, width, height
+    {top: 30, right: 150, bottom: 5, left: 30},
+    650, 200
   )
   create_gff_plot(
     "#genomic_patches",
     tooltip,
-    margin, width, 150 - margin.top - margin.bottom
+    {top: 0, right: 150, bottom: 50, left: 30},
+    650, 40
   )
 </script>
 </body>
