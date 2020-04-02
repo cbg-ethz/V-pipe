@@ -47,7 +47,7 @@ function create_vcf_plot(div_id, tooltip, margin, width, height) {
   svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(d3.axisBottom(x).ticks(0))
-    .call(g => g.select(".domain").remove())
+    // .call(g => g.select(".domain").remove())
     .selectAll("text")
       .attr("transform", "translate(-10,0)rotate(-45)")
       .style("text-anchor", "end");
@@ -128,7 +128,11 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
       .style("text-anchor", "end")
 
   // add data
-  var typeList = gffData.features.map(function (x) {return x.type})
+  var typeList = Array.from(
+    new Set(
+      gffData.features.map(function (x) { return x.type })
+    )
+  )
   var colorScale = d3.scaleOrdinal()
     .domain(typeList)
     .range(d3.schemeSet3)
@@ -179,28 +183,32 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
           })
 
   // add legend
-  var size = 20
+  var size = 10
 
-  svg.selectAll("legend_rects")
+  var legendHolder = svg.append("g")
+    .attr("transform", "translate(" + (width + 10) + ", 0)")
+
+  legendHolder.selectAll("legend_rects")
     .data(typeList)
     .enter()
     .append("rect")
-      .attr("x", 100)
-      .attr("y", function(d, i) { return 100 + i * (size + 5)})
+      .attr("x", 0)
+      .attr("y", function(d, i) { return i * (size + 5)})
       .attr("width", size)
       .attr("height", size)
       .style("fill", function(d) { return colorScale(d)})
 
-  svg.selectAll("legend_labels")
+  legendHolder.selectAll("legend_labels")
     .data(typeList)
     .enter()
     .append("text")
-      .attr("x", 100 + size*1.2)
-      .attr("y", function(d, i){ return 100 + i * (size + 5) + (size / 2)})
+      .attr("x", size * 1.2)
+      .attr("y", function(d, i) { return i * (size + 5) + (size / 2)})
       .style("fill", "black")
       .text(function(d) { return d })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle")
+      .style("font-size", size + "px")
 }
 </script>
 
