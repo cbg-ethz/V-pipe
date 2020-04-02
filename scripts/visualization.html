@@ -98,7 +98,7 @@ function create_vcf_plot(div_id, tooltip, margin, width, height) {
       })
       .on("mouseout", function(d) {
         tooltip.transition()
-          .duration(500)
+          .duration(200)
           .style("opacity", 0)
       })
 }
@@ -138,9 +138,9 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
     .enter()
     .append("rect")
       .attr("x", function(d) { return x(d.start) })
-      .attr("y", 1)
+      .attr("y", 0)
       .attr("width", function(d) {return x(d.end - d.start) })
-      .attr("height", 10)
+      .attr("height", 30)
       .attr("fill", function(d) { return colorScale(d.type) })
       .attr("stroke", "black")
       .attr("stroke-width", 1)
@@ -162,31 +162,43 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
       })
       .on("mouseout", function(d) {
         tooltip.transition()
-          .duration(500)
+          .duration(200)
           .style("opacity", 0)
       })
+
+      svg.selectAll("labels")
+        .data(gffData.features)
+        .enter()
+        .append("text")
+          .attr("x", function(d) {
+            return x(d.start) + x(d.end - d.start) / 2
+          })
+          .attr("y", function(d) { return 15 })
+          .text(function(d) {
+            return (d.end - d.start) > 2000 ? d.name : ""
+          })
 
   // add legend
   var size = 20
 
-  svg.selectAll("mydots")
-  .data(typeList)
-  .enter()
-  .append("rect")
-    .attr("x", 100)
-    .attr("y", function(d,i){ return 100 + i*(size+5)})
-    .attr("width", size)
-    .attr("height", size)
-    .style("fill", function(d){ return colorScale(d)})
+  svg.selectAll("legend_rects")
+    .data(typeList)
+    .enter()
+    .append("rect")
+      .attr("x", 100)
+      .attr("y", function(d, i) { return 100 + i * (size + 5)})
+      .attr("width", size)
+      .attr("height", size)
+      .style("fill", function(d) { return colorScale(d)})
 
-  svg.selectAll("labels")
+  svg.selectAll("legend_labels")
     .data(typeList)
     .enter()
     .append("text")
       .attr("x", 100 + size*1.2)
-      .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)})
+      .attr("y", function(d, i){ return 100 + i * (size + 5) + (size / 2)})
       .style("fill", "black")
-      .text(function(d){ return d})
+      .text(function(d) { return d })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle")
 }
