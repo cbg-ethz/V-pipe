@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<html>
+<head>
+<title>V-Pipe Viz</title>
+
+<style>
+div.tooltip {
+  position: absolute;
+  text-align: left;
+  padding: .5rem;
+  background: #FFFFFF;
+  color: #313639;
+  border: 1px solid #313639;
+  border-radius: 8px;
+  pointer-events: none;
+  font-size: 1.3rem;
+}
+</style>
+
+<script>
+{EXTERNAL_SNAKEMAKE_CODE_MARKER}
+</script>
+
+<script>
+function create_vcf_plot(div_id, tooltip, margin, width, height) {
+  // add plot body
+  var svg = d3.select(div_id)
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr(
+        "transform",
+        "translate(" + margin.left + "," + margin.top + ")"
+      )
+
+  // add x axis
+  var x = d3.scaleLinear()
+    .domain([0, gffData.genomeLength]) // data scale
+    .range([0, width]) // pixel scale
+
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).ticks(0))
+    .call(g => g.select(".domain").remove())
+    .selectAll("text")
+      .attr("transform", "translate(-10,0)rotate(-45)")
+      .style("text-anchor", "end");
+
+  // add y axis
+  var y = d3.scaleLinear()
+    .domain([0, 1])
+    .range([height, 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // add data
+  svg.selectAll("lines")
+    .data(vcfData)
+    .enter()
+    .append("line")
+      .attr("x1", function(d) { return x(d.position) })
+      .attr("x2", function(d) { return x(d.position) })
+      .attr("y1", function(d) { return y(d.pvalue) })
+      .attr("y2", y(0))
+      .attr("stroke", "grey")
+
+  svg.selectAll("circles")
+    .data(vcfData)
+    .enter()
+    .append("circle")
+      .attr("cx", function(d) { return x(d.position) })
+      .attr("cy", function(d) { return y(d.pvalue) })
+      .attr("r", "4")
+      .style("fill", "#69b3a2")
+      .attr("stroke", "black")
+      .on("mouseover", function(d) {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9)
+        tooltip.html(
+          "variant: " + d.variant + "<br>" +
+          "pvalue: " + d.pvalue + "<br>" +
+          "position: " + d.position
+        )
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
+        })
+      .on("mousemove", function(d) {
+        tooltip
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
+      })
+      .on("mouseout", function(d) {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0)
+      })
+}
+
+function create_gff_plot(div_id, tooltip, margin, width, height) {
+  // add plot body
+  var svg = d3.select(div_id)
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr(
+        "transform",
+        "translate(" + margin.left + "," + margin.top + ")"
+      )
+
+  // add x axis
+  var x = d3.scaleLinear()
+    .domain([0, gffData.genomeLength]) // data scale
+    .range([0, width]) // pixel scale
+
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+      .attr("transform", "translate(-10,0)rotate(-45)")
+      .style("text-anchor", "end")
+
+  // add data
+  var typeList = gffData.features.map(function (x) {return x.type})
+  var colorScale = d3.scaleOrdinal()
+    .domain(typeList)
+    .range(d3.schemeSet3)
+
+  svg.selectAll("rects")
+    .data(gffData.features)
+    .enter()
+    .append("rect")
+      .attr("x", function(d) { return x(d.start) })
+      .attr("y", 1)
+      .attr("width", function(d) {return x(d.end - d.start) })
+      .attr("height", 10)
+      .attr("fill", function(d) { return colorScale(d.type) })
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .on("mouseover", function(d) {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9)
+        tooltip.html(
+          "name: " + d.name + "<br>" +
+          "type: " + d.type
+        )
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
+        })
+      .on("mousemove", function(d) {
+        tooltip
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
+      })
+      .on("mouseout", function(d) {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0)
+      })
+
+  // add legend
+  var size = 20
+
+  svg.selectAll("mydots")
+  .data(typeList)
+  .enter()
+  .append("rect")
+    .attr("x", 100)
+    .attr("y", function(d,i){ return 100 + i*(size+5)})
+    .attr("width", size)
+    .attr("height", size)
+    .style("fill", function(d){ return colorScale(d)})
+
+  svg.selectAll("labels")
+    .data(typeList)
+    .enter()
+    .append("text")
+      .attr("x", 100 + size*1.2)
+      .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)})
+      .style("fill", "black")
+      .text(function(d){ return d})
+      .attr("text-anchor", "left")
+      .style("alignment-baseline", "middle")
+}
+</script>
+
+</head>
+<body>
+<div id="mutation_distribution"></div>
+<div id="genomic_patches"></div>
+
+<script>
+  // plot dimensions
+  var margin = {top: 10, right: 30, bottom: 90, left: 40}
+  var width = 800 - margin.left - margin.right
+  var height = 300 - margin.top - margin.bottom
+
+  // tooltip
+  var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0)
+
+  // plots
+  create_vcf_plot(
+    "#mutation_distribution",
+    tooltip,
+    margin, width, height
+  )
+  create_gff_plot(
+    "#genomic_patches",
+    tooltip,
+    margin, width, 150 - margin.top - margin.bottom
+  )
+</script>
+</body>
+</html>
