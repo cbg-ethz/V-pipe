@@ -5,7 +5,7 @@ permalink: /tutorial/sars-cov2/
 
 This tutorial shows you the basic of how to interact with V-pipe.
 
-For the purose of this Tutorial, we will work with the `sars-cov2` branch which is [adapted for the SARS-CoV-2 virus]({{ "/sars-cov-2/" | relative_url }}).
+For the purpose of this Tutorial, we will work with the `sars-cov2` branch which is [adapted for the SARS-CoV-2 virus]({{ "/sars-cov-2/" | relative_url }}).
 
 > **Organisation of Data** :
 >
@@ -148,6 +148,10 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 ```bash
 snakemake -s vpipe.snake --use-conda -p --cores 2
 ```
+
+## Output
+
+The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output)
 
 
 ## Larger dataset
