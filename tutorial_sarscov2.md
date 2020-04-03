@@ -66,10 +66,16 @@ mkdir V-test
 cd V-test
 
 # Download Miniconda3
+
+# Linux:
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sh Miniconda3-latest-Linux-x86_64.sh -b -p ~/V-test/miniconda3
+
+# Mac OS X:
+curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+sh Miniconda3-latest-MacOSX-x86_64.sh -b -p ~/V-test/miniconda3
 
 # -b for batch (no question asked)
-bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/V-test/miniconda3
 ```
 
 And now we're going to start miniconda and install snakemake from bioconda.
@@ -178,13 +184,8 @@ It is possible to ask snakemake [submit jobs on a cluster](https://snakemake.rea
 
 
 ```bash
-# Linux:
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 sh Miniconda3-latest-Linux-x86_64.sh -b -p $SCRATCH/miniconda3
-
-# Mac OS X:
-curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-sh Miniconda3-latest-MacOSX-x86_64.sh -b -p $SCRATCH/miniconda3
 
 $SCRATCH/miniconda3/bin/conda install -c bioconda snakemake-minimal
 ```
