@@ -89,7 +89,8 @@ conda activate V-pipe
 # We will let snakemake --use-conda handle
 # installation and download of V-pipe dependencies
 ```
-> **Tips:**  To save space, you can install the *-minimal* version of snakemake, without all the GUI dependencies
+> **Tips:**  To save space, you can install the *-minimal* version of *snakemake*, without all the GUI dependencies.
+> If you don't have any development tools on this machine, you can also install *git* and your favourite text editor
 
 ## Clone V-pipe
 
@@ -98,7 +99,7 @@ conda activate V-pipe
 git clone -b sars-cov2 https://github.com/cbg-ethz/V-pipe.git
 cd V-pipe
 ```
-> **Versions**: different version come with different defaults
+> **Versions**: different version come with different defaults. Use the `-b` option to select branches:
 > - *sars-cov2* branch is adapted for SARS-CoV-2
 > - the default branch (*master*) is adapted for HIV
 
