@@ -4,6 +4,9 @@ import configparser
 import os
 import sys
 import typing
+import logging
+
+LOGGER = logging.getLogger('snakemake.logging')
 
 # 1. parse config file
 #
@@ -263,10 +266,9 @@ class VpipeConfig(object):
                     else:
                         cur_value = defaults.value
                     state = 'DEFAULT'
-                except ValueError:
-                    print("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
-                        value, section, defaults.type.__name__, vpipe_configfile[section][value]))
-                    raise
+                except ValueError as err:
+                    raise ValueError("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
+                        value, section, defaults.type.__name__, vpipe_configfile[section][value])) from err
 
                 if VPIPE_DEBUG:
                     print("Using {} value '{}' for property '{}' in section '{}'".format(
@@ -278,7 +280,7 @@ class VpipeConfig(object):
         try:
             return self.__members[name]
         except:
-            print("ERROR: Section '{}' is not a valid section!".format(name))
+            LOGGER.exception("ERROR: Section '{}' is not a valid section!".format(name))
             raise
 
 
@@ -297,10 +299,13 @@ if not os.path.isfile(config.input['samples_file']):
     patient_sample_pairs = glob_wildcards(
         "{}/{{patient_date}}/raw_data/{{file}}".format(config.input['datadir']))
 
-    with open('samples.tsv', 'w') as outfile:
-        for i in set(patient_sample_pairs.patient_date):
-            (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
-            outfile.write('{}\t{}\n'.format(patient, date))
+    if not set(patient_sample_pairs.patient_date):
+        LOGGER.warning(f"WARNING: No samples found in {config.input['datadir']}. Not generating {config.input['samples_file']}.")
+    else:
+        with open(config.input['samples_file'], 'w') as outfile:
+            for i in set(patient_sample_pairs.patient_date):
+                (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
+                outfile.write('{}\t{}\n'.format(patient, date))
 
     # TODO: have to preprocess patient files to filter likely failures
     # 1.) Determine 5%/95% length of FASTQ files
@@ -316,29 +321,32 @@ patient_dict = {}
 patient_record = typing.NamedTuple(
     "patient_record", [('patient_id', str), ('date', str)])
 
-with open(config.input['samples_file'], newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter='\t')
+if not os.path.isfile(config.input['samples_file']):
+    LOGGER.warning(f"WARNING: Sample list file {config.input['samples_file']} not found.")
+else:
+    with open(config.input['samples_file'], newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter='\t')
 
-    for row in spamreader:
-        assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
-                              spamreader.line_num)
-        patient_tuple = patient_record(patient_id=row[0], date=row[1])
-        patient_list.append(patient_tuple)
+        for row in spamreader:
+            assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
+                                  spamreader.line_num)
+            patient_tuple = patient_record(patient_id=row[0], date=row[1])
+            patient_list.append(patient_tuple)
 
-        assert config.input['trim_percent_cutoff'] > 0 and config.input['trim_percent_cutoff'] < 1, "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
-            config.input['trim_percent_cutoff'])
-        assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
-            row[0], row[1])
+            assert config.input['trim_percent_cutoff'] > 0 and config.input['trim_percent_cutoff'] < 1, "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
+                config.input['trim_percent_cutoff'])
+            assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
+                row[0], row[1])
 
-        if len(row) == 2:
-            # All samples are assumed to have same read length and the default, 250 bp
-            patient_dict[patient_tuple] = 250
+            if len(row) == 2:
+                # All samples are assumed to have same read length and the default, 250 bp
+                patient_dict[patient_tuple] = 250
 
-        elif len(row) >= 3:
-            # Extract read length from input.samples_file. Samples may have
-            # different read lengths. Reads will be filtered out if read length
-            # after trimming is less than trim_cutoff * read_length.
-            patient_dict[patient_tuple] = int(row[2])
+            elif len(row) >= 3:
+                # Extract read length from input.samples_file. Samples may have
+                # different read lengths. Reads will be filtered out if read length
+                # after trimming is less than trim_cutoff * read_length.
+                patient_dict[patient_tuple] = int(row[2])
 
 # 4. generate list of target files
 all_files = []
@@ -408,16 +416,13 @@ IDs = ','.join(IDs)
 
 # 5. Locate reference and parse reference identifier
 if not VPIPE_BENCH:
-    try:
-        if os.path.isfile(config.input['reference']):
-            reference_file = config.input['reference']
-        elif os.path.isfile(os.path.join("references", config.input['reference'])):
-            reference_file = os.path.join(
-                "references", config.input['reference'])
-    except:
-        print("ERROR: Reference file {} does not exists".format(
-            config.input['reference']))
-        raise
+    reference_file = config.input['reference']
+    if not os.path.isfile(reference_file):
+        reference_file_alt = os.path.join("references", reference_file)
+        LOGGER.warning(f"WARNING: Reference file {reference_file} not found. Trying {reference_file_alt}.")
+        reference_file = reference_file_alt
+        if not os.path.isfile(reference_file):
+            raise ValueError(f"ERROR: Reference file {reference_file} not found.")
 
     with open(reference_file, 'r') as infile:
         reference_name = infile.readline().rstrip()
