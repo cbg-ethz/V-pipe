@@ -7,12 +7,12 @@ usage: $0 [options]
 -h           print this help message and exit
 "
 
-args=`getopt mh: $*`
-if [ $? != 0 ]; then
+args=$(getopt 'mh' "$*")
+if [ "$?" != 0 ]; then
     printf "%s\\n" "$USAGE"
     exit 2
 fi
-set -- $args
+eval set -- "$args"
 
 for i; do
     case "$i" in
@@ -53,8 +53,7 @@ Then, use ./vpipe to run V-pipe.
 EOF
 
 
-if $MINIMAL; then
+if [ -z "$MINIMAL" ]; then
     mkdir -p "$PROJECT_DIR/references"
-    ln -i -s "$VPIPE_DIR/references/HXB2.fasta" "$PROJECT_DIR/references/HXB2.fasta"
-    chmod -w "$PROJECT_DIR/references/HXB2.fasta"
+    cp -iv "$VPIPE_DIR/references"/* "$PROJECT_DIR/references/"
 fi
