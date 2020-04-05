@@ -106,7 +106,7 @@ if config.input['paired']:
 
             R1=${{PWD}}/{output.R1}
             R2=${{PWD}}/{output.R2}
-            {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 ${{R1}} -p2 ${{R2}} -o {params.OUTDIR}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 ${{R1}} -p2 ${{R2}} -o {params.OUTDIR} 2> >(tee -a {log.errfile} >&2)
             """
 else:
     rule savage_se:
@@ -138,7 +138,7 @@ else:
             SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee -a {log.errfile} >&2)
 
             R1=${{PWD}}/{output.R1}
-            {params.SAVAGE} -t {threads} --split {params.SPLIT} -s ${{R1}} -o {params.OUTDIR}
+            {params.SAVAGE} -t {threads} --split {params.SPLIT} -s ${{R1}} -o {params.OUTDIR} 2> >(tee -a {log.errfile} >&2)
             """
 
 rule savageclean:
