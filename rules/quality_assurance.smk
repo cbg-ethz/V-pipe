@@ -69,14 +69,6 @@ rule extract:
         cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
 
-rule extractclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/extracted_data
-        """
-
 
 # 2. clipping
 def len_cutoff(wildcards):
@@ -175,11 +167,4 @@ else:
             gzip {wildcards.dataset}/preprocessed_data/R1.fastq
             """
 
-rule trimmingclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/preprocessed_data
-        """
 

@@ -63,13 +63,6 @@ rule haploclique_visualization:
         {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV} > {log.output} 2> >(tee {log.errfile} >&2)
         """
 
-rule haplocliqueclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm {params.DIR}/*/*/variants/global/quasispecies.*
-        """
 
 if config.input['paired']:
     rule savage:
@@ -141,12 +134,4 @@ else:
             {params.SAVAGE} -t {threads} --split {params.SPLIT} -s ${{R1}} -o {params.OUTDIR} 2> >(tee -a {log.errfile} >&2)
             """
 
-rule savageclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/variants/global/contigs_stage_?.fasta
-        rm -rf {params.DIR}/*/*/variants/global/stage_?
-        """
 

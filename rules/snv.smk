@@ -201,13 +201,6 @@ rule snv:
         fi
         """
 
-rule snvclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/variants/SNVs
-        """
 
 rule lofreq:
     input:

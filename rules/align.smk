@@ -209,18 +209,6 @@ rule create_denovo_initial:
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" {output}
         """
 
-rule vicunaclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/initial_consensus
-        rm -rf {params.DIR}/*/*/references/vicuna_consensus.fasta
-        rm -rf {params.DIR}/*/*/references/initial_consensus.fasta
-        rm -rf references/initial_aln.fasta
-        rm -rf references/initial_aln_gap_removed.fasta
-        rm -rf references/MAFFT_initial_aln.*
-        """
 
 # change this to switch between VICUNA and creating a simple initial
 # initial reference
@@ -348,13 +336,6 @@ rule msa:
         rm ALL_{wildcards.kind}.fasta
         """
 
-rule msaclean:
-    shell:
-        """
-        rm -rf references/ALL_aln_*.fasta
-        rm -rf references/MAFFT_*_cohort.*
-        """
-
 
 # 4. convert alignments to REF alignment
 def get_reference_name(wildcards):
@@ -395,18 +376,6 @@ rule convert_to_ref:
         {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
-
-rule alignclean:
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -rf {params.DIR}/*/*/alignments
-        rm -rf {params.DIR}/*/*/QA_alignments
-        rm -rf {params.DIR}/*/*/references/ref_ambig.fasta
-        rm -rf {params.DIR}/*/*/references/ref_majority.fasta
-        rm -rf {params.DIR}/*/*/references/initial_consensus.fasta
-        """
 
 # 2-4. Alternative: align reads using bwa or bowtie
 if config.general["aligner"] == "bwa":
@@ -571,32 +540,6 @@ elif config.general["aligner"] == "bowtie":
                 rm {params.TMP_SAM}
                 """
 
-rule bwaclean:
-    input:
-        "{}.bwt".format(reference_file)
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -f {input}
-        rm -rf {params.DIR}/*/*/alignments
-        """
-
-rule bowtieclean:
-    input:
-        INDEX1 = "{}.1.bt2".format(reference_file),
-        INDEX2 = "{}.2.bt2".format(reference_file),
-        INDEX3 = "{}.3.bt2".format(reference_file),
-        INDEX4 = "{}.4.bt2".format(reference_file),
-        INDEX5 = "{}.rev.1.bt2".format(reference_file),
-        INDEX6 = "{}.rev.2.bt2".format(reference_file)
-    params:
-        DIR = config.input['datadir']
-    shell:
-        """
-        rm -f {input}
-        rm -rf {params.DIR}/*/*/alignments
-        """
 
 
 rule consensus_sequences:
