@@ -19,23 +19,23 @@ Instructions to type in a shell
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 ```
 
-  Then, install miniconda, e.g. in the following path `~/V-test/miniconda3`
+  Then, install miniconda,
 
 ```
-sh Miniconda3-latest-Linux-x86_64.sh -p ~/V-test/miniconda3
+sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
 ### MacOS
 
   To obtain the installer for MacOS, you can [download](https://docs.conda.io/en/latest/miniconda.html) it manually or use wget:
 ```
-wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh
+curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
 ```
 
-  Then, install miniconda, e.g. in the following path `~/V-test/miniconda3`
+  Then, install miniconda,
 
 ```
-sh Miniconda2-latest-MacOSX-x86_64.sh -p ~/V-test/miniconda3
+sh Miniconda3-latest-MacOSX-x86_64.sh
 ```
 
 2. Create conda virtual environment
@@ -50,20 +50,20 @@ Make sure to use `source activate V-pipe` everytime you want to run V-pipe
 3. Get V-pipe
 
 ```
-git clone https://github.com/cbg-ethz/V-pipe.git
+git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
 ```
 
 ## Running V-pipe
 
-First, open a terminal and change into the **working directory** where input files are stored (i.e., the reference and the sequencing reads). We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`. Also, you need to include a `vpipe.config` file in your working directory,
+First, open a terminal and change into the **working directory** where input files are stored (i.e., the reference and the sequencing reads). We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`. To initialize a project,
 
 ```
-cp /path/to/V-pipe/vpipe.config vpipe.config
+/path/to/V-pipe/init_project.sh
 ```
 
 Before actually running the pipeline, we advise to check whether output files can be created from the inputs, using the `--dryrun` option.
 ```
-snakemake --dryrun -s /path/to/V-pipe/vpipe.snake
+./vpipe --dryrun
 ```
 
 Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
@@ -78,7 +78,8 @@ Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wi
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
-Dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
+### Computational tools 
+Other dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
 
 - **PRINSEQ**
 
@@ -98,7 +99,7 @@ Dependencies are managed by using isolated conda environments per rule, and belo
 
 - **MAFFT**
 
-  To standardise multiple samples to the same reference genome (say HXB2 for HIV-1), the multiple sequence aligner MAFFT is employed. The multiple sequence alignment helps in determining regions of low conservation and thus makes standardisation of alignments mroe robust.
+  To standardise multiple samples to the same reference genome (say HXB2 for HIV-1), the multiple sequence aligner MAFFT is employed. The multiple sequence alignment helps in determining regions of low conservation and thus makes standardisation of alignments more robust.
 
 - **Samtools**
 
