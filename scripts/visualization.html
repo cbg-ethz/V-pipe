@@ -20,6 +20,13 @@ div.tooltip {
   pointer-events: none;
   font-size: 1.3rem;
 }
+
+#table_summary_table {
+  border: 1px solid black;
+}
+#table_summary_table tr:nth-child(even){
+  background-color: lightgrey;
+}
 </style>
 
 <script>
@@ -223,12 +230,44 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
       .style("font-size", size + "px")
       .style("font-family", '"Comic Sans MS", "Comic Sans", cursive')
 }
+
+function create_table_summary(div_id) {
+  // create table
+  var tbl = document.createElement("table")
+  tbl.setAttribute("id", "table_summary_table")
+
+  // add header
+  var header = tbl.createTHead()
+  var tr = header.insertRow()
+  for(var key in vcfData[0]) {
+    // assumes all entries have same keys
+    var td = tr.insertCell()
+    td.appendChild(document.createTextNode(key))
+  }
+
+  // add content
+  for(var entry of vcfData) {
+    var tr = tbl.insertRow()
+
+    for(var key in entry) {
+      var value = entry[key]
+      var td = tr.insertCell()
+
+      td.appendChild(document.createTextNode(value))
+    }
+  }
+
+  // add table to container
+  var container = document.getElementById(div_id)
+  container.appendChild(tbl)
+}
 </script>
 
 </head>
 <body>
 <div id="mutation_distribution"></div>
 <div id="genomic_patches"></div>
+<div id="table_summary"></div>
 
 <script>
   // tooltip
@@ -250,6 +289,7 @@ function create_gff_plot(div_id, tooltip, margin, width, height) {
     {top: 0, right: 150, bottom: 70, left: 30},
     650, 40
   )
+  create_table_summary("table_summary")
 </script>
 </body>
 </html>
