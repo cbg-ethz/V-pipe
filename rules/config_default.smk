@@ -59,6 +59,7 @@ class VpipeConfig(object):
             'snv': __RECORD__(value=True, type=bool),
             'local': __RECORD__(value=True, type=bool),
             'global': __RECORD__(value=True, type=bool),
+            'visualization': __RECORD__(value=True, type=bool),
         }),
         ('applications', {
             'gunzip': __RECORD__(value="gunzip", type=str),
