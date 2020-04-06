@@ -1,6 +1,6 @@
 channels:
-  - conda-forge
   - bioconda
   - defaults
+  - conda-forge
 dependencies:
   - smallgenomeutilities
