@@ -1,7 +1,7 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
   - shorah >=1.99.0
   - bcftools
