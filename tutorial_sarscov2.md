@@ -117,6 +117,8 @@ tree samples
 Check the parameters of the `vpipe.config` file with you favorite editor (`vim`, `emacs`, `nano`, [butterflies](https://xkcd.com/378/), etc.).
 For SNVs and Local (windowed) haplotype reconstruction, you will need at least the following options:
 
+*[SNVs]: Single Nucleotide Variants
+
 ```
 [input]
 reference = references/NC_045512.2.fasta
@@ -139,7 +141,7 @@ As it is your first run of V-pipe, this will also generate the sample collection
 Check `samples.tsv` in your editor.
 
 Note that the demo files you downloaded have only have reads of length 150.
-V-pipe's defaults parameters are optimized for reads length of 200 ; add the third column in the file:
+V-pipe's defaults parameters are optimized for reads length of 250 ; add the third column in the file:
 
 ```
 SRR10903401	20200102	150
@@ -161,7 +163,7 @@ snakemake -s vpipe.snake --use-conda -p --cores 2
 << This section still needs polishing before final release on https://cbg-ethz.github.io/V-pipe/ >>
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
-The output of the SNPs calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
+The output of the SNVs calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
 `samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for aggregated or downstream processing.
 
 *[VCF]: Variant Call Format
@@ -189,10 +191,10 @@ We find their results (analyzed with bwa, samtools mpileup and bcftools) in the 
 Using the reports and zoom function, try to compare with the results given out by V-pipe (with bwa and ShoRAH).
 
 - For positions 19164 and 24323 of SRR10903401 and position 11563 of SRR10903402,
-  we should expect to see similar results in V-pipe.
+  we expect to see similar results in V-pipe.
 - For the remaining position (1821 of SRR10903401 and 26314, 26590 SRR10903402),
   as there is very little support ( \<=  than 5 reads supporting the alt)
-  we should expect that ShoRAH will consider the variants of poor quality and reject them.
+  we expect that ShoRAH will consider the variants of poor quality and reject them.
 
 ## Larger dataset
 

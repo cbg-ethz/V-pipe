@@ -52,7 +52,7 @@ You can find more ressources about using V-pipe on the project's [wiki](https://
 
 ### Installation
 
-See [Getting started](https://github.com/cbg-ethz/V-pipe/wiki/getting_started) for instructions regarding initial setup.
+See [Getting started](https://github.com/cbg-ethz/V-pipe/wiki/getting-started) for instructions regarding initial setup.
 
 ### Configure options
 
