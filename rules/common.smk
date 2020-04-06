@@ -94,6 +94,7 @@ consensus = []
 trimmed_files = []
 fastqc_files = []
 results = []
+visualizations = []
 datasets = []
 IDs = []
 for p in patient_list:
@@ -154,8 +155,13 @@ for p in patient_list:
             results.append("{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
-    # merge lists contaiing expected output
-    all_files = alignments + consensus + results
+    # visualization
+    if config.output['visualization']:
+        visualizations.append("{sample_dir}/{patient}/{date}/visualization/index.html".format(
+            sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
+    # merge lists containing expected output
+    all_files = alignments + consensus + results + visualizations
 
 IDs = ','.join(IDs)
 
