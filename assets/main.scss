@@ -121,6 +121,9 @@
 	font-size: 9pt;
 	text-align: center;
       }
+      a.page-link[href*="sars-cov-2"] {
+	color: red;
+      }
 
       .urgentNews {
 	border-color: #D25D5D;

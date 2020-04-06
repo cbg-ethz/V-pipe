@@ -7,8 +7,7 @@ image: img/workflow_cartoon2.png
 
 V-pipe: A bioinformatics pipeline for viral sequencing data
 
-
-{% include flashNews.html urgent="1" msg="V-pipe is part of the <a href='https://www.sib.swiss/about-sib/news/10660-sib-resources-supporting-sars-cov-2-research'>SIB's effort against SARS-CoV-2</a>, a special SARS-CoV-2 version will be published shortly." %}
+{% include flashNews.html urgent="1" msg="New version of <a href='/V-pipe/sars-cov-2/'>V-pipe for SARS-Cov-2 data</a> available" %}
 
 
 # Introduction
