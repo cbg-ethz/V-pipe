@@ -1,3 +1,4 @@
+import sys
 import json
 from pathlib import Path
 
@@ -46,7 +47,7 @@ def convert_gff(fname):
     return json.dumps(output)
 
 
-def main(vcf_file, gff_file, html_file):
+def main(vcf_file, gff_file, html_file_in, html_file_out):
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)
     gff_json = convert_gff(gff_file)
@@ -57,18 +58,18 @@ def main(vcf_file, gff_file, html_file):
     """
 
     # assemble webpage
-    raw_html_file = Path(workflow.basedir) / 'scripts' / 'visualization.html'
-    with open(raw_html_file) as fd:
+    with open(html_file_in) as fd:
         raw_html = fd.read()
 
-    raw_html.format(EXTERNAL_SNAKEMAKE_CODE_MARKER=embed_code)
+    # TODO: make this more robust
+    mod_html = raw_html.replace('{EXTERNAL_SNAKEMAKE_CODE_MARKER}', embed_code)
 
-    with open(html_file, 'w') as fd:
-        fd.write(raw_html)
+    with open(html_file_out, 'w') as fd:
+        fd.write(mod_html)
 
 
 if __name__ == '__main__':
     main(
-        snakemake.input.vcf_file, snakemake.input.gff_file,
-        snakemake.output.html_file
+        sys.argv[1], sys.argv[2],
+        sys.argv[3], sys.argv[4]
     )
