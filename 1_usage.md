@@ -6,7 +6,7 @@ permalink: /usage/
 
 ## Tutorials
 
-Check out the [tutorial - currently demonstrating the SARS-CoV-2 version]({{ "/tutorial/sars-cov2/" | relative_url }})
+- [How to use V-pipe (specifically for SARS-CoV-2 data)]({{ "/tutorial/sars-cov2/" | relative_url }}).
 
 ## Overview
 
