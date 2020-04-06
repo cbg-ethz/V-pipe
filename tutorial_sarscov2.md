@@ -7,13 +7,13 @@ This tutorial shows you the basic of how to interact with V-pipe.
 
 For the purpose of this Tutorial, we will work with the `sars-cov2` branch which is [adapted for the SARS-CoV-2 virus]({{ "/sars-cov-2/" | relative_url }}).
 
-> **Organisation of Data** :
+> **Organizing Data** :
 >
-> V-pipe expects its samples data organized in a two-level hierarchy:
+> V-pipe expects its [samples data organized in a two-level hierarchy](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files):
 >
 > - Input files to be grouped by samples (e.g.: patient samples or biological replicates of an experiment).
 > - A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
-> - inside, the directory `raw_data` hold the sequencing output in FASTQ format (optionally compressed with GZip)
+> - Inside, the directory `raw_data` hold the sequencing output in FASTQ format (optionally compressed with GZip)
 > - When in split files, paired-ends reads need to have `_R1` and `_R2` suffixes in their name.
 
 *[FASTQ]: [represents DNA sequencer reads along with quality scores](https://en.wikipedia.org/wiki/FASTQ_format)
@@ -90,7 +90,7 @@ conda activate V-pipe
 # installation and download of V-pipe dependencies
 ```
 > **Tips:**  To save space, you can install the *-minimal* version of *snakemake*, without all the GUI dependencies.
-> If you don't have any development tools on this machine, you can also install *git* and your favourite text editor
+> If you don't have any development tools on this machine, you can also install *git* and your favorite text editor
 
 ## Clone V-pipe
 
@@ -114,8 +114,8 @@ tree samples
 
 [^fancyfind]: `find samples | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"` is overly long but produces slightly prettier output than `find samples`
 
-Check the parameters of the `vpipe.config` file with you favourite editor (`vim`, `emacs`, `nano`, [butterflies](https://xkcd.com/378/), etc.).
-For a SNV and Local (windowed) haplotype reconstruction, you will need at least the following options:
+Check the parameters of the `vpipe.config` file with you favorite editor (`vim`, `emacs`, `nano`, [butterflies](https://xkcd.com/378/), etc.).
+For SNVs and Local (windowed) haplotype reconstruction, you will need at least the following options:
 
 ```
 [input]
@@ -158,8 +158,41 @@ snakemake -s vpipe.snake --use-conda -p --cores 2
 
 ## Output
 
-The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output)
+<< This section still needs polishing before final release on https://cbg-ethz.github.io/V-pipe/ >>
 
+The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
+The output of the SNPs calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
+`samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for aggregated or downstream processing.
+
+*[VCF]: Variant Call Format
+
+There is also a visual report generated in `samples/`*\{hierarchy\}*`/visualization/index.html` that you can simply open with your favorite web browser (Firefox, Chrome). You will get an output similar to that:
+
+![SARS-CoV-2 report visualisation]({{ "/img/visualisation-sars-cov2.png" | relative_url }})
+
+You can use the mouse selection to zoom in region and double clicks to zoom out.
+
+### Expected output
+
+The small dataset that we used in this first part has been analyzed by [doi:10.1093/nsr/nwaa036](https://doi.org/10.1093/nsr/nwaa036).
+We find their results (analyzed with bwa, samtools mpileup and bcftools) in the table 2 of the article:
+
+|Accession number|Genomic position|Ref allele|Alt allele|Ref reads|Alt reads|Location_date  |GISAID ID     |
+|:---------------+---------------:+:--------:+:--------:+--------:+--------:+:--------------+:-------------|
+|SRR10903401     |            1821|     G    |     A    |       52|        5|WH_2020/01/02.a|EPI_ISL_406716|
+|SRR10903401     |           19164|     C    |     T    |       40|       12|WH_2020/01/02.a|EPI_ISL_406716|
+|SRR10903401     |           24323|     A    |     C    |      102|       67|WH_2020/01/02.a|EPI_ISL_406716|
+|SRR10903401     |           26314|     G    |     A    |       15|        2|WH_2020/01/02.a|EPI_ISL_406716|
+|SRR10903401     |           26590|     T    |     C    |       10|        2|WH_2020/01/02.a|EPI_ISL_406716|
+|SRR10903402     |           11563|     C    |     T    |      164|       26|WH_2020/01/02.b|EPI_ISL_406717|
+
+Using the reports and zoom function, try to compare with the results given out by V-pipe (with bwa and ShoRAH).
+
+- For positions 19164 and 24323 of SRR10903401 and position 11563 of SRR10903402,
+  we should expect to see similar results in V-pipe.
+- For the remaining position (1821 of SRR10903401 and 26314, 26590 SRR10903402),
+  as there is very little support ( \<=  than 5 reads supporting the alt)
+  we should expect that ShoRAH will consider the variants of poor quality and reject them.
 
 ## Larger dataset
 
