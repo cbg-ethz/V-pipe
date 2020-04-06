@@ -6,15 +6,80 @@ V-pipe is a workflow designed for analysis of next generation sequencing (NGS) d
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg?style=flat-square)](https://bio.tools/V-Pipe)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 
+## Quick start
+
+Instructions to type in a shell
+
+1. [Install](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html) miniconda3
+
+### Linux
+
+  To obtain the installer for linux use the following:
+```
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+```
+
+  Then, install miniconda,
+
+```
+sh Miniconda3-latest-Linux-x86_64.sh
+```
+
+### MacOS
+
+  To obtain the installer for MacOS, you can [download](https://docs.conda.io/en/latest/miniconda.html) it manually or use wget:
+```
+curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+```
+
+  Then, install miniconda,
+
+```
+sh Miniconda3-latest-MacOSX-x86_64.sh
+```
+
+2. Create conda virtual environment
+
+```
+conda create -n V-pipe -c bioconda python=3.6 snakemake=5.10.0
+source activate V-pipe
+```
+
+Make sure to use `source activate V-pipe` everytime you want to run V-pipe
+
+3. Get V-pipe
+
+```
+git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
+```
+
+## Running V-pipe
+
+First, open a terminal and change into the **working directory** where input files are stored (i.e., the reference and the sequencing reads). We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`. To initialize a project,
+
+```
+/path/to/V-pipe/init_project.sh
+```
+
+Before actually running the pipeline, we advise to check whether output files can be created from the inputs, using the `--dryrun` option.
+```
+./vpipe --dryrun
+```
+
+Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
+
 ## Dependencies
+
+- **conda**
+
+  Conda is a cross-platform package management system and an environment manager application.
 
 - **Snakemake**
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
-- **FastQC**
-
-  FastQC gives an overview of the raw sequencing data. Flowcells that have been overloaded or otherwise fail during sequencing can easily be determined with FastQC.
+### Computational tools 
+Other dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
 
 - **PRINSEQ**
 
@@ -34,11 +99,7 @@ V-pipe is a workflow designed for analysis of next generation sequencing (NGS) d
 
 - **MAFFT**
 
-  To standardise multiple samples to the same reference genome (say HXB2 for HIV-1), the multiple sequence aligner MAFFT is employed. The multiple sequence alignment helps in determining regions of low conservation and thus makes standardisation of alignments mroe robust.
-
-- **QuasiRecomb**
-
-  QuasiRecomb performs local and global haplotype reconstruction for heterogeneous viral populations by using a hidden Markov model.
+  To standardise multiple samples to the same reference genome (say HXB2 for HIV-1), the multiple sequence aligner MAFFT is employed. The multiple sequence alignment helps in determining regions of low conservation and thus makes standardisation of alignments more robust.
 
 - **Samtools**
 
@@ -48,12 +109,18 @@ V-pipe is a workflow designed for analysis of next generation sequencing (NGS) d
 
   We perform genomic liftovers to standardised reference genomes using our in-house developed python library of utilities for rewriting alignments.
 
-Further details on how to install and run the pipeline can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
+- **ShoRAH**
+
+  ShoRAh performs SNV calling and local haplotype reconstruction by using bayesian clustering.
+
+- **HaploClique and SAVAGE**
+
+  We use HaploClique or SAVAGE to perform global haplotype reconstruction for heterogeneous viral populations by using an overlap graph.
 
 ## Contributions
 
-- [David Seifert](https://orcid.org/0000-0003-4739-5110)
 - [Susana Posada Céspedes](https://orcid.org/0000-0002-7459-8186)
+- [David Seifert](https://orcid.org/0000-0003-4739-5110)
 - Tobias Marschall
 - [Niko Beerenwinkel](https://orcid.org/0000-0002-0573-6119)
 

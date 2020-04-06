@@ -4,6 +4,9 @@ import configparser
 import os
 import sys
 import typing
+import logging
+
+LOGGER = logging.getLogger('snakemake.logging')
 
 # 1. parse config file
 #
@@ -253,6 +256,7 @@ class VpipeConfig(object):
                         cur_value = vpipe_configfile.getboolean(section, value)
                     else:
                         cur_value = vpipe_configfile.get(section, value)
+                    vpipe_configfile.remove_option(section, value)
                     state = 'user'
                 except (configparser.NoSectionError, configparser.NoOptionError):
                     if value == 'threads' and section != 'general':
@@ -264,10 +268,9 @@ class VpipeConfig(object):
                     else:
                         cur_value = defaults.value
                     state = 'DEFAULT'
-                except ValueError:
-                    print("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
-                        value, section, defaults.type.__name__, vpipe_configfile[section][value]))
-                    raise
+                except ValueError as err:
+                    raise ValueError("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
+                        value, section, defaults.type.__name__, vpipe_configfile[section][value])) from err
 
                 if VPIPE_DEBUG:
                     print("Using {} value '{}' for property '{}' in section '{}'".format(
@@ -275,12 +278,25 @@ class VpipeConfig(object):
 
                 self.__members[section][value] = cur_value
 
+            if vpipe_configfile.has_section(section):
+                if vpipe_configfile.items(section):
+                    raise ValueError(
+                        f"ERROR: Unrecognized options in section {section}: "
+                        + ", ".join([option for option, _ in vpipe_configfile.items(section)]))
+                vpipe_configfile.remove_section(section)
+
+        sections_left = {section for section, _ in vpipe_configfile.items()} - {'DEFAULT'}
+        if sections_left:
+            raise ValueError(
+                f"ERROR: Unrecognized sections in config file: "
+                + ", ".join(sections_left))
+
     def __getattr__(self, name):
         try:
             return self.__members[name]
-        except:
-            print("ERROR: Section '{}' is not a valid section!".format(name))
-            raise
+        except KeyError as err:
+            raise ValueError(
+                "ERROR: Section '{}' is not a valid section!".format(name)) from err
 
 
 config = VpipeConfig()
@@ -298,10 +314,14 @@ if not os.path.isfile(config.input['samples_file']):
     patient_sample_pairs = glob_wildcards(
         "{}/{{patient_date}}/raw_data/{{file}}".format(config.input['datadir']))
 
-    with open('samples.tsv', 'w') as outfile:
-        for i in set(patient_sample_pairs.patient_date):
-            (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
-            outfile.write('{}\t{}\n'.format(patient, date))
+    if not set(patient_sample_pairs.patient_date):
+        LOGGER.warning(
+            f"WARNING: No samples found in {config.input['datadir']}. Not generating {config.input['samples_file']}.")
+    else:
+        with open(config.input['samples_file'], 'w') as outfile:
+            for i in set(patient_sample_pairs.patient_date):
+                (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
+                outfile.write('{}\t{}\n'.format(patient, date))
 
     # TODO: have to preprocess patient files to filter likely failures
     # 1.) Determine 5%/95% length of FASTQ files
@@ -317,29 +337,33 @@ patient_dict = {}
 patient_record = typing.NamedTuple(
     "patient_record", [('patient_id', str), ('date', str)])
 
-with open(config.input['samples_file'], newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter='\t')
+if not os.path.isfile(config.input['samples_file']):
+    LOGGER.warning(
+        f"WARNING: Sample list file {config.input['samples_file']} not found.")
+else:
+    with open(config.input['samples_file'], newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter='\t')
 
-    for row in spamreader:
-        assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
-                              spamreader.line_num)
-        patient_tuple = patient_record(patient_id=row[0], date=row[1])
-        patient_list.append(patient_tuple)
+        for row in spamreader:
+            assert len(row) >= 2, "ERROR: Line '{}' does not contain at least two entries!".format(
+                                  spamreader.line_num)
+            patient_tuple = patient_record(patient_id=row[0], date=row[1])
+            patient_list.append(patient_tuple)
 
-        assert config.input['trim_percent_cutoff'] > 0 and config.input['trim_percent_cutoff'] < 1, "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
-            config.input['trim_percent_cutoff'])
-        assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
-            row[0], row[1])
+            assert config.input['trim_percent_cutoff'] > 0 and config.input['trim_percent_cutoff'] < 1, "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
+                config.input['trim_percent_cutoff'])
+            assert patient_tuple not in patient_dict, "ERROR: sample '{}-{}' is not unique".format(
+                row[0], row[1])
 
-        if len(row) == 2:
-            # All samples are assumed to have same read length and the default, 250 bp
-            patient_dict[patient_tuple] = 250
+            if len(row) == 2:
+                # All samples are assumed to have same read length and the default, 250 bp
+                patient_dict[patient_tuple] = 250
 
-        elif len(row) >= 3:
-            # Extract read length from input.samples_file. Samples may have
-            # different read lengths. Reads will be filtered out if read length
-            # after trimming is less than trim_cutoff * read_length.
-            patient_dict[patient_tuple] = int(row[2])
+            elif len(row) >= 3:
+                # Extract read length from input.samples_file. Samples may have
+                # different read lengths. Reads will be filtered out if read length
+                # after trimming is less than trim_cutoff * read_length.
+                patient_dict[patient_tuple] = int(row[2])
 
 # 4. generate list of target files
 all_files = []
@@ -409,16 +433,15 @@ IDs = ','.join(IDs)
 
 # 5. Locate reference and parse reference identifier
 if not VPIPE_BENCH:
-    try:
-        if os.path.isfile(config.input['reference']):
-            reference_file = config.input['reference']
-        elif os.path.isfile(os.path.join("references", config.input['reference'])):
-            reference_file = os.path.join(
-                "references", config.input['reference'])
-    except:
-        print("ERROR: Reference file {} does not exists".format(
-            config.input['reference']))
-        raise
+    reference_file = config.input['reference']
+    if not os.path.isfile(reference_file):
+        reference_file_alt = os.path.join("references", reference_file)
+        LOGGER.warning(
+            f"WARNING: Reference file {reference_file} not found. Trying {reference_file_alt}.")
+        reference_file = reference_file_alt
+        if not os.path.isfile(reference_file):
+            raise ValueError(
+                f"ERROR: Reference file {reference_file} not found.")
 
     with open(reference_file, 'r') as infile:
         reference_name = infile.readline().rstrip()
@@ -487,8 +510,8 @@ def construct_input_fastq(wildcards):
         else:
             list_output.append(indir + "/" + i + file_extension)
     if len(list_output) == 0:
-        print("Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
-        sys.exit(1)
+        raise ValueError(
+            "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
 
     return list_output
 
@@ -563,6 +586,15 @@ if config.input['paired']:
 
             {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
+            # make sure that the lock held prinseq has been effectively released and propagated
+            # on some networked shares this could otherwise lead to confusion or corruption
+            if [[ "$OSTYPE" =~ ^linux ]]; then
+                echo "Waiting for unlocks" >&2
+                for U in {wildcards.dataset}/preprocessed_data/R_{{1,2}}.fastq; do
+                    flock -x -o ${{U}} -c "echo ${{U}} unlocked >&2"
+                done
+            fi
+
             mv {wildcards.dataset}/preprocessed_data/R{{_,}}1.fastq
             mv {wildcards.dataset}/preprocessed_data/R{{_,}}2.fastq
             rm -f {wildcards.dataset}/preprocessed_data/R_?_singletons.fastq
@@ -596,6 +628,15 @@ else:
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
 
             {params.PRINSEQ} -fastq {input.R1} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
+
+            # make sure that the lock held prinseq has been effectively released and propagated
+            # on some network shares this could otherwise lead to confusion or corruption
+            if [[ "$OSTYPE" =~ ^linux ]]; then
+                echo "Waiting for unlocks" >&2
+                for U in {wildcards.dataset}/preprocessed_data/R_{{1,2}}.fastq; do
+                    flock -x -o ${{U}} -c "echo ${{U}} unlocked >&2"
+                done
+            fi
 
             mv {wildcards.dataset}/preprocessed_data/R{{,1}}.fastq
 
@@ -1294,39 +1335,39 @@ rule bowtieclean:
 
 
 rule consensus_sequences:
-        input:
-            BAM = "{dataset}/alignments/REF_aln.bam",
-            REF = reference_file,
-        output:
-            REF_amb = "{dataset}/references/ref_ambig.fasta",
-            REF_majority = "{dataset}/references/ref_majority.fasta",
-        params:
-            scratch = '1250',
-            mem = config.consensus_sequences['mem'],
-            time = config.consensus_sequences['time'],
-            MIN_COVERAGE = config.consensus_sequences['min_coverage'],
-            QUAL_THRD = config.consensus_sequences['qual_thrd'],
-            MIN_FREQ = config.consensus_sequences['min_freq'],
-            OUTDIR = "{dataset}/references",
-            EXTRACT_CONSENSUS = config.applications['extract_consensus'],
-        log:
-            outfile = "{dataset}/references/consensus_sequences.out.log",
-            errfile = "{dataset}/references/consensus_sequences.err.log",
-        conda:
-            config.consensus_sequences['conda']
-        benchmark:
-            "{dataset}/alignments/consensus.benchmark"
-        threads:
-            1
-        shell:
-            """
-            CONSENSUS_NAME={wildcards.dataset}
-            CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-            CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+    input:
+        BAM = "{dataset}/alignments/REF_aln.bam",
+        REF = reference_file,
+    output:
+        REF_amb = "{dataset}/references/ref_ambig.fasta",
+        REF_majority = "{dataset}/references/ref_majority.fasta",
+    params:
+        scratch = '1250',
+        mem = config.consensus_sequences['mem'],
+        time = config.consensus_sequences['time'],
+        MIN_COVERAGE = config.consensus_sequences['min_coverage'],
+        QUAL_THRD = config.consensus_sequences['qual_thrd'],
+        MIN_FREQ = config.consensus_sequences['min_freq'],
+        OUTDIR = "{dataset}/references",
+        EXTRACT_CONSENSUS = config.applications['extract_consensus'],
+    log:
+        outfile = "{dataset}/references/consensus_sequences.out.log",
+        errfile = "{dataset}/references/consensus_sequences.err.log",
+    conda:
+        config.consensus_sequences['conda']
+    benchmark:
+        "{dataset}/alignments/consensus.benchmark"
+    threads:
+        1
+    shell:
+        """
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-            # NOTE: function below not yet part of the release submitted to bioconda
-            {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
-            """
+        # NOTE: function below not yet part of the release submitted to bioconda
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        """
 
 
 if config.general["aligner"] == "ngshmmalign":
@@ -1394,6 +1435,7 @@ def shifts(wildcards):
 
     shifts = ','.join(shifts)
     return shifts
+
 
 rule coverage_intervals:
     input:
@@ -1469,7 +1511,8 @@ rule snv:
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
-        "{dataset}/variants/SNVs/snvs.csv"
+        CSV = "{dataset}/variants/SNVs/snvs.csv",
+        VCF = "{dataset}/variants/SNVs/snvs.vcf"
     params:
         scratch = '1250',
         mem = config.snv['mem'],
@@ -1478,7 +1521,8 @@ rule snv:
         SHIFT = config.snv['shift'],
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
-        SHORAH = config.applications['shorah']
+        SHORAH = config.applications['shorah'],
+        BCFTOOLS = config.applications['bcftools']
     log:
         outfile = "{dataset}/variants/SNVs/shorah.out.log",
         errfile = "{dataset}/variants/SNVs/shorah.err.log",
@@ -1507,6 +1551,7 @@ rule snv:
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
         LINE_COUNTER=0
         FILES=""
+        FILES_VCF=""
         while read -r region || [[ -n ${{region}} ]]
         do
             echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
@@ -1530,10 +1575,13 @@ rule snv:
             # Change to the directory where ShoRAH is to be executed
             cd ${{DIR}}
 
-            # NOTE: Execution command for ShoRAH2, not yet in bioconda
+            # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
             {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
+            {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
             if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
                 FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
+                FILES_VCF="$FILES_VCF ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz"
             else
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
                 exit 1
@@ -1550,11 +1598,16 @@ rule snv:
                 exit 1
             else
                 echo "No alignment region reports sufficient coverage" >> {log.outfile}
-                touch {output}
+                touch {output.CSV}
+                touch {output.VCF}
             fi
         else
-            echo "Intermediate files: ${{FILES}}" >> {log.outfile}
-            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output}
+            echo "Intermediate csv files: ${{FILES}}" >> {log.outfile}
+            echo "Intermediate vcf files: ${{FILES_VCF}}" >> {log.outfile}
+            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output.CSV}
+            {params.BCFTOOLS} concat -o ${{WORK_DIR}}/snvs_tmp.vcf ${{FILES_VCF}}
+            {params.BCFTOOLS} sort ${{WORK_DIR}}/snvs_tmp.vcf  -o {output.VCF}
+            rm -f ${{WORK_DIR}}/snvs_tmp.vcf
         fi
         """
 
@@ -1610,12 +1663,16 @@ rule lofreq:
         done < {input.TSV}
 
         # Aggregate results from different regions
-        if [[ ((${{LINE_COUNTER}} > 1)) ]]; then
-            {params.BCFTOOLS} merge -o {output.SNVs} ${{FILES}}
-        else
-            mv ${{OUTFILE_REGION}} {output.SNVs}
-        fi
+        echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
+        {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}}
+        {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs}
+        rm -f {params.OUTDIR}/snvs_tmp.vcf
         """
+
+if config.general["snv_caller"] == "shorah":
+    ruleorder: snv > lofreq
+elif config.general["snv_caller"] == "lofreq":
+    ruleorder: lofreq > snv
 
 rule haploclique:
     input:
