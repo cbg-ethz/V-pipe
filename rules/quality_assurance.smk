@@ -4,17 +4,17 @@ import os
 # 1. extract
 rule gunzip:
     input:
-        "{file}.fastq.gz"
+        "{file}.{ext,(fastq|fq)}.gz"
     output:
-        temp("{file}.fastq")
+        temp("{file}.{ext,(fastq|fq)}")
     params:
         scratch = '10000',
         mem = config.gunzip['mem'],
         time = config.gunzip['time'],
         GUNZIP = config.applications['gunzip'],
     log:
-        outfile = temp("{file}_gunzip.out.log"),
-        errfile = temp("{file}_gunzip.err.log"),
+        outfile = temp("{file}_{ext}_gunzip.out.log"),
+        errfile = temp("{file}_{ext}_gunzip.err.log"),
     threads:
         1
     shell:
