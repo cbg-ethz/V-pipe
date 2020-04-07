@@ -240,21 +240,23 @@ It is possible to ask snakemake to [submit jobs on a cluster](https://snakemake.
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 sh Miniconda3-latest-Linux-x86_64.sh -b -p $SCRATCH/miniconda3
 
-$SCRATCH/miniconda3/bin/conda install -c bioconda snakemake-minimal
+source $SCRATCH/miniconda3/bin/activate
+
+conda install -c conda-forge -c bioconda snakemake-minimal
 ```
 > (We can install the *-minimal* version of snakemake: we will probably not run any GUI functionality).
 
 If you re-use your older miniconda version, specially if outdated, you might get versions' conflict at this point. Consider updating it:
 
 ```bash
-$SCRATCH/miniconda3/bin/conda update conda
+conda update -n base conda
 ```
 
 Recent miniconda versions allow you to install updates of `conda` in different prefixes/conda environments.
 You can create a separate conda environment prefix with everything you need to start V-pipe (in the same way we set it up in the earlier example) :
 
 ```bash
-$SCRATCH/miniconda3/bin/conda create -p $SCRATCH/V-pipe_conda -c conda-force -c bioconda conda snakemake
+conda create -p $SCRATCH/V-pipe_conda -c conda-forge -c bioconda snakemake conda
 $SCRATCH/V-pipe_conda/bin/snakemake --version
 ```
 
