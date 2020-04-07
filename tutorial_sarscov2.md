@@ -246,10 +246,11 @@ conda install -c conda-forge -c bioconda snakemake-minimal
 ```
 > (We can install the *-minimal* version of snakemake: we will probably not run any GUI functionality).
 
-If you re-use your older miniconda version, specially if outdated, you might get versions' conflict at this point. Consider updating it:
+If you re-use your older miniconda version, specially if outdated, you might get versions' conflict at this point. Consider updating it, and trying again:
 
 ```bash
 conda update -n base conda
+conda install -c conda-forge -c bioconda snakemake-minimal
 ```
 
 Recent miniconda versions allow you to install updates of `conda` in different prefixes/conda environments.
@@ -257,7 +258,8 @@ You can create a separate conda environment prefix with everything you need to s
 
 ```bash
 conda create -p $SCRATCH/V-pipe_conda -c conda-forge -c bioconda snakemake conda
-$SCRATCH/V-pipe_conda/bin/snakemake --version
+conda activate $SCRATCH/V-pipe_conda
+snakemake --version
 ```
 
 To download V-pipe:
@@ -291,6 +293,9 @@ that can help management of dependencies:
 
 ```bash
 . $SCRATCH/miniconda3/bin/activate
+## If snakemake installed in a separate conda environment prefix:
+#conda activate $SCRATCH/V-pipe_conda
+
 
 # Download everything in advance
 ./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
