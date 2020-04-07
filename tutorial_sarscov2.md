@@ -105,7 +105,7 @@ cd ..
 > - `sars-cov2` branch is adapted for SARS-CoV-2
 > - the default branch (`master`) is adapted for HIV
 >
-> As the project matures, [release tar-balls frozen at specific versions](https://github.com/cbg-ethz/V-pipe/releases) will progressively be made available, see the [Cluster example below](#Cluster-deployment).
+> As the project matures, [release tar-balls frozen at specific versions](https://github.com/cbg-ethz/V-pipe/releases) will progressively be made available, see the [Cluster example below](#cluster-deployment).
 
 ## Test V-pipe
 
@@ -253,7 +253,7 @@ conda update -n base conda
 ```
 
 Recent miniconda versions allow you to install updates of `conda` in different prefixes/conda environments.
-You can create a separate conda environment prefix with everything you need to start V-pipe (in the same way we set it up in the earlier example) :
+You can create a separate conda environment prefix with everything you need to start V-pipe (in the same way we set it up in the [earlier example](#miniconda)) :
 
 ```bash
 conda create -p $SCRATCH/V-pipe_conda -c conda-forge -c bioconda snakemake conda
