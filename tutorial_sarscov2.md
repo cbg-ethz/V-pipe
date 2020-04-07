@@ -84,7 +84,7 @@ And now we're going to start miniconda and install snakemake from bioconda.
 # mind the dot (=source)
 . ~/V-test/miniconda3/bin/activate
 
-conda create -n V-pipe -c bioconda snakemake conda
+conda create -n V-pipe -c conda-forge -c bioconda snakemake conda
 conda activate V-pipe
 # We will let snakemake --use-conda handle
 # installation and download of V-pipe dependencies
@@ -96,12 +96,15 @@ conda activate V-pipe
 
 
 ```bash
-git clone -b sars-cov2 https://github.com/cbg-ethz/V-pipe.git
+git clone https://github.com/cbg-ethz/V-pipe.git
 cd V-pipe
+git checkout sars-cov2
 ```
-> **Versions**: different version come with different defaults. Use the `-b` option to select branches:
+> **Versions**: different version come with different defaults.
 > - *sars-cov2* branch is adapted for SARS-CoV-2
 > - the default branch (*master*) is adapted for HIV
+>
+> As the project matures, [release tar-balls frozen at specific versions](https://github.com/cbg-ethz/V-pipe/releases) will progressively be made available, see the [Cluster example below](#Cluster-deployment).
 
 ## Test V-pipe
 
@@ -196,27 +199,31 @@ Using the reports and zoom function, try to compare with the results given out b
   as there is very little support ( \<=  than 5 reads supporting the alt)
   we expect that ShoRAH will consider the variants of poor quality and reject them.
 
-## Larger dataset
+## Swapping component
 
-Log onto [Euler](https://scicomp.ethz.ch/wiki/Euler) with ETH account.
+The default configuration uses [ShoRAH](https://cbg-ethz.github.io/shorah/)
+to call the SNVs and compute the Local (windowed) haplotypes.
 
-```bash
-ssh login.euler.ethz.ch
+You can swap component simply by changing the `vpipe.config` file.
+For example to compute SNVs using `lofreq`:
+
+```
+[output]
+snv = True
+local = False
+
+[general]
+snv_caller=lofreq
 ```
 
-There is a much larger test data that you can use:
-
-```bash
-ls /cluster/work/bewi/members/mpirkl/Sars-Cov-2_data/
-ls /cluster/work/bewi/members/mpirkl/Sars-Cov-2_data/PRJNA6*
-ls /cluster/work/bewi/members/mpirkl/Sars-Cov-2_data/PRJNA6*/sample*/
-```
 
 ## Cluster deployment
 
-It is possible to ask snakemake [submit jobs on a cluster](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution), such as [LSF system used on Euler](https://scicomp.ethz.ch/wiki/Using_the_batch_system)
+It is possible to ask snakemake [submit jobs on a cluster](https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution) using the batch submission command-line interface of your cluster.
 
+[Platform LSF by IBM](https://www.ibm.com/support/knowledgecenter/SSETD4_9.1.2/lsf_command_ref/bsub.1.html) is one of the popular system you might find. (Others include [SLURM](https://slurm.schedmd.com/sbatch.html), [Grid Engine](https://en.wikipedia.org/wiki/Oracle_Grid_Engine) )
 
+*[LSF]: Load Sharing Facility
 
 
 ```bash
@@ -227,13 +234,14 @@ $SCRATCH/miniconda3/bin/conda install -c bioconda snakemake-minimal
 ```
 > (We can install the *-minimal* version of snakemake: we will probably not run any GUI functionality)
 
-You might get versions conflict at this point, specially if you are re-using your older miniconda version which could be outdated. Consider updating it:
+Specially if you are re-using your older miniconda version which could be outdated, you might get versions conflict at this point. Consider updating it:
 
 ```bash
 $SCRATCH/miniconda3/bin/conda update conda
 ```
 
-And/or if you have a recent enough `conda` executable, you can also consider placing your requirement in a different prefix, like we did in the workstation/laptop section of the tutorial:
+Recent miniconda environment allow you to install conda updates in different prefixes/conda environments.
+You can create a separate conda environment prefix with everything you need to start V-pipe (in the same way we set it up in the earlier example) :
 
 ```bash
 $SCRATCH/miniconda3/bin/conda create -p $SCRATCH/V-pipe_conda -c bioconda conda snakemake
@@ -246,6 +254,13 @@ Let's fetch V-pipe:
 cd $SCRATCH
 git clone -b sars-cov2 https://github.com/cbg-ethz/V-pipe.git
 cd V-pipe
+```
+> **Tips:** as V-pipe for SARS-CoV-2 matures, it will be possible to download snapshots frozen at specific version, for more reproducible results.
+
+```bash
+wget https://github.com/cbg-ethz/V-pipe/archive/sars-cov2-snapshot-20200406.tar.gz
+tar xvzf sars-cov2-snapshot-20200406.tar.gz
+cd V-pipe-sars-cov2-snapshot-20200406/
 ```
 
 > **Tips:** There are [snakemake parameters for conda](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CONDA)
@@ -264,8 +279,9 @@ $SCRATCH/miniconda3/bin/snakemake -s vpipe.snake --use-conda --conda-prefix $SCR
 
 # alternative for running everything from a single interactive SSH node
 bsub -I <<<"$SCRATCH/miniconda3/bin/snakemake -s vpipe.snake --use-conda --conda-prefix $SCRATCH/snake-envs -p --cores 2 --jobs 2"
-
 ```
+> **Tips:** see the documentation for [more cluster commands](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe-on-a-lsf-cluster).
+
 
 Check the other [options for running snakemake on clusters](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CLUSTER) if you need more advanced uses.
 
