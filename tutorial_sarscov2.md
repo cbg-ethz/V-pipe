@@ -62,7 +62,7 @@ We're going to set up out environment:
 
 ```bash
 # directory for this tutorial
-mkdir V-test
+mkdir -p V-test
 cd V-test
 
 # Download Miniconda3
@@ -99,6 +99,7 @@ conda activate V-pipe
 git clone https://github.com/cbg-ethz/V-pipe.git
 cd V-pipe
 git checkout sars-cov2
+cd ..
 ```
 > **Versions**: different version come with different defaults.
 > - *sars-cov2* branch is adapted for SARS-CoV-2
@@ -108,7 +109,18 @@ git checkout sars-cov2
 
 ## Test V-pipe
 
-Put the `samples` hierarchy that you created before in this `V-pipe` directory. Then verify that it has the [desired structure](#preparing-a-small-dataset) :
+Create and populate a new working directory. This command will copy over the references and the default `vpipe.config`, and create a handy `vpipe` short-cut script to invoke `snakemake`:
+
+```bash
+mkdir -p working
+cd working
+../V-pipe/init_project.sh
+
+# look: this script short-cut will save you a lot of typing
+head vpipe
+```
+
+Put the `samples` hierarchy that you created before in this `working` directory. Then verify that it has the [desired structure](#preparing-a-small-dataset) :
 
 ```bash
 tree samples
@@ -137,7 +149,7 @@ aligner = bwa
 
 Check what will be executed:
 ```bash
-snakemake -s vpipe.snake --dryrun -p --cores 2
+./vpipe --dryrun -p --cores 2
 ```
 
 As it is your first run of V-pipe, this will also generate the sample collection table.
@@ -158,12 +170,10 @@ SRR10903402	20200102	150
 Run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
-snakemake -s vpipe.snake --use-conda -p --cores 2
+./vpipe --use-conda -p --cores 2
 ```
 
 ## Output
-
-<< This section still needs polishing before final release on https://cbg-ethz.github.io/V-pipe/ >>
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
 The output of the SNVs calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
@@ -253,14 +263,18 @@ Let's fetch V-pipe:
 ```bash
 cd $SCRATCH
 git clone -b sars-cov2 https://github.com/cbg-ethz/V-pipe.git
-cd V-pipe
+mkdir -p working
+cd working
+../V-pipe/init_project.sh
 ```
 > **Tips:** as V-pipe for SARS-CoV-2 matures, it will be possible to download snapshots frozen at specific version, for more reproducible results.
 
 ```bash
 wget https://github.com/cbg-ethz/V-pipe/archive/sars-cov2-snapshot-20200406.tar.gz
 tar xvzf sars-cov2-snapshot-20200406.tar.gz
-cd V-pipe-sars-cov2-snapshot-20200406/
+mkdir -p working
+cd working
+../V-pipe-sars-cov2-snapshot-20200406/init_project.sh
 ```
 
 > **Tips:** There are [snakemake parameters for conda](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CONDA)
@@ -272,13 +286,13 @@ that can help manage:
 . $SCRATCH/miniconda3/bin/activate
 
 # download everything in advance
-$SCRATCH/miniconda3/bin/snakemake -s vpipe.snake --use-conda --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
+./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
 
 # cluster LSF dispatching
-$SCRATCH/miniconda3/bin/snakemake -s vpipe.snake --use-conda --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
+./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
 
 # alternative for running everything from a single interactive SSH node
-bsub -I <<<"$SCRATCH/miniconda3/bin/snakemake -s vpipe.snake --use-conda --conda-prefix $SCRATCH/snake-envs -p --cores 2 --jobs 2"
+bsub -I <<<"./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs -p --cores 2 --jobs 2"
 ```
 > **Tips:** see the documentation for [more cluster commands](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe-on-a-lsf-cluster).
 
