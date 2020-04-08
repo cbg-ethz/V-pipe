@@ -73,8 +73,8 @@ The pipeline itself is written using [snakemake](https://snakemake.readthedocs.i
 To deploy V-pipe, you can use the installation script with the following parameters:
 
 ```bash
-curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
-bash deploy_vpipe.sh -b sars-cov2 -p testing -w work
+curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+bash quick_install.sh -b sars-cov2 -p testing -w work
 cd ./testing/work/
 ```
 
@@ -214,8 +214,8 @@ It is possible to ask snakemake to [submit jobs on a cluster](https://snakemake.
 To deploy on the cluster:
 
 ```bash
-wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
-bash deploy_vpipe.sh -b sars-cov2 -p $SCRATCH -w working
+wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+bash quick_install.sh -b sars-cov2 -p $SCRATCH -w working
 cd $SCRATCH/working/
 ```
 
@@ -224,8 +224,8 @@ cd $SCRATCH/working/
 > **Tips:** As V-pipe for SARS-CoV-2 matures, it will be possible to download [snapshots frozen at specific version](https://github.com/cbg-ethz/V-pipe/releases).
 > This enables more reproducible results. To specify a release use the `-r` option :
 ```bash
-wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
-bash deploy_vpipe.sh -r sars-cov2-snapshot-20200406 -p $SCRATCH -w working
+wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+bash quick_install.sh -r sars-cov2-snapshot-20200406 -p $SCRATCH -w working
 cd $SCRATCH/working/
 ```
 > this will download the tarball [sars-cov2-snapshot-20200406.tar.gz](https://github.com/cbg-ethz/V-pipe/archive/sars-cov2-snapshot-20200406.tar.gz) and uncompress it into a directory called `V-pipe-sars-cov2-snapshot-20200406`
