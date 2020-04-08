@@ -49,7 +49,7 @@ samples
             └── wuhan1_R2.fastq
 ```
 
-## Miniconda
+## Install V-pipe
 
 V-pipe uses the [Bioconda](https://bioconda.github.io/)[^bioconda] bioinformatics software repository for all its pipeline components.
 The pipeline itself is written using [snakemake](https://snakemake.readthedocs.io/)[^Snakemake].
@@ -58,67 +58,46 @@ The pipeline itself is written using [snakemake](https://snakemake.readthedocs.i
 
 [^Snakemake]: Johannes Köster and Sven Rahmann. [Snakemake – a scalable bioinformatics workflow engine](https://academic.oup.com/bioinformatics/article/28/19/2520/290322). *Bioinformatics*, 28(19):2520–2522, 2012. doi:[10.1093/bioinformatics/bts480](https://doi.org/10.1093/bioinformatics/bts480)
 
-To set the environment up:
-
-```bash
-# Directory for this tutorial
-mkdir -p V-test
-cd V-test
-
-# Download Miniconda3
-
-# Linux:
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-sh Miniconda3-latest-Linux-x86_64.sh -b -p ~/V-test/miniconda3
-
-# Mac OS X:
-curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-sh Miniconda3-latest-MacOSX-x86_64.sh -b -p ~/V-test/miniconda3
-
-# -b for batch (no question asked)
-```
-
-To start miniconda and install snakemake from bioconda:
-
-```bash
-# Mind the dot (=source)
-. ~/V-test/miniconda3/bin/activate
-
-conda create -n V-pipe -c conda-forge -c bioconda snakemake conda
-conda activate V-pipe
-# No need to download and install V-pipe dependencies,
-# `snakemake --use-conda` handles this.
-```
-> **Tips:**  To save space, you can install the *-minimal* version of *snakemake*, without all the GUI dependencies.
-> If you don't have any development tools on your machine, you can also install `git` and your favorite text editor.
-
-## Clone V-pipe
-
-
-```bash
-git clone https://github.com/cbg-ethz/V-pipe.git
-cd V-pipe
-git checkout sars-cov2
-cd ..
-```
-> **Versions**: different versions come with different defaults.
-> - `sars-cov2` branch is adapted for SARS-CoV-2
-> - the default branch (`master`) is adapted for HIV
+> **For advanced users:** If your are fluent with these tools, you can:
+> - directly download and install
+>   [bioconda](https://bioconda.github.io/user/install.html) and
+>   [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
+> - clone the [sars-cov2 branch of V-pipe](https://github.com/cbg-ethz/V-pipe/tree/sars-cov2)
+> - and start using V-pipe with them, using the `--use-conda` to
+>   [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management)
+>   any [further pipeline dependencies]({{ "/pipeline/" | relative_url }}).
 >
-> As the project matures, [release tar-balls frozen at specific versions](https://github.com/cbg-ethz/V-pipe/releases) will progressively be made available, see the [Cluster example below](#cluster-deployment).
+> The present tutorial will show simplified commands that automate much of this process.
 
-## Test V-pipe
 
-To create and populate a new working directory, the command below will copy over the references and the default `vpipe.config`, and create a handy `vpipe` short-cut script to invoke `snakemake`:
+To deploy V-pipe, you can use the installation script with the following parameters:
 
 ```bash
-mkdir -p working
-cd working
-../V-pipe/init_project.sh
-
-# look: this script short-cut will save you a lot of typing
-head vpipe
+curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
+bash deploy_vpipe.sh -b sars-cov2 -p testing -w work
+cd ./testing/work/
 ```
+
+ - using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
+ - using `-b` specifies which branch of V-pipe to use
+
+   > **Versions**: different versions come with different defaults.
+   > - `sars-cov2` branch is adapted for SARS-CoV-2
+   > - the default branch (`master`) is adapted for HIV
+   >
+   > As the project matures, [release tar-balls frozen at specific versions](https://github.com/cbg-ethz/V-pipe/releases) will progressively be made available, see the [Cluster example below](#cluster-deployment).
+   >
+ - using `-w` will create a working directory and populate it. It will copy over the references and the default `vpipe.config`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
+
+   > **Tips**:
+   > To create and populate other new working directories, you can call `init_project.sh` from within the new directory :
+   ```bash
+   mkdir -p working_2
+   cd working_2
+   ../V-pipe/init_project.sh
+   ```
+
+## Running V-pipe
 
 Put the `samples` hierarchy that you created before in this `working` directory. Then, verify that it has the [desired structure](#preparing-a-small-dataset):
 
@@ -155,7 +134,7 @@ Check what will be executed:
 As it is your first run of V-pipe, this will also generate the sample collection table.
 Check `samples.tsv` in your editor.
 
-Note that the demo files you downloaded only have reads of length 150.
+Note that the demo files you downloaded have reads of length 150 only.
 V-pipe's default parameters are optimized for reads of length 250 ; add the third column in the file:
 
 ```
@@ -170,7 +149,7 @@ SRR10903402	20200102	150
 Run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
-./vpipe --use-conda -p --cores 2
+./vpipe -p --cores 2
 ```
 
 ## Output
@@ -235,52 +214,26 @@ It is possible to ask snakemake to [submit jobs on a cluster](https://snakemake.
 
 *[LSF]: Load Sharing Facility
 
+To deploy on the cluster:
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-sh Miniconda3-latest-Linux-x86_64.sh -b -p $SCRATCH/miniconda3
-
-source $SCRATCH/miniconda3/bin/activate
-
-conda install -c conda-forge -c bioconda snakemake-minimal
+wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
+bash deploy_vpipe.sh -b sars-cov2 -p $SCRATCH -w working
+cd $SCRATCH/working/
 ```
-> (We can install the *-minimal* version of snakemake: we will probably not run any GUI functionality).
 
-If you re-use your older miniconda version, specially if outdated, you might get versions' conflict at this point. Consider updating it, and trying again:
-
+ - using `-p` help us store V-pipe on some large-storage share, e.g.: scratch
+ 
+> **Tips:** As V-pipe for SARS-CoV-2 matures, it will be possible to download [snapshots frozen at specific version](https://github.com/cbg-ethz/V-pipe/releases).
+> This enables more reproducible results. To specify a release use the `-r` option :
 ```bash
-conda update -n base conda
-conda install -c conda-forge -c bioconda snakemake-minimal
+wget 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/deploy_vpipe.sh'
+bash deploy_vpipe.sh -r sars-cov2-snapshot-20200406 -p $SCRATCH -w working
+cd $SCRATCH/working/
 ```
+> this will download the tarball [sars-cov2-snapshot-20200406.tar.gz](https://github.com/cbg-ethz/V-pipe/archive/sars-cov2-snapshot-20200406.tar.gz) and uncompress it into a directory called `V-pipe-sars-cov2-snapshot-20200406`
 
-Recent miniconda versions allow you to install updates of `conda` in different prefixes/conda environments.
-You can create a separate conda environment prefix with everything you need to start V-pipe (in the same way we set it up in the [earlier example](#miniconda)) :
-
-```bash
-conda create -p $SCRATCH/V-pipe_conda -c conda-forge -c bioconda snakemake conda
-conda activate $SCRATCH/V-pipe_conda
-snakemake --version
-```
-
-To download V-pipe:
-
-```bash
-cd $SCRATCH
-git clone -b sars-cov2 https://github.com/cbg-ethz/V-pipe.git
-mkdir -p working
-cd working
-../V-pipe/init_project.sh
-```
-> **Tips:** As V-pipe for SARS-CoV-2 matures, it will be possible to download snapshots frozen at specific version.
-> This enables more reproducible results.
-
-```bash
-wget https://github.com/cbg-ethz/V-pipe/archive/sars-cov2-snapshot-20200406.tar.gz
-tar xvzf sars-cov2-snapshot-20200406.tar.gz
-mkdir -p working
-cd working
-../V-pipe-sars-cov2-snapshot-20200406/init_project.sh
-```
+### Running V-pipe on the cluster
 
 In the `working` directory, create a `samples` sub-directory and populate it. Check its structure with `tree` or `find`. Perform the necessary adjustments to `vpipe.config`.
 
@@ -292,19 +245,14 @@ that can help management of dependencies:
 > - using `--conda-prefix {DIR}`  stores the conda environments of dependencies in a common directory (thus possible to share re-use between multiple instances of V-pipe).
 
 ```bash
-. $SCRATCH/miniconda3/bin/activate
-## If snakemake installed in a separate conda environment prefix:
-#conda activate $SCRATCH/V-pipe_conda
-
-
 # Download everything in advance
-./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
+./vpipe --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
 
 # Cluster LSF submitting
-./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
+./vpipe --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
 
 # Alternative for running everything from a single interactive SSH node
-bsub -I <<<"./vpipe --use-conda --conda-prefix $SCRATCH/snake-envs -p --cores 2 --jobs 2"
+bsub -I <<<"./vpipe --conda-prefix $SCRATCH/snake-envs -p --cores 2"
 ```
 > **Tips:** See the documentation for [more cluster commands](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe-on-a-lsf-cluster).
 
