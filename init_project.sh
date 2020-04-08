@@ -39,9 +39,31 @@ VPIPE_DIR=$(dirname "$0")
 
 cp -iv "$VPIPE_DIR/vpipe.config" "$PROJECT_DIR/"
 
+# guess activation command
+ACTIVATE=
+# search order:
+# - 'V-pipe' conda environment
+# - base conda environment
+for VPIPEENV in "$VPIPE_DIR/../miniconda3"{/envs/V-pipe,}; do
+	if [ -d "${VPIPEENV}" ] && [ -x "${VPIPEENV}/bin/activate" ] && [ -x "${VPIPEENV}/bin/conda" ] && [ -x "${VPIPEENV}/bin/snakemake" ]; then
+		echo "Conda environment found in ${VPIPEENV}"
+		if [ -x "${VPIPEENV}/envs/V-pipe/bin/snakemake" ]; then
+			ACTIVATE=". ${VPIPEENV}/bin/activate 'V-pipe'"
+		else
+			ACTIVATE=". ${VPIPEENV}/bin/activate 'base'"
+		fi
+		break
+	fi
+done
+if [ -z "${ACTIVATE}" ]; then
+	echo "Warning: cannot detect conda environment" 1>&2
+fi
+
+
 cat > "$PROJECT_DIR/vpipe" <<EOF
 #!/bin/sh
-snakemake -s "$VPIPE_DIR/vpipe.snake" "\$@"
+${ACTIVATE}
+exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipe.snake" --use-conda "\$@"
 EOF
 chmod +x "$PROJECT_DIR/vpipe"
 
