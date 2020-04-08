@@ -9,9 +9,9 @@ For the purpose of this Tutorial, we will work with the `sars-cov2` branch which
 
 > **Organizing Data**:
 >
-> V-pipe expects its [samples data organized in a two-level hierarchy](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files):
+> V-pipe expects [the input samples to be organized in a two-level hierarchy](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files):
 >
-> - Input files to be grouped by samples (e.g.: patient samples or biological replicates of an experiment).
+> - At the first level, input files grouped by samples (e.g.: patient samples or biological replicates of an experiment).
 > - A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
 > - Inside that directory, the sub-directory `raw_data` holds the sequencing output in FASTQ format (optionally compressed with GZip).
 > - When in split files, paired-ends reads need to have `_R1` and `_R2` suffixes in their name.
@@ -155,7 +155,7 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 ## Output
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
-The output of the SNVs calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
+The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
 `samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for aggregated or downstream processing.
 
 *[VCF]: Variant Call Format
@@ -168,8 +168,8 @@ You can use the mouse selection to zoom in region and double clicks to zoom out.
 
 ### Expected output
 
-The small dataset that we used in this first part has been analyzed by [doi:10.1093/nsr/nwaa036](https://doi.org/10.1093/nsr/nwaa036).
-We find their results (analyzed with bwa, samtools mpileup and bcftools) in the table 2 of the article:
+The small dataset that we used in this tutorial section has been analyzed by [doi:10.1093/nsr/nwaa036](https://doi.org/10.1093/nsr/nwaa036).
+The results of the original analysis (using bwa, samtools mpileup, and bcftools) are displayed in Table 2 in the article:
 
 |Accession number|Genomic position|Ref allele|Alt allele|Ref reads|Alt reads|Location_date  |GISAID ID     |
 |:---------------+---------------:+:--------:+:--------:+--------:+--------:+:--------------+:-------------|
@@ -191,7 +191,7 @@ Using the reports and zoom function, compare with the results given out by V-pip
 ## Swapping component
 
 The default configuration uses [ShoRAH](https://cbg-ethz.github.io/shorah/)
-to call the SNVs and to reconstruct the Local (windowed) haplotypes.
+to call the SNVs and to reconstruct the local (windowed) haplotypes.
 
 Components can be swapped simply by changing the `vpipe.config` file.
 For example to call SNVs using `lofreq`:
