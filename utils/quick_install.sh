@@ -110,7 +110,7 @@ else
 	fail 'Please install either wget or curl'
 fi;
 
-# HACK we will install git from conda if not available locally
+# HACK if not available locally, we will install git from conda later on (together with the other conda packages: snakemake, etc.)
 GIT=
 if [[ -x $(which git) ]] && git --version 2>/dev/null >/dev/null; then # most computers with development tools installed, clusters, etc
 	GIT=
@@ -119,7 +119,7 @@ else # out-of-the box Mac OS X and some Linux dockers
 	GIT=git
 fi;
 
-# BUG having environment modifier (such as conda or modules) is a *horrendously bad idea* that can cause hard to undertsand errors much later
+# CHECK having environment modifiers (such as conda or modules) is a *horrendously bad idea* that can cause hard to understand errors much later
 ENVIRONMENTWARNING=
 for PROFILE in $HOME/.bash_profile $HOME/.bashrc $HOME/.profile; do
 	if [[ -e $PROFILE ]] &&  grep -H 'conda initialize\|CONDA\|module \(add\|load\)' $PROFILE; then
@@ -131,8 +131,8 @@ if [[ -n "$CONDA_PREFIX" ]]; then
 	ENVIRONMENTWARNING=1
 fi
 if (( ENVIRONMENTWARNING )); then
-	oops 'you have conda or modules automatically loaded in your profil. This is asking for troubles can lead to potential conflicts and errors.'
-	echo 'consider always loading such environment modifier either manually or at the beginning of your jobs, never in your profile'
+	oops 'You have conda or modules automatically loaded in your profile. This is can lead to potential conflicts and errors.'
+	echo 'consider always loading such environment modifiers either manually or at the beginning of your jobs, never in your profile.'
 	sleep 3
 fi
 
