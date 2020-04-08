@@ -11,7 +11,7 @@ For the purpose of this Tutorial, we will work with the `sars-cov2` branch which
 >
 > V-pipe expects [the input samples to be organized in a two-level hierarchy](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files):
 >
-> - At the first level, input files grouped by samples (e.g.: patient samples or biological replicates of an experiment).
+> - At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
 > - A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
 > - Inside that directory, the sub-directory `raw_data` holds the sequencing output in FASTQ format (optionally compressed with GZip).
 > - When in split files, paired-ends reads need to have `_R1` and `_R2` suffixes in their name.
@@ -99,12 +99,9 @@ cd ./testing/work/
 
 ## Running V-pipe
 
-Put the `samples` hierarchy that you created before in this `working` directory. Then, verify that it has the [desired structure](#preparing-a-small-dataset):
 
-```bash
-tree samples
-```
-(or alternatively: `find samples`[^fancyfind])
+Copy the `samples` directory you created in the step [Preparing a small dataset](#preparing-a-small-dataset) to this `working` directory. 
+You can display the directory structure with `tree samples` or `find samples`[^fancyfind].
 
 [^fancyfind]: `find samples | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"` is overly long but produces slightly prettier output than `find samples`
 
