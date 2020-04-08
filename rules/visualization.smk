@@ -20,5 +20,6 @@ rule generate_web_visualization:
             "{input.vcf_file}" \
             "{input.gff_directory}" \
             "{workflow.basedir}/scripts/visualization.html" \
-            "{output.html_file}"
+            "{output.html_file}" \
+            "{wildcards.dataset}"
         """
