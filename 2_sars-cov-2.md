@@ -12,7 +12,7 @@ We have released a new version of V-pipe specifically adapted  to analyze high-t
  - available in the [sars-cov2 branch](https://github.com/cbg-ethz/V-pipe/tree/sars-cov2) of the Github repository
  - default reference sequence is [NC_045512](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512), identical to GenBank entry [MN908947](https://www.ncbi.nlm.nih.gov/nuccore/MN908947)
  - [default configuration](https://github.com/cbg-ethz/V-pipe/blob/sars-cov2/vpipe.config) file assumes SARS-CoV-2 NGS data
- - new version [ShoRAH 2](https://github.com/cbg-ethz/shorah/releases) integrated for SNPs calling
+ - new version [ShoRAH 2](https://github.com/cbg-ethz/shorah/releases) integrated for SNVs calling
  - all SNV calls are also reported as standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) files
 
 
