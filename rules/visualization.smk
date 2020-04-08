@@ -1,7 +1,9 @@
 rule generate_web_visualization:
     input:
+        consensus_file = "{dataset}/references/ref_majority.fasta",
+        coverage_file = "{dataset}/variants/coverage.tsv"
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
-        gff_file = config.input['gff_file']
+        gff_directory = config.input['gff_directory']
     output:
         html_file = "{dataset}/visualization/index.html"
     conda:
@@ -13,8 +15,10 @@ rule generate_web_visualization:
         # 2) run directive does not allow conda envs
 
         python "{workflow.basedir}/scripts/assemble_visualization_webpage.py" \
+            "{input.consensus_file}" \
+            "{input.coverage_file}" \
             "{input.vcf_file}" \
-            "{input.gff_file}" \
+            "{input.gff_directory}" \
             "{workflow.basedir}/scripts/visualization.html" \
             "{output.html_file}"
         """
