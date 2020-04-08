@@ -5,3 +5,5 @@ channels:
 dependencies:
   - pyvcf
   - bcbio-gff
+  - pandas
+  - Biopython
