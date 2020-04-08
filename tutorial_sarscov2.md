@@ -13,8 +13,8 @@ For the purpose of this Tutorial, we will work with the `sars-cov2` branch which
 >
 > - At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
 > - A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
-> - Inside that directory, the sub-directory `raw_data` holds the sequencing output in FASTQ format (optionally compressed with GZip).
-> - When in split files, paired-ends reads need to have `_R1` and `_R2` suffixes in their name.
+> - Inside that directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).
+> - Paired-ended reads need to be in split files with `_R1` and `_R2` suffixes.
 
 *[FASTQ]: [represents DNA sequencer reads along with quality scores](https://en.wikipedia.org/wiki/FASTQ_format)
 
@@ -66,6 +66,7 @@ The pipeline itself is written using [snakemake](https://snakemake.readthedocs.i
 > - and start using V-pipe with them, using the `--use-conda` to
 >   [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management)
 >   any [further pipeline dependencies]({{ "/pipeline/" | relative_url }}).
+> - please refer to [the documentation](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#running-v-pipe) for additional instructions.
 >
 > The present tutorial will show simplified commands that automate much of this process.
 
@@ -125,14 +126,14 @@ aligner = bwa
 
 Check what will be executed:
 ```bash
-./vpipe --dryrun -p --cores 2
+./vpipe --dryrun
 ```
 
 As it is your first run of V-pipe, this will also generate the sample collection table.
 Check `samples.tsv` in your editor.
 
 Note that the demo files you downloaded have reads of length 150 only.
-V-pipe's default parameters are optimized for reads of length 250 ; add the third column in the file:
+V-pipe's default parameters are optimized for reads of length 250 ; add the third column in the tab-separated file:
 
 ```
 SRR10903401	20200102	150
@@ -153,7 +154,7 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
 The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
-`samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for aggregated or downstream processing.
+`samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing.
 
 *[VCF]: Variant Call Format
 
@@ -162,6 +163,8 @@ There is also a visual report generated in `samples/`*\{hierarchy\}*`/visualizat
 ![SARS-CoV-2 report visualisation]({{ "/img/visualisation-sars-cov2.png" | relative_url }})
 
 You can use the mouse selection to zoom in region and double clicks to zoom out.
+
+> **Note:** The visualization and reporting features are still being continuously updated.
 
 ### Expected output
 
@@ -243,7 +246,7 @@ that can help management of dependencies:
 
 ```bash
 # Download everything in advance
-./vpipe --conda-prefix $SCRATCH/snake-envs --cores all --create-envs-only
+./vpipe --conda-prefix $SCRATCH/snake-envs --cores 1 --create-envs-only
 
 # Cluster LSF submitting
 ./vpipe --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
