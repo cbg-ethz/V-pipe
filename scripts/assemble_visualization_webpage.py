@@ -43,7 +43,7 @@ def parse_gff(fname):
 
 
 def arrange_gff_data(features):
-  """Add row number to each feature.""" 
+  """Add row number to each feature."""
   features.sort(key=lambda f: f['start'])
 
   rows = []
@@ -77,15 +77,15 @@ def get_gff_data(gff_dir):
 
 
 def convert_coverage(fname, genome_length):
-  """Convert the read coverage to bp coverage.""" 
-  csv = pd.read_csv(fname, sep='\t', index_col=0, header=0) 
+  """Convert the read coverage to bp coverage."""
+  csv = pd.read_csv(fname, sep='\t', index_col=0, header=0)
   return [row[0] for row in csv.values]
 
 
-def main(consensus_file, coverage_file, vcf_file, gff_directory, html_file_in, html_file_out):
+def main(consensus_file, coverage_file, vcf_file, gff_directory, html_file_in, html_file_out, wildcards_dataset):
 
     # parse the sample name
-    sample_name = re.search("/samples/(.+/.+)/", vcf_file).group(1)
+    sample_name = re.search("samples/(.+/.+)", wildcards_dataset).group(1)
 
     # parse the consensus sequence
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
@@ -104,7 +104,7 @@ def main(consensus_file, coverage_file, vcf_file, gff_directory, html_file_in, h
         var vcfData = {vcf_json}
         var gffData = {gff_map}
     """
-  
+
     # assemble webpage
     with open(html_file_in) as fd:
         raw_html = fd.read()
@@ -118,5 +118,6 @@ def main(consensus_file, coverage_file, vcf_file, gff_directory, html_file_in, h
 if __name__ == '__main__':
     main(
         sys.argv[1], sys.argv[2], sys.argv[3],
-        sys.argv[4], sys.argv[5], sys.argv[6]
+        sys.argv[4], sys.argv[5], sys.argv[6],
+        sys.argv[7]
     )
