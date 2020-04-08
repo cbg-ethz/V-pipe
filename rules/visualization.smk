@@ -1,7 +1,7 @@
 rule generate_web_visualization:
     input:
         consensus_file = "{dataset}/references/ref_majority.fasta",
-        coverage_file = "{dataset}/variants/coverage.tsv"
+        coverage_file = "{dataset}/variants/coverage.tsv",
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
         gff_directory = config.input['gff_directory']
     output:
