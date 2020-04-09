@@ -72,7 +72,7 @@ def get_gff_data(gff_dir):
   # Hardcode metainformation for the GFF file provided in the repository.
   gff_metainfo = {}
   gff_metainfo["Genes_NC_045512.2"] = "Gene annotations"
-  gff_metainfo["Sars-Cov2_Mature_products"] = "Mature products (components of polyprotein inc. RdRp and exoribonuclease) derived from UniProt"
+  gff_metainfo["Sars-Cov2_Mature_products"] = "Mature products (components of polyprotein including RdRp and exoribonuclease) derived from UniProt"
   gff_metainfo["Sars-Cov2_Protein_domains"] = "UniProt Protein domains"
   gff_metainfo["Sars-Cov2_TM_domains"] = "Predicted transmembrane domains (derived from UniProt"
   gff_metainfo["Sars-Cov2_highlights"] = "Highlights (functional annotations e.g., receptor binding site, ACE2 binding, RNA binding, etc) derived from UniProt"
