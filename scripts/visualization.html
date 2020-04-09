@@ -40,7 +40,7 @@ div.tooltip {
 // `sample_name`: string
 // `consensus`: string
 // `coverage`: array of integers
-// `vcfData`: array of tuples, e.g., {"position": 12972, "variant": ["G"]}
+// `vcfData`: array of tuples, e.g., {"position": 12972, "reference":"T", "variant": ["G"]}
 // `gffData`: map where the key is a string describing the annotations and the value is an 
 //            array of tuples with the following format: {'id': string, 'type': string, 
 //            'name': string, 'start': int, 'end': int, 'row_cnt': int},
@@ -287,6 +287,7 @@ function addLollipops(canvas, height) {
                 .style("opacity", .9)
             tooltip.html(
                     "variant: " + d.variant + "<br>" +
+                    "reference: " + d.reference + "<br>" +
                     "position: " + d.position
                 )
                 .style("left", (d3.event.pageX) + "px")

@@ -20,6 +20,7 @@ def convert_vcf(fname):
         for record in vcf_reader:
             output.append({
                 'position': record.POS,
+                'reference': record.REF,
                 'variant': [v.sequence for v in record.ALT],
             })
 
@@ -125,9 +126,20 @@ def main(consensus_file, coverage_file, vcf_file, gff_directory, html_file_in, h
     with open(html_file_out, 'w') as fd:
         fd.write(mod_html)
 
+_CONSENSUS = "/Users/mdragan/ivan_vpipe_branch//V-pipe/samples/SRR10903401/20200102/references/ref_majority.fasta"
+_VCF_FILE = "/Users/mdragan/ivan_vpipe_branch//V-pipe/samples/SRR10903402/20200102/variants/SNVs/REGION_1/snv/SNVs_0.010000_final.vcf"
+_GFF_DIRECTORY = "/Users/mdragan/Downloads/gffs/"
+_SNV_DIR = "/Users/mdragan/ivan_vpipe_branch/V-pipe/samples/SRR10903401/20200102/variants/SNVs"
+_COVERAGE_FILE = "/Users/mdragan/Downloads/variants/coverage.tsv"
+
+main(_CONSENSUS, _COVERAGE_FILE, _VCF_FILE, _GFF_DIRECTORY, "visualization.html", "out.html", _VCF_FILE)
+
+
+"""
 if __name__ == '__main__':
     main(
         sys.argv[1], sys.argv[2], sys.argv[3],
         sys.argv[4], sys.argv[5], sys.argv[6],
         sys.argv[7]
     )
+"""
