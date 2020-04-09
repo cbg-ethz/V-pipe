@@ -84,7 +84,7 @@ def get_gff_data(gff_dir):
     gff_metainfo["Sars-Cov2_Protein_domains"] = "UniProt Protein domains"
     gff_metainfo[
         "Sars-Cov2_TM_domains"
-    ] = "Predicted transmembrane domains (derived from UniProt"
+    ] = "Predicted transmembrane domains (derived from UniProt)"
     gff_metainfo[
         "Sars-Cov2_highlights"
     ] = "Highlights (functional annotations e.g., receptor binding site, ACE2 binding, RNA binding, etc) derived from UniProt"
