@@ -155,14 +155,10 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
 The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
 `samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing.
+It is also available in a tabular format in `samples/`*\{hierarchy\}*`/variants/SNVs/snvs.csv`.
 
 *[VCF]: Variant Call Format
 
-There is also a visual report generated in `samples/`*\{hierarchy\}*`/visualization/index.html` that you can simply open with your favorite web browser (Firefox, Chrome). You will get an output similar to that:
-
-![SARS-CoV-2 report visualisation]({{ "/img/visualisation-sars-cov2.png" | relative_url }})
-
-You can use the mouse selection to zoom in region and double clicks to zoom out.
 
 > **Note:** The visualization and reporting features are still being continuously updated.
 
@@ -180,7 +176,7 @@ The results of the original analysis (using bwa, samtools mpileup, and bcftools)
 |SRR10903401     |           26590|     T    |     C    |       10|        2|WH_2020/01/02.a|EPI_ISL_406716|
 |SRR10903402     |           11563|     C    |     T    |      164|       26|WH_2020/01/02.b|EPI_ISL_406717|
 
-Using the reports and zoom function, compare with the results given out by V-pipe (with bwa and ShoRAH).
+Using either the VCF or CSV files, compare with the results given out by V-pipe (with bwa and ShoRAH).
 
 - For positions 19164 and 24323 of SRR10903401 and position 11563 of SRR10903402,
   we expect to see similar results in V-pipe.
@@ -222,7 +218,7 @@ bash quick_install.sh -b sars-cov2 -p $SCRATCH -w working
 cd $SCRATCH/working/
 ```
 
- - using `-p` help us store V-pipe on some large-storage share, e.g.: scratch
+ - using `-p` help us store V-pipe on some large-storage share, e.g.: scratch suffice for this tutorial
  
 > **Tips:** As V-pipe for SARS-CoV-2 matures, it will be possible to download [snapshots frozen at specific version](https://github.com/cbg-ethz/V-pipe/releases).
 > This enables more reproducible results. To specify a release use the `-r` option :
@@ -243,6 +239,8 @@ To run V-pipe on a cluster :
 that can help management of dependencies:
 > - using `--create-envs-only` enables to download the dependencies only without running the pipeline itself.
 > - using `--conda-prefix {DIR}`  stores the conda environments of dependencies in a common directory (thus possible to share re-use between multiple instances of V-pipe).
+>
+> When using V-pipe in production environments, plan the `-p` prefix, `-w` working and `--conda-prefix` environments directories according to the cluster quotas and time limits
 
 ```bash
 # Download everything in advance
@@ -251,10 +249,13 @@ that can help management of dependencies:
 # Cluster LSF submitting
 ./vpipe --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
 
+# Using bsub on the master job too, instead of running it on the login node
+bsub ./vpipe --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
+
 # Alternative for running everything from a single interactive SSH node
 bsub -I <<<"./vpipe --conda-prefix $SCRATCH/snake-envs -p --cores 2"
 ```
-> **Tips:** See the documentation for [more cluster commands](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe-on-a-lsf-cluster).
+> **Tips:** See the V-pipe documentation for [more cluster commands](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe-on-a-lsf-cluster).
 
 
 Check the other [options for running snakemake on clusters](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CLUSTER) if you need more advanced uses.

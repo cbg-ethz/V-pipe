@@ -7,7 +7,7 @@ permalink: /sars-cov-2/
 [![SARS-CoV-2]({{ "/img/sars-cov-2_header.png" | relative_url }})](https://en.wikipedia.org/wiki/Severe_acute_respiratory_syndrome_coronavirus_2)
 
 
-We have released a new version of V-pipe specifically adapted  to analyze high-throughput sequencing data of the SARS-CoV-2 virus.
+We have released a new version of V-pipe specifically adapted  to analyze high-throughput sequencing data of SARS-CoV-2.
 
  - available in the [sars-cov2 branch](https://github.com/cbg-ethz/V-pipe/tree/sars-cov2) of the Github repository
  - default reference sequence is [NC_045512](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512), identical to GenBank entry [MN908947](https://www.ncbi.nlm.nih.gov/nuccore/MN908947)
