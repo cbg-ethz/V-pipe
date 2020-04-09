@@ -4,10 +4,11 @@ USAGE="
 usage: $0 [options]
 
 -m           bootstrap only a minimal set of files (vpipe.config and vpipe wrapper)
+-n           NO autodetecting conda environment, let advanced users handle them
 -h           print this help message and exit
 "
 
-args=$(getopt 'mh' "$*")
+args=$(getopt 'mnh' "$*")
 if [ "$?" != 0 ]; then
     printf "%s\\n" "$USAGE"
     exit 2
@@ -18,6 +19,10 @@ for i; do
     case "$i" in
         -m)
             MINIMAL=1;
+            shift
+            ;;
+        -n)
+            NOCONDAAUTODETECT=1;
             shift
             ;;
         -h)
@@ -41,22 +46,26 @@ cp -iv "$VPIPE_DIR/vpipe.config" "$PROJECT_DIR/"
 
 # guess activation command
 ACTIVATE=
-# search order:
-# - 'V-pipe' conda environment
-# - base conda environment
-for VPIPEENV in "$VPIPE_DIR/../miniconda3"{/envs/V-pipe,}; do
-	if [ -d "${VPIPEENV}" ] && [ -x "${VPIPEENV}/bin/activate" ] && [ -x "${VPIPEENV}/bin/conda" ] && [ -x "${VPIPEENV}/bin/snakemake" ]; then
-		echo "Conda environment found in ${VPIPEENV}"
-		if [ -x "${VPIPEENV}/envs/V-pipe/bin/snakemake" ]; then
-			ACTIVATE=". ${VPIPEENV}/bin/activate 'V-pipe'"
-		else
-			ACTIVATE=". ${VPIPEENV}/bin/activate 'base'"
-		fi
-		break
-	fi
-done
-if [ -z "${ACTIVATE}" ]; then
-	echo "Warning: cannot detect conda environment" 1>&2
+if [ -z "$NOCONDAAUTODETECT" ]; then
+    # search order:
+    # - 'V-pipe' conda environment
+    # - base conda environment
+    for VPIPEENV in "$VPIPE_DIR/../miniconda3"{/envs/V-pipe,}; do
+        if [ -d "${VPIPEENV}" ] && [ -x "${VPIPEENV}/bin/activate" ] && [ -x "${VPIPEENV}/bin/conda" ] && [ -x "${VPIPEENV}/bin/snakemake" ]; then
+            echo "Conda environment found in ${VPIPEENV}"
+            if [ -x "${VPIPEENV}/envs/V-pipe/bin/snakemake" ]; then
+                ACTIVATE=". ${VPIPEENV}/bin/activate 'V-pipe'"
+            else
+                ACTIVATE=". ${VPIPEENV}/bin/activate 'base'"
+            fi
+            break
+        fi
+    done
+    if [ -z "${ACTIVATE}" ]; then
+        echo "Warning: cannot detect conda environment" 1>&2
+    fi
+else
+    echo "Activate the appropriate conda environment before use"
 fi
 
 
