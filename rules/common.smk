@@ -82,8 +82,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
 
-            'qual_threshold': __RECORD__(value=30, type=int),
-            'min_len': __RECORD__(value=0.8, type=float),
+            'extra' : __RECORD__(value='-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10', type=str),
         }),
         ('initial_vicuna', {
             'mem': __RECORD__(value=1000, type=int),
