@@ -82,7 +82,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
 
-            'extra' : __RECORD__(value='-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10', type=str),
+            'extra': __RECORD__(value='-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10', type=str),
         }),
         ('initial_vicuna', {
             'mem': __RECORD__(value=1000, type=int),
@@ -106,6 +106,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'leave_msa_temp': __RECORD__(value=False, type=bool),
+            'extra': __RECORD__(value='', type=str),
         }),
         ('sam2bam', {
             'mem': __RECORD__(value=5000, type=int),
@@ -144,6 +145,8 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'extra': __RECORD__(value='', type=str),
         }),
         ('ref_bowtie_index', {
             'mem': __RECORD__(value=2000, type=int),
