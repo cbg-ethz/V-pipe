@@ -1,5 +1,10 @@
 import os
 
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
 
 # 1. extract
 rule gunzip:
@@ -93,6 +98,7 @@ if config.input['paired']:
             scratch = '2000',
             mem = config.preprocessing['mem'],
             time = config.preprocessing['time'],
+            EXTRA = config.preprocessing['extra'],
             LEN_CUTOFF = len_cutoff,
             PRINSEQ = config.applications['prinseq'],
         log:
@@ -108,7 +114,7 @@ if config.input['paired']:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
 
-            {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
+            {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} {params.EXTRA} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
             # make sure that the lock held prinseq has been effectively released and propagated
             # on some networked shares this could otherwise lead to confusion or corruption
@@ -136,6 +142,7 @@ else:
             scratch = '2000',
             mem = config.preprocessing['mem'],
             time = config.preprocessing['time'],
+            EXTRA = config.preprocessing['extra'],
             LEN_CUTOFF = len_cutoff,
             PRINSEQ = config.applications['prinseq'],
         log:
@@ -151,7 +158,7 @@ else:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
 
-            {params.PRINSEQ} -fastq {input.R1} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10 -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
+            {params.PRINSEQ} -fastq {input.R1} {params.EXTRA} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -min_len {params.LEN_CUTOFF} {params.EXTRA} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
             # make sure that the lock held prinseq has been effectively released and propagated
             # on some network shares this could otherwise lead to confusion or corruption
