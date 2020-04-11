@@ -197,6 +197,9 @@ class VpipeConfig(object):
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
 
+            'alpha': __RECORD__(value=0.1, type=float),
+            'ignore_indels': __RECORD__(value=False, type=bool),
+            'coverage': __RECORD__(value=0, type=int),
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
         }),
@@ -204,6 +207,8 @@ class VpipeConfig(object):
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=60, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'extra': __RECORD__(value='', type=str),
         }),
         ('aggregate', {
             'mem': __RECORD__(value=2000, type=int),

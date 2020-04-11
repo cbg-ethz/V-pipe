@@ -1,5 +1,10 @@
 import os
 
+__author__ = "Susana Posada-Cespedes"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 
 # 1. Call single nucleotide variants
 
@@ -108,6 +113,9 @@ rule snv:
         mem = config.snv['mem'],
         time = config.snv['time'],
         READ_LEN = read_len,
+        ALPHA = config.snv['alpha'],
+        IGNORE_INDELS = '--ignore_indels' if config.snv['ignore_indels'] else '',
+        COVERAGE = config.snv['coverage'],
         SHIFT = config.snv['shift'],
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
@@ -166,10 +174,10 @@ rule snv:
             cd ${{DIR}}
 
             # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
-            {params.SHORAH} -w ${{WINDOW_LEN}} -x 100000 -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
-            {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
-            {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
+            {params.SHORAH} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -c {params.COVERAGE} -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
             if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
+                {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
+                {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
                 FILES_VCF="$FILES_VCF ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz"
             else
@@ -215,6 +223,7 @@ rule lofreq:
         mem = config.lofreq['mem'],
         time = config.lofreq['time'],
         OUTDIR = "{dataset}/variants/SNVs",
+        EXTRA = config.lofreq['extra'],
         SAMTOOLS = config.applications['samtools'],
         BCFTOOLS = config.applications['bcftools'],
         LOFREQ = config.applications['lofreq'],
@@ -239,17 +248,22 @@ rule lofreq:
             LINE_COUNTER=$(( $LINE_COUNTER + 1 ))
             echo "Running Lofreq in region: ${{region}}" >> {log.outfile}
             OUTFILE_REGION={params.OUTDIR}/snvs_${{LINE_COUNTER}}.vcf
-            {params.LOFREQ} call --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} > >(tee -a {log.outfile}) 2>&1
+            {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} > >(tee -a {log.outfile}) 2>&1
             {params.BCFTOOLS} view ${{OUTFILE_REGION}} -Oz -o ${{OUTFILE_REGION}}.gz
             {params.BCFTOOLS} index ${{OUTFILE_REGION}}.gz
             FILES="$FILES ${{OUTFILE_REGION}}.gz"
         done < {input.TSV}
 
         # Aggregate results from different regions
-        echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
-        {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}}
-        {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs}
-        rm -f {params.OUTDIR}/snvs_tmp.vcf
+        if [[ -z ${{FILES}} ]]; then
+            echo "No alignment region reports sufficient coverage" >> {log.outfile}
+            touch {output.SNVs}
+        else
+            echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
+            {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}}
+            {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs}
+            rm -f {params.OUTDIR}/snvs_tmp.vcf
+        fi
         """
 
 if config.general["snv_caller"] == "shorah":
