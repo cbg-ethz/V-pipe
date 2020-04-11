@@ -1,4 +1,9 @@
 
+__author__ = "Susana Posada-Cespedes"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 # 1. Ouptut minor allele frequencies
 rule minor_variants:
     input:
@@ -14,6 +19,8 @@ rule minor_variants:
         time = config.minor_variants['time'],
         OUTDIR = "variants",
         NAMES = IDs,
+        MIN_COVERAGE = config.minor_variants['min_coverage'],
+        FREQUENCIES = '--freqs' if config.minor_variants['frequencies'] else '',
         MINORITY_CALLER = config.applications['minority_freq'],
     log:
         outfile = "variants/minority_variants.out.log",
@@ -26,6 +33,6 @@ rule minor_variants:
         config.minor_variants['threads']
     shell:
         """
-        {params.MINORITY_CALLER} -r {input.REF} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {input.BAM} > >(tee {log.outfile}) 2>&1
+        {params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2>&1
         """
 
