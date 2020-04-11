@@ -177,6 +177,9 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
+
+            'min_coverage': __RECORD__(value=100, type=int),
+            'frequencies': __RECORD__(value=False, type=bool),
         }),
         ('coverage_intervals', {
             'mem': __RECORD__(value=1000, type=int),
