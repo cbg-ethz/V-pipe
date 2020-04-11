@@ -134,3 +134,13 @@
         display: list-item;
         margin-left: 30px;
       }
+
+@media (max-width: 920px) {
+     .table-wrapper {
+	overflow-x: scroll;
+	margin-bottom: 30px;
+      }
+     .table-wrapper table {
+	margin-bottom: 0;
+      }
+}

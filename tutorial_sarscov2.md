@@ -167,6 +167,8 @@ It is also available in a tabular format in `samples/`*\{hierarchy\}*`/variants/
 The small dataset that we used in this tutorial section has been analyzed by [doi:10.1093/nsr/nwaa036](https://doi.org/10.1093/nsr/nwaa036).
 The results of the original analysis (using bwa, samtools mpileup, and bcftools) are displayed in Table 2 in the article:
 
+<div class="table-wrapper" markdown="block">
+
 |Accession number|Genomic position|Ref allele|Alt allele|Ref reads|Alt reads|Location_date  |GISAID ID     |
 |:---------------+---------------:+:--------:+:--------:+--------:+--------:+:--------------+:-------------|
 |SRR10903401     |            1821|     G    |     A    |       52|        5|WH_2020/01/02.a|EPI_ISL_406716|
@@ -175,6 +177,8 @@ The results of the original analysis (using bwa, samtools mpileup, and bcftools)
 |SRR10903401     |           26314|     G    |     A    |       15|        2|WH_2020/01/02.a|EPI_ISL_406716|
 |SRR10903401     |           26590|     T    |     C    |       10|        2|WH_2020/01/02.a|EPI_ISL_406716|
 |SRR10903402     |           11563|     C    |     T    |      164|       26|WH_2020/01/02.b|EPI_ISL_406717|
+
+</div>
 
 Using either the VCF or CSV files, compare with the results given out by V-pipe (with bwa and ShoRAH).
 
@@ -237,14 +241,14 @@ To run V-pipe on a cluster :
 
 > **Tips:** There are [snakemake parameters for conda](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CONDA)
 that can help management of dependencies:
-> - using `--create-envs-only` enables to download the dependencies only without running the pipeline itself.
+> - using `--conda-create-envs-only` enables to download the dependencies only without running the pipeline itself.
 > - using `--conda-prefix {DIR}`  stores the conda environments of dependencies in a common directory (thus possible to share re-use between multiple instances of V-pipe).
 >
 > When using V-pipe in production environments, plan the `-p` prefix, `-w` working and `--conda-prefix` environments directories according to the cluster quotas and time limits
 
 ```bash
 # Download everything in advance
-./vpipe --conda-prefix $SCRATCH/snake-envs --cores 1 --create-envs-only
+./vpipe --conda-prefix $SCRATCH/snake-envs --cores 1 --conda-create-envs-only
 
 # Cluster LSF submitting
 ./vpipe --conda-prefix $SCRATCH/snake-envs -p --cluster 'bsub' --jobs 2
