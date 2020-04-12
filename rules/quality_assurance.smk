@@ -9,7 +9,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 # 1. extract
 rule gunzip:
     input:
-        "{file}.{ext,(fastq|fq)}.gz"
+        "{file}.{ext}.gz"
     output:
         temp("{file}.{ext,(fastq|fq)}")
     params:
