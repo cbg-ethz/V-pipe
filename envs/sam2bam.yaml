@@ -3,5 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bzip2
-  - samtools
+  - samtools=1.10

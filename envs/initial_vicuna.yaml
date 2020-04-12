@@ -3,8 +3,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bwa
-  - samtools
-  - picard
-  - InDelFixer
-  - ConsensusFixer
+  - bwa=0.7.17
+  - samtools=1.10
+  - picard=2.22.3
+  - InDelFixer=1.1
+  - ConsensusFixer=0.4

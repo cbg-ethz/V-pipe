@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - haploclique
+  - haploclique=1.3.1

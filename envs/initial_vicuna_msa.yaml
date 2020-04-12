@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - mafft
-  - smallgenomeutilities
+  - mafft=7.458
+  - smallgenomeutilities=0.3.0

@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - mafft
+  - mafft=7.458
