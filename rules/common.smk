@@ -44,6 +44,7 @@ class VpipeConfig(object):
         ('applications', {
             'gunzip': __RECORD__(value="gunzip", type=str),
             'prinseq': __RECORD__(value="prinseq-lite.pl", type=str),
+            'fastqc': __RECORD__(value="fastqc", type=str),
             'vicuna': __RECORD__(value="vicuna", type=str),
             'indelfixer': __RECORD__(value="IndelFixer.jar", type=str),
             'consensusfixer': __RECORD__(value="ConsensusFixer.jar", type=str),
@@ -83,6 +84,14 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'extra': __RECORD__(value='-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10', type=str),
+        }),
+        ('fastqc', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value='', type=str),
+            'threads': __RECORD__(value=0, type=int),
+
+            'no_group': __RECORD__(value=False, type=bool),
         }),
         ('initial_vicuna', {
             'mem': __RECORD__(value=1000, type=int),
@@ -378,6 +387,7 @@ vicuna_refs = []
 references = []
 consensus = []
 trimmed_files = []
+fastqc_files =[]
 results = []
 datasets = []
 IDs = []
@@ -405,6 +415,12 @@ for p in patient_list:
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     if config.input['paired']:
         trimmed_files.append("{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(
+            sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
+    fastqc_files.append(
+        "{sample_dir}/{patient}/{date}/extracted_data/R1_fastqc.html".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    if config.input['paired']:
+        fastqc_files.append("{sample_dir}/{patient}/{date}/extracted_data/R2_fastqc.html".format(
             sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     datasets.append("{sample_dir}/{patient}/{date}".format(
