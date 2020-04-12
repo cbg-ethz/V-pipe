@@ -4,6 +4,11 @@ import configparser
 import os
 import typing
 
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
 
 VPIPE_BENCH = True if os.environ.get('VPIPE_BENCH') is not None else False
 
