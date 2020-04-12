@@ -175,3 +175,28 @@ else:
             """
 
 
+# 3. QC reports
+rule fastqc:
+    input:
+        "{dataset}/extracted_data/R{pair}.fastq",
+    output:
+        "{dataset}/extracted_data/R{pair}_fastqc.html",
+    params:
+        scratch = '2000',
+        mem = config.fastqc['mem'],
+        time = config.fastqc['time'],
+        NOGROUP = '--nogroup' if config.fastqc['no_group'] else '',
+        OUTDIR = "{dataset}/extracted_data",
+        FASTQC = config.applications['fastqc'],
+    log:
+        outfile = "{dataset}/extracted_data/R{pair}_fastqc.out.log",
+        errfile = "{dataset}/extracted_data/R{pair}_fastqc.err.log",
+    conda:
+        config.fastqc['conda']
+    threads:
+        config.fastqc['threads']
+    shell:
+        """
+        {params.FASTQC} -o {params.OUTDIR} -t {threads} {params.NOGROUP} {input} 2> >(tee {log.errfile} >&2)
+        """
+
