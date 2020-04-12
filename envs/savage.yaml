@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - picard
-  - savage
+  - picard=2.22.3
+  - savage=0.4.2

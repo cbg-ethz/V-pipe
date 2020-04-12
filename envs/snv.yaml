@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - shorah >=1.99.0
-  - bcftools
+  - shorah=1.99.0
+  - bcftools=1.9

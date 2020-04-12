@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - mafft=7.305
-  - ngshmmalign
+  - ngshmmalign=0.1.1

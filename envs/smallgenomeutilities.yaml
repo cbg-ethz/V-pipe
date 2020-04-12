@@ -3,5 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bzip2
-  - smallgenomeutilities
+  - smallgenomeutilities=0.3.0
