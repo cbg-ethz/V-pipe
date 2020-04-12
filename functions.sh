@@ -27,12 +27,20 @@ bam2sam() {
 	$1 view -h "${STEM}.bam" > "${STEM}.sam"
 }
 
-InDelFixer() {
-	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
+indelFixer() {
+    if [[ -z "${CONDA_PREFIX:-}" ]]; then
+        java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
+    else
+        $1 -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G ${@:2}
+    fi
 }
 
-ConsensusFixer() {
-	java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
+consensusFixer() {
+    if [[ -z "${CONDA_PREFIX:-}" ]]; then
+	    java -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G -jar $@
+    else
+        $1 -XX:+UseParallelGC -XX:NewRatio=9 -Xms2G -Xmx10G ${@:2}
+    fi
 }
 
 QuasiRecomb() {
