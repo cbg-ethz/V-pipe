@@ -1,4 +1,9 @@
 
+__author__ = "Susana Posada-Cespedes"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 rule haploclique:
     input:
         "{dataset}/alignments/REF_aln.bam"

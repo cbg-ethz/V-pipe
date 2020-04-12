@@ -1,3 +1,10 @@
+
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 rule extractclean:
     params:
         DIR = config.input['datadir']

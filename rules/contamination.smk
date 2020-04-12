@@ -1,5 +1,10 @@
 import os
 
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
 
 # 1. align against 5VM as a QA check
 rule bwa_QA:
