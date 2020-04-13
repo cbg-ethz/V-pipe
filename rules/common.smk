@@ -4,6 +4,11 @@ import configparser
 import os
 import typing
 
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
 
 VPIPE_BENCH = True if os.environ.get('VPIPE_BENCH') is not None else False
 
@@ -44,9 +49,10 @@ class VpipeConfig(object):
         ('applications', {
             'gunzip': __RECORD__(value="gunzip", type=str),
             'prinseq': __RECORD__(value="prinseq-lite.pl", type=str),
+            'fastqc': __RECORD__(value="fastqc", type=str),
             'vicuna': __RECORD__(value="vicuna", type=str),
-            'indelfixer': __RECORD__(value="IndelFixer.jar", type=str),
-            'consensusfixer': __RECORD__(value="ConsensusFixer.jar", type=str),
+            'indelfixer': __RECORD__(value="InDelFixer", type=str),
+            'consensusfixer': __RECORD__(value="ConsensusFixer", type=str),
             'picard': __RECORD__(value="picard", type=str),
             'bwa': __RECORD__(value="bwa", type=str),
             'bowtie_idx': __RECORD__(value="bowtie2-build", type=str),
@@ -82,8 +88,15 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value='', type=str),
 
-            'qual_threshold': __RECORD__(value=30, type=int),
-            'min_len': __RECORD__(value=0.8, type=float),
+            'extra': __RECORD__(value='-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10', type=str),
+        }),
+        ('fastqc', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value='', type=str),
+            'threads': __RECORD__(value=0, type=int),
+
+            'no_group': __RECORD__(value=False, type=bool),
         }),
         ('initial_vicuna', {
             'mem': __RECORD__(value=1000, type=int),
@@ -107,6 +120,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'leave_msa_temp': __RECORD__(value=False, type=bool),
+            'extra': __RECORD__(value='', type=str),
         }),
         ('sam2bam', {
             'mem': __RECORD__(value=5000, type=int),
@@ -145,6 +159,8 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'extra': __RECORD__(value='', type=str),
         }),
         ('ref_bowtie_index', {
             'mem': __RECORD__(value=2000, type=int),
@@ -159,7 +175,7 @@ class VpipeConfig(object):
 
             'phred': __RECORD__(value='--phred33', type=str),
             'preset': __RECORD__(value='--local --sensitive-local', type=str),
-            'report': __RECORD__(value='', type=str),
+            'extra': __RECORD__(value='', type=str),
         }),
         ('consensus_sequences', {
             'mem': __RECORD__(value=1250, type=int),
@@ -175,6 +191,9 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
+
+            'min_coverage': __RECORD__(value=100, type=int),
+            'frequencies': __RECORD__(value=False, type=bool),
         }),
         ('coverage_intervals', {
             'mem': __RECORD__(value=1000, type=int),
@@ -192,6 +211,9 @@ class VpipeConfig(object):
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
 
+            'alpha': __RECORD__(value=0.1, type=float),
+            'ignore_indels': __RECORD__(value=False, type=bool),
+            'coverage': __RECORD__(value=0, type=int),
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
         }),
@@ -199,6 +221,8 @@ class VpipeConfig(object):
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=60, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'extra': __RECORD__(value='', type=str),
         }),
         ('aggregate', {
             'mem': __RECORD__(value=2000, type=int),
@@ -368,6 +392,7 @@ vicuna_refs = []
 references = []
 consensus = []
 trimmed_files = []
+fastqc_files =[]
 results = []
 datasets = []
 IDs = []
@@ -395,6 +420,12 @@ for p in patient_list:
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     if config.input['paired']:
         trimmed_files.append("{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(
+            sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
+    fastqc_files.append(
+        "{sample_dir}/{patient}/{date}/extracted_data/R1_fastqc.html".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    if config.input['paired']:
+        fastqc_files.append("{sample_dir}/{patient}/{date}/extracted_data/R2_fastqc.html".format(
             sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     datasets.append("{sample_dir}/{patient}/{date}".format(

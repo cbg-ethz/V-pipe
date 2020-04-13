@@ -1,6 +1,6 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
-  - smallgenomeutilities
+  - fastqc=0.11.9

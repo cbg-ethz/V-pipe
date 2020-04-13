@@ -1,5 +1,11 @@
 import os
 
+__author__ = "Susana Posada-Cespedes"
+__author__ = "David Seifert"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 # 1. initial consensus sequence
 rule initial_vicuna:
     input:
@@ -110,9 +116,9 @@ rule initial_vicuna:
         for i in {{1..3}}
         do
                 mv consensus.fasta old_consensus.fasta
-                InDelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+                indelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
                 sam2bam {params.SAMTOOLS} reads.sam >> $OUTFILE 2> >(tee $ERRFILE >&2)
-                ConsensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01 >> $OUTFILE 2> >(tee $ERRFILE >&2)
+                consensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01 >> $OUTFILE 2> >(tee $ERRFILE >&2)
         done
 
         sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" consensus.fasta
@@ -240,6 +246,7 @@ rule hmm_align:
         mem = config.hmm_align['mem'],
         time = config.hmm_align['time'],
         LEAVE_TEMP = '-l' if config.hmm_align['leave_msa_temp'] else '',
+        EXTRA = config.hmm_align['extra'],
         MAFFT = config.applications['mafft'],
         NGSHMMALIGN = config.applications['ngshmmalign'],
     log:
@@ -265,7 +272,7 @@ rule hmm_align:
         mkdir -p {wildcards.dataset}/references
 
         # 2. perform alignment # -l = leave temps
-        {params.NGSHMMALIGN} -v -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.NGSHMMALIGN} -v {params.EXTRA} -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         # 3. move references into place
         mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
@@ -412,6 +419,7 @@ if config.general["aligner"] == "bwa":
             scratch = '1250',
             mem = config.bwa_align['mem'],
             time = config.bwa_align['time'],
+            EXTRA = config.bwa_align['extra'],
             FILTER = '-f 2' if config.input['paired'] else '-F 4',
             TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
             BWA = config.applications['bwa'],
@@ -427,7 +435,7 @@ if config.general["aligner"] == "bwa":
             config.bwa_align['threads']
         shell:
             """
-            {params.BWA} mem -t {threads} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+            {params.BWA} mem -t {threads} {params.EXTRA} {input.REF} {input.FASTQ} > {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
             # Filter alignments: (1) remove unmapped reads (single-end) or keep only reads mapped in proper pairs (paired-end), (2) remove supplementary aligments
             {params.SAMTOOLS} view -h {params.FILTER} -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
             rm {params.TMP_SAM}
@@ -481,7 +489,7 @@ elif config.general["aligner"] == "bowtie":
                 TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
-                REPORT = config.bowtie_align['report'],
+                EXTRA = config.bowtie_align['extra'],
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
             log:
@@ -495,7 +503,7 @@ elif config.general["aligner"] == "bowtie":
                 config.bowtie_align['threads']
             shell:
                 """
-                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
                 {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
@@ -520,7 +528,7 @@ elif config.general["aligner"] == "bowtie":
                 TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
-                REPORT = config.bowtie_align['report'],
+                EXTRA = config.bowtie_align['extra'],
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
             log:
@@ -534,7 +542,7 @@ elif config.general["aligner"] == "bowtie":
                 config.bowtie_align['threads']
             shell:
                 """
-                {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} -k {params.REPORT} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
                 {params.SAMTOOLS} view -h -F 4 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}

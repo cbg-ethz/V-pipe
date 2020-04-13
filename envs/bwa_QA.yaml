@@ -1,7 +1,7 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
-  - bwa
-  - mafft
+  - bwa=0.7.17
+  - mafft=7.458
