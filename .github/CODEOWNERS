@@ -1,5 +1,6 @@
-# Default owner for V-pipe repository
-*	@sposadac
+# @sposadac is default owner for V-pipe repository
+# allow DrYak to approve pull requests for the sars-cov2 branch (experimental code)
+*	@sposadac, @DrYak
 
-# Allow DrYak to approve pull requests for the sars-cov2 branch (experimental code)
-*	@DrYak
+# @sposadac defines code owners
+.github/CODEOWNERS	@sposadac
