@@ -1,5 +1,3 @@
 # Default owner for V-pipe repository
 *	@sposadac
 
-# Allow DrYak to approve pull requests for the sars-cov2 branch (experimental code)
-*	@DrYak
