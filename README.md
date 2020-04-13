@@ -41,8 +41,8 @@ sh Miniconda3-latest-MacOSX-x86_64.sh
 2. Create conda virtual environment
 
 ```
-conda create -n V-pipe -c bioconda python=3.6 snakemake=5.10.0
-source activate V-pipe
+conda create -n V-pipe -c bioconda python=3.8 snakemake-minimal=5.14.0
+conda activate V-pipe
 ```
 
 Make sure to use `source activate V-pipe` everytime you want to run V-pipe
@@ -77,6 +77,10 @@ Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wi
 - **Snakemake**
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
+
+- **VICUNA**
+
+  VICUNA is a *de novo* assembly software designed for populations with high mutation rates. It is used to build an initial reference for mapping reads with ngshmmalign aligner when a `references/cohort_consensus.fasta` file is not provided. Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) pages.
 
 ### Computational tools 
 Other dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
