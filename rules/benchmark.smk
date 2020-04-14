@@ -79,9 +79,6 @@ VPIPE_CONFIG = VpipeBenchConfig
 
 include: "common.smk"
 
-# TODO: rename
-configBench = config
-
 
 # 2. Parse file containing info about simulated data sets
 sample_dict = {}
@@ -89,7 +86,7 @@ sample_record = NamedTuple(
     "sample_record", [('sample_name', str), ('date', str)])
 datasets = []
 
-with open(configBench.input['samples_file'], newline='') as csvfile:
+with open(config.input['samples_file'], newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter='\t')
 
     for row in spamreader:
@@ -98,7 +95,7 @@ with open(configBench.input['samples_file'], newline='') as csvfile:
         sample_tuple = sample_record(sample_name=row[0], date=row[1])
 
         datasets.append("{sample_dir}/{ID}/{date}".format(
-            sample_dir=configBench.input['datadir'], ID=row[0], date=row[1]))
+            sample_dir=config.input['datadir'], ID=row[0], date=row[1]))
 
         if len(row) == 2:
             # All data sets are assumed to have default specifications
@@ -115,19 +112,19 @@ with open(configBench.input['samples_file'], newline='') as csvfile:
             sample_dict[sample_tuple]['seed'] = int(row[14])
         else:
             # Seed is not provided / note that potential replicates would have the same seed
-            sample_dict[sample_tuple]['seed'] = configBench.general['seed']
-            # random.seed(configBench.general['seed'])
+            sample_dict[sample_tuple]['seed'] = config.general['seed']
+            # random.seed(config.general['seed'])
             #sample_dict[sample_tuple]['seed'] = random.randint(1, 1e6)
 
 
 # 3. V-pipe expects a reference as input. We need to "mask" this behaviour
-if configBench.input['reference']:
+if config.input['reference']:
     # Locate reference file
-    if os.path.isfile(configBench.input['reference']):
-        reference_file = configBench.input['reference']
-    elif os.path.isfile(os.path.join("references", configBench.input['reference'])):
+    if os.path.isfile(config.input['reference']):
+        reference_file = config.input['reference']
+    elif os.path.isfile(os.path.join("references", config.input['reference'])):
         reference_file = os.path.join(
-            "references", configBench.input['reference'])
+            "references", config.input['reference'])
     else:
         # If reference file not found, create it
         reference_file = "references/haplotype_master.fasta"
