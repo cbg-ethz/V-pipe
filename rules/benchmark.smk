@@ -38,13 +38,14 @@ class VpipeBenchConfig(VpipeConfig):
                 'simulate': __RECORD__(value=True, type=bool),
             }),
             ('applications', {
-                'simBench': __RECORD__(value="scripts/simBench.py", type=str),
+                'simBench': __RECORD__(value=f"{VPIPE_BASEDIR}/scripts/simBench.py", type=str),
                 'art': __RECORD__(value="art_illumina", type=str),
-                'testBench': __RECORD__(value="scripts/testBench.py", type=str),
+                'testBench': __RECORD__(value=f"{VPIPE_BASEDIR}/scripts/testBench.py", type=str),
             }),
             ('simulate_master', {
                 'mem': __RECORD__(value=2000, type=int),
                 'time': __RECORD__(value=30, type=int),
+                'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/simbench.yaml', type=str),
 
                 'genome_length': __RECORD__(value=3000, type=int),
                 'seed': __RECORD__(value=0, type=int),
@@ -52,12 +53,14 @@ class VpipeBenchConfig(VpipeConfig):
             ('simulate_haplotypes', {
                 'mem': __RECORD__(value=2000, type=int),
                 'time': __RECORD__(value=30, type=int),
+                'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/simbench.yaml', type=str),
 
                 'use_master': __RECORD__(value=True, type=bool),
             }),
             ('simulate_reads', {
                 'mem': __RECORD__(value=2000, type=int),
                 'time': __RECORD__(value=30, type=int),
+                'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/simbench.yaml', type=str),
 
                 'num_reads': __RECORD__(value=False, type=bool),
                 'high_quality': __RECORD__(value=True, type=bool),
