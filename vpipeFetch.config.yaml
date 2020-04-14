@@ -1,3 +1,4 @@
-samples_se: []
-
-samples_pe: [SRR10903401, SRR10903402]
+samples:
+    - SRR11454610 # SE
+    - SRR10903401 # PE
+    # - SRR10903402 # PE
