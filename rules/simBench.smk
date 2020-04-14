@@ -19,6 +19,8 @@ rule simulate_master:
     log:
         outfile = "references/simulate_master.out.log",
         errfile = "references/simulate_master.out.log",
+    conda:
+        config.simulate_master['conda']
     shell:
         """
         {params.SIM_BENCH} -g {params.GENOME_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o master > >(tee {log.outfile}) 2>&1
@@ -104,6 +106,8 @@ rule simulate_haplotypes:
     log:
         outfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
         errfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
+    conda:
+        config.simulate_haplotypes['conda']
     shell:
         """
         if [[ -z {params.HAPLOTYPE_SEQS} ]]; then
@@ -167,6 +171,8 @@ if config.input['paired']:
         log:
             outfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
             errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
+        conda:
+            config.simulate_reads['conda']
         shell:
             """
             {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} {params.PAIRED} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} {params.HIGH_QUAL} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
@@ -214,6 +220,8 @@ else:
         log:
             outfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
             errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
+        conda:
+            config.simulate_reads['conda']
         shell:
             """
             {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} -gr {params.GEOM_RATIO} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
