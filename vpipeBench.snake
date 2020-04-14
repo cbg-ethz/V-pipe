@@ -19,7 +19,6 @@ rule allbench:
         expand("{dataset}/variants/SNVs/true_snvs.tsv", dataset=datasets)
 
 include: "rules/simBench.smk"
-include: "rules/common.smk"
 include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
