@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - sra-tools
+  - bioawk
