@@ -44,10 +44,10 @@ def get_haplotype_seqs(wildcards):
     sample_tuple = sample_record(
         sample_name=wildcards.sample_name, date=wildcards.date)
     haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
-    if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
-        val = haplotype_seqs
-    else:
-        val = ''
+    val = ''
+    if haplotype_seqs is not None:
+        if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
+            val = haplotype_seqs
     return val
 
 
