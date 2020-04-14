@@ -10,12 +10,12 @@ rule simulate_master:
         reference_file
     params:
         scratch = '2000',
-        mem = configBench.simulate_master['mem'],
-        time = configBench.simulate_master['time'],
-        GENOME_LEN = configBench.simulate_master['genome_length'],
-        SEED = configBench.simulate_master['seed'],
+        mem = config.simulate_master['mem'],
+        time = config.simulate_master['time'],
+        GENOME_LEN = config.simulate_master['genome_length'],
+        SEED = config.simulate_master['seed'],
         OUTDIR_HAP = "references",
-        SIM_BENCH = configBench.applications['simBench'],
+        SIM_BENCH = config.applications['simBench'],
     log:
         outfile = "references/simulate_master.out.log",
         errfile = "references/simulate_master.out.log",
@@ -83,9 +83,9 @@ rule simulate_haplotypes:
         HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
     params:
         scratch = '2000',
-        mem = configBench.simulate_haplotypes['mem'],
-        time = configBench.simulate_haplotypes['time'],
-        USE_MASTER = '-u' if configBench.simulate_haplotypes['use_master'] else '',
+        mem = config.simulate_haplotypes['mem'],
+        time = config.simulate_haplotypes['time'],
+        USE_MASTER = '-u' if config.simulate_haplotypes['use_master'] else '',
         HAPLOTYPE_SEQS = get_haplotype_seqs,
         NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(
             sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
@@ -100,7 +100,7 @@ rule simulate_haplotypes:
         SEED = lambda wildcards: sample_dict[sample_record(
             sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
         OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
-        SIM_BENCH = configBench.applications['simBench'],
+        SIM_BENCH = config.applications['simBench'],
     log:
         outfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
         errfile = "{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
@@ -129,7 +129,7 @@ def get_freq_params(wildcards):
     return val
 
 
-if configBench.input['paired']:
+if config.input['paired']:
     rule simulate_reads:
         input:
             "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
@@ -142,14 +142,14 @@ if configBench.input['paired']:
                 "{sample_dir}/{sample_name}/{date}/extracted_data/R2.fastq"),
         params:
             scratch = '2000',
-            mem = configBench.simulate_reads['mem'],
-            time = configBench.simulate_reads['time'],
+            mem = config.simulate_reads['mem'],
+            time = config.simulate_reads['time'],
             NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
             COVERAGE = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['coverage'],
-            NUM_READS = '-nr' if configBench.simulate_reads['num_reads'] else '',
-            HIGH_QUAL = '-q' if configBench.simulate_reads['high_quality'] else '',
+            NUM_READS = '-nr' if config.simulate_reads['num_reads'] else '',
+            HIGH_QUAL = '-q' if config.simulate_reads['high_quality'] else '',
             READ_LEN = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['read_len'],
             PAIRED = '-p',
@@ -162,8 +162,8 @@ if configBench.input['paired']:
                 sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
             OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
             OUTDIR_READS = "{sample_dir}/{sample_name}/{date}/raw_data",
-            ART = configBench.applications['art'],
-            SIM_BENCH = configBench.applications['simBench'],
+            ART = config.applications['art'],
+            SIM_BENCH = config.applications['simBench'],
         log:
             outfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
             errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
@@ -190,13 +190,13 @@ else:
                 "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq"),
         params:
             scratch = '2000',
-            mem = configBench.simulate_reads['mem'],
-            time = configBench.simulate_reads['time'],
+            mem = config.simulate_reads['mem'],
+            time = config.simulate_reads['time'],
             NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
             COVERAGE = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['coverage'],
-            NUM_READS = '-nr' if configBench.simulate_reads['num_reads'] else '',
+            NUM_READS = '-nr' if config.simulate_reads['num_reads'] else '',
             READ_LEN = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['read_len'],
             FRAGMENT_SIZE = lambda wildcards: sample_dict[sample_record(
@@ -209,8 +209,8 @@ else:
                 sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
             OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
             OUTDIR_READS = "{sample_dir}/{sample_name}/{date}/raw_data",
-            ART = configBench.applications['art'],
-            SIM_BENCH = configBench.applications['simBench'],
+            ART = config.applications['art'],
+            SIM_BENCH = config.applications['simBench'],
         log:
             outfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
             errfile = "{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
@@ -227,7 +227,7 @@ else:
             cp {output.R1_raw} {output.R1}
             """
 
-if configBench.general["simulate"]:
+if config.general["simulate"]:
     ruleorder: simulate_reads > extract
 else:
     ruleorder: extract > simulate_reads

@@ -15,7 +15,7 @@ rule allbench:
     input:
         expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
         expand("{dataset}/raw_data/simreads_R2.fastq",
-               dataset=datasets) if configBench.input['paired'] else [],
+               dataset=datasets) if config.input['paired'] else [],
         expand("{dataset}/variants/SNVs/true_snvs.tsv", dataset=datasets)
 
 include: "rules/simBench.smk"

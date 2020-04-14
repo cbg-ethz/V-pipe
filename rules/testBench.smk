@@ -83,21 +83,21 @@ rule test_snv:
         "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv"
     params:
         scratch = '2000',
-        mem = configBench.test_snv['mem'],
-        time = configBench.test_snv['time'],
-        RE_MSA = 'true' if configBench.test_snv['re_msa'] else 'false',
+        mem = config.test_snv['mem'],
+        time = config.test_snv['time'],
+        RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
         FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
-        CALLER = '-c' if configBench.general['snv_caller'] != 'shorah' else '',
+        CALLER = '-c' if config.general['snv_caller'] != 'shorah' else '',
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
-        MAFFT = configBench.applications['mafft'],
-        TEST_BENCH = configBench.applications['testBench'],
+        MAFFT = config.applications['mafft'],
+        TEST_BENCH = config.applications['testBench'],
     log:
         outfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
         errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
     conda:
-        configBench.test_snv['conda']
+        config.test_snv['conda']
     shell:
         """
         region=`tr '\n' ',' < {input.TSV}`
