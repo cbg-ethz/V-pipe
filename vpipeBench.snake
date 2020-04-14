@@ -7,6 +7,7 @@ if not 'VPIPE_BASEDIR' in dir():
 LOGGER.info('VPIPE_BASEDIR = %s', VPIPE_BASEDIR)
 
 # Include config file parser and globals
+VPIPE_BENCH = True
 include: "rules/benchmark.smk"
 functions = srcdir("functions.sh")
 

@@ -8,8 +8,10 @@ __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
-VPIPE_BENCH = True if os.environ.get('VPIPE_BENCH') is not None else False
+if not 'VPIPE_BENCH' in dir():
+    VPIPE_BENCH = False
 
+# 1. Parse config file
 
 if 'VPIPE_CONFIG' not in dir():
     # Import VpipeConfig class defining defaults
@@ -157,6 +159,14 @@ for p in patient_list:
 IDs = ','.join(IDs)
 
 # 5. Locate reference and parse reference identifier
+def get_reference_name(reference_file):
+    with open(reference_file, 'r') as infile:
+        reference_name = infile.readline().rstrip()
+    reference_name = reference_name.split('>')[1]
+    reference_name = reference_name.split(' ')[0]
+    return reference_name
+
+
 if not VPIPE_BENCH:
     reference_file = config.input['reference']
     if not os.path.isfile(reference_file):
@@ -168,14 +178,4 @@ if not VPIPE_BENCH:
             raise ValueError(
                 f"ERROR: Reference file {reference_file} not found.")
 
-    with open(reference_file, 'r') as infile:
-        reference_name = infile.readline().rstrip()
-    reference_name = reference_name.split('>')[1]
-    reference_name = reference_name.split(' ')[0]
-
-#else:
-#    try:
-#        reference_name
-#    except NameError:
-#        reference_name = ''
-
+    reference_name = get_reference_name(reference_file)

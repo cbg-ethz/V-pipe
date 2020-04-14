@@ -12,8 +12,6 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 # 1. Parse config file
 
-VPIPE_DEBUG = True if os.environ.get('VPIPE_DEBUG') is not None else False
-
 # Import VpipeConfig class defining defaults
 include: "config_default.smk"
 
@@ -122,9 +120,11 @@ if config.input['reference']:
     # Locate reference file
     if os.path.isfile(config.input['reference']):
         reference_file = config.input['reference']
+        reference_name = get_reference_name(reference_file)
     elif os.path.isfile(os.path.join("references", config.input['reference'])):
         reference_file = os.path.join(
             "references", config.input['reference'])
+        reference_name = get_reference_name(reference_file)
     else:
         # If reference file not found, create it
         reference_file = "references/haplotype_master.fasta"
