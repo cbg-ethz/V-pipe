@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 USAGE="
 usage: $0 [options]
@@ -72,7 +72,7 @@ fi
 
 
 cat > "$PROJECT_DIR/vpipe" <<EOF
-#!/bin/sh
+#!/usr/bin/env bash
 ${ACTIVATE}
 exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipe.snake" ${EXTRA_VPIPE_OPTS} "\$@"
 EOF
