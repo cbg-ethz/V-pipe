@@ -11,7 +11,6 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 import sh
 import numpy as np
-#import matplotlib.pyplot as plt
 
 DBG = True if os.environ.get('DBG') is not None else False
 
@@ -52,6 +51,8 @@ def parse_args():
                         help="Indicate if file containing expected SNVs should be reported. Report using 1-based indexing for the position")
     parser.add_argument("-mafft", required=False, default="mafft", metavar='PATH', dest='mafft',
                         type=str, help="Path to binaries for the multiple sequence aligner MAFFT")
+    parser.add_argument("-N", required=False, default='sample', metavar='STR', dest='sampleID',
+                        help="Patient/sample identifiers")
     parser.add_argument("-of", required=False, default='true_snvs.tsv', metavar='OUTPUT',
                         dest='outfile', type=str, help="Output file - file containing expected SNVs")
     parser.add_argument("-od", required=False, default=None, metavar='DIR',
@@ -157,7 +158,6 @@ def inferred_snvs(snvs_file):
 
     extension = os.path.splitext(snvs_file)[1][1:]
     if extension == "vcf":
-        check = False
         with open(snvs_file) as infile:
             for line in infile:
                 record = line.rstrip()
@@ -274,7 +274,6 @@ def inferred_snvs(snvs_file):
 
 def mafft(infile, outfile, max_iter=1000, thrd=4, mafft='mafft'):
     "Use MAFFT to obtain the multiple sequence alignment"
-    # TODO: The code below assumes mafft is in PATH
     # --nuc sequences are nucleotide
     # --localpair pairwise alignments
     # --maxiterate number of iterative refinement
@@ -289,21 +288,19 @@ def mafft(infile, outfile, max_iter=1000, thrd=4, mafft='mafft'):
 
     print(cmd)
     cmd()
-    #sh.mafft('--nuc', '--preservecase', '--maxiterate', max_iter, '--localpair', '--thread', thrd, infile, _out=outfile)
 
 
 def get_FN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true):
     "Count false negatives"
     while loci_true[i] == locus:
         FN += 1
-        #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
         print("At locus {}, SNV missed {} ({:.6f})".format(
             loci_true[i] + 1, snvs_true[i], freq_true[i]))
         missed[[int(x) for x in haps_true[i].split(',')]] += 1
         i += 1
         if i == i_max:
             break
-    return(FN, i, missed)
+    return FN, i, missed
 
 
 def get_FN_TN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, haps_true):
@@ -315,7 +312,7 @@ def get_FN_TN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, 
         if DBG:
             print("At locus {}, true negative reported".format(locus + 1))
         TN += 1
-    return(FN, TN, i, missed)
+    return FN, TN, i, missed
 
 
 def get_FP(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP):
@@ -327,7 +324,7 @@ def get_FP(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP):
         j += 1
         if j == j_max:
             break
-    return(FP, j)
+    return FP, j
 
 
 def get_FP_TN(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, TN):
@@ -339,11 +336,11 @@ def get_FP_TN(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, 
         if DBG:
             print("At locus {}, true negative reported".format(locus + 1))
         TN += 1
-    return(FP, TN, j)
+    return FP, TN, j
 
 
 def consecutive(array, stepsize=1):
-    return np.split(array, np.where(np.diff(array) != stepsize)[0]+1)
+    return np.split(array, np.where(np.diff(array) != stepsize)[0] + 1)
 
 
 def main():
@@ -434,12 +431,12 @@ def main():
     else:
         # if master sequence is not provided, report with respect to the consensus. Note that SNVs are called with respect to the cohort consensus.
         from scipy.stats import mode
-        outfile = os.path.join(os.getcwd(), 'true_haplotype_msa.fasta')
+        outfile = os.path.join(outdir, 'true_haplotype_msa.fasta')
         mafft(args.haplotype_seqs, outfile, mafft=args.mafft)
         haplotype_ids, haplotype_seqs = read_fasta(outfile)
         num_haplotypes = len(haplotype_ids)
         haplotype_seqs_array = np.array(haplotype_seqs, dtype='c')
-        if freq_dstr != 'unif':
+        if args.freq_dstr != 'unif':
             haplotype_freqs = frequencies(
                 args.freq_dstr, num_haplotypes, args.ratio, args.dirichlet_freqs)
             aux = np.repeat(haplotype_seqs_array, np.round(
@@ -548,7 +545,6 @@ def main():
                         while loci_true[i] == idx and loci_inferred[j] == idx:
                             if snvs_true[i] == snvs_inferred[j]:
                                 TP += 1
-                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
                                 if DBG:
                                     print("At locus {}, true positive reported: {} ({:.6f})".format(
                                         loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
@@ -561,7 +557,6 @@ def main():
                                 j += 1
                             elif snvs_true[i] < snvs_inferred[j]:
                                 FN += 1
-                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
                                 print("At locus {}, SNV missed {} ({:.6f})".format(
                                     loci_true[i] + 1, snvs_true[i], freq_true[i]))
                                 missed[[int(x)
@@ -608,7 +603,7 @@ def main():
             # Parse coverage intervals from ShoRAH output
             with open(args.coverage, 'r') as infile:
                 # Look for regions at least covered by two windows
-                for count, line in enumerate(infile): 
+                for count, line in enumerate(infile):
                     record = line.rstrip().split("\t")
                     if count >= 2:
                         if int(record[2]) == start_w + offset:
@@ -630,7 +625,8 @@ def main():
 
                 if len(regions) > idx_region:
                     if idx == regions[idx_region][0]:
-                        print("Region with enough support: {:d}-{:d}".format(int(regions[idx_region][0]) + 1, int(regions[idx_region][-1])))
+                        print("Region with enough support: {:d}-{:d}".format(
+                            int(regions[idx_region][0]) + 1, int(regions[idx_region][-1])))
                         idx_region += 1
 
                 if i == i_max or j == j_max:
@@ -717,6 +713,12 @@ def main():
     print("FN: ", FN)
     print("TN: ", TN)
     print("missed: ", missed)
+
+    # Write to output file
+    outfile = os.path.join(outdir, 'performance.tsv')
+    with open(outfile, 'w') as output:
+        output.write('ID\tTP\tFP\tFN\tTN\n')
+        output.write(f'{args.sampleID}\t{TP}\t{FP}\t{FN}\t{TN}\n')
 
 
 if __name__ == '__main__':

@@ -6,7 +6,6 @@ import argparse
 import collections
 import shutil
 from itertools import zip_longest
-import math
 
 import sh
 import numpy as np
@@ -198,7 +197,7 @@ def mutate(haplotype, mutation_rate, del_rate, ins_rate, noFR=True, del_len=None
 
 
 def sim_haplotypes(length, weights=None, s=None):
-    """ 
+    """
     Generate random haplotypes (DNA sequences) of a given length.
     Weights can be provided to enforce a certain composition of the sequence. These weights should sum up to 1, e.g., (('A', 0.1), ('C', 0.2), ('G', 0.4), ('T', 0.3))
     """
