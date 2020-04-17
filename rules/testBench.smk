@@ -80,7 +80,8 @@ rule test_snv:
         REF_ALN = reference_file,
         TSV = "{sample_dir}/{sample_name}/{date}/variants/coverage_intervals.tsv",
     output:
-        "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv"
+        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv",
+        PERFORMANCE = temp("{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv")
     params:
         scratch = '2000',
         mem = config.test_snv['mem'],
@@ -91,6 +92,7 @@ rule test_snv:
         FREQ_PARAMS = get_freq_aux,
         CALLER = '-c' if config.general['snv_caller'] != 'shorah' else '',
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
+        ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
         TEST_BENCH = config.applications['testBench'],
     log:
@@ -106,12 +108,30 @@ rule test_snv:
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -ms -mafft {params.MAFFT} -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.SNVs} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -of {output} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -N {params.ID} -of {output.SNVs} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
         else
             echo "No called SNVs"
             touch {output}
         fi
+        """
+
+rule aggregate:
+    input:
+        expand("{dataset}/variants/SNVs/performance.tsv", dataset=datasets)
+    output:
+        "variants/SNV_calling_performance.tsv"
+    params:
+        scratch = '1250',
+        mem = '2000',
+        time = '20'
+    log:
+        outfile = "variants/SNV_calling_performance.out.log",
+        errfile = "variants/SNV_calling_performance.err.log"
+    shell:
+        """
+        awk FNR!=1 {input} > {output}
+        sed -i 1i"ID\tTP\tFP\tFN\tTN" {output}
         """
