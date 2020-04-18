@@ -4,5 +4,6 @@ channels:
   - defaults
 dependencies:
   - art
+  - python>=3.6
   - sh
   - numpy

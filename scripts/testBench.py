@@ -5,6 +5,8 @@ import sys
 import argparse
 import csv
 from math import trunc
+from operator import iadd
+from itertools import starmap
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -343,6 +345,110 @@ def consecutive(array, stepsize=1):
     return np.split(array, np.where(np.diff(array) != stepsize)[0] + 1)
 
 
+def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
+                    freq_true, freq_inferred, haps_true, num_haplotypes,
+                    loci_region, i, j, coverage_file=False, regions=None):
+    #i = 0
+    #j = 0
+    i_max = len(loci_true)
+    j_max = len(loci_inferred)
+    missed = np.zeros(num_haplotypes)
+
+    # TP: loci that are truly polymorphic
+    TP = 0
+    # FP: technical error reported as SNVs
+    FP = 0
+    # TN: loci that are not polymorphic
+    TN = 0
+    # FN: SNVs that are missed
+    FN = 0
+
+    while loci_true[i] < loci_region[0]:
+        i += 1
+    if DBG:
+        print("DBG loci_true[i]: {}".format(loci_true[i]))
+
+    idx_region = 0
+    for idx in loci_region:
+
+        if coverage_file:
+            if len(regions) > idx_region:
+                if idx == regions[idx_region][0]:
+                    print("Region with enough support: {:d}-{:d}".format(
+                        int(regions[idx_region][0]) + 1, int(regions[idx_region][-1])))
+                    idx_region += 1
+
+        if i == i_max or j == j_max:
+            if i == i_max and j < j_max:
+                # There are no more expected SNVs, but nevertheless reported by the caller
+                FP, TN, j = get_FP_TN(
+                    idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, TN)
+
+            if j == j_max and i < i_max:
+                # There are no more reported SNVs, but some are expected
+                FN, TN, i, missed = get_FN_TN(
+                    idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, haps_true)
+
+        else:
+            assert loci_true[i] >= idx
+            assert loci_inferred[j] >= idx
+
+            if loci_true[i] == idx and loci_inferred[j] == idx:
+                while loci_true[i] == idx and loci_inferred[j] == idx:
+                    if snvs_true[i] == snvs_inferred[j]:
+                        TP += 1
+                        if DBG:
+                            print("At locus {}, true positive reported: {} ({:.6f})".format(
+                                loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
+                        i += 1
+                        j += 1
+                    elif snvs_true[i] > snvs_inferred[j]:
+                        FP += 1
+                        print("At locus {}, technical error / artefact reported as true variant: {} ({:.6f})".format(
+                            loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
+                        j += 1
+                    elif snvs_true[i] < snvs_inferred[j]:
+                        FN += 1
+                        print("At locus {}, SNV missed {} ({:.6f})".format(
+                            loci_true[i] + 1, snvs_true[i], freq_true[i]))
+                        missed[[int(x)
+                                for x in haps_true[i].split(',')]] += 1
+                        i += 1
+                    if i == i_max or j == j_max:
+                        break
+
+                if i < i_max:
+                    FN, i, missed = get_FN(
+                        idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
+                if j < j_max:
+                    FP, j = get_FP(
+                        idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP)
+
+                if i == i_max and j == j_max:
+                    # There are no expected nor reported SNVs. Hence, the rest of the positions correspond to true negatives
+                    break
+            elif loci_true[i] == idx:
+                FN, i, missed = get_FN(
+                    idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
+            elif loci_inferred[j] == idx:
+                FP, j = get_FP(idx, j, j_max, loci_inferred,
+                               snvs_inferred, freq_inferred, FP)
+            else:
+                if DBG:
+                    print(
+                        "At locus {}, true negative reported".format(idx + 1))
+                TN += 1
+
+    # Add positions that were not reported as polymorphic by the caller and were not expected as true SNVs
+    if DBG:
+        if loci_region[-1] > idx:
+            print(
+                "Loci {}-{}, reported as true negative".format(idx + 1, loci_region[-1]))
+    TN += loci_region[-1] - idx
+
+    return TP, FP, TN, FN, missed, i, j
+
+
 def main():
 
     args = parse_args()
@@ -465,6 +571,7 @@ def main():
     loci_inferred, ref_inferred, snvs_inferred, freq_inferred = inferred_snvs(
         args.snvs)
 
+    missed = np.zeros(num_haplotypes)
     # TP: loci that are truly polymorphic
     TP = 0
     # FP: technical error reported as SNVs
@@ -477,9 +584,6 @@ def main():
     loci = np.arange(reference_len)
     i = 0
     j = 0
-    i_max = len(loci_true)
-    j_max = len(loci_inferred)
-    missed = np.zeros(num_haplotypes)
 
     if args.region is not None:
         regions = args.region.split(',')
@@ -519,80 +623,9 @@ def main():
             # Here, loci are reported using 1-based indexing and a closed interval
             print(
                 "Region with enough support: {:d}-{:d}".format(trunc(start) + 1, trunc(end)))
-            while loci_true[i] < loci_region[0]:
-                i += 1
-            if DBG:
-                print("DBG loci_true[i]: {}".format(loci_true[i]))
 
-            for idx in loci_region:
-
-                if i == i_max or j == j_max:
-                    if i == i_max and j < j_max:
-                        # There are no more expected SNVs, but nevertheless reported by the caller
-                        FP, TN, j = get_FP_TN(
-                            idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, TN)
-
-                    if j == j_max and i < i_max:
-                        # There are no more reported SNVs, but some are expected
-                        FN, TN, i, missed = get_FN_TN(
-                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, haps_true)
-
-                else:
-                    assert loci_true[i] >= idx
-                    assert loci_inferred[j] >= idx
-
-                    if loci_true[i] == idx and loci_inferred[j] == idx:
-                        while loci_true[i] == idx and loci_inferred[j] == idx:
-                            if snvs_true[i] == snvs_inferred[j]:
-                                TP += 1
-                                if DBG:
-                                    print("At locus {}, true positive reported: {} ({:.6f})".format(
-                                        loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
-                                i += 1
-                                j += 1
-                            elif snvs_true[i] > snvs_inferred[j]:
-                                FP += 1
-                                print("At locus {}, technical error / artefact reported as true variant: {} ({:.6f})".format(
-                                    loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
-                                j += 1
-                            elif snvs_true[i] < snvs_inferred[j]:
-                                FN += 1
-                                print("At locus {}, SNV missed {} ({:.6f})".format(
-                                    loci_true[i] + 1, snvs_true[i], freq_true[i]))
-                                missed[[int(x)
-                                        for x in haps_true[i].split(',')]] += 1
-                                i += 1
-                            if i == i_max or j == j_max:
-                                break
-
-                        if i < i_max:
-                            FN, i, missed = get_FN(
-                                idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
-                        if j < j_max:
-                            FP, j = get_FP(
-                                idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP)
-
-                        if i == i_max and j == j_max:
-                            # There are no expected nor reported SNVs. Hence, the rest of the positions correspond to true negatives
-                            break
-                    elif loci_true[i] == idx:
-                        FN, i, missed = get_FN(
-                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
-                    elif loci_inferred[j] == idx:
-                        FP, j = get_FP(idx, j, j_max, loci_inferred,
-                                       snvs_inferred, freq_inferred, FP)
-                    else:
-                        if DBG:
-                            print(
-                                "At locus {}, true negative reported".format(idx + 1))
-                        TN += 1
-
-            # Add positions that were not reported as polymorphic by the caller and were not expected as true SNVs
-            if DBG:
-                if loci_region[-1] > idx:
-                    print(
-                        "Loci {}-{}, reported as true negative".format(idx + 1, loci_region[-1]))
-            TN += loci_region[-1] - idx
+            TP, FP, TN, FN, missed, i, j = starmap(iadd, zip((TP, FP, TN, FN, missed, i, j), get_performance(
+                loci_true, loci_inferred, snvs_true, snvs_inferred, freq_true, freq_inferred, haps_true, num_haplotypes, loci_region, i, j)))
 
         loci = loci[idxs]
         assert loci_inferred[0] >= loci[0] and loci_inferred[-1] <= loci[-1], "Reported SNVs are outside region of interest"
@@ -603,6 +636,7 @@ def main():
             # Parse coverage intervals from ShoRAH output
             with open(args.coverage, 'r') as infile:
                 # Look for regions at least covered by two windows
+                start_w = 1
                 for count, line in enumerate(infile):
                     record = line.rstrip().split("\t")
                     if count >= 2:
@@ -615,89 +649,8 @@ def main():
             loci_region = np.extract(idxs, loci)
             regions = consecutive(loci_region)
 
-            while loci_true[i] < loci_region[0]:
-                i += 1
-            if DBG:
-                print("DBG loci_true[i]: {}".format(loci_true[i]))
-
-            idx_region = 0
-            for idx in loci_region:
-
-                if len(regions) > idx_region:
-                    if idx == regions[idx_region][0]:
-                        print("Region with enough support: {:d}-{:d}".format(
-                            int(regions[idx_region][0]) + 1, int(regions[idx_region][-1])))
-                        idx_region += 1
-
-                if i == i_max or j == j_max:
-                    if i == i_max and j < j_max:
-                        # There are no more expected SNVs, but nevertheless reported by the caller
-                        FP, TN, j = get_FP_TN(
-                            idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP, TN)
-
-                    if j == j_max and i < i_max:
-                        # There are no more reported SNVs, but some are expected
-                        FN, TN, i, missed = get_FN_TN(
-                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN, missed, haps_true)
-
-                else:
-                    assert loci_true[i] >= idx
-                    assert loci_inferred[j] >= idx
-
-                    if loci_true[i] == idx and loci_inferred[j] == idx:
-                        while loci_true[i] == idx and loci_inferred[j] == idx:
-                            if snvs_true[i] == snvs_inferred[j]:
-                                TP += 1
-                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
-                                if DBG:
-                                    print("At locus {}, true positive reported: {} ({:.6f})".format(
-                                        loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
-                                i += 1
-                                j += 1
-                            elif snvs_true[i] > snvs_inferred[j]:
-                                FP += 1
-                                print("At locus {}, technical error / artefact reported as true variant: {} ({:.6f})".format(
-                                    loci_inferred[j] + 1, snvs_inferred[j], freq_inferred[j]))
-                                j += 1
-                            elif snvs_true[i] < snvs_inferred[j]:
-                                FN += 1
-                                #print("{}\t{}\t{}".format(loci_true[i] + 1, ref_true[i], snvs_true[i]))
-                                print("At locus {}, SNV missed {} ({:.6f})".format(
-                                    loci_true[i] + 1, snvs_true[i], freq_true[i]))
-                                missed[[int(x)
-                                        for x in haps_true[i].split(',')]] += 1
-                                i += 1
-                            if i == i_max or j == j_max:
-                                break
-
-                        if i < i_max:
-                            FN, i, missed = get_FN(
-                                idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
-                        if j < j_max:
-                            FP, j = get_FP(
-                                idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP)
-
-                        if i == i_max and j == j_max:
-                            # There are no expected nor reported SNVs. Hence, the rest of the positions correspond to true negatives
-                            break
-                    elif loci_true[i] == idx:
-                        FN, i, missed = get_FN(
-                            idx, i, i_max, loci_true, snvs_true, freq_true, FN, missed, haps_true)
-                    elif loci_inferred[j] == idx:
-                        FP, j = get_FP(idx, j, j_max, loci_inferred,
-                                       snvs_inferred, freq_inferred, FP)
-                    else:
-                        if DBG:
-                            print(
-                                "At locus {}, true negative reported".format(idx + 1))
-                        TN += 1
-
-            # Add positions that were not reported as polymorphic by the caller and were not expected as true SNVs
-            if DBG:
-                if loci_region[-1] > idx:
-                    print(
-                        "Loci {}-{}, reported as true negative".format(idx + 1, loci_region[-1]))
-            TN += loci_region[-1] - idx
+            TP, FP, TN, FN, missed, i, j = starmap(iadd, zip((TP, FP, TN, FN, missed, i, j), get_performance(
+                loci_true, loci_inferred, snvs_true, snvs_inferred, freq_true, freq_inferred, haps_true, num_haplotypes, loci_region, i, j, coverage_file=True, regions=regions)))
 
     # Sensitivity
     print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
