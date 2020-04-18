@@ -382,12 +382,11 @@ elif args.output == "haplotypes" or args.output == "all":
             # Strategy 2.b - Split haplotypes into different files (implicitly, it is assumed the number of haplotypes sequences is larger than 1)
             idx = 0
             aux = []
+            output_file = ''
+            haplotype_id = ''
             with open(args.haplotype_seqs, 'r') as infile:
-                # for idx, el  in enumerate(grouper(2, infile, fillvalue='')):
-                #    output_file = os.path.join(outdir_haps, ''.join(("haplotype", str(idx), ".fasta")))
-                #    with open(output_file, 'w') as outfile:
-                #        outfile.writelines(el)
-                # The following is needed because the number of characters per line in a FASTA file often do not exceed a certain number
+                # The following is needed because the number of characters per
+                # line in a FASTA file often do not exceed a certain number
                 for line in infile:
                     record = line.rstrip()
                     if record and record[0] == '>':
