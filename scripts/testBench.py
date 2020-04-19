@@ -170,96 +170,101 @@ def inferred_snvs(snvs_file):
                     # first base corresponds to the locus after which the
                     # deletion starts
                     ref_len = len(row[3]) - 1
+                    var_len = len(row[4])
 
-                    # Check if variants corresponds to a deletion
-                    if ref_len >= 1:
-                        # first base corresponds to the locus after which the
-                        # deletion starts
-                        locus = int(row[1])
-                        # report deletions per loci w.r.t reference
-                        if del_len > 0:
-                            idx = locus - loci_inferred_tmp[0]
-                            assert idx >= 0
-                            loci_inferred = loci_inferred + \
-                                loci_inferred_tmp[:idx]
-                            ref_inferred = ref_inferred + \
-                                ref_inferred_tmp[:idx]
-                            snvs_inferred = snvs_inferred + \
-                                snvs_inferred_tmp[:idx]
-                            freq_inferred = freq_inferred + \
-                                freq_inferred_tmp[:idx]
-                            # shorten the current deletion
-                            loci_inferred_tmp = loci_inferred_tmp[idx:]
-                            ref_inferred_tmp = ref_inferred_tmp[idx:]
-                            snvs_inferred_tmp = snvs_inferred_tmp[idx:]
-                            freq_inferred_tmp = freq_inferred_tmp[idx:]
-                            del_len = len(loci_inferred_tmp)
-                        # There are two options:
-                        # (1) the second deletion outruns the first one, or
-                        # (2) the second deletion is fully contained in the
-                        #     first one
-                        if ref_len > del_len:
-                            # Add deleted bases to current deletion
-                            for idx in range(ref_len):
-                                if idx >= del_len:
-                                    locus = int(row[1]) + idx
-                                    loci_inferred_tmp.append(locus)
-                                    # ALL deleted bases w.r.t. reference are
-                                    # reported. However, the first base
-                                    # corresponds to the locus after which the
-                                    # deletion starts
-                                    ref_inferred_tmp.append(row[3][idx + 1])
-                                    snvs_inferred_tmp.append('-')
-                                    freq_inferred_tmp.append(float(freq))
-                                else:
-                                    freq_inferred_tmp[idx] += float(freq)
-                        else:
-                            # Add frequencies -- TODO: check if it is reasonable
-                            for idx in range(ref_len):
-                                freq_inferred_tmp[idx] += float(freq)
-                        del_len = len(loci_inferred_tmp)
-                    else:
-                        locus = int(row[1]) - 1  # Lofreq uses 1-based indexing
-                        # check if a deletion is to be inserted before this locus
-                        if del_len > 0:
+                    # Check that variant do not correspond to a insertion
+                    if var_len == 1:
+                        # Check if variant corresponds to a deletion
+                        if ref_len >= 1:
+                            # first base corresponds to the locus after which the
+                            # deletion starts
+                            locus = int(row[1])
+                            # report deletions per loci w.r.t reference
+                            if del_len > 0:
+                                idx = locus - loci_inferred_tmp[0]
+                                assert idx >= 0
+                                loci_inferred = loci_inferred + \
+                                    loci_inferred_tmp[:idx]
+                                ref_inferred = ref_inferred + \
+                                    ref_inferred_tmp[:idx]
+                                snvs_inferred = snvs_inferred + \
+                                    snvs_inferred_tmp[:idx]
+                                freq_inferred = freq_inferred + \
+                                    freq_inferred_tmp[:idx]
+                                # shorten the current deletion
+                                loci_inferred_tmp = loci_inferred_tmp[idx:]
+                                ref_inferred_tmp = ref_inferred_tmp[idx:]
+                                snvs_inferred_tmp = snvs_inferred_tmp[idx:]
+                                freq_inferred_tmp = freq_inferred_tmp[idx:]
+                                del_len = len(loci_inferred_tmp)
                             # There are two options:
-                            # (1) The next locus happens after the last locus
-                            #     of the deletion, or
-                            # (2) in between the deletion
-                            if loci_inferred_tmp[-1] <= locus:
-                                loci_inferred = loci_inferred + loci_inferred_tmp
-                                ref_inferred = ref_inferred + ref_inferred_tmp
-                                snvs_inferred = snvs_inferred + snvs_inferred_tmp
-                                freq_inferred = freq_inferred + freq_inferred_tmp
-                                loci_inferred_tmp = []
-                                ref_inferred_tmp = []
-                                snvs_inferred_tmp = []
-                                freq_inferred_tmp = []
+                            # (1) the second deletion outruns the first one, or
+                            # (2) the second deletion is fully contained in the
+                            #     first one
+                            if ref_len > del_len:
+                                # Add deleted bases to current deletion
+                                for idx in range(ref_len):
+                                    if idx >= del_len:
+                                        locus = int(row[1]) + idx
+                                        loci_inferred_tmp.append(locus)
+                                        # ALL deleted bases w.r.t. reference are
+                                        # reported. However, the first base
+                                        # corresponds to the locus after which the
+                                        # deletion starts
+                                        ref_inferred_tmp.append(
+                                            row[3][idx + 1])
+                                        snvs_inferred_tmp.append('-')
+                                        freq_inferred_tmp.append(float(freq))
+                                    else:
+                                        freq_inferred_tmp[idx] += float(freq)
                             else:
-                                # insert leading loci - loci before snv
-                                idx = locus - loci_inferred_tmp[0] + 1
-                                # Deletions are reported at the preceding
-                                # locus, so it can be that an snv at this
-                                # locus is reported after the deletion
-                                if idx > 0:
-                                    loci_inferred = loci_inferred + \
-                                        loci_inferred_tmp[:idx]
-                                    ref_inferred = ref_inferred + \
-                                        ref_inferred_tmp[:idx]
-                                    snvs_inferred = snvs_inferred + \
-                                        snvs_inferred_tmp[:idx]
-                                    freq_inferred = freq_inferred + \
-                                        freq_inferred_tmp[:idx]
-                                    loci_inferred_tmp = loci_inferred_tmp[idx:]
-                                    ref_inferred_tmp = ref_inferred_tmp[idx:]
-                                    snvs_inferred_tmp = snvs_inferred_tmp[idx:]
-                                    freq_inferred_tmp = freq_inferred_tmp[idx:]
-                        # insert the snv
-                        loci_inferred.append(locus)
-                        ref_inferred.append(row[3])
-                        snvs_inferred.append(row[4])
-                        freq_inferred.append(float(freq))
-                        del_len = len(loci_inferred_tmp)
+                                # Add frequencies -- TODO: check if it is reasonable
+                                for idx in range(ref_len):
+                                    freq_inferred_tmp[idx] += float(freq)
+                            del_len = len(loci_inferred_tmp)
+                        else:
+                            # Lofreq uses 1-based indexing
+                            locus = int(row[1]) - 1
+                            # check if a deletion is to be inserted before this locus
+                            if del_len > 0:
+                                # There are two options:
+                                # (1) The next locus happens after the last locus
+                                #     of the deletion, or
+                                # (2) in between the deletion
+                                if loci_inferred_tmp[-1] <= locus:
+                                    loci_inferred = loci_inferred + loci_inferred_tmp
+                                    ref_inferred = ref_inferred + ref_inferred_tmp
+                                    snvs_inferred = snvs_inferred + snvs_inferred_tmp
+                                    freq_inferred = freq_inferred + freq_inferred_tmp
+                                    loci_inferred_tmp = []
+                                    ref_inferred_tmp = []
+                                    snvs_inferred_tmp = []
+                                    freq_inferred_tmp = []
+                                else:
+                                    # insert leading loci - loci before snv
+                                    idx = locus - loci_inferred_tmp[0] + 1
+                                    # Deletions are reported at the preceding
+                                    # locus, so it can be that an snv at this
+                                    # locus is reported after the deletion
+                                    if idx > 0:
+                                        loci_inferred = loci_inferred + \
+                                            loci_inferred_tmp[:idx]
+                                        ref_inferred = ref_inferred + \
+                                            ref_inferred_tmp[:idx]
+                                        snvs_inferred = snvs_inferred + \
+                                            snvs_inferred_tmp[:idx]
+                                        freq_inferred = freq_inferred + \
+                                            freq_inferred_tmp[:idx]
+                                        loci_inferred_tmp = loci_inferred_tmp[idx:]
+                                        ref_inferred_tmp = ref_inferred_tmp[idx:]
+                                        snvs_inferred_tmp = snvs_inferred_tmp[idx:]
+                                        freq_inferred_tmp = freq_inferred_tmp[idx:]
+                            # insert the snv
+                            loci_inferred.append(locus)
+                            ref_inferred.append(row[3])
+                            snvs_inferred.append(row[4])
+                            freq_inferred.append(float(freq))
+                            del_len = len(loci_inferred_tmp)
     else:
         with open(snvs_file, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -310,7 +315,9 @@ def get_FN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, FN_freq, missed
         FN += 1
         print("At locus {}, SNV missed {} ({:.6f})".format(
             loci_true[i] + 1, snvs_true[i].decode('UTF-8'), freq_true[i]))
-        FN_freq = FN_freq + [[loci_true[i] + 1, snvs_true[i].decode('UTF-8'), freq_true[i], haps_true[i]]]
+        FN_freq = FN_freq + \
+            [[loci_true[i] + 1,
+                snvs_true[i].decode('UTF-8'), freq_true[i], haps_true[i]]]
         missed[[int(x) for x in haps_true[i].split(',')]] += 1
         i += 1
         if i == i_max:
@@ -421,7 +428,8 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
                         print("At locus {}, technical error / artefact reported as true variant: {} ({:.6f})".format(
                             loci_inferred[j] + 1, snvs_inferred[j].decode('UTF-8'), freq_inferred[j]))
                         FP_freq = FP_freq + \
-                            [[loci_inferred[j] + 1, snvs_inferred[j].decode('UTF-8'), freq_inferred[j]]]
+                            [[loci_inferred[j] + 1,
+                                snvs_inferred[j].decode('UTF-8'), freq_inferred[j]]]
                         j += 1
                     elif snvs_true[i] < snvs_inferred[j]:
                         FN += 1
@@ -430,7 +438,8 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
                         missed[[int(x)
                                 for x in haps_true[i].split(',')]] += 1
                         FN_freq = FN_freq + \
-                            [[loci_true[i] + 1, snvs_true[i].decode('UTF-8'), freq_true[i], haps_true[i]]]
+                            [[loci_true[i] + 1,
+                                snvs_true[i].decode('UTF-8'), freq_true[i], haps_true[i]]]
                         i += 1
                     if i == i_max or j == j_max:
                         break
