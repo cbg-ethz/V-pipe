@@ -342,61 +342,6 @@ function displayGffData(gffData, canvas) {
     }
 }
 
-function createGffPlot(canvas, offset_y, features, title, colorScale, type_list) {
-  // Keep only the annotations in the strat-end interval.
-  canvas.append("text")
-    .attr("transform",
-        "translate(" + 0 + " ," +
-        (offset_y) + ")")
-    //.style("text-anchor", "middle")
-    .text(title + ":");
-  
-  canvas.selectAll("rects")
-    .data(features)
-    .enter()
-    .append("rect")
-      .attr("x", function(d) { return Math.max(0, x(d.start)) })
-      .attr("y", function(d) { return offset_y + 10 + 20 * d.row_cnt })
-      .attr("width", function(d) { 
-			if(x(d.start) > width || x(d.end) < 0) {
-			  return 0
-			}
-		        x_start = Math.max(0, x(d.start))
-		        rect_width = x(d.end) - x_start
-  			if(x(d.end) < width) {
-			  return rect_width
-			} else {
-			  return width - x_start
-			}
-	     	     })
-      .attr("height", 15)
-      .attr("fill", function(d) { return colorScale(d.type) })
-      .attr("stroke", "black")
-      .attr("stroke-width", 1)
-      .attr("class", "annotation_rects")
-      .on("mouseover", function(d) {
-        tooltip.transition()
-          .duration(200)
-          .style("opacity", .9)
-        tooltip.html(
-          "name: " + d.name + "<br>" +
-          "type: " + d.type
-        )
-          .style("left", (d3.event.pageX) + "px")
-          .style("top", (d3.event.pageY - 28) + "px")
-        })
-      .on("mousemove", function(d) {
-        tooltip
-          .style("left", (d3.event.pageX) + "px")
-          .style("top", (d3.event.pageY - 28) + "px")
-      })
-      .on("mouseout", function(d) {
-        tooltip.transition()
-          .duration(200)
-          .style("opacity", 0)
-      })
-}
-
 function createSummaryTable(div_id) {
   // create table
   var tbl = document.createElement("table")
