@@ -10,6 +10,11 @@ from itertools import zip_longest
 import sh
 import numpy as np
 
+__author__ = "Susana Posada-Cespedes"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
 
 def parse_args():
     """ Set up the parsing of command-line arguments """
