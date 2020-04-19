@@ -12,6 +12,13 @@ from Bio.Seq import Seq
 import sh
 import numpy as np
 
+
+__author__ = "Susana Posada-Cespedes"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
+
 DBG = True if os.environ.get('DBG') is not None else False
 
 
