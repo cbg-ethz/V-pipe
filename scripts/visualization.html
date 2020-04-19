@@ -36,13 +36,13 @@ div.tooltip {
 </style>
 
 <script>
-// We expect the following variables: 
+// We expect the following variables:
 // `sample_name`: string
 // `consensus`: string
 // `coverage`: array of integers
 // `vcfData`: array of tuples, e.g., {"position": 12972, "reference":"T", "variant": ["G"]}
-// `gffData`: map where the key is a string describing the annotations and the value is an 
-//            array of tuples with the following format: {'id': string, 'type': string, 
+// `gffData`: map where the key is a string describing the annotations and the value is an
+//            array of tuples with the following format: {'id': string, 'type': string,
 //            'name': string, 'start': int, 'end': int, 'row_cnt': int},
 {EXTERNAL_SNAKEMAKE_CODE_MARKER}
 </script>
@@ -51,7 +51,7 @@ div.tooltip {
 <body>
 
   <br/>
-  <b><p id="sample_name"></p></b> 
+  <b><p id="sample_name"></p></b>
   <hr style="border: 2px solidgray;" />
 
   <div id="block_container">
@@ -112,7 +112,7 @@ displayGffData(gffData, svg)
 createSummaryTable("table_summary")
 
 function setupPlot(svg) {
-    // Add X axis 
+    // Add X axis
 
     xAxis = svg.append("g")
         .attr("transform", "translate(0," + height + ")")
@@ -178,7 +178,7 @@ function setupPlot(svg) {
         .attr("stroke-width", 0)
         .attr("d", areaGenerator)
 
-    // Add the brushing 
+    // Add the brushing
     area.append("g")
         .attr("class", "brush")
         .call(brush)
@@ -494,4 +494,3 @@ function createSummaryTable(div_id) {
 }
 
 </script>
-
