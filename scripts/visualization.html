@@ -108,7 +108,7 @@ var svg = d3.select("#plot")
         "translate(" + margin.left + "," + margin.top + ")");
 
 document.getElementById('sample_name').innerHTML = sample_name;
-setupPlot(svg)
+var updateChartGlobal = setupPlot(svg)
 displayGffData(gffData, svg)
 createSummaryTable("table_summary")
 
@@ -210,18 +210,27 @@ function setupPlot(svg) {
     });
 
     // A function that update the chart for given boundaries
-    function updateChart() {
+    function updateChart(customExtent, customExtentInDataCoordinates = false) {
 
         // Get the selected boundaries.
-        extent = d3.event.selection
+        if (customExtent === undefined) {
+            extent = d3.event.selection
+        } else {
+            extent = customExtent
+        }
 
         // If no selection, back to initial coordinate. Otherwise, update X axis domain
         if (!extent) {
             if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
             xAxis.transition().call(d3.axisBottom(x).ticks(5))
         } else {
-            lower_bound = x.invert(extent[0])
-            upper_bound = x.invert(extent[1])
+            if (customExtentInDataCoordinates) {
+                lower_bound = extent[0]
+                upper_bound = extent[1]
+            } else {
+                lower_bound = x.invert(extent[0])
+                upper_bound = x.invert(extent[1])
+            }
 
             if (upper_bound - lower_bound < 10) {
                 middle = (upper_bound + lower_bound) / 2
@@ -246,6 +255,10 @@ function setupPlot(svg) {
         addLollipops(area, lollipop_height)
         displayGffData(gffData, svg)
     }
+
+    // making this function globally available to other plots
+    // (in a less hacky way) probably requires a refactoring
+    return updateChart
 }
 
 // Add lollipops
@@ -446,6 +459,9 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0)
+        })
+        .on("click", function(d) {
+            updateChartGlobal([d.start, d.end], true)
         })
 }
 
