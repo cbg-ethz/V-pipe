@@ -108,9 +108,9 @@ rule test_snv:
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.SNVs} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -N {params.ID} -of {output.SNVs} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
         else
             echo "No called SNVs"
