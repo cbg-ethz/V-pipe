@@ -232,6 +232,8 @@ rule lofreq:
         errfile = "{dataset}/variants/SNVs/lofreq.out.log",
     conda:
         config.lofreq['conda']
+    benchmark:
+        "{dataset}/variants/SNVs/lofreq.benchmark"
     shell:
         """
         # Add qualities to indels

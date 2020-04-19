@@ -91,6 +91,8 @@ if config.input['paired']:
             errfile = "{dataset}/variants/global/savage.err.log",
         conda:
             config.savage['conda']
+        benchmark:
+            "{dataset}/variants/global/savage.benchmark"
         threads:
             config.savage['threads']
         shell:
@@ -127,6 +129,8 @@ else:
             errfile = "{dataset}/variants/global/savage.err.log",
         conda:
             config.savage['conda']
+        benchmark:
+            "{dataset}/variants/global/savage.benchmark"
         threads:
             config.savage['threads']
         shell:
