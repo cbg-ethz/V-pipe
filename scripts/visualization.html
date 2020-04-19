@@ -96,6 +96,7 @@ var tooltip = d3.select("body")
     .append("div")
     .attr("class", "tooltip")
     .style("opacity", 0)
+var tooltipOffset = {x: 5, y: -28}
 
 // Append the svg object to the body of the page
 var svg = d3.select("#plot")
@@ -290,13 +291,13 @@ function addLollipops(canvas, height) {
                     "reference: " + d.reference + "<br>" +
                     "position: " + d.position
                 )
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
         })
         .on("mousemove", function(d) {
             tooltip
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
         })
         .on("mouseout", function(d) {
             tooltip.transition()
@@ -430,16 +431,16 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
                 .duration(200)
                 .style("opacity", .9)
             tooltip.html(
-                    "name: " + d.name + "<br>" +
-                    "type: " + d.type
-                )
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
+                "name: " + d.name + "<br>" +
+                "type: " + d.type
+            )
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+            .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
         })
         .on("mousemove", function(d) {
             tooltip
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
         })
         .on("mouseout", function(d) {
             tooltip.transition()
