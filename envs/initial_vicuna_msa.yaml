@@ -1,7 +1,7 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
-  - mafft
-  - smallgenomeutilities
+  - mafft=7.458
+  - smallgenomeutilities=0.3.0

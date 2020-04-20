@@ -1,8 +1,8 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
-  - lofreq
-  - samtools
-  - bcftools
+  - lofreq=2.1.4
+  - samtools=1.9
+  - bcftools=1.9

@@ -20,6 +20,9 @@ rule alltrimmed:
     input:
         trimmed_files
 
+rule allfastqc:
+    input:
+        fastqc_files
 
 include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
