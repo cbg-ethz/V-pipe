@@ -45,6 +45,7 @@ class VpipeBenchConfig(VpipeConfig):
             ('benchmark',{
                 'aligners': __RECORD__(value='ngshmmalign,bwa,bowtie', type=str),
                 'snv_callers': __RECORD__(value='shorah,lofreq', type=str),
+                'snakemake_options': __RECORD__(value='--use-conda --conda-prefix snakemake-conda --cores 4 -p', type=str)
             }),
             ('simulate_master', {
                 'mem': __RECORD__(value=2000, type=int),
