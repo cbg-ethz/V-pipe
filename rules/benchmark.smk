@@ -41,8 +41,9 @@ class VpipeBenchConfig(VpipeConfig):
                 'simBench': __RECORD__(value=f"{VPIPE_BASEDIR}/scripts/simBench.py", type=str),
                 'art': __RECORD__(value="art_illumina", type=str),
                 'testBench': __RECORD__(value=f"{VPIPE_BASEDIR}/scripts/testBench.py", type=str),
+                'snakemake': __RECORD__(value="snakemake", type=str),
             }),
-            ('benchmark',{
+            ('benchmark', {
                 'aligners': __RECORD__(value='ngshmmalign,bwa,bowtie', type=str),
                 'snv_callers': __RECORD__(value='shorah,lofreq', type=str),
                 'snakemake_options': __RECORD__(value='--use-conda --conda-prefix snakemake-conda --cores 4 -p', type=str)
