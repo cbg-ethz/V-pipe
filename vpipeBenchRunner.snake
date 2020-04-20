@@ -19,7 +19,7 @@ functions = srcdir("functions.sh")
 
 ALIGNERS = config.benchmark['aligners'].split(',')
 SNV_CALLERS = config.benchmark['snv_callers'].split(',')
-BENCH_RUNS= list(product(ALIGNERS, SNV_CALLERS))
+BENCH_RUNS = list(product(ALIGNERS, SNV_CALLERS))
 
 configs = {}
 for opts in BENCH_RUNS:
@@ -34,21 +34,51 @@ rule allbenchRunner:
         expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
         expand("{dataset}/raw_data/simreads_R2.fastq",
                dataset=datasets) if config.input['paired'] else [],
-        [f'{bench_dir}/variants/SNV_calling_performance.tsv' for bench_dir in configs.keys()]        
+        [f'{bench_dir}/variants/SNV_calling_performance.tsv' for bench_dir in configs.keys()]
 
 
-include: "rules/simBench.smk"
+rule run_simBench:
+    output:
+        R1 = expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
+        R2 = expand("{dataset}/raw_data/simreads_R2.fastq",
+                    dataset=datasets) if config.input['paired'] else [],
+    params:
+        BASEDIR = VPIPE_BASEDIR,
+        SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
+    shell:
+        """
+        if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
+            {config.applications[snakemake]}  -s \
+                {params.BASEDIR}/vpipeBench.snake \
+                {config.benchmark[snakemake_options]} simulate_data
+        else
+            {config.applications[snakemake]} -s \
+                {params.BASEDIR}/vpipeBench.snake \
+                {params.SNAKEMAKE_OPTS} simulate_data
+        fi
+        """
+
 
 localrules:
     prepare_run
 rule prepare_run:
+    input:
+        R1 = expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
+        R2 = expand("{dataset}/raw_data/simreads_R2.fastq",
+                    dataset=datasets) if config.input['paired'] else [],
     output:
         CONFIG_FILE = "{bench_dir}/vpipe.config",
         SAMPLES = "{bench_dir}/" + config.input['samples_file'],
-        RAW_DATA = directory(expand("{bench_dir}/{dataset}/raw_data/", dataset=datasets, allow_missing=True))
+        REF = "{bench_dir}/" + reference_file,
+        R1 = expand("{bench_dir}/{dataset}/raw_data/simreads_R1.fastq",
+                    dataset=datasets, allow_missing=True),
+        R2 = expand("{bench_dir}/{dataset}/raw_data/simreads_R2.fastq",
+                    dataset=datasets, allow_missing=True) if config.input['paired'] else [],
+        HAPLOTYPE_REFs = expand(
+            "{bench_dir}/{dataset}/references/haplotypes/haplotypes.fasta", dataset=datasets, allow_missing=True),
     run:
-        # Copy reference files if provided. Two expected locations:
-        # (1) current directory, or (2) one level above
+        # Copy reference file(s). Two expected locations: (1) current
+        # directory, or (2) one level above.
         # Alternative: read references from samples-file and config, and move
         # any reference file located in the references sub-directory (e.g.,
         # cohort_consensus.fasta)
@@ -90,12 +120,12 @@ rule run_vpipeBench:
     shell:
         """
         if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
-            VPIPE_BASEDIR={params.BASEDIR} snakemake -s \
-                {params.BASEDIR}/utils/vpipeBenchAux.snake \
+            {config.applications[snakemake]}  -s \
+                {params.BASEDIR}/vpipeBench.snake \
                 -d {wildcards.bench_dir} {config.benchmark[snakemake_options]}
         else
-            VPIPE_BASEDIR={params.BASEDIR} snakemake -s \
-                {params.BASEDIR}/utils/vpipeBenchAux.snake \
+            {config.applications[snakemake]} -s \
+                {params.BASEDIR}/vpipeBench.snake \
                 -d {wildcards.bench_dir} {params.SNAKEMAKE_OPTS}
         fi
         """
