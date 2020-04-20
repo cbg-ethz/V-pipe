@@ -205,6 +205,7 @@ function setupPlot(svg) {
         d3.selectAll(".lollipops").remove();
         d3.selectAll(".circles").remove();
         d3.selectAll(".annotation_rects").remove();
+        d3.selectAll(".snv_marker").remove();
         addLollipops(area, lollipop_height)
         displayGffData(gffData, svg)
     });
@@ -252,6 +253,7 @@ function setupPlot(svg) {
         d3.selectAll(".lollipops").remove();
         d3.selectAll(".circles").remove();
         d3.selectAll(".annotation_rects").remove();
+        d3.selectAll(".snv_marker").remove();
         addLollipops(area, lollipop_height)
         displayGffData(gffData, svg)
     }
@@ -410,6 +412,7 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         //.style("text-anchor", "middle")
         .text(title + ":");
 
+    var rectHeight = 15
     canvas.selectAll("rects")
         .data(features)
         .enter()
@@ -432,7 +435,7 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
                 return width - x_start
             }
         })
-        .attr("height", 15)
+        .attr("height", rectHeight)
         .attr("fill", function(d) {
             return colorScale(d.type)
         })
@@ -463,6 +466,23 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         .on("click", function(d) {
             updateChartGlobal([d.start, d.end], true)
         })
+
+    canvas.selectAll("lines")
+        .data(vcfData)
+        .enter()
+        .append("line")
+        .attr("x1", function(d) {
+            return x(d.position)
+        })
+        .attr("x2", function(d) {
+            return x(d.position)
+        })
+        .attr("y1", function(d) {
+            return offset_y + 10
+        })
+        .attr("y2", offset_y + rectHeight)
+        .attr("stroke", "red")
+        .attr("class", "snv_marker")
 }
 
 function createSummaryTable(div_id) {
