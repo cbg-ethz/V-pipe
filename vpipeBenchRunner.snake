@@ -17,8 +17,8 @@ VPIPE_BENCH = True
 include: "rules/benchmark.smk"
 functions = srcdir("functions.sh")
 
-ALIGNERS = ['ngshmmalign', 'bwa', 'bowtie']
-SNV_CALLERS = ['shorah', 'lofreq']
+ALIGNERS = config.benchmark['aligners'].split(',')
+SNV_CALLERS = config.benchmark['snv_callers'].split(',')
 BENCH_RUNS= list(product(ALIGNERS, SNV_CALLERS))
 
 configs = {}
