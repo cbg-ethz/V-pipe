@@ -34,6 +34,8 @@ rule allbenchRunner:
         [f'{bench_dir}/variants/SNV_calling_performance.tsv' for bench_dir in configs.keys()]        
 
 
+# TODO: handle special cases, e.g. dry-run (touch and clean files)
+#       and clean rules
 rule run_vpipeBench:
     input:
         "{bench_dir}/vpipe.config",
@@ -41,13 +43,17 @@ rule run_vpipeBench:
     output:
         "{bench_dir}/variants/SNV_calling_performance.tsv"
     params:
-        BASEDIR = VPIPE_BASEDIR
+        BASEDIR = VPIPE_BASEDIR,
+        SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
     shell:
         """
-        cd {wildcards.bench_dir}
-        touch variants/SNV_calling_performance.tsv
-        # TODO: How to pass other snakemake options
-        # snakemake -s {params.BASEDIR}/vpipeBench.snake
+        if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
+            snakemake -s {params.BASEDIR}/vpipeBench.snake \
+                -d {wildcards.bench_dir} {config.benchmark[snakemake_options]}
+        else
+            snakemake -s {params.BASEDIR}/vpipeBench.snake \
+                -d {wildcards.bench_dir} {params.SNAKEMAKE_OPTS}
+        fi
         """
 
 localrules:
