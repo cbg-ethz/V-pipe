@@ -1,6 +1,6 @@
 channels:
+  - conda-forge
   - bioconda
   - defaults
-  - conda-forge
 dependencies:
-  - haploclique
+  - haploclique=1.3.1
