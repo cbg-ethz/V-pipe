@@ -75,6 +75,13 @@ rule extract:
         """
 
 
+if VPIPE_BENCH:
+    if config.general["simulate"]:
+        ruleorder: simulate_reads > extract
+    else:
+        ruleorder: extract > simulate_reads
+
+
 # 2. clipping
 def len_cutoff(wildcards):
     parts = wildcards.dataset.split('/')
