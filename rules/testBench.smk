@@ -125,8 +125,8 @@ rule aggregate:
         "variants/SNV_calling_performance.tsv"
     params:
         scratch = '1250',
-        mem = '2000',
-        time = '20'
+        mem = config.aggregate['mem'],
+        time = config.aggregate['time']
     log:
         outfile = "variants/SNV_calling_performance.out.log",
         errfile = "variants/SNV_calling_performance.err.log"

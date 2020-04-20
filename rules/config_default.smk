@@ -18,6 +18,20 @@ __email__ = "v-pipe@bsse.ethz.ch"
 VPIPE_CONFIG_OPTS = True if os.environ.get(
     'VPIPE_CONFIG_OPTS') is not None else False
 
+class _SectionWrapper(object):
+    def __init__(self, config: 'VpipeConfig', section):
+        if not config.has_section(section):
+            raise KeyError(
+                "ERROR: Section '{}' is not a valid section!".format(section))
+        self._config = config
+        self._section = section
+
+    def __setitem__(self, option, value):
+        self._config.set_option(self._section, option, value)
+
+    def __getitem__(self, option):
+        return self._config.get_option(self._section, option)
+
 
 class VpipeConfig(object):
     'Class used to encapsulate the configuration properties used by V-pipe'
@@ -275,10 +289,12 @@ class VpipeConfig(object):
     ])
 
     def __init__(self):
+        # track all options (explicitly-set and defaults)
         self.__members = {}
 
-        vpipe_configfile = configparser.ConfigParser()
-        vpipe_configfile.read('vpipe.config')
+        # track exclicitly-set options
+        self._vpipe_configfile = configparser.ConfigParser()
+        self._vpipe_configfile.read('vpipe.config')
 
         for (section, properties) in self.__MEMBER_DEFAULT__.items():
             self.__members[section] = {}
@@ -286,14 +302,14 @@ class VpipeConfig(object):
             for (value, defaults) in properties.items():
                 try:
                     if defaults.type == int:
-                        cur_value = vpipe_configfile.getint(section, value)
+                        cur_value = self._vpipe_configfile.getint(section, value)
                     elif defaults.type == float:
-                        cur_value = vpipe_configfile.getfloat(section, value)
+                        cur_value = self._vpipe_configfile.getfloat(section, value)
                     elif defaults.type == bool:
-                        cur_value = vpipe_configfile.getboolean(section, value)
+                        cur_value = self._vpipe_configfile.getboolean(section, value)
                     else:
-                        cur_value = vpipe_configfile.get(section, value)
-                    vpipe_configfile.remove_option(section, value)
+                        cur_value = self._vpipe_configfile.get(section, value)
+                    self._vpipe_configfile.remove_option(section, value)
                     state = 'user'
                 except (configparser.NoSectionError, configparser.NoOptionError):
                     if value == 'threads' and section != 'general':
@@ -307,7 +323,7 @@ class VpipeConfig(object):
                     state = 'DEFAULT'
                 except ValueError as err:
                     raise ValueError("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
-                        value, section, defaults.type.__name__, vpipe_configfile[section][value])) from err
+                        value, section, defaults.type.__name__, self._vpipe_configfile[section][value])) from err
 
                 if VPIPE_CONFIG_OPTS:
                     LOGGER.info(
@@ -315,22 +331,45 @@ class VpipeConfig(object):
 
                 self.__members[section][value] = cur_value
 
-            if vpipe_configfile.has_section(section):
-                if vpipe_configfile.items(section):
+            if self._vpipe_configfile.has_section(section):
+                if self._vpipe_configfile.items(section):
                     raise ValueError(
                         f"ERROR: Unrecognized options in section {section}: "
-                        + ", ".join([option for option, _ in vpipe_configfile.items(section)]))
-                vpipe_configfile.remove_section(section)
+                        + ", ".join([option for option, _ in self._vpipe_configfile.items(section)]))
+                self._vpipe_configfile.remove_section(section)
 
-        sections_left = {section for section, _ in vpipe_configfile.items()} - {'DEFAULT'}
+        sections_left = {section for section, _ in self._vpipe_configfile.items()} - {'DEFAULT'}
         if sections_left:
             raise ValueError(
                 f"ERROR: Unrecognized sections in config file: "
                 + ", ".join(sections_left))
 
-    def __getattr__(self, name):
-        try:
-            return self.__members[name]
-        except KeyError as err:
+    def __getattr__(self, section_name) -> _SectionWrapper:
+        return _SectionWrapper(self, section_name)
+
+    def has_section(self, section):
+        return section in self.__members
+
+    def set_option(self, section, option, value):
+        if section not in self.__members:
+            raise KeyError(
+                "ERROR: Section '{}' is not a valid section!".format(section))
+        self.__members[section][option] = value
+
+        if section not in self._vpipe_configfile:
+            self._vpipe_configfile[section] = {}
+        # now add this explicitly set option
+        self._vpipe_configfile[section][option] = value
+
+    def get_option(self, section, option):
+        if section not in self.__members:
+            raise KeyError(
+                "ERROR: Section '{}' is not a valid section!".format(section))
+        elif option not in self.__members[section]:
             raise ValueError(
-                "ERROR: Section '{}' is not a valid section!".format(name)) from err
+                "ERROR: Section '{}' has no property '{}'!".format(section, option))
+        else:
+            return self.__members[section][option]
+
+    def write(self, outfile):
+        self._vpipe_configfile.write(outfile)
