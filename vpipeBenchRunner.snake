@@ -1,0 +1,83 @@
+import logging
+import glob
+import os
+import shutil
+import configparser
+from pathlib import Path
+from itertools import product
+
+LOGGER = logging.getLogger('snakemake.logging')
+
+if not 'VPIPE_BASEDIR' in dir():
+    VPIPE_BASEDIR = workflow.basedir
+LOGGER.info('VPIPE_BASEDIR = %s', VPIPE_BASEDIR)
+
+# Include config file parser and globals
+VPIPE_BENCH = True
+include: "rules/benchmark.smk"
+functions = srcdir("functions.sh")
+
+ALIGNERS = ['ngshmmalign', 'bwa', 'bowtie']
+SNV_CALLERS = ['shorah', 'lofreq']
+BENCH_RUNS= list(product(ALIGNERS, SNV_CALLERS))
+
+configs = {}
+for opts in BENCH_RUNS:
+    dirname = '-'.join(opts)
+    configs[dirname] = config
+    configs[dirname].set_option('general', 'aligner', opts[0])
+    configs[dirname].set_option('general', 'snv_caller', opts[1])
+
+# DUMMY RULE
+rule allbenchRunner:
+    input:
+        [f'{bench_dir}/variants/SNV_calling_performance.tsv' for bench_dir in configs.keys()]        
+
+
+rule run_vpipeBench:
+    input:
+        "{bench_dir}/vpipe.config",
+        "{bench_dir}/" + config.input['samples_file'],
+    output:
+        "{bench_dir}/variants/SNV_calling_performance.tsv"
+    params:
+        BASEDIR = VPIPE_BASEDIR
+    shell:
+        """
+        cd {wildcards.bench_dir}
+        touch variants/SNV_calling_performance.tsv
+        # TODO: How to pass other snakemake options
+        # snakemake -s {params.BASEDIR}/vpipeBench.snake
+        """
+
+localrules:
+    prepare_run
+rule prepare_run:
+    output:
+        CONFIG_FILE = "{bench_dir}/vpipe.config",
+        SAMPLES = "{bench_dir}/" + config.input['samples_file'],
+    run:
+        # Copy reference files if provided. Two expected locations:
+        # (1) current directory, or (2) one level above
+        # Alternative: read references from samples-file and config, and move
+        # any reference file located in the references sub-directory (e.g.,
+        # cohort_consensus.fasta)
+        if not config.simulate_haplotypes['use_master']:
+            fasta_files = glob.glob("*/*.fasta")
+            for file in fasta_files:
+                dirname = os.path.dirname(file)
+                if os.path.isfile(file):
+                    dest = os.path.join(wildcards.bench_dir, dirname)
+                    Path(dest).mkdir(parents=True, exist_ok=True)
+                    shutil.copy(file, dest)
+            fasta_files = glob.glob("*.fasta")
+            for file in fasta_files:
+                if os.path.isfile(file):
+                    shutil.copy(file, wildcards.bench_dir)
+
+        # Copy the config file with the necesary changes
+        with open(output.CONFIG_FILE, 'w') as configfile:
+            configs[wildcards.bench_dir].write(configfile)
+
+        # Copy samples-file. Alternative: use symbolic links
+        shutil.copy(config.input['samples_file'], output.SAMPLES)
