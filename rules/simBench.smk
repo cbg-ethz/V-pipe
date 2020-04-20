@@ -140,10 +140,8 @@ if config.input['paired']:
         output:
             R1_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
             R2_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R2.fastq",
-            R1 = temp(
-                "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq"),
-            R2 = temp(
-                "{sample_dir}/{sample_name}/{date}/extracted_data/R2.fastq"),
+            R1 = "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq",
+            R2 = "{sample_dir}/{sample_name}/{date}/extracted_data/R2.fastq",
         params:
             scratch = '2000',
             mem = config.simulate_reads['mem'],
@@ -192,8 +190,7 @@ else:
             "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         output:
             R1_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
-            R1 = temp(
-                "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq"),
+            R1 = "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq",
         params:
             scratch = '2000',
             mem = config.simulate_reads['mem'],
@@ -234,9 +231,3 @@ else:
             # To avoid rule ambiguities: Copy simulated data sets to extracted_data folder
             cp {output.R1_raw} {output.R1}
             """
-
-if config.general["simulate"]:
-    ruleorder: simulate_reads > extract
-else:
-    ruleorder: extract > simulate_reads
-
