@@ -1,0 +1,26 @@
+import logging
+
+LOGGER = logging.getLogger('snakemake.logging')
+
+envvars:
+    'VPIPE_BASEDIR'
+
+VPIPE_BASEDIR = os.environ.get('VPIPE_BASEDIR')
+LOGGER.info('VPIPE_BASEDIR = %s', VPIPE_BASEDIR)
+
+# Include config file parser and globals
+VPIPE_BENCH = True
+include: "rules/benchmark.smk"
+functions = srcdir("functions.sh")
+
+# DUMMY RULE
+rule allbench:
+    input:
+        "variants/SNV_calling_performance.tsv"
+
+include: "rules/quality_assurance.smk"
+include: "rules/align.smk"
+include: "rules/mafs.smk"
+include: "rules/snv.smk"
+include: "rules/testBench.smk"
+

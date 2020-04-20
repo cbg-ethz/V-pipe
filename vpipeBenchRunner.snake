@@ -31,30 +31,13 @@ for opts in BENCH_RUNS:
 # DUMMY RULE
 rule allbenchRunner:
     input:
+        expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
+        expand("{dataset}/raw_data/simreads_R2.fastq",
+               dataset=datasets) if config.input['paired'] else [],
         [f'{bench_dir}/variants/SNV_calling_performance.tsv' for bench_dir in configs.keys()]        
 
 
-# TODO: handle special cases, e.g. dry-run (touch and clean files)
-#       and clean rules
-rule run_vpipeBench:
-    input:
-        "{bench_dir}/vpipe.config",
-        "{bench_dir}/" + config.input['samples_file'],
-    output:
-        "{bench_dir}/variants/SNV_calling_performance.tsv"
-    params:
-        BASEDIR = VPIPE_BASEDIR,
-        SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
-    shell:
-        """
-        if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
-            snakemake -s {params.BASEDIR}/vpipeBench.snake \
-                -d {wildcards.bench_dir} {config.benchmark[snakemake_options]}
-        else
-            snakemake -s {params.BASEDIR}/vpipeBench.snake \
-                -d {wildcards.bench_dir} {params.SNAKEMAKE_OPTS}
-        fi
-        """
+include: "rules/simBench.smk"
 
 localrules:
     prepare_run
@@ -62,6 +45,7 @@ rule prepare_run:
     output:
         CONFIG_FILE = "{bench_dir}/vpipe.config",
         SAMPLES = "{bench_dir}/" + config.input['samples_file'],
+        RAW_DATA = directory(expand("{bench_dir}/{dataset}/raw_data/", dataset=datasets, allow_missing=True))
     run:
         # Copy reference files if provided. Two expected locations:
         # (1) current directory, or (2) one level above
@@ -87,3 +71,31 @@ rule prepare_run:
 
         # Copy samples-file. Alternative: use symbolic links
         shutil.copy(config.input['samples_file'], output.SAMPLES)
+
+        # Copy datadir
+        shutil.copytree(config.input['datadir'], wildcards.bench_dir)
+
+
+# TODO: handle special cases, e.g. dry-run (touch and clean files)
+#       and clean rules
+rule run_vpipeBench:
+    input:
+        "{bench_dir}/vpipe.config",
+        "{bench_dir}/" + config.input['samples_file'],
+    output:
+        "{bench_dir}/variants/SNV_calling_performance.tsv"
+    params:
+        BASEDIR = VPIPE_BASEDIR,
+        SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
+    shell:
+        """
+        if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
+            VPIPE_BASEDIR={params.BASEDIR} snakemake -s \
+                {params.BASEDIR}/utils/vpipeBenchAux.snake \
+                -d {wildcards.bench_dir} {config.benchmark[snakemake_options]}
+        else
+            VPIPE_BASEDIR={params.BASEDIR} snakemake -s \
+                {params.BASEDIR}/utils/vpipeBenchAux.snake \
+                -d {wildcards.bench_dir} {params.SNAKEMAKE_OPTS}
+        fi
+        """
