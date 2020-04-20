@@ -24,9 +24,9 @@ BENCH_RUNS= list(product(ALIGNERS, SNV_CALLERS))
 configs = {}
 for opts in BENCH_RUNS:
     dirname = '-'.join(opts)
-    configs[dirname] = config
-    configs[dirname].set_option('general', 'aligner', opts[0])
-    configs[dirname].set_option('general', 'snv_caller', opts[1])
+    configs[dirname] = VPIPE_CONFIG()
+    configs[dirname].general['aligner'] = opts[0]
+    configs[dirname].general['snv_caller'] = opts[1]
 
 # DUMMY RULE
 rule allbenchRunner:

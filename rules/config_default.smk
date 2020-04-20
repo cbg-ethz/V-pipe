@@ -296,20 +296,24 @@ class VpipeConfig(object):
         self._vpipe_configfile = configparser.ConfigParser()
         self._vpipe_configfile.read('vpipe.config')
 
+        # clone to validate vpipe.config file 
+        vpipe_configfile = configparser.ConfigParser()
+        vpipe_configfile.read('vpipe.config')
+
         for (section, properties) in self.__MEMBER_DEFAULT__.items():
             self.__members[section] = {}
 
             for (value, defaults) in properties.items():
                 try:
                     if defaults.type == int:
-                        cur_value = self._vpipe_configfile.getint(section, value)
+                        cur_value = vpipe_configfile.getint(section, value)
                     elif defaults.type == float:
-                        cur_value = self._vpipe_configfile.getfloat(section, value)
+                        cur_value = vpipe_configfile.getfloat(section, value)
                     elif defaults.type == bool:
-                        cur_value = self._vpipe_configfile.getboolean(section, value)
+                        cur_value = vpipe_configfile.getboolean(section, value)
                     else:
-                        cur_value = self._vpipe_configfile.get(section, value)
-                    self._vpipe_configfile.remove_option(section, value)
+                        cur_value = vpipe_configfile.get(section, value)
+                    vpipe_configfile.remove_option(section, value)
                     state = 'user'
                 except (configparser.NoSectionError, configparser.NoOptionError):
                     if value == 'threads' and section != 'general':
@@ -323,7 +327,7 @@ class VpipeConfig(object):
                     state = 'DEFAULT'
                 except ValueError as err:
                     raise ValueError("ERROR: Property '{}' of section '{}' has to be of type '{}', whereas you gave '{}'!".format(
-                        value, section, defaults.type.__name__, self._vpipe_configfile[section][value])) from err
+                        value, section, defaults.type.__name__, vpipe_configfile[section][value])) from err
 
                 if VPIPE_CONFIG_OPTS:
                     LOGGER.info(
@@ -331,14 +335,14 @@ class VpipeConfig(object):
 
                 self.__members[section][value] = cur_value
 
-            if self._vpipe_configfile.has_section(section):
-                if self._vpipe_configfile.items(section):
+            if vpipe_configfile.has_section(section):
+                if vpipe_configfile.items(section):
                     raise ValueError(
                         f"ERROR: Unrecognized options in section {section}: "
-                        + ", ".join([option for option, _ in self._vpipe_configfile.items(section)]))
-                self._vpipe_configfile.remove_section(section)
+                        + ", ".join([option for option, _ in vpipe_configfile.items(section)]))
+                vpipe_configfile.remove_section(section)
 
-        sections_left = {section for section, _ in self._vpipe_configfile.items()} - {'DEFAULT'}
+        sections_left = {section for section, _ in vpipe_configfile.items()} - {'DEFAULT'}
         if sections_left:
             raise ValueError(
                 f"ERROR: Unrecognized sections in config file: "
