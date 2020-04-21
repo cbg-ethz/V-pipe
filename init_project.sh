@@ -5,10 +5,11 @@ usage: $0 [options]
 
 -m           bootstrap only a minimal set of files (vpipe.config and vpipe wrapper)
 -n           disable auto-detection and management of conda environments
+-b           include wrappers for benchmark runs
 -h           print this help message and exit
 "
 
-args=$(getopt 'mnh' "$*")
+args=$(getopt 'mnbh' "$*")
 if [ "$?" != 0 ]; then
     printf "%s\\n" "$USAGE"
     exit 2
@@ -23,6 +24,10 @@ for i; do
             ;;
         -n)
             NOCONDAAUTODETECT=1;
+            shift
+            ;;
+        -b)
+            BENCHMARK=1;
             shift
             ;;
         -h)
@@ -77,6 +82,22 @@ ${ACTIVATE}
 exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipe.snake" ${EXTRA_VPIPE_OPTS} "\$@"
 EOF
 chmod +x "$PROJECT_DIR/vpipe"
+
+if [[ -n "$BENCHMARK" ]]; then
+    cat > "$PROJECT_DIR/vpipeBench" <<EOF
+    #!/usr/bin/env bash
+    ${ACTIVATE}
+    exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipeBench.snake" ${EXTRA_VPIPE_OPTS} "\$@"
+EOF
+    chmod +x "$PROJECT_DIR/vpipeBench"
+
+    cat > "$PROJECT_DIR/vpipeBenchRunner" <<EOF
+    #!/usr/bin/env bash
+    ${ACTIVATE}
+    exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipeBenchRunner.snake" ${EXTRA_VPIPE_OPTS} "\$@"
+EOF
+    chmod +x "$PROJECT_DIR/vpipeBenchRunner"
+fi
 
 cat <<EOF
 V-pipe project initialized!
