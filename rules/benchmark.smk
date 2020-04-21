@@ -101,35 +101,39 @@ sample_record = NamedTuple(
     "sample_record", [('sample_name', str), ('date', str)])
 datasets = []
 
-with open(config.input['samples_file'], newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter='\t')
+if not os.path.isfile(config.input['samples_file']):
+    raise ValueError(
+                f"ERROR: Sample list file {config.input['samples_file']} not found.")
+else:
+    with open(config.input['samples_file'], newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter='\t')
 
-    for row in spamreader:
-        assert len(row) <= 16, "ERROR: Line '{}' contains more entries than expected".format(
-            spamreader.line_num)
-        sample_tuple = sample_record(sample_name=row[0], date=row[1])
+        for row in spamreader:
+            assert len(row) <= 16, "ERROR: Line '{}' contains more entries than expected".format(
+                spamreader.line_num)
+            sample_tuple = sample_record(sample_name=row[0], date=row[1])
 
-        datasets.append("{sample_dir}/{ID}/{date}".format(
-            sample_dir=config.input['datadir'], ID=row[0], date=row[1]))
+            datasets.append("{sample_dir}/{ID}/{date}".format(
+                sample_dir=config.input['datadir'], ID=row[0], date=row[1]))
 
-        if len(row) == 2:
-            # All data sets are assumed to have default specifications
-            sample_dict[sample_tuple] = {"read_len": 250, "haplotype_seqs": None, "num_haplotypes": 5, "coverage": 500, "fragment_size": '600,100',
-                                         "freq_dstr": 'geom', "freq_param": 0.75, "mut_rate": 0.1, "del_rate": 0.0, "ins_rate": 0.0, "no_frameshifts": True, "del_len": ''}
+            if len(row) == 2:
+                # All data sets are assumed to have default specifications
+                sample_dict[sample_tuple] = {"read_len": 250, "haplotype_seqs": None, "num_haplotypes": 5, "coverage": 500, "fragment_size": '600,100',
+                                             "freq_dstr": 'geom', "freq_param": 0.75, "mut_rate": 0.1, "del_rate": 0.0, "ins_rate": 0.0, "no_frameshifts": True, "del_len": ''}
 
-        else:
-            # All other features (except seed) must be specified
-            sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(
-                row[5]), "fragment_size": row[6], "freq_dstr": row[7], "freq_param": row[8], "mut_rate": float(row[9]), "del_rate": float(row[10]), "ins_rate": float(row[11]), "no_frameshifts": row[12], "del_len": row[13]}
+            else:
+                # All other features (except seed) must be specified
+                sample_dict[sample_tuple] = {"read_len": int(row[2]), "haplotype_seqs": row[3], "num_haplotypes": int(row[4]), "coverage": int(
+                    row[5]), "fragment_size": row[6], "freq_dstr": row[7], "freq_param": row[8], "mut_rate": float(row[9]), "del_rate": float(row[10]), "ins_rate": float(row[11]), "no_frameshifts": row[12], "del_len": row[13]}
 
-        if len(row) == 15:
-            # Seed is specified
-            sample_dict[sample_tuple]['seed'] = int(row[14])
-        else:
-            # Seed is not provided / note that potential replicates would have the same seed
-            sample_dict[sample_tuple]['seed'] = config.general['seed']
-            # random.seed(config.general['seed'])
-            #sample_dict[sample_tuple]['seed'] = random.randint(1, 1e6)
+            if len(row) == 15:
+                # Seed is specified
+                sample_dict[sample_tuple]['seed'] = int(row[14])
+            else:
+                # Seed is not provided / note that potential replicates would have the same seed
+                sample_dict[sample_tuple]['seed'] = config.general['seed']
+                # random.seed(config.general['seed'])
+                #sample_dict[sample_tuple]['seed'] = random.randint(1, 1e6)
 
 
 # 3. V-pipe expects a reference as input. We need to "mask" this behaviour
