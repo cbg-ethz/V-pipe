@@ -206,8 +206,7 @@ else:
                 sample_name=wildcards.sample_name, date=wildcards.date)]['fragment_size'],
             FREQ_DSTR = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
-            GEOM_RATIO = lambda wildcards: sample_dict[sample_record(
-                sample_name=wildcards.sample_name, date=wildcards.date)]['geom_ratio'],
+            FREQ_PARAMS = get_freq_params,
             SEED = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
             OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
@@ -221,7 +220,7 @@ else:
             config.simulate_reads['conda']
         shell:
             """
-            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} -gr {params.GEOM_RATIO} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
+            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
 
             # Move intermediate results
             mkdir -p {params.OUTDIR_READS}/reads
