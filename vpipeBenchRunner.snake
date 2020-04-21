@@ -43,8 +43,16 @@ rule run_simBench:
         R2 = expand("{dataset}/raw_data/simreads_R2.fastq",
                     dataset=datasets) if config.input['paired'] else [],
     params:
+        scratch = '1250',
+        mem = config.run_simBench['mem'],
+        time = config.run_simBench['time'],
         BASEDIR = VPIPE_BASEDIR,
         SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
+    log:
+        outfile = "logs/run_simBench.out.log",
+        errfile = "logs/run_simBench.err.log",
+    threads:
+        1
     shell:
         """
         if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
@@ -115,8 +123,16 @@ rule run_vpipeBench:
     output:
         "{bench_dir}/variants/SNV_calling_performance.tsv"
     params:
+        scratch = '1250',
+        mem = config.run_vpipeBench['mem'],
+        time = config.run_vpipeBench['time'],
         BASEDIR = VPIPE_BASEDIR,
         SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
+    log:
+        outfile = "logs/run_vpipeBench.out.log",
+        errfile = "logs/run_vpipeBench.err.log",
+    threads:
+        1
     shell:
         """
         if [[ -z "{params.SNAKEMAKE_OPTS}" ]]; then
