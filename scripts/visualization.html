@@ -92,6 +92,10 @@ var y = d3.scaleLinear()
     }))])
     .range([height, 0]);
 
+var yLollipop = d3.scaleLinear()
+    .domain([0, 1])
+    .range([height, 0])
+
 var tooltip = d3.select("body")
     .append("div")
     .attr("class", "tooltip")
@@ -191,8 +195,7 @@ function setupPlot(svg) {
         idleTimeout = null;
     }
 
-    var lollipop_height = Math.max(100, Math.max(...coverage) / 3)
-    addLollipops(area, lollipop_height)
+    addLollipops(area)
 
     // If user double click, reinitialize the chart
     svg.on("dblclick", function() {
@@ -206,7 +209,7 @@ function setupPlot(svg) {
         d3.selectAll(".circles").remove();
         d3.selectAll(".annotation_rects").remove();
         d3.selectAll(".snv_marker").remove();
-        addLollipops(area, lollipop_height)
+        addLollipops(area)
         displayGffData(gffData, svg)
     });
 
@@ -254,7 +257,7 @@ function setupPlot(svg) {
         d3.selectAll(".circles").remove();
         d3.selectAll(".annotation_rects").remove();
         d3.selectAll(".snv_marker").remove();
-        addLollipops(area, lollipop_height)
+        addLollipops(area)
         displayGffData(gffData, svg)
     }
 
@@ -264,7 +267,7 @@ function setupPlot(svg) {
 }
 
 // Add lollipops
-function addLollipops(canvas, height) {
+function addLollipops(canvas) {
     canvas.selectAll("lines")
         .data(vcfData)
         .enter()
@@ -276,7 +279,7 @@ function addLollipops(canvas, height) {
             return x(d.position)
         })
         .attr("y1", function(d) {
-            return y(height)
+            return yLollipop(d.frequency)
         })
         .attr("y2", y(0))
         .attr("stroke", "darkgrey")
@@ -290,7 +293,7 @@ function addLollipops(canvas, height) {
             return x(d.position)
         })
         .attr("cy", function(d) {
-            return y(height)
+            return yLollipop(d.frequency)
         })
         .attr("r", "4")
         .style("fill", "grey")
@@ -304,7 +307,8 @@ function addLollipops(canvas, height) {
             tooltip.html(
                     "variant: " + d.variant + "<br>" +
                     "reference: " + d.reference + "<br>" +
-                    "position: " + d.position
+                    "position: " + d.position + "<br>" +
+                    "frequency: " + d.frequency.toFixed(3)
                 )
                 .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
                 .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
