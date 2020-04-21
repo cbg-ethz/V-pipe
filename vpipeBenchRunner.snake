@@ -129,8 +129,8 @@ rule run_vpipeBench:
         BASEDIR = VPIPE_BASEDIR,
         SNAKEMAKE_OPTS = os.environ.get('SNAKEMAKE_OPTS', '')
     log:
-        outfile = "logs/run_vpipeBench.out.log",
-        errfile = "logs/run_vpipeBench.err.log",
+        outfile = "logs/{bench_dir}_vpipeBench.out.log",
+        errfile = "logs/{bench_dir}_vpipeBench.err.log",
     threads:
         1
     shell:
