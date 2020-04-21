@@ -3,6 +3,7 @@ import csv
 import collections
 import configparser
 from typing import Dict, Any, NamedTuple
+from pathlib import Path
 import os
 
 __author__ = "Susana Posada-Cespedes"
@@ -153,3 +154,4 @@ if config.input['reference']:
 else:
     reference_file = "references/haplotype_master.fasta"
     reference_name = "master"
+reference_file = Path(reference_file)
