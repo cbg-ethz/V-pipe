@@ -43,32 +43,6 @@ rule aggregate_beforeSB:
         sed -i 1i"Chromosome,Pos,Ref,Var,Frq1,Frq2,Frq3,Pst1,Pst2,Pst3,Fvar,Rvar,Ftot,Rtot,Pval" {output.CSV}
         """
 
-
-def get_freq_aux(wildcards):
-    sample_tuple = sample_record(
-        sample_name=wildcards.sample_name, date=wildcards.date)
-    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
-    freq_param = sample_dict[sample_tuple]['freq_param']
-    if freq_dstr == 'geom':
-        val = '-gr {}'.format(freq_param)
-    elif freq_dstr == 'dirichlet':
-        infile = os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                              wildcards.date, "references/haplotypes/haplotype_frequencies.fasta")
-        val = '-df {}'.format(infile)
-    else:
-        val = ''
-    return val
-
-
-def input_snv(wildcards):
-    if config.general['snv_caller'] == 'shorah':
-        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                              wildcards.date, "variants/SNVs/snvs.csv")
-    elif config.general['snv_caller'] == 'lofreq':
-        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                              wildcards.date, "variants/SNVs/snvs.vcf")
-    return output
-
 # TODO wl, ws should be added
 # TODO Switch between snvs and snvs_beforeSB
 rule test_snv:
@@ -81,7 +55,8 @@ rule test_snv:
         TSV = "{sample_dir}/{sample_name}/{date}/variants/coverage_intervals.tsv",
     output:
         SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv",
-        PERFORMANCE = temp("{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv")
+        PERFORMANCE = temp(
+            "{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv")
     params:
         scratch = '2000',
         mem = config.test_snv['mem'],
