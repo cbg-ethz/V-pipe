@@ -3,7 +3,6 @@ import csv
 import collections
 import configparser
 from typing import Dict, Any, NamedTuple
-from pathlib import Path
 import os
 
 __author__ = "Susana Posada-Cespedes"
@@ -104,7 +103,7 @@ datasets = []
 
 if not os.path.isfile(config.input['samples_file']):
     raise ValueError(
-                f"ERROR: Sample list file {config.input['samples_file']} not found.")
+        f"ERROR: Sample list file {config.input['samples_file']} not found.")
 else:
     with open(config.input['samples_file'], newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter='\t')
@@ -154,4 +153,76 @@ if config.input['reference']:
 else:
     reference_file = "references/haplotype_master.fasta"
     reference_name = "master"
-reference_file = Path(reference_file)
+
+
+# Auxiliary functions
+
+
+def get_haplotype_seqs(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
+    val = ''
+    if haplotype_seqs is not None:
+        if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
+            val = haplotype_seqs
+    return val
+
+
+def get_no_FR(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    no_FR = sample_dict[sample_tuple]['no_frameshifts']
+    return '-fr' if no_FR else ''
+
+
+def get_del_len(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    del_len = sample_dict[sample_tuple]['del_len']
+    del_len = del_len.strip()
+    if not del_len or del_len.upper() in ["NA", "N/A"]:
+        val = ''
+    else:
+        val = '-dl {}'.format(del_len)
+    return val
+
+
+def get_freq_params(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
+    freq_param = sample_dict[sample_tuple]['freq_param']
+    if freq_dstr == 'geom':
+        val = '-gr {}'.format(freq_param)
+    elif freq_dstr == 'dirichlet':
+        val = '-dc {}'.format(freq_param)
+    else:
+        val = ''
+    return val
+
+
+def get_freq_aux(wildcards):
+    sample_tuple = sample_record(
+        sample_name=wildcards.sample_name, date=wildcards.date)
+    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
+    freq_param = sample_dict[sample_tuple]['freq_param']
+    if freq_dstr == 'geom':
+        val = '-gr {}'.format(freq_param)
+    elif freq_dstr == 'dirichlet':
+        infile = os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                              wildcards.date, "references/haplotypes/haplotype_frequencies.fasta")
+        val = '-df {}'.format(infile)
+    else:
+        val = ''
+    return val
+
+
+def input_snv(wildcards):
+    if config.general['snv_caller'] == 'shorah':
+        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                              wildcards.date, "variants/SNVs/snvs.csv")
+    elif config.general['snv_caller'] == 'lofreq':
+        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                              wildcards.date, "variants/SNVs/snvs.vcf")
+    return output

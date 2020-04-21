@@ -41,43 +41,6 @@ rule initial_reference:
         touch -h {output}
         """
 
-
-def get_haplotype_seqs(wildcards):
-    sample_tuple = sample_record(
-        sample_name=wildcards.sample_name, date=wildcards.date)
-    haplotype_seqs = sample_dict[sample_tuple]['haplotype_seqs']
-    val = ''
-    if haplotype_seqs is not None:
-        if len(haplotype_seqs) > 0 and haplotype_seqs.upper() not in ["NA", "N/A"]:
-            val = haplotype_seqs
-    return val
-
-
-# def get_use_master(wildcards):
-#    sample_tuple = sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
-#    use_master = sample_dict[sample_tuple]['use_master']
-#    return '-u' if use_master else ''
-
-
-def get_no_FR(wildcards):
-    sample_tuple = sample_record(
-        sample_name=wildcards.sample_name, date=wildcards.date)
-    no_FR = sample_dict[sample_tuple]['no_frameshifts']
-    return '-fr' if no_FR else ''
-
-
-def get_del_len(wildcards):
-    sample_tuple = sample_record(
-        sample_name=wildcards.sample_name, date=wildcards.date)
-    del_len = sample_dict[sample_tuple]['del_len']
-    del_len = del_len.strip()
-    if not del_len or del_len.upper() in ["NA", "N/A"]:
-        val = ''
-    else:
-        val = '-dl {}'.format(del_len)
-    return val
-
-
 rule simulate_haplotypes:
     input:
         reference_file
@@ -118,20 +81,6 @@ rule simulate_haplotypes:
         """
 
 # 2. Simulate reads
-
-def get_freq_params(wildcards):
-    sample_tuple = sample_record(
-        sample_name=wildcards.sample_name, date=wildcards.date)
-    freq_dstr = sample_dict[sample_tuple]['freq_dstr']
-    freq_param = sample_dict[sample_tuple]['freq_param']
-    if freq_dstr == 'geom':
-        val = '-gr {}'.format(freq_param)
-    elif freq_dstr == 'dirichlet':
-        val = '-dc {}'.format(freq_param)
-    else:
-        val = ''
-    return val
-
 
 if config.input['paired']:
     rule simulate_reads:
@@ -200,6 +149,7 @@ else:
             COVERAGE = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['coverage'],
             NUM_READS = '-nr' if config.simulate_reads['num_reads'] else '',
+            HIGH_QUAL = '-q' if config.simulate_reads['high_quality'] else '',
             READ_LEN = lambda wildcards: sample_dict[sample_record(
                 sample_name=wildcards.sample_name, date=wildcards.date)]['read_len'],
             FRAGMENT_SIZE = lambda wildcards: sample_dict[sample_record(
@@ -220,7 +170,7 @@ else:
             config.simulate_reads['conda']
         shell:
             """
-            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
+            {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} {params.HIGH_QUAL} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
 
             # Move intermediate results
             mkdir -p {params.OUTDIR_READS}/reads
