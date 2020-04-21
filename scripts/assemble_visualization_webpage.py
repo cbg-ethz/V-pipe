@@ -4,6 +4,7 @@ import sys
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 import vcf
@@ -24,6 +25,9 @@ def convert_vcf(fname):
                     "position": record.POS,
                     "reference": record.REF,
                     "variant": [v.sequence for v in record.ALT],
+                    "frequency": np.mean(
+                        [v for k, v in record.INFO.items() if k.startswith("Freq")]
+                    ),
                 }
             )
 
