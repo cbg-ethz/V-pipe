@@ -71,12 +71,20 @@ class VpipeBenchConfig(VpipeConfig):
                 'num_reads': __RECORD__(value=False, type=bool),
                 'high_quality': __RECORD__(value=True, type=bool),
             }),
+            ('run_simBench', {
+                'mem': __RECORD__(value=5000, type=int),
+                'time': __RECORD__(value=90, type=int),
+            }),
             ('test_snv', {
                 'mem': __RECORD__(value=2000, type=int),
                 'time': __RECORD__(value=60, type=int),
                 'conda': __RECORD__(value='', type=str),
 
                 're_msa': __RECORD__(value=False, type=bool),
+            }),
+            ('run_vpipeBench', {
+                'mem': __RECORD__(value=5000, type=int),
+                'time': __RECORD__(value=1440, type=int),
             }),
         ])
     )
