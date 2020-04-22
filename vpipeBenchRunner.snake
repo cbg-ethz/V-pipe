@@ -31,27 +31,24 @@ for opts in BENCH_RUNS:
 # DUMMY RULE
 rule allbenchRunner:
     input:
-        expand("simulated_data/{dataset}/raw_data/simreads_R1.fastq",
-               dataset=datasets),
-        expand("simulated_data/{dataset}/raw_data/simreads_R2.fastq",
-               dataset=datasets) if config.input['paired'] else [],
         expand("{bench_dir}/variants/SNV_calling_performance.tsv",
                bench_dir=configs.keys())
+
+localrules: prepare_run, prepare_config
 
 rule run_simBench:
     input:
         CONFIG_FILE = "vpipe.config",
         SAMPLES = config.input['samples_file'],
     output:
-        R1 = expand("simulated_data/{dataset}/raw_data/simreads_R1.fastq",
-                    dataset=datasets),
-        R2 = expand("simulated_data/{dataset}/raw_data/simreads_R2.fastq",
-                    dataset=datasets) if config.input['paired'] else [],
+        "test_data/test_data.lock",
     params:
         scratch = '1250',
         mem = config.run_simBench['mem'],
         time = config.run_simBench['time'],
         BASEDIR = VPIPE_BASEDIR,
+        CONFIG_FILE = "test_data/vpipe.config",
+        SAMPLES = f"test_data/{config.input['samples_file']}",
         SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
         SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
         SNAKEMAKE = config.applications['snakemake'],
@@ -62,33 +59,28 @@ rule run_simBench:
         1
     shell:
         """
-        # simbolink links: samples-file and config file
-        ln -s {input.CONFIG_FILE} simulated_data/
-        ln -s {input.SAMPLES} simulated_data/
+        # create symbolic links: samples-file and config file
+        ln -fs ${{PWD}}/{input.CONFIG_FILE} {params.CONFIG_FILE}
+        ln -fs ${{PWD}}/{input.SAMPLES} {params.SAMPLES}
+        touch -h {params.CONFIG_FILE}
+        touch -h {params.SAMPLES}
 
-        # copy reference file(s). Three expected locations: (1) current
-        # directory, (2) one level above, (3) references sub-directory
-        # Alternative: read references from samples-file and config, and move
-        # any reference file located in the references sub-directory (e.g.,
-        # cohort_consensus.fasta)
-        REFERENCES=$( find . -type f \( -iname \*.fasta -o -iname \*.fa \) )
+        # copy reference file(s). Expected location current directory or
+        # sub-directories.
+        # Alternative: read references from samples-file and config-file
+        REFERENCES=$( find -L . -path ./test_data -prune -o -type f \( -iname \*.fasta -o -iname \*.fa \) -print )
+        echo ${{REFERENCES}}
         for i in ${{REFERENCES}}; do
-            DIRNAME=$(diranme $i)
+            DIRNAME=$(dirname $i)
             BASENAME=$(basename $i)
-            mkdir -p simulated_data/${{DIRNAME}}
-            ln -s ${{i}} simulated_data/${{DIRNAME}}
+            mkdir -p test_data/${{DIRNAME}}
+            # copy references files to conserve timestamps
+            cp -va ${{i}} test_data/${{DIRNAME}}
         done
-        #if [[ -f *.fasta ]]; then
-        #    cp *.fasta simulated_data/
-        #fi
-
-        #if [[ -f references/*.fasta ]]; then
-        #    mkdir -p simulated_data/references
-        #    cp references/*.fasta simulated_data/references
-        #fi
 
         # change to working directory
-        cd simulated_data/
+        CWD=${{PWD}}
+        cd test_data/
 
         if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
             {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake simulated_data \
@@ -97,66 +89,62 @@ rule run_simBench:
             {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake simulated_data \
                 {params.SNAKEMAKE_OPTS_ENVVAR}
         fi
+
+        # Change back to working directory
+        cd ${{CWD}}
+        touch {output}
         """
 
-localrules:
-    prepare_run
 rule prepare_run:
     input:
-        R1 = expand("simulated_data/{dataset}/raw_data/simreads_R1.fastq",
-                    dataset=datasets),
-        R2 = expand("simulated_data/{dataset}/raw_data/simreads_R2.fastq",
-                    dataset=datasets) if config.input['paired'] else [],
+        "test_data/test_data.lock",
     output:
-        CONFIG_FILE = "{bench_dir}/vpipe.config",
         SAMPLES = "{bench_dir}" / Path(config.input['samples_file']),
-        REF = "{bench_dir}" / Path(reference_file),
-        R1 = expand("{bench_dir}/{dataset}/raw_data/simreads_R1.fastq",
-                    dataset=datasets, allow_missing=True),
-        R2 = expand("{bench_dir}/{dataset}/raw_data/simreads_R2.fastq",
-                    dataset=datasets, allow_missing=True) if config.input['paired'] else [],
-        HAPLOTYPE_REFs = expand(
-            "{bench_dir}/{dataset}/references/haplotypes/haplotypes.fasta",
-            dataset=datasets, allow_missing=True),
+        LOCK = "{bench_dir}/prepare_run.lock",
+    params:
+        SAMPLES = config.input['samples_file'],
+        DATADIR = config.input['datadir'],
+        REF = reference_file,
     log:
         outfile = "logs/{bench_dir}_prepare_run.out.log",
         errfile = "logs/{bench_dir}_prepare_run.err.log",
-    run:
-        # Copy reference file(s). Two expected locations: (1) current
-        # directory, or (2) one level above.
-        # Alternative: read references from samples-file and config, and move
-        # any reference file located in the references sub-directory (e.g.,
-        # cohort_consensus.fasta)
-        if not config.simulate_haplotypes['use_master']:
-            fasta_files = glob.glob("*/*.fasta")
-            for file in fasta_files:
-                dirname = os.path.dirname(file)
-                if os.path.isfile(file):
-                    dest = os.path.join(wildcards.bench_dir, dirname)
-                    Path(dest).mkdir(parents=True, exist_ok=True)
-                    shutil.copy(file, dest)
-            fasta_files = glob.glob("*.fasta")
-            for file in fasta_files:
-                if os.path.isfile(file):
-                    shutil.copy(file, wildcards.bench_dir)
+    shell:
+        """
+        # create symbolic link of samples-file
+        ln -fs ${{PWD}}/{params.SAMPLES} {output.SAMPLES}
+        touch -h {output.SAMPLES}
 
+        # copy reference file(s).
+        mkdir -p {wildcards.bench_dir}/references
+        cp -a test_data/references/ {wildcards.bench_dir}/references
+        cp -a test_data/{params.REF} {wildcards.bench_dir}/{params.REF}
+
+        # copy raw reads and extracted data
+        cp -a test_data/{params.DATADIR} {wildcards.bench_dir}
+
+        touch {output.LOCK}
+        """
+
+rule prepare_config:
+    input:
+        CONFIG_FILE = "vpipe.config",
+    output:
+        CONFIG_FILE = "{bench_dir}/vpipe.config",
+    log:
+        outfile = "logs/{bench_dir}_prepare_config.out.log",
+        errfile = "logs/{bench_dir}_prepare_config.err.log",
+    run:
         # Copy the config file with the necesary changes
         with open(output.CONFIG_FILE, 'w') as configfile:
             configs[wildcards.bench_dir].write(configfile)
 
-        # Copy samples-file. Alternative: use symbolic links
-        shutil.copy(config.input['samples_file'], output.SAMPLES)
-
-        # Copy datadir
-        shutil.copytree(config.input['datadir'], wildcards.bench_dir)
-
 
 # TODO: handle special cases, e.g. dry-run (touch and clean files)
-#       and clean rules
+#       clean rules, and --create-envs-only
 rule run_vpipeBench:
     input:
         "{bench_dir}/vpipe.config",
-        "{bench_dir}" / Path(config.input['samples_file']),
+        "{bench_dir}/prepare_run.lock"
     output:
         "{bench_dir}/variants/SNV_calling_performance.tsv"
     params:
@@ -184,4 +172,10 @@ rule run_vpipeBench:
             {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake \
                 {params.SNAKEMAKE_OPTS_ENVVAR}
         fi
+        """
+
+rule simbenchclean:
+    shell:
+        """
+        rm -rf test_data
         """
