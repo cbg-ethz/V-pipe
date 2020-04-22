@@ -25,9 +25,9 @@ def convert_vcf(fname):
                     "position": record.POS,
                     "reference": record.REF,
                     "variant": [v.sequence for v in record.ALT],
-                    "frequency": np.mean(
+                    "frequency": round(np.mean(
                         [v for k, v in record.INFO.items() if k.startswith("Freq")]
-                    ),
+                    ),3),
                 }
             )
 
