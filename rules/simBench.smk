@@ -50,7 +50,6 @@ rule simulate_haplotypes:
         scratch = '2000',
         mem = config.simulate_haplotypes['mem'],
         time = config.simulate_haplotypes['time'],
-        USE_MASTER = '-u' if config.simulate_haplotypes['use_master'] else '',
         HAPLOTYPE_SEQS = get_haplotype_seqs,
         NUM_HAPLOTYPES = lambda wildcards: sample_dict[sample_record(
             sample_name=wildcards.sample_name, date=wildcards.date)]['num_haplotypes'],
@@ -73,10 +72,12 @@ rule simulate_haplotypes:
         config.simulate_haplotypes['conda']
     shell:
         """
-        if [[ -z {params.HAPLOTYPE_SEQS} ]]; then
-            {params.SIM_BENCH} -f {input} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+        if [[ -f {params.HAPLOTYPE_SEQS} ]]; then
+            # use haplotypes from input sequence
+            {params.SIM_BENCH} -f {params.HAPLOTYPE_SEQS} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
         else
-            {params.SIM_BENCH} -f {params.HAPLOTYPE_SEQS} {params.USE_MASTER} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+            # use master sequence
+            {params.SIM_BENCH} -f {input} -u -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
         fi
         """
 
