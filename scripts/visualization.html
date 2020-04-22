@@ -397,9 +397,6 @@ function createSummaryTable(div_id) {
     for(var key in entry) {
       var value = entry[key]
       var td = tr.insertCell()
-      if(Number(value) === value) {
-        value = value.toFixed(3)
-      }
       td.appendChild(document.createTextNode(value))
     }
   }
