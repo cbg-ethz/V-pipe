@@ -279,7 +279,7 @@ function addLollipops(canvas) {
             return x(d.position)
         })
         .attr("y1", function(d) {
-            return yLollipop(Math.max(0.025, d.frequency))
+            return yLollipop(d.frequency)
         })
         .attr("y2", y(0))
         .attr("stroke", "darkgrey")
@@ -293,7 +293,7 @@ function addLollipops(canvas) {
             return x(d.position)
         })
         .attr("cy", function(d) {
-            return yLollipop(Math.max(0.025, d.frequency))
+            return yLollipop(d.frequency)
         })
         .attr("r", "4")
         .style("fill", "grey")
