@@ -336,6 +336,9 @@ function addLollipops(canvas) {
         .style("fill", "grey")
         .attr("stroke", "black")
         .attr("stroke-width", 0)
+        .attr("fill-opacity", function(d) {
+            return d.posterior
+        })
         .attr("class", "circles")
         .on("mouseover", function(d) {
             tooltip.transition()
