@@ -28,29 +28,33 @@ rule gunzip:
         """
 
 
-def construct_input_fastq(wildcards):
-    indir = os.path.join(wildcards.dataset, "raw_data")
-    aux = glob_wildcards(
-        indir + "/{prefix, [^/]+}" + "{ext, (\.fastq|\.fastq\.gz|\.fq|\.fq\.gz)}")
-    if config.input['paired']:
-        inferred_values = glob_wildcards(
-            indir + "/{file}R" + wildcards.pair + config.input['fastq_suffix'] + aux.ext[0])
-    else:
-        inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])
-
-    list_output = []
-    file_extension = aux.ext[0].split(".gz")[0]
-    for i in inferred_values.file:
+if VPIPE_BENCH:
+    def construct_input_fastq(wildcards):
+        return f"{wildcards.dataset}/raw_data/simreads_R{wildcards.pair}.fastq"
+else:
+    def construct_input_fastq(wildcards):
+        indir = os.path.join(wildcards.dataset, "raw_data")
+        aux = glob_wildcards(
+            indir + "/{prefix, [^/]+}" + "{ext, (\.fastq|\.fastq\.gz|\.fq|\.fq\.gz)}")
         if config.input['paired']:
-            list_output.append(indir + "/" + i + "R" + wildcards.pair +
-                               config.input['fastq_suffix'] + file_extension)
+            inferred_values = glob_wildcards(
+                indir + "/{file}R" + wildcards.pair + config.input['fastq_suffix'] + aux.ext[0])
         else:
-            list_output.append(indir + "/" + i + file_extension)
-    if len(list_output) == 0:
-        raise ValueError(
-            "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
+            inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])
 
-    return list_output
+        list_output = []
+        file_extension = aux.ext[0].split(".gz")[0]
+        for i in inferred_values.file:
+            if config.input['paired']:
+                list_output.append(indir + "/" + i + "R" + wildcards.pair +
+                                   config.input['fastq_suffix'] + file_extension)
+            else:
+                list_output.append(indir + "/" + i + file_extension)
+        if len(list_output) == 0:
+            raise ValueError(
+                "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
+
+        return list_output
 
 
 rule extract:
@@ -73,13 +77,6 @@ rule extract:
         """
         cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
-
-
-if VPIPE_BENCH:
-    if config.general["simulate"]:
-        ruleorder: simulate_reads > extract
-    else:
-        ruleorder: extract > simulate_reads
 
 
 # 2. clipping
