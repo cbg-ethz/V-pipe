@@ -38,7 +38,7 @@ div.tooltip {
 
 #block_container > div {
     float: left;
-    margin-right: 50px;
+    margin-right: 40px;
     display: inline-block;
     vertical-align: top;
 }
@@ -64,11 +64,17 @@ div.tooltip {
     <hr style="border: 2px solidgray;" />
 
     <div id="block_container">
-    <div id="plot"></div>
-    <div id="controls">
-        <button type="button" onClick="resetZoomGlobal()">Reset zoom</button>
-    </div>
-    <div id="table_summary"></div>
+        <div id="plot"></div>
+        <div>
+            <div id="controls">
+                <button type="button" onClick="resetZoomGlobal()">Reset zoom</button>
+                <br>
+                <label for="posteriorThresholdField">SNV posterior threshold:</label>
+                <input type="text" id="posteriorThresholdField" value="0.8", size=4>
+                <button type="button" onClick="redrawPlots()">Submit</button>
+            </div>
+            <div id="table_summary"></div>
+        </div>
     </div>
 
 </body>
@@ -124,9 +130,18 @@ var svg = d3.select("#plot")
         "translate(" + margin.left + "," + margin.top + ")");
 
 document.getElementById('sample_name').innerHTML = sample_name;
-var [updateChartGlobal, resetZoomGlobal] = setupPlot(svg)
+var [updateChartGlobal, resetZoomGlobal, areaGlobal] = setupPlot(svg)
 displayGffData(gffData, svg)
 createSummaryTable("table_summary")
+
+function redrawPlots() {
+    d3.selectAll(".lollipops").remove();
+    d3.selectAll(".circles").remove();
+    d3.selectAll(".annotation_rects").remove();
+    d3.selectAll(".snv_marker").remove();
+    addLollipops(areaGlobal)
+    displayGffData(gffData, svg)
+}
 
 function setupPlot(svg) {
     // Add X axis
@@ -277,7 +292,7 @@ function setupPlot(svg) {
 
     // making this function globally available to other plots
     // (in a less hacky way) probably requires a refactoring
-    return [updateChart, resetZoom]
+    return [updateChart, resetZoom, area]
 }
 
 // Add lollipops
@@ -286,6 +301,10 @@ function addLollipops(canvas) {
         .data(vcfData)
         .enter()
         .append("line")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
         .attr("x1", function(d) {
             return x(d.position)
         })
@@ -303,6 +322,10 @@ function addLollipops(canvas) {
         .data(vcfData)
         .enter()
         .append("circle")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
         .attr("cx", function(d) {
             return x(d.position)
         })
@@ -322,7 +345,8 @@ function addLollipops(canvas) {
                     "variant: " + d.variant + "<br>" +
                     "reference: " + d.reference + "<br>" +
                     "position: " + d.position + "<br>" +
-                    "frequency: " + d.frequency.toFixed(3)
+                    "frequency: " + d.frequency + "<br>" +
+                    "posterior: " + d.posterior
                 )
                 .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
                 .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
@@ -488,6 +512,10 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         .data(vcfData)
         .enter()
         .append("line")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
         .attr("x1", function(d) {
             return x(d.position)
         })
