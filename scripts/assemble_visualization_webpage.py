@@ -28,6 +28,7 @@ def convert_vcf(fname):
                     "frequency": round(np.mean(
                         [v for k, v in record.INFO.items() if k.startswith("Freq")]
                     ), 3),
+                    "posterior": round(1 - 10**(-record.QUAL / 10), 3)
                 }
             )
 
