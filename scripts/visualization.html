@@ -10,21 +10,30 @@
 
 <style>
 div.tooltip {
-  position: absolute;
-  text-align: left;
-  padding: .5rem;
-  background: #FFFFFF;
-  color: #313639;
-  border: 1px solid #313639;
-  border-radius: 8px;
-  pointer-events: none;
+    position: absolute;
+    text-align: left;
+    padding: .5rem;
+    background: #FFFFFF;
+    color: #313639;
+    border: 1px solid #313639;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+#controls {
+    border: 1px solid black;
+}
+
+#table_summary {
+    overflow: auto;
+    max-height: 700px;
 }
 
 #table_summary_table {
-  border: 1px solid black;
+    border: 1px solid black;
 }
 #table_summary_table tr:nth-child(even){
-  background-color: lightgrey;
+    background-color: lightgrey;
 }
 
 #block_container > div {
@@ -50,14 +59,17 @@ div.tooltip {
 </head>
 <body>
 
-  <br/>
-  <b><p id="sample_name"></p></b>
-  <hr style="border: 2px solidgray;" />
+    <br/>
+    <b><p id="sample_name"></p></b>
+    <hr style="border: 2px solidgray;" />
 
-  <div id="block_container">
+    <div id="block_container">
     <div id="plot"></div>
-    <div id="table_summary" style="overflow: auto; max-height: 700px;"></div>
-  </div>
+    <div id="controls">
+        <button type="button" onClick="resetZoomGlobal()">Reset zoom</button>
+    </div>
+    <div id="table_summary"></div>
+    </div>
 
 </body>
 </html>
@@ -112,7 +124,7 @@ var svg = d3.select("#plot")
         "translate(" + margin.left + "," + margin.top + ")");
 
 document.getElementById('sample_name').innerHTML = sample_name;
-var updateChartGlobal = setupPlot(svg)
+var [updateChartGlobal, resetZoomGlobal] = setupPlot(svg)
 displayGffData(gffData, svg)
 createSummaryTable("table_summary")
 
@@ -198,7 +210,7 @@ function setupPlot(svg) {
     addLollipops(area)
 
     // If user double click, reinitialize the chart
-    svg.on("dblclick", function() {
+    function resetZoom() {
         x.domain([0, coverageData.length - 1])
         xAxis.transition().call(d3.axisBottom(x).ticks(5))
         area
@@ -211,7 +223,9 @@ function setupPlot(svg) {
         d3.selectAll(".snv_marker").remove();
         addLollipops(area)
         displayGffData(gffData, svg)
-    });
+    }
+
+    svg.on("dblclick", resetZoom);
 
     // A function that update the chart for given boundaries
     function updateChart(customExtent, customExtentInDataCoordinates = false) {
@@ -263,7 +277,7 @@ function setupPlot(svg) {
 
     // making this function globally available to other plots
     // (in a less hacky way) probably requires a refactoring
-    return updateChart
+    return [updateChart, resetZoom]
 }
 
 // Add lollipops
