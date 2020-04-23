@@ -25,9 +25,9 @@ def convert_vcf(fname):
                     "position": record.POS,
                     "reference": record.REF,
                     "variant": [v.sequence for v in record.ALT],
-                    "frequency": np.mean(
+                    "frequency": round(np.mean(
                         [v for k, v in record.INFO.items() if k.startswith("Freq")]
-                    ),
+                    ), 3),
                 }
             )
 
@@ -81,17 +81,17 @@ def get_gff_data(gff_dir):
     """Returns a map with filename key and gff json data."""
     # Hardcode metainformation for the GFF file provided in the repository.
     gff_metainfo = {}
-    gff_metainfo["Genes_NC_045512.2"] = "Gene annotations"
+    gff_metainfo["Genes_NC_045512.2"] = "Genes (ORFs)"
     gff_metainfo[
         "Sars-Cov2_Mature_products"
-    ] = "Mature products (components of polyprotein including RdRp and exoribonuclease) derived from UniProt"
-    gff_metainfo["Sars-Cov2_Protein_domains"] = "UniProt Protein domains"
+    ] = "Mature processed protein products"
+    gff_metainfo["Sars-Cov2_Protein_domains"] = "Uniprot protein domains"
     gff_metainfo[
         "Sars-Cov2_TM_domains"
-    ] = "Predicted transmembrane domains (derived from UniProt)"
+    ] = "Uniprot predicted transmembrane regions"
     gff_metainfo[
         "Sars-Cov2_highlights"
-    ] = "Highlights (functional annotations e.g., receptor binding site, ACE2 binding, RNA binding, etc) derived from UniProt"
+    ] = "Other Uniprot Domains"
 
     gff_map = {}
     for path in os.listdir(gff_dir):

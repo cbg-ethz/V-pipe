@@ -397,7 +397,6 @@ function createSummaryTable(div_id) {
     for(var key in entry) {
       var value = entry[key]
       var td = tr.insertCell()
-
       td.appendChild(document.createTextNode(value))
     }
   }
@@ -487,51 +486,6 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         .attr("y2", offset_y + rectHeight)
         .attr("stroke", "red")
         .attr("class", "snv_marker")
-}
-
-function createSummaryTable(div_id) {
-    // create table
-    var tbl = document.createElement("table")
-    tbl.setAttribute("id", "table_summary_table")
-
-    // add header
-    var header = tbl.createTHead()
-    var tr_0 = header.insertRow()
-    var td = tr_0.insertCell()
-    var num_cols = 0
-    for (var key in vcfData[0]) {
-        num_cols++
-    }
-    td.setAttribute("colspan", num_cols)
-    td.setAttribute("style", "text-align:center")
-    td.innerHTML = "<b>SNVs</b>"
-
-    var tr = header.insertRow()
-    for (var key in vcfData[0]) {
-        // assumes all entries have same keys
-        var td = tr.insertCell()
-        bold = document.createElement('strong'),
-            bold.appendChild(document.createTextNode(key));
-        td.appendChild(bold)
-    }
-
-    // add content
-    vcfData.sort((r1, r2) => r1.position - r2.position);
-
-    for (var entry of vcfData) {
-        var tr = tbl.insertRow()
-
-        for (var key in entry) {
-            var value = entry[key]
-            var td = tr.insertCell()
-
-            td.appendChild(document.createTextNode(value))
-        }
-    }
-
-    // add table to container
-    var container = document.getElementById(div_id)
-    container.appendChild(tbl)
 }
 
 </script>
