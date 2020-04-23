@@ -90,8 +90,6 @@ if config.input['paired']:
         output:
             R1_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
             R2_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R2.fastq",
-            R1 = "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq",
-            R2 = "{sample_dir}/{sample_name}/{date}/extracted_data/R2.fastq",
         params:
             scratch = '2000',
             mem = config.simulate_reads['mem'],
@@ -129,10 +127,6 @@ if config.input['paired']:
             mkdir -p {params.OUTDIR_READS}/reads
             mv {params.OUTDIR_READS}/*.sam {params.OUTDIR_READS}/reads
             mv {params.OUTDIR_READS}/*.aln {params.OUTDIR_READS}/reads
-
-            # To avoid rule ambiguities: Copy simulated data sets to extracted_data folder
-            cp {output.R1_raw} {output.R1}
-            cp {output.R2_raw} {output.R2}
             """
 else:
     rule simulate_reads:
@@ -140,7 +134,6 @@ else:
             "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         output:
             R1_raw = "{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
-            R1 = "{sample_dir}/{sample_name}/{date}/extracted_data/R1.fastq",
         params:
             scratch = '2000',
             mem = config.simulate_reads['mem'],
@@ -177,7 +170,4 @@ else:
             mkdir -p {params.OUTDIR_READS}/reads
             mv {params.OUTDIR_READS}/*.sam {params.OUTDIR_READS}/reads
             mv {params.OUTDIR_READS}/*.aln {params.OUTDIR_READS}/reads
-
-            # To avoid rule ambiguities: Copy simulated data sets to extracted_data folder
-            cp {output.R1_raw} {output.R1}
             """

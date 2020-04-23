@@ -25,11 +25,11 @@ rule simulated_data:
         expand("{dataset}/raw_data/simreads_R2.fastq",
                dataset=datasets) if config.input['paired'] else []
 
-include: "rules/simBench.smk"
+include: "rules/simbench.smk"
 include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
 include: "rules/mafs.smk"
 include: "rules/snv.smk"
-include: "rules/testBench.smk"
+include: "rules/testbench.smk"
 
