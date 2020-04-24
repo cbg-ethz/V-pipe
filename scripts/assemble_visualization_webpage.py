@@ -86,13 +86,10 @@ def get_gff_data(gff_dir):
     gff_metainfo[
         "Sars-Cov2_Mature_products"
     ] = "Mature processed protein products"
-    gff_metainfo["Sars-Cov2_Protein_domains"] = "Uniprot protein domains"
+    gff_metainfo["Sars-Cov2_Uniprot_domains"] = "Uniprot domains"
     gff_metainfo[
         "Sars-Cov2_TM_domains"
     ] = "Uniprot predicted transmembrane regions"
-    gff_metainfo[
-        "Sars-Cov2_highlights"
-    ] = "Other Uniprot Domains"
 
     gff_map = {}
     for path in os.listdir(gff_dir):
