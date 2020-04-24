@@ -209,10 +209,32 @@ rule snv:
         fi
         """
 
+rule samtools_index:
+    input:
+        "{file}.fasta",
+    output:
+        "{file}.fasta.fai",
+    params:
+        scratch = '2000',
+        mem = config.samtools_index['mem'],
+        time = config.samtools_index['time'],
+        SAMTOOLS = config.applications['samtools'],
+    log:
+        outfile = "{file}_samtools_index.out.log",
+        errfile = "{file}_samtools_index.err.log",
+    conda:
+        config.samtools_index['conda']
+    benchmark:
+        "{file}_samtools_index.benchmark"
+    shell:
+        """
+        {params.SAMTOOLS} faidx {input} -o {output} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        """
 
 rule lofreq:
     input:
         REF = "variants/cohort_consensus.fasta",
+        REF_IDX = "variants/cohort_consensus.fasta.fai",
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
@@ -229,7 +251,7 @@ rule lofreq:
         LOFREQ = config.applications['lofreq'],
     log:
         outfile = "{dataset}/variants/SNVs/lofreq.out.log",
-        errfile = "{dataset}/variants/SNVs/lofreq.out.log",
+        errfile = "{dataset}/variants/SNVs/lofreq.err.log",
     conda:
         config.lofreq['conda']
     benchmark:
@@ -237,9 +259,9 @@ rule lofreq:
     shell:
         """
         # Add qualities to indels
-        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > >(tee -a {log.outfile}) 2>&1
+        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
         # Index bam file
-        {params.SAMTOOLS} index {output.BAM}
+        {params.SAMTOOLS} index {output.BAM} 2> >(tee {log.errfile} >&2)
 
         # Run Lofreq
         # NOTE: lofreq reads the region as a closed interval and uses 1-based indexing
@@ -250,9 +272,9 @@ rule lofreq:
             LINE_COUNTER=$(( $LINE_COUNTER + 1 ))
             echo "Running Lofreq in region: ${{region}}" >> {log.outfile}
             OUTFILE_REGION={params.OUTDIR}/snvs_${{LINE_COUNTER}}.vcf
-            {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} > >(tee -a {log.outfile}) 2>&1
-            {params.BCFTOOLS} view ${{OUTFILE_REGION}} -Oz -o ${{OUTFILE_REGION}}.gz
-            {params.BCFTOOLS} index ${{OUTFILE_REGION}}.gz
+            {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+            {params.BCFTOOLS} view ${{OUTFILE_REGION}} -Oz -o ${{OUTFILE_REGION}}.gz 2> >(tee {log.errfile} >&2)
+            {params.BCFTOOLS} index ${{OUTFILE_REGION}}.gz 2> >(tee {log.errfile} >&2)
             FILES="$FILES ${{OUTFILE_REGION}}.gz"
         done < {input.TSV}
 
@@ -262,8 +284,8 @@ rule lofreq:
             touch {output.SNVs}
         else
             echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
-            {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}}
-            {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs}
+            {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}} 2> >(tee {log.errfile} >&2)
+            {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs} 2> >(tee {log.errfile} >&2)
             rm -f {params.OUTDIR}/snvs_tmp.vcf
         fi
         """

@@ -217,6 +217,11 @@ class VpipeConfig(object):
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
         }),
+        ('samtools_index', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=20, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/lofreq.yaml', type=str),
+        }),
         ('lofreq', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=60, type=int),
