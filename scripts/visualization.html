@@ -406,16 +406,25 @@ function displayGffData(gffData, canvas) {
         .domain(type_list)
         .range(d3.schemeSet3)
 
-    num_rows_above = 0
+    var num_rows_above = 0
+    var rectHeight = 15
+    var padding = 5    
+    var titleHeight = 10
+    var num_gff_data = 0
     for (key in gffData) {
-        createGffPlot(canvas, height + 60 + num_rows_above * 30, gffData[key], key, annotations_color_scale)
+        createGffPlot(canvas, height + 60 + (num_gff_data + num_rows_above) * (rectHeight + padding),
+                      rectHeight,  titleHeight, padding, gffData[key], key, annotations_color_scale)
         var num_rows = new Set(
             gffData[key].map(function(x) {
                 return x.row_cnt
             })
         ).size
         num_rows_above += num_rows
+        num_gff_data++
     }
+    
+
+    expandLollipopLines(canvas, height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
 }
 
 function createSummaryTable(div_id) {
@@ -462,7 +471,8 @@ function createSummaryTable(div_id) {
   container.appendChild(tbl)
 }
 
-function createGffPlot(canvas, offset_y, features, title, colorScale, type_list) {
+function createGffPlot(canvas, offset_y, rectHeight,  titleHeight, padding, features, title, colorScale, type_list) {
+
     // Keep only the annotations in the strat-end interval.
     canvas.append("text")
         .attr("transform",
@@ -471,7 +481,6 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         //.style("text-anchor", "middle")
         .text(title + ":");
 
-    var rectHeight = 15
     canvas.selectAll("rects")
         .data(features)
         .enter()
@@ -480,7 +489,7 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
             return Math.max(0, x(d.start))
         })
         .attr("y", function(d) {
-            return offset_y + 10 + 20 * d.row_cnt
+            return offset_y + titleHeight + (rectHeight + padding) * d.row_cnt
         })
         .attr("width", function(d) {
             if (x(d.start) > width || x(d.end) < 0) {
@@ -525,7 +534,9 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
         .on("click", function(d) {
             updateChartGlobal([d.start, d.end], true)
         })
-
+}        
+        
+function expandLollipopLines(canvas, offset_y, line_heigth) {        
     canvas.selectAll("lines")
         .data(vcfData)
         .enter()
@@ -541,10 +552,12 @@ function createGffPlot(canvas, offset_y, features, title, colorScale, type_list)
             return x(d.position)
         })
         .attr("y1", function(d) {
-            return offset_y + 10
+            return offset_y
         })
-        .attr("y2", offset_y + rectHeight)
-        .attr("stroke", "red")
+        .attr("y2", offset_y + line_heigth)
+        .attr("stroke", "darkgrey")
+        .style("stroke-dasharray","5,5")
+         .style("opacity", .6)
         .attr("class", "snv_marker")
 }
 
