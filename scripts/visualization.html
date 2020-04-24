@@ -174,7 +174,7 @@ function setupPlot(svg) {
         .style("text-anchor", "middle")
         .text("Coverage");
         
-    // Add right Y axis for coverage 
+    // Add right Y axis for frequency 
     yAxisFrequency = svg.append("g")
         .attr("transform", "translate(" + width + ",0)")    
         .call(d3.axisRight(yFrequency));
@@ -336,6 +336,9 @@ function addLollipops(canvas) {
         .attr("stroke", "darkgrey")
         .attr("class", "lollipops")
 
+    var colorRange = d3.scaleSequential().domain([0, 1])
+        .interpolator(d3.interpolateRdBu);
+
     canvas.selectAll("circles")
         .data(vcfData)
         .enter()
@@ -351,12 +354,11 @@ function addLollipops(canvas) {
             return yLollipop(d.frequency)
         })
         .attr("r", "4")
-        .style("fill", "grey")
+        .style("fill", function(d){
+            return colorRange(d.posterior)
+        })
         .attr("stroke", "black")
         .attr("stroke-width", 0)
-        .attr("fill-opacity", function(d) {
-            return d.posterior
-        })
         .attr("class", "circles")
         .on("mouseover", function(d) {
             tooltip.transition()
