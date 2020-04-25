@@ -11,6 +11,7 @@ LOGGER.info('VPIPE_BASEDIR = %s', VPIPE_BASEDIR)
 include: "rules/common.smk"
 functions = srcdir("functions.sh")
 
+
 # DUMMY RULES
 rule all:
     input:
@@ -37,3 +38,6 @@ if config.output['global']:
 
 if config.output['QA']:
     include: "rules/contamination.smk"
+
+if config.output['visualization']:
+    include: "rules/visualization.smk"
