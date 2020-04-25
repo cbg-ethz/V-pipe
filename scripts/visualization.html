@@ -20,13 +20,9 @@ div.tooltip {
     pointer-events: none;
 }
 
-#controls {
-    border: 1px solid black;
-}
-
 #table_summary {
     overflow: auto;
-    max-height: 700px;
+    max-height: 500px;
 }
 
 #table_summary_table {
@@ -71,12 +67,13 @@ div.tooltip {
         <div id="plot"></div>
         <div>
             <div id="controls">
-                <button type="button" onClick="resetZoomGlobal()">Reset zoom</button>
-                <br>
+                <button type="button" onClick="resetZoomGlobal()">Reset zoom</button> <br/><br/>
+                Color legend for SNV posterior probability: <br/>
+                <div id="color_legend"></div>
                 <label for="posteriorThresholdField">SNV posterior threshold:</label>
                 <input type="text" id="posteriorThresholdField" value="0.8", size=4>
                 <button type="button" onClick="redrawPlots()">Submit</button>
-            </div>
+            </div><br/>
             <div id="table_summary"></div>
         </div>
     </div>
@@ -97,11 +94,11 @@ for (i = 0; i < coverage.length; i++) {
 // set the dimensions and margins of the graph
 var margin = {
         top: 10,
-        right: 60,
+        right: 70,
         bottom: 500,
         left: 60
     },
-    width = 900 - margin.left - margin.right,
+    width = 750 - margin.left - margin.right,
     height = 800 - margin.top - margin.bottom;
 
 var x = d3.scaleLinear()
@@ -137,10 +134,13 @@ var svg = d3.select("#plot")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
+var lollipopColorInterpolator = d3.interpolateRdBu;
+
 document.getElementById('sample_name').innerHTML = sample_name;
 var [updateChartGlobal, resetZoomGlobal, areaGlobal] = setupPlot(svg)
 displayGffData(gffData, svg)
 createSummaryTable("table_summary")
+addColorLegend("#color_legend")
 
 function redrawPlots() {
     d3.selectAll(".lollipops").remove();
@@ -149,6 +149,51 @@ function redrawPlots() {
     d3.selectAll(".snv_marker").remove();
     addLollipops(areaGlobal)
     displayGffData(gffData, svg)
+}
+
+function addColorLegend(div_id) {
+    var width = 300
+    var margin = 5
+    var svg = d3.select(div_id)
+        .append("svg")
+        .attr("width", width + margin)
+        .attr("height", 50)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin + "," + margin + ")");
+
+    var legendscale = d3.scaleLinear()
+        .range([1, width])
+        .domain([0, 1]);
+    svg.append("g")
+        .attr("transform", "translate(0, 10)")
+        .call(d3.axisBottom(legendscale));
+
+    var steps = 10;
+    var colors = d3.range(0, (1 + 1 / steps), 1 / (steps - 1)).map(function(d) {
+      return lollipopColorInterpolator(d)
+    });
+    var grad = svg.append('defs')
+        .append('linearGradient')
+        .attr('id', 'linear-gradient')
+        .attr('x1', '0%')
+        .attr('x2', '100%')
+        .attr('y1', '0%')
+        .attr('y2', '0%');
+    grad.selectAll('stop')
+        .data(colors)
+        .enter()
+        .append('stop')
+        .style('stop-color', function(d){ return d; })
+        .attr('offset', function(d,i){
+            return 100 * (i / (colors.length - 1)) + '%';
+        })
+    rect = svg.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("height", 10)
+        .attr("width", width)
+        .style("fill", "url(#linear-gradient)")
 }
 
 function setupPlot(svg) {
@@ -184,7 +229,7 @@ function setupPlot(svg) {
         .attr("x", (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Frequency");   
+        .text("SNV frequency");   
 
     // Add a clipPath: everything out of this area won't be drawn.
     var clip = svg.append("defs").append("svg:clipPath")
@@ -339,6 +384,9 @@ function addLollipops(canvas) {
     var colorRange = d3.scaleSequential().domain([0, 1])
         .interpolator(d3.interpolateRdBu);
 
+    var colorRange = d3.scaleSequential().domain([0, 1])
+        .interpolator(lollipopColorInterpolator);
+
     canvas.selectAll("circles")
         .data(vcfData)
         .enter()
@@ -357,8 +405,8 @@ function addLollipops(canvas) {
         .style("fill", function(d){
             return colorRange(d.posterior)
         })
-        .attr("stroke", "black")
-        .attr("stroke-width", 0)
+        .attr("stroke", "darkgray")
+        .attr("stroke-width", 1)
         .attr("class", "circles")
         .on("mouseover", function(d) {
             tooltip.transition()
@@ -447,7 +495,7 @@ function createSummaryTable(div_id) {
   }
   td.setAttribute("colspan", num_cols)
   td.setAttribute("style", "text-align:center")
-  td.innerHTML="<b>SNVs</b>"
+  td.innerHTML="<b>SNV details</b>"
 
   var tr = header.insertRow()
   for(var key in vcfData[0]) {
