@@ -6,7 +6,9 @@
 
 <html>
 <head>
-<title>V-Pipe Viz</title>
+<title>V-Pipe Visualization</title>
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css">
 
 <style>
 div.tooltip {
@@ -22,7 +24,7 @@ div.tooltip {
 
 #table_summary {
     overflow: auto;
-    max-height: 500px;
+    max-height: 530px;
 }
 
 #table_summary_table {
@@ -67,7 +69,6 @@ div.tooltip {
         <div id="plot"></div>
         <div>
             <div id="controls">
-                <button type="button" onClick="resetZoomGlobal()">Reset zoom</button> <br/><br/>
                 Color legend for SNV posterior probability: <br/>
                 <div id="color_legend"></div>
                 <label for="posteriorThresholdField">SNV posterior threshold:</label>
@@ -304,6 +305,37 @@ function setupPlot(svg) {
     }
 
     svg.on("dblclick", resetZoom);
+
+    // Add reset zoom button
+    svg.append('svg:foreignObject')
+        .attr("class", "reset_zoom")
+        .attr("x", width - 30)
+        .attr("y", -5)
+        .attr("width", 100)
+        .attr("height", 100)
+        .append("xhtml:body")
+        .html('<i class="fas fa-compress-arrows-alt"></i>')
+        .on("click", function(d) {
+            resetZoom()
+        })
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+            tooltip.html("Reset zoom")
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+            .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0)
+        })
 
     // A function that update the chart for given boundaries
     function updateChart(customExtent, customExtentInDataCoordinates = false) {
