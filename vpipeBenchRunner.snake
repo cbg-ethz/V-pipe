@@ -75,7 +75,7 @@ rule run_simBench:
             BASENAME=$(basename $i)
             mkdir -p test_data/${{DIRNAME}}
             # copy references files to conserve timestamps
-            cp -va ${{i}} test_data/${{DIRNAME}}
+            cp -va ${{i}} test_data/${{DIRNAME}} >> {log.outfile}
         done
 
         # change to working directory
@@ -107,20 +107,21 @@ rule prepare_run:
         REF = reference_file,
     log:
         outfile = "logs/{bench_dir}_prepare_run.out.log",
-        errfile = "logs/{bench_dir}_prepare_run.err.log",
     shell:
         """
         # create symbolic link of samples-file
         ln -fs ${{PWD}}/{params.SAMPLES} {output.SAMPLES}
         touch -h {output.SAMPLES}
 
-        # copy reference file(s).
+        # copy reference file(s)
+        echo "Migrating reference files" > {log.outfile}
         mkdir -p {wildcards.bench_dir}/references
-        cp -a test_data/references/ {wildcards.bench_dir}/references
-        cp -a test_data/{params.REF} {wildcards.bench_dir}/{params.REF}
+        cp -va test_data/references/ {wildcards.bench_dir} >> {log.outfile}
+        cp -va test_data/{params.REF} {wildcards.bench_dir}/{params.REF} >> {log.outfile}
 
-        # copy raw reads and extracted data
-        cp -a test_data/{params.DATADIR} {wildcards.bench_dir}
+        # copy raw reads
+        echo "Migrating raw data" >> {log.outfile}
+        cp -va test_data/{params.DATADIR} {wildcards.bench_dir} >> {log.outfile}
 
         touch {output.LOCK}
         """
@@ -130,9 +131,6 @@ rule prepare_config:
         CONFIG_FILE = "vpipe.config",
     output:
         CONFIG_FILE = "{bench_dir}/vpipe.config",
-    log:
-        outfile = "logs/{bench_dir}_prepare_config.out.log",
-        errfile = "logs/{bench_dir}_prepare_config.err.log",
     run:
         # Copy the config file with the necesary changes
         with open(output.CONFIG_FILE, 'w') as configfile:
