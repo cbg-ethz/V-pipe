@@ -65,7 +65,7 @@ rule test_snv:
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
         FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
-        CALLER = '-c' if config.general['snv_caller'] != 'shorah' else '',
+        CALLER = config.general['snv_caller'],
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
@@ -77,19 +77,29 @@ rule test_snv:
         config.test_snv['conda']
     shell:
         """
-        region=`tr '\n' ',' < {input.TSV}`
-        if [[ -n ${{region}} ]]; then
-            echo "Region(s): ${{region}}" >> {log.outfile}
+        if [[ {params.CALLER} == "shorah" ]]; then
+            region=`tr '\n' ',' < {input.TSV}`
+            if [[ -n ${{region}} ]]; then
+                echo "Region(s): ${{region}}" >> {log.outfile}
+                if [[ {params.RE_MSA} == "true" ]]; then
+                    # remove indels
+                    sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+                    {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                else
+                    {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                fi
+            else
+                echo "No called SNVs"
+                touch {output}
+            fi
+        else
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} {params.CALLER} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
-        else
-            echo "No called SNVs"
-            touch {output}
         fi
         """
 
