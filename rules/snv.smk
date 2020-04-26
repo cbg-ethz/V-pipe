@@ -236,7 +236,6 @@ rule lofreq:
         REF = "variants/cohort_consensus.fasta",
         REF_IDX = "variants/cohort_consensus.fasta.fai",
         BAM = "{dataset}/alignments/REF_aln.bam",
-        TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
         BAM = "{dataset}/variants/SNVs/REF_aln_indelqual.bam",
         SNVs = "{dataset}/variants/SNVs/snvs.vcf"
@@ -247,7 +246,6 @@ rule lofreq:
         OUTDIR = "{dataset}/variants/SNVs",
         EXTRA = config.lofreq['extra'],
         SAMTOOLS = config.applications['samtools'],
-        BCFTOOLS = config.applications['bcftools'],
         LOFREQ = config.applications['lofreq'],
     log:
         outfile = "{dataset}/variants/SNVs/lofreq.out.log",
@@ -264,30 +262,8 @@ rule lofreq:
         {params.SAMTOOLS} index {output.BAM} 2> >(tee {log.errfile} >&2)
 
         # Run Lofreq
-        # NOTE: lofreq reads the region as a closed interval and uses 1-based indexing
-        LINE_COUNTER=0
-        FILES=""
-        while read -r region || [[ -n ${{region}} ]]
-        do
-            LINE_COUNTER=$(( $LINE_COUNTER + 1 ))
-            echo "Running Lofreq in region: ${{region}}" >> {log.outfile}
-            OUTFILE_REGION={params.OUTDIR}/snvs_${{LINE_COUNTER}}.vcf
-            {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -r ${{region}} -o ${{OUTFILE_REGION}} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
-            {params.BCFTOOLS} view ${{OUTFILE_REGION}} -Oz -o ${{OUTFILE_REGION}}.gz 2> >(tee {log.errfile} >&2)
-            {params.BCFTOOLS} index ${{OUTFILE_REGION}}.gz 2> >(tee {log.errfile} >&2)
-            FILES="$FILES ${{OUTFILE_REGION}}.gz"
-        done < {input.TSV}
-
-        # Aggregate results from different regions
-        if [[ -z ${{FILES}} ]]; then
-            echo "No alignment region reports sufficient coverage" >> {log.outfile}
-            touch {output.SNVs}
-        else
-            echo "Intermediate vcf files: ${{FILES}}" >> {log.outfile}
-            {params.BCFTOOLS} concat -o {params.OUTDIR}/snvs_tmp.vcf ${{FILES}} 2> >(tee {log.errfile} >&2)
-            {params.BCFTOOLS} sort {params.OUTDIR}/snvs_tmp.vcf -o {output.SNVs} 2> >(tee {log.errfile} >&2)
-            rm -f {params.OUTDIR}/snvs_tmp.vcf
-        fi
+        echo "Running LoFreq" >> {log.outfile}
+        {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 if config.general["snv_caller"] == "shorah":

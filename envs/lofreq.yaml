@@ -5,4 +5,3 @@ channels:
 dependencies:
   - lofreq=2.1.3
   - samtools=1.9
-  - bcftools=1.9
