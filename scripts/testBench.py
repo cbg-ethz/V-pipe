@@ -44,7 +44,7 @@ def parse_args():
                         type=str, help="File containing haplotype frequencies")
     parser.add_argument("-r", required=False, default=None, metavar='chrm:start-end', dest='region', type=str,
                         help="Region in format 'chrm:start-stop', e.g. 'ch3:1000-3000' using 1-based indexing and assuming a closed interval")
-    parser.add_argument("-c", required=False, default=False, action='store_true', dest='snv_caller',
+    parser.add_argument("--no-shorah", required=False, default=False, action='store_true', dest='snv_caller',
                         help="Inidcate if other software different from ShoRAH was used for SNV calling")
     parser.add_argument("-wl", required=False, default=201, metavar='INT', dest='window_len',
                         type=int, help="Window length used by ShoRAH to construct overlapping windows")
@@ -708,6 +708,12 @@ def main():
                 freq_inferred, haps_true, num_haplotypes, loci_region, i, j,
                 TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed,
                 coverage_file=True, regions=regions)
+        else:
+            TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed, i, j = get_performance(
+                loci_true, loci_inferred, snvs_true, snvs_inferred, freq_true,
+                freq_inferred, haps_true, num_haplotypes, loci, i, j,
+                TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed)
+
 
     # Sensitivity
     print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
