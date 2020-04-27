@@ -6,8 +6,15 @@ rule generate_web_visualization:
         gff_directory = config.input['gff_directory']
     output:
         html_file = "{dataset}/visualization/index.html"
+    params:
+        scratch = '2000',
+        mem = config.web_visualization['mem'],
+        time = config.web_visualization['time'],
+    log:
+        outfile = "{dataset}/visualization/stdout.log",
+        errfile = "{dataset}/visualization/stderr.log"
     conda:
-        '../envs/visualization.yaml'
+        config.web_visualization['conda']
     shell:
         """
         # Why a shell directive?
@@ -21,5 +28,6 @@ rule generate_web_visualization:
             "{input.gff_directory}" \
             "{workflow.basedir}/scripts/visualization.html" \
             "{output.html_file}" \
-            "{wildcards.dataset}"
+            "{wildcards.dataset}" \
+            > {log.outfile} 2> {log.errfile}
         """
