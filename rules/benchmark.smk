@@ -1,4 +1,3 @@
-#import random
 import csv
 import collections
 import configparser
@@ -80,6 +79,10 @@ class VpipeBenchConfig(VpipeConfig):
 
                 're_msa': __RECORD__(value=False, type=bool),
             }),
+            ('aggregate', {
+                'mem': __RECORD__(value=2000, type=int),
+                'time': __RECORD__(value=235, type=int),
+            }),
             ('run_vpipeBench', {
                 'mem': __RECORD__(value=5000, type=int),
                 'time': __RECORD__(value=1440, type=int),
@@ -130,8 +133,6 @@ else:
             else:
                 # Seed is not provided / note that potential replicates would have the same seed
                 sample_dict[sample_tuple]['seed'] = config.general['seed']
-                # random.seed(config.general['seed'])
-                #sample_dict[sample_tuple]['seed'] = random.randint(1, 1e6)
 
 
 # 3. V-pipe expects a reference as input. We need to "mask" this behaviour
@@ -217,10 +218,14 @@ def get_freq_aux(wildcards):
 
 
 def input_snv(wildcards):
+    input = []
     if config.general['snv_caller'] == 'shorah':
-        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                              wildcards.date, "variants/SNVs/snvs.csv")
+        input.append(os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                                  wildcards.date, "variants/SNVs/snvs.csv"))
+        input.append(os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                                  wildcards.date, "variants/coverage_intervals.tsv"))
     elif config.general['snv_caller'] == 'lofreq':
-        output = os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                              wildcards.date, "variants/SNVs/snvs.vcf")
-    return output
+        input.append(os.path.join(wildcards.sample_dir, wildcards.sample_name,
+                                  wildcards.date, "variants/SNVs/snvs.vcf"))
+        input.append(os.path.join("variants/coverage.tsv"))
+    return input

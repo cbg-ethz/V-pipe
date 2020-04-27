@@ -48,11 +48,10 @@ rule aggregate_beforeSB:
 rule test_snv:
     input:
         # "{dataset}/variants/SNVs/SNVs_beforeSB.csv",
-        SNVs = input_snv,
+        INPUT = input_snv,
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         REF = "variants/cohort_consensus.fasta",
         REF_ALN = reference_file,
-        TSV = "{sample_dir}/{sample_name}/{date}/variants/coverage_intervals.tsv",
     output:
         SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv",
         PERFORMANCE = temp(
@@ -78,15 +77,15 @@ rule test_snv:
     shell:
         """
         if [[ {params.CALLER} == "shorah" ]]; then
-            region=`tr '\n' ',' < {input.TSV}`
+            region=`tr '\n' ',' < {input.INPUT[1]}`
             if [[ -n ${{region}} ]]; then
                 echo "Region(s): ${{region}}" >> {log.outfile}
                 if [[ {params.RE_MSA} == "true" ]]; then
                     # remove indels
                     sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                    {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                    {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
                 else
-                    {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                    {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
                 fi
             else
                 echo "No called SNVs"
@@ -96,9 +95,9 @@ rule test_snv:
             if [[ {params.RE_MSA} == "true" ]]; then
                 # remove indels
                 sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -cf {input.INPUT[1]} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.SNVs} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -cf {input.INPUT[1]} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
             fi
         fi
         """
