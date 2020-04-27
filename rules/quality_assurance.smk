@@ -30,7 +30,8 @@ rule gunzip:
 
 if VPIPE_BENCH:
     def construct_input_fastq(wildcards):
-        return f"{wildcards.dataset}/raw_data/simreads_R{wildcards.pair}.fastq"
+        return os.path.join(wildcards.dataset, "raw_data",
+                            "".join(("simreads_R", wildcards.pair, ".fastq")))
 else:
     def construct_input_fastq(wildcards):
         indir = os.path.join(wildcards.dataset, "raw_data")
@@ -46,13 +47,18 @@ else:
         file_extension = aux.ext[0].split(".gz")[0]
         for i in inferred_values.file:
             if config.input['paired']:
-                list_output.append(indir + "/" + i + "R" + wildcards.pair +
-                                   config.input['fastq_suffix'] + file_extension)
+                list_output.append(
+                    os.path.join(indir,
+                                 "".join((i, "R", wildcards.pair,
+                                          config.input['fastq_suffix'],
+                                          file_extension))))
             else:
-                list_output.append(indir + "/" + i + file_extension)
+                list_output.append(os.path.join(indir,
+                                   "".join((i, file_extension))))
         if len(list_output) == 0:
             raise ValueError(
-                "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset))
+                "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset)
+            )
 
         return list_output
 
