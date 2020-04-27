@@ -1,8 +1,5 @@
 import logging
-import glob
 import os
-import shutil
-import configparser
 from pathlib import Path
 from itertools import product
 
@@ -37,9 +34,6 @@ rule allbenchRunner:
 localrules: prepare_run, prepare_config
 
 rule run_simBench:
-    input:
-        CONFIG_FILE = "vpipe.config",
-        SAMPLES = config.input['samples_file'],
     output:
         "test_data/test_data.lock",
     params:
@@ -47,6 +41,7 @@ rule run_simBench:
         mem = config.run_simBench['mem'],
         time = config.run_simBench['time'],
         BASEDIR = VPIPE_BASEDIR,
+        SAMPLES_BASE = config.input['samples_file'],
         CONFIG_FILE = "test_data/vpipe.config",
         SAMPLES = f"test_data/{config.input['samples_file']}",
         SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
@@ -60,8 +55,8 @@ rule run_simBench:
     shell:
         """
         # create symbolic links: samples-file and config file
-        ln -fs ${{PWD}}/{input.CONFIG_FILE} {params.CONFIG_FILE}
-        ln -fs ${{PWD}}/{input.SAMPLES} {params.SAMPLES}
+        ln -fs ${{PWD}}/vpipe.config {params.CONFIG_FILE}
+        ln -fs ${{PWD}}/{params.SAMPLES_BASE} {params.SAMPLES}
         touch -h {params.CONFIG_FILE}
         touch -h {params.SAMPLES}
 
