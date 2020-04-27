@@ -732,8 +732,9 @@ def main():
             else:
                 # ShoRAH was used for SNV calling
                 # Assuming 3 windows were used for SNV calling, identify
-                # region that is covered by at least 2 windows.
-                start_ = max(0, start - args.window_len)
+                # region that is covered by at least 2 windows (below, using
+                # 0-based indexing and closed intervals)
+                start_ = max(0, start - args.window_len - 1)
                 end_ = min(reference_len, end + args.window_len)
                 num_windows = np.floor(
                     (end_ - (start_ + args.window_len - 1)) /
@@ -745,9 +746,10 @@ def main():
                 # In order to identify the region which is covered by at least
                 # two windows, add to the end of the first window the
                 # increment multiply by the number of windows - 2 (i.e.,
-                # discarding last window)
+                # discarding last window). In this case assuming half-open
+                # interval [start, end)
                 end = min(
-                    reference_len, start_ + args.window_len - 1 +
+                    reference_len, start_ + args.window_len +
                     (num_windows - 2) * (args.window_len // args.window_shift))
             idxs[range(int(start), int(end))] = True
             loci_region = loci[int(start):int(end)]
