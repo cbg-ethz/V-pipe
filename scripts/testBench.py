@@ -777,14 +777,19 @@ def main():
             with open(args.coverage, 'r') as infile:
                 # Look for regions at least covered by two windows
                 start_w = 1
+                end_w = 1
                 for count, line in enumerate(infile):
                     record = line.rstrip().split("\t")
-                    if count >= 2:
-                        if int(record[2]) == start_w + offset:
-                            idxs[loci[(start_w - 1):int(record[3])]] = True
-                            start_w = int(record[2])
-                    else:
+                    if count == 0:
                         start_w = int(record[2])
+                        end_w = int(record[3])
+                    else:
+                        if int(record[2]) == start_w + offset:
+                            start_w = int(record[2])
+                            idxs[(start_w - 1):end_w] = True
+                        else:
+                            start_w = int(record[2])
+                        end_w = int(record[3])
 
             loci_region = np.extract(idxs, loci)
 
