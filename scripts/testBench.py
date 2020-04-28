@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import argparse
 import csv
 from math import trunc
@@ -32,7 +31,9 @@ def parse_args():
     requiredNamed.add_argument(
         "-f", required=True, default=None, metavar='FASTA',
         dest='haplotype_seqs',
-        help="Fasta file containing either the sequences of the true haplotypes or haplotypes sequences (msa) already reported using the same indexing as the reference/consensus sequence"
+        help="Fasta file containing either the sequences of the true "
+             "haplotypes or haplotypes sequences (msa) already reported using "
+             "the same indexing as the reference/consensus sequence"
     )
     requiredNamed.add_argument(
         "-s", required=True, default=None, metavar='CSV', dest='snvs',
@@ -41,12 +42,14 @@ def parse_args():
     parser.add_argument(
         "-m", required=False, default=None, metavar='FASTA',
         dest='haplotype_master', type=str,
-        help="Fasta file containing the sequence with respect to which SNVs were called"
+        help="Fasta file containing the sequence with respect to which SNVs "
+             "were called"
     )
     parser.add_argument(
         "--ref", required=False, default=None, metavar='FASTA',
         dest='reference', type=str,
-        help="Fasta file containing the reference sequence with respect to which reads were aligned"
+        help="Fasta file containing the reference sequence with respect to "
+             "which reads were aligned"
     )
     parser.add_argument(
         "-d", required=False, default='unif', metavar='str', dest='freq_dstr',
@@ -65,12 +68,14 @@ def parse_args():
     parser.add_argument(
         "-r", required=False, default=None, metavar='chrm:start-end',
         dest='region', type=str,
-        help="Region in format 'chrm:start-stop', e.g. 'ch3:1000-3000' using 1-based indexing and assuming a closed interval"
+        help="Region in format 'chrm:start-stop', e.g. 'ch3:1000-3000' using "
+             "1-based indexing and assuming a closed interval"
     )
     parser.add_argument(
         "--no-shorah", required=False, default=False, action='store_true',
         dest='snv_caller',
-        help="Inidcate if other software different from ShoRAH was used for SNV calling"
+        help="Inidcate if other software different from ShoRAH was used for "
+             "SNV calling"
     )
     parser.add_argument(
         "-wl", required=False, default=201, metavar='INT', dest='window_len',
@@ -80,21 +85,25 @@ def parse_args():
     parser.add_argument(
         "-ws", required=False, default=3, metavar='INT', dest='window_shift',
         type=int,
-        help="Number of window shifts used by ShoRAH to construct overlapping windows"
+        help="Number of window shifts used by ShoRAH to construct overlapping "
+             "windows"
     )
     parser.add_argument(
         "-cf", required=False, default=None, metavar='TXT', dest='coverage',
         type=str,
-        help="File to read coverage per window used by ShoRAH, or a tab-separated values file containing coverage per locus"
+        help="File to read coverage per window used by ShoRAH, or a "
+             "tab-separated values file containing coverage per locus"
     )
     parser.add_argument(
         "-ms", required=False, default=False, action='store_true', dest='msa',
-        help="Indicate if the multiple sequence alignment including reference/consensus sequence should be constructed"
+        help="Indicate if the multiple sequence alignment including "
+             "reference/consensus sequence should be constructed"
     )
     parser.add_argument(
         "-t", required=False, default=False, action='store_true',
         dest='output_true',
-        help="Indicate if file containing expected SNVs should be reported. Report using 1-based indexing for the position"
+        help="Indicate if file containing expected SNVs should be reported. "
+             "Report using 1-based indexing for the position"
     )
     parser.add_argument(
         "-mafft", required=False, default="mafft", metavar='PATH',
@@ -151,8 +160,8 @@ def frequencies(freq_dstr, num_haplotypes, ratio=0.75, infile=None):
     elif freq_dstr == 'dirichlet':
         # Read haplotype frequencies from output file
         if infile is None:
-            print("Input file containing haplotype frequencies is expected")
-            sys.exit()
+            raise IOError(
+                    "Input file containing haplotype frequencies is expected")
         ids, haplotype_freqs = read_fasta(infile)
         haplotype_freqs = np.asarray(haplotype_freqs, dtype=float)
 
@@ -276,7 +285,7 @@ def inferred_snvs(snvs_file):
                                     else:
                                         freq_inferred_tmp[idx] += float(freq)
                             else:
-                                # Add frequencies -- TODO: check if it is reasonable
+                                # Add frequencies
                                 for idx in range(ref_len):
                                     freq_inferred_tmp[idx] += float(freq)
                             del_len = len(loci_inferred_tmp)
@@ -397,7 +406,7 @@ def get_FN_TN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, TN, FN_freq,
             missed, haps_true)
     else:
         if DBG:
-            print("At locus {}, true negative reported".format(locus + 1))
+            print(f"At locus {locus + 1}, true negative reported")
         TN += 1
     return FN, TN, FN_freq, i, missed
 
@@ -431,7 +440,7 @@ def get_FP_TN(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP,
                                 freq_inferred, FP, FP_freq)
     else:
         if DBG:
-            print("At locus {}, true negative reported".format(locus + 1))
+            print(f"At locus {locus + 1}, true negative reported")
         TN += 1
     return FP, TN, FP_freq, j
 
@@ -450,7 +459,7 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
     while loci_true[i] < loci_region[0]:
         i += 1
     if DBG:
-        print("DBG loci_true[i]: {}".format(loci_true[i]))
+        print(f"DBG loci_true[i]: {loci_true[i]}")
 
     idx_region = 0
     for idx in loci_region:
@@ -548,15 +557,14 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
                     FP, FP_freq)
             else:
                 if DBG:
-                    print("At locus {}, true negative reported".format(idx + 1))
+                    print(f"At locus {idx + 1}, true negative reported")
                 TN += 1
 
     # Add positions that were not reported as polymorphic by the caller and
     # were not expected as true SNVs
     if DBG:
         if loci_region[-1] > idx:
-            print("Loci {}-{}, reported as true negative".format(
-                idx + 1, loci_region[-1]))
+            print(f"Loci {idx + 1}-{loci_region[-1]}, reported as true negative")
     TN += loci_region[-1] - idx
 
     return TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed, i, j
@@ -583,7 +591,8 @@ def main():
             tmp, reference = read_fasta(args.reference)
             reference = reference[0].upper()
             reference = np.array(list(reference))
-            assert reference.size == haplotype_master_array.size, "Reference and cohort consensus have different lengths"
+            assert reference.size == haplotype_master_array.size, (
+                "Reference and cohort consensus have different lengths")
             idxs = haplotype_master_array == '-'
             haplotype_master_array[idxs] = reference[idxs]
             args.haplotype_master = os.path.join(outdir,
@@ -609,7 +618,9 @@ def main():
             haplotype_ref = haplotype_ref.upper()
             haplotype_ref = np.array(haplotype_ref, dtype='c')
             if haplotype_ref.size != reference_len:
-                assert haplotype_ref.size > reference_len, "Length of the consensus/reference sequence after the MSA is smaller"
+                assert haplotype_ref.size > reference_len, (
+                    "Length of the consensus/reference sequence after the "
+                    "MSA is smaller")
                 # Deletions '-' were placed on the consensus/reference
                 # sequence after the msa
                 idx_master = 0
@@ -694,6 +705,11 @@ def main():
     # Compute average frequency for SNVs called using ShoRAH
     loci_inferred, ref_inferred, snvs_inferred, freq_inferred = inferred_snvs(
         args.snvs)
+    if not loci_inferred:
+        print("No called SNVs")
+        with open(args.outfile, 'w') as outfile:
+            outfile.write('ID\tTP\tFP\tFN\tTN\n')
+        return
 
     missed = np.zeros(num_haplotypes)
     # TP: loci that are truly polymorphic
@@ -721,7 +737,9 @@ def main():
             aux = r.split(':')
             ref_name = aux[0]
             if args.haplotype_master is not None:
-                assert header == ref_name, "Name of the reference doesn't agree with fasta file"
+                assert header == ref_name, (
+                    f"Name of the reference, {ref_name}, does not agree with "
+                    f"fasta file, {header}")
             aux = aux[1].split('-')
             start = int(aux[0])
             end = int(aux[1])
@@ -755,8 +773,8 @@ def main():
             loci_region = loci[int(start):int(end)]
 
             if DBG:
-                print("DBG loci_true[i]: {}".format(loci_true[i]))
-                print("DBG loci_region[0]: {}".format(loci_region[0]))
+                print(f"DBG loci_true[i]: {loci_true[i]}")
+                print(f"DBG loci_region[0]: {loci_region[0]}")
             # Here, loci are reported using 1-based indexing and a closed
             # interval
             print("Region with enough support: {:d}-{:d}".format(
@@ -768,7 +786,8 @@ def main():
                 TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed)
 
         loci = loci[idxs]
-        assert loci_inferred[0] >= loci[0] and loci_inferred[-1] <= loci[-1], "Reported SNVs are outside region of interest"
+        assert loci_inferred[0] >= loci[0] and loci_inferred[-1] <= loci[-1], (
+            "Reported SNVs are outside region of interest")
     else:
         if not args.snv_caller:
             idxs = np.zeros(reference_len, dtype=bool)
@@ -804,7 +823,9 @@ def main():
                 ]
                 coverage = np.loadtxt(args.coverage, dtype=int, delimiter='\t',
                                       skiprows=1, usecols=(sampleID_idx[0],))
-                assert coverage.size == reference_len, "Coverage file and reference file do not have the same number of loci"
+                assert coverage.size == reference_len, (
+                    "Coverage file and reference file do not have the same "
+                    "number of loci")
                 # Do not account for position with zero coverage for reporting
                 # TP, FP, FN, and specially TN
                 mask = coverage <= 0
