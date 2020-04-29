@@ -581,7 +581,7 @@ rule consensus_sequences:
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -n 2 -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
         """
 
 
