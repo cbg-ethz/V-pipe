@@ -16,6 +16,10 @@ def convert_vcf(fname):
     """Convert VCF to JSON."""
     output = []
 
+    if os.path.getsize(fname) == 0:
+        print('Empty VCF')
+        return output
+
     print('Parsing VCF')
     with open(fname) as fd:
         vcf_reader = vcf.Reader(fd)
@@ -118,7 +122,6 @@ def main(
     html_file_out,
     wildcards_dataset,
 ):
-
     # parse the sample name
     sample_name = re.search("samples/(.+/.+)", wildcards_dataset).group(1)
 
