@@ -107,10 +107,10 @@ def get_gff_data(gff_dir):
     return gff_map
 
 
-def convert_coverage(fname, genome_length):
+def convert_coverage(fname, sample_name, genome_length):
     """Convert the read coverage to bp coverage."""
     csv = pd.read_csv(fname, sep="\t", index_col=0, header=0)
-    return [row[0] for row in csv.values]
+    return csv[sample_name].values.tolist()
 
 
 def main(
@@ -121,6 +121,7 @@ def main(
     html_file_in,
     html_file_out,
     wildcards_dataset,
+    reference_file,
 ):
     # parse the sample name
     sample_name = re.search("samples/(.+/.+)", wildcards_dataset).group(1)
@@ -129,11 +130,14 @@ def main(
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
 
     # parse coverage file
-    coverage = convert_coverage(coverage_file, len(consensus))
+    coverage = convert_coverage(coverage_file, sample_name.replace('/', '-'), len(consensus))
 
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)
     gff_map = get_gff_data(gff_directory)
+
+    # parse the reference name
+    reference_name = re.search("references/(.+)\.fa.*", reference_file).group(1)
 
     embed_code = f"""
         var sample_name = \"{sample_name}\"
@@ -141,6 +145,7 @@ def main(
         var coverage = {coverage}
         var vcfData = {vcf_json}
         var gffData = {gff_map}
+        var reference_name = \"{reference_name}\"
     """
 
     # assemble webpage
@@ -163,4 +168,5 @@ if __name__ == "__main__":
         sys.argv[5],
         sys.argv[6],
         sys.argv[7],
+        sys.argv[8],
     )
