@@ -257,7 +257,12 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'split': __RECORD__(value=20, type=int),
-        })
+        }),
+        ('web_visualization', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/visualization.yaml', type=str),
+        }),
     ])
 
     def __init__(self):
