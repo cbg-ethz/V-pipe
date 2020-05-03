@@ -229,9 +229,15 @@ class VpipeConfig(object):
 
             'extra': __RECORD__(value='', type=str),
         }),
-        ('aggregate', {
-            'mem': __RECORD__(value=2000, type=int),
-            'time': __RECORD__(value=235, type=int),
+        ('alignment_coverage', {
+            'mem': __RECORD__(value=1000, type=int),
+            'time': __RECORD__(value=60, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
+
+            'coverage': __RECORD__(value=50, type=int),
+        }),
+        ('stats', {
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/sam2bam.yaml', type=str),
         }),
         ('haploclique', {
             'mem': __RECORD__(value=10000, type=int),

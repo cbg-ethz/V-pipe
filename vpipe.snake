@@ -28,6 +28,7 @@ include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
 include: "rules/mafs.smk"
+include: "rules/stats.smk"
 
 if config.output['snv'] or config.output['local']:
     include: "rules/snv.smk"
