@@ -28,8 +28,7 @@ for opts in BENCH_RUNS:
 # DUMMY RULE
 rule allbenchRunner:
     input:
-        expand("{bench_dir}/variants/SNV_calling_performance.tsv",
-               bench_dir=configs.keys())
+        expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys())
 
 localrules: prepare_run, prepare_config
 
@@ -139,7 +138,7 @@ rule run_vpipeBench:
         "{bench_dir}/vpipe.config",
         "{bench_dir}/prepare_run.lock"
     output:
-        "{bench_dir}/variants/SNV_calling_performance.tsv"
+        "{bench_dir}/vpipeBench.lock"
     params:
         scratch = '1250',
         mem = config.run_vpipeBench['mem'],
@@ -156,6 +155,7 @@ rule run_vpipeBench:
     shell:
         """
         # Change to working directory
+        CWD=${{PWD}}
         cd {wildcards.bench_dir}/
 
         if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
@@ -165,6 +165,10 @@ rule run_vpipeBench:
             {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake \
                 {params.SNAKEMAKE_OPTS_ENVVAR}
         fi
+
+        # Change back to working directory
+        cd ${{CWD}}
+        touch {output}
         """
 
 rule simbenchclean:
