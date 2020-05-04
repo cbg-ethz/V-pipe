@@ -576,6 +576,15 @@ def main():
     alphabet = ['-', 'A', 'C', 'G', 'T']
     alphabet = np.array(alphabet, dtype='c')
 
+    # Compute average frequency for SNVs called using ShoRAH
+    loci_inferred, ref_inferred, snvs_inferred, freq_inferred = inferred_snvs(
+        args.snvs)
+    if not loci_inferred:
+        print("No called SNVs")
+        with open(args.outfile, 'w') as outfile:
+            outfile.write('ID\tTP\tFP\tFN\tTN\n')
+        return
+    
     outdir = args.outdir if args.outdir is not None else os.getcwd()
     if args.haplotype_master is not None:
         # Parse file containing reference/consensus sequence (sequence w.r.t
@@ -700,15 +709,6 @@ def main():
                     loci_true[idx] + 1, ref_true[idx],
                     snvs_true[idx].decode('utf-8'), freq_true[idx],
                     haps_true[idx]))
-
-    # Compute average frequency for SNVs called using ShoRAH
-    loci_inferred, ref_inferred, snvs_inferred, freq_inferred = inferred_snvs(
-        args.snvs)
-    if not loci_inferred:
-        print("No called SNVs")
-        with open(args.outfile, 'w') as outfile:
-            outfile.write('ID\tTP\tFP\tFN\tTN\n')
-        return
 
     missed = np.zeros(num_haplotypes)
     # TP: loci that are truly polymorphic
