@@ -74,6 +74,8 @@ rule test_snv:
         errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
     conda:
         config.test_snv['conda']
+    threads:
+        1
     shell:
         """
         if [[ {params.CALLER} == "shorah" ]]; then
