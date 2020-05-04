@@ -24,12 +24,18 @@ for opts in BENCH_RUNS:
     configs[dirname] = VPIPE_CONFIG()
     configs[dirname].general['aligner'] = opts[0]
     configs[dirname].general['snv_caller'] = opts[1]
-BENCH_DIRS = ','.join([k for k in configs.keys()]) 
+BENCH_DIRS = ','.join([k for k in configs.keys()])
 
 # DUMMY RULE
+RESULTS = [f'{bench_dir}/vpipeBench.lock' for bench_dir in configs.keys()]
+if len(ALIGNERS) > 1:
+    RESULTS.append(
+        [f'{bench_dir}/alltests.lock' for bench_dir in configs.keys()]
+    )
+
 rule allbenchRunner:
     input:
-        expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys())
+        RESULTS
 
 localrules: prepare_run, prepare_config, prepare_testing_run
 
@@ -210,14 +216,14 @@ rule prepare_testing_run:
             src = os.path.join(os.getcwd(), input[idx])
             os.symlink(src, output[idx])
 
-rule run_union_test:
+rule run_alltests:
     input:
         "{bench_dir}/variants/union_coverage_intervals.tsv",
         "{bench_dir}/variants/intersect_coverage_intervals.tsv",
         "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
         "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
     output:
-        "{bench_dir}/union_test.lock"
+        "{bench_dir}/alltests.lock"
     params:
         scratch = '1250',
         mem = config.run_vpipeBench['mem'],
@@ -227,8 +233,8 @@ rule run_union_test:
         SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
         SNAKEMAKE = config.applications['snakemake']
     log:
-        outfile = "logs/{bench_dir}_union_test.out.log",
-        errfile = "logs/{bench_dir}_union_test.err.log",
+        outfile = "logs/{bench_dir}_alltests.out.log",
+        errfile = "logs/{bench_dir}_alltests.err.log",
     threads:
         1
     shell:
@@ -238,10 +244,10 @@ rule run_union_test:
         cd {wildcards.bench_dir}/
 
         if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
-            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake \
+            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake alltests \
                 {params.SNAKEMAKE_OPTIONS}
         else
-            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake \
+            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake alltests \
                 {params.SNAKEMAKE_OPTS_ENVVAR}
         fi
 
