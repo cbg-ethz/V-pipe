@@ -106,6 +106,70 @@ rule test_snv:
         fi
         """
 
+rule test_snv2:
+    input:
+        REF = "variants/cohort_consensus.fasta",
+        REF_ALN = reference_file,
+        TSV = input_tsv,
+    output:
+        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/true_snvs.tsv",
+        PERFORMANCE = temp(
+            "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/performance.tsv")
+    params:
+        scratch = '2000',
+        mem = config.test_snv['mem'],
+        time = config.test_snv['time'],
+        RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
+        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv",
+        HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
+        HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
+        FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
+        FREQ_PARAMS = get_freq_aux,
+        CALLER_OPT = "" if config.general['snv_caller'] == 'shorah' else "--no-shorah",
+        OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}",
+        ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
+        MAFFT = config.applications['mafft'],
+        TEST_BENCH = config.applications['testBench'],
+    log:
+        outfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log",
+        errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log",
+    conda:
+        config.test_snv['conda']
+    threads:
+        1
+    shell:
+        """
+        if [[ {params.RE_MSA} == "true" ]]; then
+            # remove indels
+            sed -e 's/-//g' {params.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+            {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} \
+                -s {params.SNVs} \
+                -m {input.REF} \
+                --ref {input.REF_ALN} \
+                -d {params.FREQ_DSTR} \
+                {params.FREQ_PARAMS} \
+                {params.CALLER_OPT} \
+                -ci {input.TSV} \
+                -t -ms -mafft {params.MAFFT} \
+                -N {params.ID} \
+                -of {output.PERFORMANCE} \
+                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+        else
+            {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS} \
+                -s {params.SNVs} \
+                -m {input.REF} \
+                --ref {input.REF_ALN} \
+                -d {params.FREQ_DSTR} \
+                {params.FREQ_PARAMS} \
+                {params.CALLER_OPT} \
+                -ci {input.TSV} \
+                -t \
+                -N {params.ID} \
+                -of {output.PERFORMANCE} \
+                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+        fi
+        """
+
 rule aggregate:
     input:
         expand("{dataset}/variants/SNVs/performance.tsv", dataset=datasets)
@@ -117,7 +181,25 @@ rule aggregate:
         time = config.aggregate['time']
     log:
         outfile = "variants/SNV_calling_performance.out.log",
-        errfile = "variants/SNV_calling_performance.err.log"
+        errfile = "variants/SNV_calling_performance.out.log"
+    shell:
+        """
+        awk FNR!=1 {input} > {output}
+        sed -i 1i"ID\tTP\tFP\tFN\tTN" {output}
+        """
+
+rule aggregate_kind:
+    input:
+        expand("{dataset}/variants/SNVs/{{kind}}/performance.tsv", dataset=datasets)
+    output:
+        "variants/SNV_calling_performance_{kind}.tsv"
+    params:
+        scratch = '1250',
+        mem = config.aggregate['mem'],
+        time = config.aggregate['time']
+    log:
+        outfile = "variants/SNV_calling_performance_{kind}.out.log",
+        errfile = "variants/SNV_calling_performance_{kind}.out.log"
     shell:
         """
         awk FNR!=1 {input} > {output}

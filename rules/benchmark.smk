@@ -237,3 +237,17 @@ def input_snv(wildcards):
                                   "snvs.vcf"))
         input.append(os.path.join("variants", "coverage.tsv"))
     return input
+
+
+def input_tsv(wildcards):
+    if config.general['snv_caller'] == 'shorah':
+        ret = os.path.join(
+            "variants",
+            f"{wildcards.kind}_coverage_intervals_ShoRAH.tsv"
+        )
+    else:
+        ret = os.path.join(
+            "variants",
+            f"{wildcards.kind}_coverage_intervals.tsv"
+        )
+    return ret
