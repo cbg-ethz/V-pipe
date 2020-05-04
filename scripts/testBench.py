@@ -39,6 +39,10 @@ def parse_args():
         "-s", required=True, default=None, metavar='CSV', dest='snvs',
         help="File containing called SNVs"
     )
+    requiredNamed.add_argument(
+        "-N", required=False, default='sample', metavar='STR',
+        dest='sampleID', help="Patient/sample identifiers"
+    )
     parser.add_argument(
         "-m", required=False, default=None, metavar='FASTA',
         dest='haplotype_master', type=str,
@@ -66,10 +70,9 @@ def parse_args():
         help="File containing haplotype frequencies"
     )
     parser.add_argument(
-        "-r", required=False, default=None, metavar='chrm:start-end',
-        dest='region', type=str,
-        help="Region in format 'chrm:start-stop', e.g. 'ch3:1000-3000' using "
-             "1-based indexing and assuming a closed interval"
+        "-ci", required=False, default=None, metavar='chrm:start-end',
+        dest='coverage_intervals', type=str,
+        help="File containing coverage intervals"
     )
     parser.add_argument(
         "--no-shorah", required=False, default=False, action='store_true',
@@ -109,10 +112,6 @@ def parse_args():
         "-mafft", required=False, default="mafft", metavar='PATH',
         dest='mafft', type=str,
         help="Path to binaries for the multiple sequence aligner MAFFT"
-    )
-    parser.add_argument(
-        "-N", required=False, default='sample', metavar='STR', dest='sampleID',
-        help="Patient/sample identifiers"
     )
     parser.add_argument(
         "-of", required=False, default='performance.tsv', metavar='OUTPUT',
@@ -729,8 +728,14 @@ def main():
     i = 0
     j = 0
 
-    if args.region is not None:
-        regions = args.region.split(',')
+    if args.coverage_intervals is not None:
+        with open(args.coverage_intervals, 'r') as infile:
+            for line in infile:
+                record = line.rstrip().split('\t')
+                if record[0] == args.sampleID:
+                    regions = record[1]
+                    break
+        regions = regions.split(',')
         idxs = np.zeros(reference_len, dtype=bool)
         print("Reporting using 1-based indexing (and closed intervals)")
         for r in regions:
