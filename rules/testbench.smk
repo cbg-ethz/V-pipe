@@ -47,7 +47,6 @@ rule aggregate_beforeSB:
 # TODO Switch between snvs and snvs_beforeSB
 rule test_snv:
     input:
-        # "{dataset}/variants/SNVs/SNVs_beforeSB.csv",
         INPUT = input_snv,
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         REF = "variants/cohort_consensus.fasta",
@@ -64,7 +63,7 @@ rule test_snv:
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
         FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
-        CALLER = config.general['snv_caller'],
+        CALLER_OPT = "-ci" if config.general['snv_caller'] == 'shorah' else "--no-shorah -cf",
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
@@ -78,29 +77,32 @@ rule test_snv:
         1
     shell:
         """
-        if [[ {params.CALLER} == "shorah" ]]; then
-            region=`tr '\n' ',' < {input.INPUT[1]}`
-            if [[ -n ${{region}} ]]; then
-                echo "Region(s): ${{region}}" >> {log.outfile}
-                if [[ {params.RE_MSA} == "true" ]]; then
-                    # remove indels
-                    sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                    {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
-                else
-                    {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} -r ${{region}} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
-                fi
-            else
-                echo "No called SNVs"
-                touch {output}
-            fi
+        if [[ {params.RE_MSA} == "true" ]]; then
+            # remove indels
+            sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+            {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} \
+                -s {input.INPUT[0]} \
+                -m {input.REF} \
+                --ref {input.REF_ALN} \
+                -d {params.FREQ_DSTR} \
+                {params.FREQ_PARAMS} \
+                {params.CALLER_OPT} {input.INPUT[1]} \
+                -t -ms -mafft {params.MAFFT} \
+                -N {params.ID} \
+                -of {output.PERFORMANCE} \
+                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         else
-            if [[ {params.RE_MSA} == "true" ]]; then
-                # remove indels
-                sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
-                {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -cf {input.INPUT[1]} -t -ms -mafft {params.MAFFT} -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
-            else
-                {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} -s {input.INPUT[0]} -m {input.REF} --ref {input.REF_ALN} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} --no-shorah -cf {input.INPUT[1]} -t -N {params.ID} -of {output.PERFORMANCE} -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
-            fi
+            {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} \
+                -s {input.INPUT[0]} \
+                -m {input.REF} \
+                --ref {input.REF_ALN} \
+                -d {params.FREQ_DSTR} \
+                {params.FREQ_PARAMS} \
+                {params.CALLER_OPT} {input.INPUT[1]} \
+                -t \
+                -N {params.ID} \
+                -of {output.PERFORMANCE} \
+                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         fi
         """
 
