@@ -24,13 +24,14 @@ for opts in BENCH_RUNS:
     configs[dirname] = VPIPE_CONFIG()
     configs[dirname].general['aligner'] = opts[0]
     configs[dirname].general['snv_caller'] = opts[1]
+BENCH_DIRS = ','.join([k for k in configs.keys()]) 
 
 # DUMMY RULE
 rule allbenchRunner:
     input:
         expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys())
 
-localrules: prepare_run, prepare_config
+localrules: prepare_run, prepare_config, prepare_testing_run
 
 rule run_simBench:
     output:
@@ -150,6 +151,84 @@ rule run_vpipeBench:
     log:
         outfile = "logs/{bench_dir}_vpipeBench.out.log",
         errfile = "logs/{bench_dir}_vpipeBench.err.log",
+    threads:
+        1
+    shell:
+        """
+        # Change to working directory
+        CWD=${{PWD}}
+        cd {wildcards.bench_dir}/
+
+        if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
+            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake \
+                {params.SNAKEMAKE_OPTIONS}
+        else
+            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake \
+                {params.SNAKEMAKE_OPTS_ENVVAR}
+        fi
+
+        # Change back to working directory
+        cd ${{CWD}}
+        touch {output}
+        """
+
+rule alignment_intervals:
+    input:
+        expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys())
+    output:
+        "variants/union_coverage_intervals.tsv",
+        "variants/intersect_coverage_intervals.tsv",
+        "variants/union_coverage_intervals_ShoRAH.tsv",
+        "variants/intersect_coverage_intervals_ShoRAH.tsv",
+    params:
+        OUTDIR = "variants",
+        DIRS = BENCH_DIRS,
+        COVERAGE_INTERVALS = config.applications['coverageIntervals'],
+    log:
+        outfile = "logs/alignment_intervals.out.log",
+        errfile = "logs/alignment_intervals.out.log",
+    threads:
+        1
+    shell:
+        """
+        {params.COVERAGE_INTERVALS} -o {params.OUTDIR} -d {params.DIRS} > >(tee -a {log.outfile}) 2>&1
+        """
+
+rule prepare_testing_run:
+    input:
+        "variants/union_coverage_intervals.tsv",
+        "variants/intersect_coverage_intervals.tsv",
+        "variants/union_coverage_intervals_ShoRAH.tsv",
+        "variants/intersect_coverage_intervals_ShoRAH.tsv",
+    output:
+        "{bench_dir}/variants/union_coverage_intervals.tsv",
+        "{bench_dir}/variants/intersect_coverage_intervals.tsv",
+        "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
+        "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
+    run:
+        for idx in range(input):
+            src = os.path.join(os.getcwd(), input[idx])
+            os.symlink(src, output[idx])
+
+rule run_union_test:
+    input:
+        "{bench_dir}/variants/union_coverage_intervals.tsv",
+        "{bench_dir}/variants/intersect_coverage_intervals.tsv",
+        "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
+        "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
+    output:
+        "{bench_dir}/union_test.lock"
+    params:
+        scratch = '1250',
+        mem = config.run_vpipeBench['mem'],
+        time = config.run_vpipeBench['time'],
+        BASEDIR = VPIPE_BASEDIR,
+        SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
+        SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
+        SNAKEMAKE = config.applications['snakemake']
+    log:
+        outfile = "logs/{bench_dir}_union_test.out.log",
+        errfile = "logs/{bench_dir}_union_test.err.log",
     threads:
         1
     shell:
