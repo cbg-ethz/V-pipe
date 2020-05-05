@@ -34,3 +34,4 @@ rule generate_web_visualization:
             "{wildcards.dataset}" \
             "{input.global_ref}" \
             > {log.outfile} 2> {log.errfile}
+        """
