@@ -7,31 +7,6 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 
 # 1. Call single nucleotide variants
-
-def window_lengths(wildcards):
-    window_len = []
-    for p in patient_list:
-        read_len = patient_dict[p]
-        aux = int(
-            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
-        window_len.append(str(aux * config.snv['shift']))
-
-    window_len = ','.join(window_len)
-    return window_len
-
-
-def shifts(wildcards):
-    shifts = []
-    for p in patient_list:
-        read_len = patient_dict[p]
-        aux = int(
-            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
-        shifts.append(str(aux))
-
-    shifts = ','.join(shifts)
-    return shifts
-
-
 rule coverage_intervals:
     input:
         BAM = expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),

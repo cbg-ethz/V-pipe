@@ -179,3 +179,30 @@ if not VPIPE_BENCH:
                 f"ERROR: Reference file {reference_file} not found.")
 
     reference_name = get_reference_name(reference_file)
+
+
+# Auxiliary functions
+
+
+def window_lengths(wildcards):
+    window_len = []
+    for p in patient_list:
+        read_len = patient_dict[p]
+        aux = int(
+            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
+        window_len.append(str(aux * config.snv['shift']))
+
+    window_len = ','.join(window_len)
+    return window_len
+
+
+def shifts(wildcards):
+    shifts = []
+    for p in patient_list:
+        read_len = patient_dict[p]
+        aux = int(
+            (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
+        shifts.append(str(aux))
+
+    shifts = ','.join(shifts)
+    return shifts

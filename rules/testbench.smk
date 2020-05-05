@@ -123,12 +123,15 @@ rule test_snv_aligners:
         mem = config.test_snv['mem'],
         time = config.test_snv['time'],
         RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
-        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv",
+        SNVs = ("{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv"
+                if config.general['snv_caller'] == 'shorah' else
+                "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.vcf"),
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
-        FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
+        FREQ_DSTR = lambda wildcards:
+            sample_dict[sample_record(sample_name=wildcards.sample_name,
+                                      date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
-        CALLER_OPT = "" if config.general['snv_caller'] == 'shorah' else "--no-shorah",
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
@@ -151,9 +154,9 @@ rule test_snv_aligners:
                 --ref {input.REF_ALN} \
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
-                {params.CALLER_OPT} \
                 -ci {input.TSV} \
-                -t -ms -mafft {params.MAFFT} \
+                --no-shorah -t \
+                -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
                 -of {output.PERFORMANCE} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
@@ -164,9 +167,8 @@ rule test_snv_aligners:
                 --ref {input.REF_ALN} \
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
-                {params.CALLER_OPT} \
                 -ci {input.TSV} \
-                -t \
+                --no-shorah -t \
                 -N {params.ID} \
                 -of {output.PERFORMANCE} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1

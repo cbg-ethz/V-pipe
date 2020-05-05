@@ -4,6 +4,7 @@ import os
 import argparse
 import csv
 from math import trunc
+from coverageIntervals import read_fasta
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -124,28 +125,6 @@ def parse_args():
     )
 
     return parser.parse_args()
-
-
-def read_fasta(fasta_file):
-    "Parse fasta file containing true haplotype sequences"
-    count = 0
-    haplotype_ids = []
-    haplotype_seqs = []
-    aux = []
-    with open(fasta_file, 'r') as infile:
-        for line in infile:
-            record = line.rstrip()
-            if record and record[0] == '>':
-                haplotype_ids.append(record[1:])
-                if count > 0:
-                    haplotype_seqs.append(''.join(aux))
-                    aux = []
-            else:
-                aux.append(record)
-            count += 1
-
-    haplotype_seqs.append(''.join(aux))
-    return haplotype_ids, haplotype_seqs
 
 
 def frequencies(freq_dstr, num_haplotypes, ratio=0.75, infile=None):

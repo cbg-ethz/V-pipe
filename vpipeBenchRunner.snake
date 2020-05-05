@@ -180,13 +180,16 @@ rule run_vpipeBench:
 
 rule alignment_intervals:
     input:
-        expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys())
+        LOCK = expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys()),
+        REF = reference_file,
     output:
         "variants/union_coverage_intervals.tsv",
         "variants/intersect_coverage_intervals.tsv",
         "variants/union_coverage_intervals_ShoRAH.tsv",
         "variants/intersect_coverage_intervals_ShoRAH.tsv",
     params:
+        WINDOW_LEN = window_lengths,
+        WINDOW_SHIFT = shifts,
         OUTDIR = "variants",
         DIRS = BENCH_DIRS,
         COVERAGE_INTERVALS = config.applications['coverageIntervals'],
@@ -197,7 +200,8 @@ rule alignment_intervals:
         1
     shell:
         """
-        {params.COVERAGE_INTERVALS} -o {params.OUTDIR} -d {params.DIRS} > >(tee -a {log.outfile}) 2>&1
+        {params.COVERAGE_INTERVALS} -r {input.REF} -o {params.OUTDIR} \
+            -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} -d {params.DIRS} > >(tee -a {log.outfile}) 2>&1
         """
 
 rule prepare_testing_run:
@@ -212,9 +216,9 @@ rule prepare_testing_run:
         "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
         "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
     run:
-        for idx in range(input):
-            src = os.path.join(os.getcwd(), input[idx])
-            os.symlink(src, output[idx])
+        for i, f in enumerate(input):
+            src = os.path.join(os.getcwd(), f)
+            os.symlink(src, output[i])
 
 rule run_alltests:
     input:
