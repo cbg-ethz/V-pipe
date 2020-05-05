@@ -94,6 +94,14 @@ class VpipeBenchConfig(VpipeConfig):
                 'mem': __RECORD__(value=5000, type=int),
                 'time': __RECORD__(value=1440, type=int),
             }),
+            ('alignment_intervals', {
+                'mem': __RECORD__(value=1000, type=int),
+                'time': __RECORD__(value=60, type=int),
+            }),
+            ('run_alltests', {
+                'mem': __RECORD__(value=5000, type=int),
+                'time': __RECORD__(value=60, type=int),
+            }),
         ])
     )
 
