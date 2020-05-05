@@ -3,7 +3,8 @@ rule generate_web_visualization:
         consensus_file = "{dataset}/references/ref_majority.fasta",
         coverage_file = "variants/coverage.tsv",
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
-        gff_directory = config.input['gff_directory']
+        gff_directory = config.input['gff_directory'],
+        global_ref = reference_file
     output:
         html_file = "{dataset}/visualization/index.html"
     params:
@@ -31,5 +32,6 @@ rule generate_web_visualization:
             "{workflow.basedir}/scripts/visualization.html" \
             "{output.html_file}" \
             "{wildcards.dataset}" \
+            "{input.global_ref}" \
             > {log.outfile} 2> {log.errfile}
         """
