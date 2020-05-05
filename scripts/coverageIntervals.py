@@ -2,8 +2,10 @@
 
 import os
 import argparse
+from math import floor
 
 DBG = True if os.environ.get('DBG') is not None else False
+
 
 def parse_args():
     """ Set up the parsing of command-line arguments """
@@ -19,6 +21,21 @@ def parse_args():
         help="Sub-directories where results from vpipeBench are stored"
     )
     parser.add_argument(
+        "-r", required=False, default=None, metavar='FASTA',
+        dest='reference_file', type=str, help="Referene sequence"
+    )
+    parser.add_argument(
+        "-wl", required=False, default=None, metavar='len1,len2,...',
+        dest='window_len', type=str,
+        help="Window length used by ShoRAH to construct overlapping windows"
+    )
+    parser.add_argument(
+        "-ws", required=False, default=None, metavar='shift1,shift2,...',
+        dest='window_shift', type=str,
+        help="Length of the window shift used by ShoRAH to construct "
+             "overlapping windows"
+    )
+    parser.add_argument(
         "-o", required=False, default=None, metavar='DIR', dest='outdir',
         type=str, help="Output directory"
     )
@@ -26,14 +43,57 @@ def parse_args():
     return parser.parse_args()
 
 
-def parse_region(region):
+def read_fasta(fasta_file):
+    "Parse fasta file"
+    count = 0
+    headers = []
+    sequences = []
+    aux = []
+    with open(fasta_file, 'r') as infile:
+        for line in infile:
+            record = line.rstrip()
+            if record and record[0] == '>':
+                headers.append(record[1:])
+                if count > 0:
+                    sequences.append(''.join(aux))
+                    aux = []
+            else:
+                aux.append(record)
+            count += 1
 
-    def parse_region_aux(region):
+    sequences.append(''.join(aux))
+    return headers, sequences
+
+
+def parse_region(region, shorah, reference_file, win_len, win_shift):
+
+    def parse_region_aux(region, shorah, reference_file, win_len, win_shift):
         aux = region.split(":")
         reference_name = aux[0]
         aux = aux[1].split("-")
         start = int(aux[0])
         end = int(aux[1])
+
+        if shorah:
+            header, reference = read_fasta(reference_file)
+            reference_len = len(reference[0])
+            # ShoRAH was used for SNV calling
+            # Assuming 3 windows were used for SNV calling, identify region
+            # that is spanned by at least 2 windows (below, using
+            # 0-based indexing and closed intervals)
+            start_ = max(0, start - win_len - 1)
+            end_ = min(reference_len, end + win_len)
+            num_windows = floor((end_ - (start_ + win_len - 1)) / win_shift) + 1
+            offset = 2 * win_shift
+
+            start = max(0, start - offset)
+            # In order to identify the region which is covered by at least
+            # two windows, add to the end of the first window the
+            # increment multiply by the number of windows - 2 (i.e.,
+            # discarding last window). In this case assuming half-open
+            # interval [start, end)
+            end = min(reference_len,
+                      start_ + win_len + (num_windows - 2) * win_shift)
 
         return reference_name, start, end
 
@@ -41,14 +101,16 @@ def parse_region(region):
     reference_name = []
     interval = []
     for s in aux:
-        ref_, start_, end_ = parse_region_aux(s)
+        ref_, start_, end_ = parse_region_aux(s, shorah, reference_file,
+                                              win_len, win_shift)
         reference_name.append(ref_)
         interval.append((start_, end_))
 
     return reference_name, interval
 
 
-def parse_intervals(input_file, union_intervals, intersection_intervals):
+def parse_intervals(input_file, union_intervals, intersection_intervals,
+                    shorah, reference_file, window_len, window_shift):
 
     def merge_regions(intervals_new, intervals_old):
         """
@@ -95,14 +157,19 @@ def parse_intervals(input_file, union_intervals, intersection_intervals):
 
         return intervals_intersected
 
+    idx = 0
     with open(input_file, 'r') as infile:
         for line in infile:
             record = line.rstrip().split('\t')
             key = record[0]
             if len(record) > 1:
-                reference_name, intervals = parse_region(record[1])
+                win_len = int(window_len[idx]) if window_len else None
+                win_shift = int(window_shift[idx]) if window_shift else None
+                reference_name, intervals = parse_region(
+                        record[1], shorah, reference_file, win_len, win_shift)
             else:
                 reference_name, intervals = None, None
+            idx += 1
 
             if key in union_intervals:
                 # Update region if it was empty or if has to be enlarged
@@ -141,7 +208,7 @@ def parse_intervals(input_file, union_intervals, intersection_intervals):
                     intersection_intervals[key] = None, None
             else:
                 intersection_intervals[key] = [reference_name, intervals]
-                
+
     return union_intervals, intersection_intervals
 
 
@@ -169,6 +236,10 @@ def main():
     union_dir = {}
     intersection_dir = {}
 
+    if args.window_len:
+        win_len = args.window_len.split(',')
+    if args.window_shift:
+        win_shift = args.window_shift.split(',')
     # Aggregarting results
     directories = args.directories.split(",")
     for indir in directories:
@@ -176,16 +247,18 @@ def main():
             input_file = os.path.join(indir, "variants",
                                       "coverage_intervals.tsv")
             union_dir_shorah, intersection_dir_shorah = parse_intervals(
-                input_file, union_dir_shorah, intersection_dir_shorah
+                input_file, union_dir_shorah, intersection_dir_shorah, True,
+                args.reference_file, win_len, win_shift,
             )
         else:
             input_file = os.path.join(indir, "stats", "coverage_intervals.tsv")
             union_dir, intersection_dir = parse_intervals(
-                input_file, union_dir, intersection_dir
+                input_file, union_dir, intersection_dir, False, None, None,
+                None,
             )
 
     outdir = args.outdir if args.outdir is not None else os.getcwd()
-    
+
     output_file = os.path.join(outdir, "union_coverage_intervals_ShoRAH.tsv")
     write_output(output_file, union_dir_shorah)
 
