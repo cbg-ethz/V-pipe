@@ -43,7 +43,6 @@ rule aggregate_beforeSB:
         sed -i 1i"Chromosome,Pos,Ref,Var,Frq1,Frq2,Frq3,Pst1,Pst2,Pst3,Fvar,Rvar,Ftot,Rtot,Pval" {output.CSV}
         """
 
-# TODO wl, ws should be added
 # TODO Switch between snvs and snvs_beforeSB
 rule test_snv:
     input:
@@ -64,6 +63,8 @@ rule test_snv:
         FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
         CALLER_OPT = "-ci" if config.general['snv_caller'] == 'shorah' else "--no-shorah -cf",
+        WINDOW_LEN = window_len,
+        WINDOW_SHIFT = config.snv['shift'],
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
@@ -87,6 +88,7 @@ rule test_snv:
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
                 {params.CALLER_OPT} {input.INPUT[1]} \
+                -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} \
                 -t -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
                 -of {output.PERFORMANCE} \
@@ -99,6 +101,7 @@ rule test_snv:
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
                 {params.CALLER_OPT} {input.INPUT[1]} \
+                -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} \
                 -t \
                 -N {params.ID} \
                 -of {output.PERFORMANCE} \
@@ -106,7 +109,7 @@ rule test_snv:
         fi
         """
 
-rule test_snv2:
+rule test_snv_aligners:
     input:
         REF = "variants/cohort_consensus.fasta",
         REF_ALN = reference_file,
