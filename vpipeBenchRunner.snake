@@ -188,6 +188,9 @@ rule alignment_intervals:
         "variants/union_coverage_intervals_ShoRAH.tsv",
         "variants/intersect_coverage_intervals_ShoRAH.tsv",
     params:
+        scratch = '1250',
+        mem = config.alignment_intervals['mem'],
+        time = config.alignment_intervals['time'],
         WINDOW_LEN = window_lengths,
         WINDOW_SHIFT = shifts,
         OUTDIR = "variants",
@@ -230,8 +233,8 @@ rule run_alltests:
         "{bench_dir}/alltests.lock"
     params:
         scratch = '1250',
-        mem = config.run_vpipeBench['mem'],
-        time = config.run_vpipeBench['time'],
+        mem = config.run_alltests['mem'],
+        time = config.run_alltests['time'],
         BASEDIR = VPIPE_BASEDIR,
         SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
         SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
