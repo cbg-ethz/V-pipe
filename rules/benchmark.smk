@@ -251,3 +251,12 @@ def input_tsv(wildcards):
             f"{wildcards.kind}_coverage_intervals.tsv"
         )
     return ret
+
+
+def window_len(wildcards):
+    read_len = sample_dict[sample_record(
+            sample_name=wildcards.sample_name, date=wildcards.date)]['read_len']
+    win_len = int(
+        (read_len * 4 /5 + config.snv['shift']) / config.snv['shift'])
+    win_len *= config.snv['shift']
+    return win_len
