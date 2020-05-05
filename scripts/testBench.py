@@ -487,9 +487,14 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
                     idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN,
                     FN_freq, missed, haps_true)
 
+            if i == i_max and j == j_max:
+                break
         else:
             assert loci_true[i] >= idx
-            assert loci_inferred[j] >= idx
+            # Inferred loci can be outside of the target region, e.g., when
+            # reporting metrics based on intersection between tools
+            while loci_inferred[j] < idx:
+                j += 1
 
             if loci_true[i] == idx and loci_inferred[j] == idx:
                 while loci_true[i] == idx and loci_inferred[j] == idx:
@@ -791,8 +796,10 @@ def main():
                 TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed)
 
         loci = loci[idxs]
-        assert loci_inferred[0] >= loci[0] and loci_inferred[-1] <= loci[-1], (
-            "Reported SNVs are outside region of interest")
+        if loci_inferred[0] < loci[0] or loci_inferred[-1] > loci[-1]:
+            print("Warning: some reported SNVs are outside the target region."
+                  " It can happen when target region is smaller than region"
+                  " where SNVs were called.")
     else:
         if not args.snv_caller:
             idxs = np.zeros(reference_len, dtype=bool)
@@ -818,7 +825,6 @@ def main():
             loci_region = np.extract(idxs, loci)
 
         else:
-            idxs = np.zeros(reference_len, dtype=bool)
             if args.coverage is not None:
                 with open(args.coverage, 'r') as infile:
                     header = infile.readline().rstrip().split("\t")
