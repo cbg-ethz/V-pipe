@@ -438,6 +438,10 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
         i += 1
     if DBG:
         print(f"DBG loci_true[i]: {loci_true[i]}")
+    # Inferred loci can be outside of the target region, e.g., when
+    # reporting metrics based on intersection between tools
+    while j < j_max and loci_inferred[j] < loci_region[0]:
+        j += 1
 
     idx_region = 0
     for idx in loci_region:
@@ -470,10 +474,7 @@ def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
                 break
         else:
             assert loci_true[i] >= idx
-            # Inferred loci can be outside of the target region, e.g., when
-            # reporting metrics based on intersection between tools
-            while loci_inferred[j] < idx:
-                j += 1
+            assert loci_inferred[j] >= idx
 
             if loci_true[i] == idx and loci_inferred[j] == idx:
                 while loci_true[i] == idx and loci_inferred[j] == idx:
@@ -717,6 +718,11 @@ def main():
             for line in infile:
                 record = line.rstrip().split('\t')
                 if record[0] == args.sampleID:
+                    if len(record) == 1:
+                        print("Empty target region")
+                        with open(args.outfile, 'w') as outfile:
+                            outfile.write('ID\tTP\tFP\tFN\tTN\n')
+                        return
                     regions = record[1]
                     break
         regions = regions.split(',')
@@ -736,6 +742,7 @@ def main():
                 # Region is interpreted as a closed interval and using 1-based
                 # indexing
                 start -= 1
+                start = max(0, start)
             else:
                 # ShoRAH was used for SNV calling
                 # Assuming 3 windows were used for SNV calling, identify
@@ -834,13 +841,16 @@ def main():
             coverage_file=True, regions=regions)
 
     # Sensitivity
-    print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
+    if TP or FN:
+        print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
 
     # Precision
-    print("Precision: {:.6f}".format(TP / (TP + FP)))
+    if TP or FP:
+        print("Precision: {:.6f}".format(TP / (TP + FP)))
 
     # Specificity
-    print("Specificity: {:.6f}".format(TN / (TN + FP)))
+    if TN or FP:
+        print("Specificity: {:.6f}".format(TN / (TN + FP)))
 
     print("TP: ", TP)
     print("FP: ", FP)
