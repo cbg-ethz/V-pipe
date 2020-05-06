@@ -51,8 +51,7 @@ rule test_snv:
         REF = "variants/cohort_consensus.fasta",
         REF_ALN = reference_file,
     output:
-        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/true_snvs.tsv",
-        PERFORMANCE = temp(
+        temp(
             "{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv")
     params:
         scratch = '2000',
@@ -60,7 +59,9 @@ rule test_snv:
         time = config.test_snv['time'],
         RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
-        FREQ_DSTR = lambda wildcards: sample_dict[sample_record(sample_name=wildcards.sample_name, date=wildcards.date)]['freq_dstr'],
+        FREQ_DSTR = lambda wildcards:
+            sample_dict[sample_record(sample_name=wildcards.sample_name,
+                                      date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
         CALLER_OPT = "-ci" if config.general['snv_caller'] == 'shorah' else "--no-shorah -cf",
         WINDOW_LEN = window_len,
@@ -91,7 +92,7 @@ rule test_snv:
                 -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} \
                 -t -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
-                -of {output.PERFORMANCE} \
+                -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         else
             {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} \
@@ -104,7 +105,7 @@ rule test_snv:
                 -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} \
                 -t \
                 -N {params.ID} \
-                -of {output.PERFORMANCE} \
+                -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         fi
         """
@@ -115,8 +116,7 @@ rule test_snv_aligners:
         REF_ALN = reference_file,
         TSV = input_tsv,
     output:
-        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/true_snvs.tsv",
-        PERFORMANCE = temp(
+        temp(
             "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/performance.tsv")
     params:
         scratch = '2000',
@@ -127,7 +127,7 @@ rule test_snv_aligners:
                 if config.general['snv_caller'] == 'shorah' else
                 "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.vcf"),
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
-        HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
+        HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_{kind}.fasta",
         FREQ_DSTR = lambda wildcards:
             sample_dict[sample_record(sample_name=wildcards.sample_name,
                                       date=wildcards.date)]['freq_dstr'],
@@ -158,7 +158,7 @@ rule test_snv_aligners:
                 --no-shorah -t \
                 -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
-                -of {output.PERFORMANCE} \
+                -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         else
             {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS} \
@@ -170,7 +170,7 @@ rule test_snv_aligners:
                 -ci {input.TSV} \
                 --no-shorah -t \
                 -N {params.ID} \
-                -of {output.PERFORMANCE} \
+                -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
         fi
         """

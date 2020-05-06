@@ -253,7 +253,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=60, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
 
-            'coverage': __RECORD__(value=50, type=int),
+            'coverage': __RECORD__(value=5, type=int),
         }),
         ('stats', {
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/sam2bam.yaml', type=str),
