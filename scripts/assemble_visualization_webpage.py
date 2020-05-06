@@ -124,7 +124,8 @@ def main(
     reference_file,
 ):
     # parse the sample name
-    sample_name = re.search("samples/(.+/.+)", wildcards_dataset).group(1)
+    path_components = os.path.normpath(wildcards_dataset).split(os.path.sep)
+    sample_name = '/'.join(path_components[1:])
 
     # parse the consensus sequence
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
@@ -137,7 +138,10 @@ def main(
     gff_map = get_gff_data(gff_directory)
 
     # parse the reference name
-    reference_name = re.search("references/(.+)\.fa.*", reference_file).group(1)
+    reference_name = re.search(
+        "(.+)\.fa.*",
+        os.path.basename(reference_file)
+    ).group(1)
 
     embed_code = f"""
         var sample_name = \"{sample_name}\"
