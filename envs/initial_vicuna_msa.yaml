@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - mafft=7.458
-  - smallgenomeutilities=0.3.0
+  - smallgenomeutilities=0.3.1
