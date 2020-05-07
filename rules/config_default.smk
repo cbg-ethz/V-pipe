@@ -192,6 +192,7 @@ class VpipeConfig(object):
 
             'phred': __RECORD__(value='--phred33', type=str),
             'preset': __RECORD__(value='--local --sensitive-local', type=str),
+            'maxins': __RECORD__(value=None, type=int),
             'extra': __RECORD__(value='', type=str),
         }),
         ('consensus_sequences', {

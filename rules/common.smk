@@ -206,3 +206,15 @@ def shifts(wildcards):
 
     shifts = ','.join(shifts)
     return shifts
+
+
+def get_maxins(wildcards):
+    if config.bowtie_align['maxins']:
+        return config.bowtie_align['maxins']
+    else:
+        parts = wildcards.dataset.split('/')
+        patient_ID = parts[1]
+        date = parts[2]
+        read_len = patient_dict[patient_record(
+            patient_id=patient_ID, date=date)]
+        return 4 * read_len

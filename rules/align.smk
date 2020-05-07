@@ -489,6 +489,7 @@ elif config.general["aligner"] == "bowtie":
                 TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
+                MAXINS = get_maxins, 
                 EXTRA = config.bowtie_align['extra'],
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
@@ -503,7 +504,7 @@ elif config.general["aligner"] == "bowtie":
                 config.bowtie_align['threads']
             shell:
                 """
-                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} -X {params.MAXINS} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
                 {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
