@@ -201,6 +201,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
 
             'min_coverage': __RECORD__(value=50, type=int),
+            'n_coverage': __RECORD__(value=5, type=int),
             'qual_thrd': __RECORD__(value=15, type=int),
             'min_freq': __RECORD__(value=0.05, type=float),
         }),
