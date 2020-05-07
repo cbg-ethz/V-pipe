@@ -562,6 +562,7 @@ rule consensus_sequences:
         mem = config.consensus_sequences['mem'],
         time = config.consensus_sequences['time'],
         MIN_COVERAGE = config.consensus_sequences['min_coverage'],
+        N_COVERAGE = config.consensus_sequences['n_coverage'],
         QUAL_THRD = config.consensus_sequences['qual_thrd'],
         MIN_FREQ = config.consensus_sequences['min_freq'],
         OUTDIR = "{dataset}/references",
@@ -581,7 +582,7 @@ rule consensus_sequences:
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
         """
 
 
