@@ -94,6 +94,8 @@ rule test_snv:
                 -N {params.ID} \
                 -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+
+            rm {params.HAPLOTYPE_SEQS_AUX}
         else
             {params.TEST_BENCH} -f {input.HAPLOTYPE_SEQS} \
                 -s {input.INPUT[0]} \
@@ -147,7 +149,8 @@ rule test_snv_aligners:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
             # remove indels
-            sed -e 's/-//g' {params.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+            cp {params.HAPLOTYPE_SEQS} {params.OUTDIR}/hap_tmp.fasta
+            sed -e 's/-//g' {params.OUTDIR}/hap_tmp.fasta > {params.HAPLOTYPE_SEQS_AUX}
             {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} \
                 -s {params.SNVs} \
                 -m {input.REF} \
@@ -160,6 +163,9 @@ rule test_snv_aligners:
                 -N {params.ID} \
                 -of {output} \
                 -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+
+            rm {params.OUTDIR}/hap_tmp.fasta
+            rm {params.HAPLOTYPE_SEQS_AUX}
         else
             {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS} \
                 -s {params.SNVs} \
