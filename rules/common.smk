@@ -218,3 +218,33 @@ def get_maxins(wildcards):
         read_len = patient_dict[patient_record(
             patient_id=patient_ID, date=date)]
         return 4 * read_len
+
+
+def construct_input_fastq(wildcards):
+    indir = os.path.join(wildcards.dataset, "raw_data")
+    aux = glob_wildcards(
+        indir + "/{prefix, [^/]+}" + "{ext, (\.fastq|\.fastq\.gz|\.fq|\.fq\.gz)}")
+    if config.input['paired']:
+        inferred_values = glob_wildcards(
+            indir + "/{file}R" + wildcards.pair + config.input['fastq_suffix'] + aux.ext[0])
+    else:
+        inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])
+
+    list_output = []
+    file_extension = aux.ext[0].split(".gz")[0]
+    for i in inferred_values.file:
+        if config.input['paired']:
+            list_output.append(
+                os.path.join(indir,
+                             "".join((i, "R", wildcards.pair,
+                                      config.input['fastq_suffix'],
+                                      file_extension))))
+        else:
+            list_output.append(os.path.join(indir,
+                               "".join((i, file_extension))))
+    if len(list_output) == 0:
+        raise ValueError(
+            "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(wildcards.dataset)
+        )
+
+    return list_output
