@@ -357,7 +357,7 @@ elif args.output == "haplotypes" or args.output == "all":
             with open(args.haplotype_seqs, 'r') as infile:
                 for line in infile:
                     record = line.rstrip()
-                    if record[0] == '>' and count == 0:
+                    if count == 0 and record[0] == '>':
                         header = record[1:]
                         count += 1
                     else:

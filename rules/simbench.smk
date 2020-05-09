@@ -72,7 +72,7 @@ rule simulate_haplotypes:
         config.simulate_haplotypes['conda']
     shell:
         """
-        if [[ -f {params.HAPLOTYPE_SEQS} ]]; then
+        if [[ -f "{params.HAPLOTYPE_SEQS}" ]]; then
             # use haplotypes from input sequence
             {params.SIM_BENCH} -f {params.HAPLOTYPE_SEQS} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
         else
