@@ -268,3 +268,9 @@ def window_len(wildcards):
         (read_len * 4 /5 + config.snv['shift']) / config.snv['shift'])
     win_len *= config.snv['shift']
     return win_len
+
+
+if config.general['simulate']:
+    def construct_input_fastq(wildcards):
+        return os.path.join(wildcards.dataset, "raw_data",
+                            "".join(("simreads_R", wildcards.pair, ".fastq")))

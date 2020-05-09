@@ -11,12 +11,20 @@ VPIPE_BENCH = True
 include: "rules/benchmark.smk"
 functions = srcdir("functions.sh")
 
+RESULTS = []
+if config.general['simulate']:
+    RESULTS.append(
+        [f'{dataset}/raw_data/simreads_R1.fastq' for dataset in datasets]
+    )
+    if config.input['paired']:
+        RESULTS.append(
+            [f'{dataset}/raw_data/simreads_R2.fastq' for dataset in datasets]
+        )
+
 # DUMMY RULE
 rule allbench:
     input:
-        expand("{dataset}/raw_data/simreads_R1.fastq", dataset=datasets),
-        expand("{dataset}/raw_data/simreads_R2.fastq",
-               dataset=datasets) if config.input['paired'] else [],
+        RESULTS,
         "variants/SNV_calling_performance.tsv",
         "stats/coverage_intervals.tsv",
         "stats/read_counts.tsv"
