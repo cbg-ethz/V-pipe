@@ -579,24 +579,25 @@ def main():
         haplotype_master = haplotype_master[0].upper()
         haplotype_master_array = np.array(list(haplotype_master))
         reference_len = haplotype_master_array.size
-        # Expected if cohort consensus has gaps
-        if args.reference is not None:
-            tmp, reference = read_fasta(args.reference)
-            reference = reference[0].upper()
-            reference = np.array(list(reference))
-            assert reference.size == haplotype_master_array.size, (
-                "Reference and cohort consensus have different lengths")
-            idxs = haplotype_master_array == '-'
-            haplotype_master_array[idxs] = reference[idxs]
-            args.haplotype_master = os.path.join(outdir,
-                                                 'cohort_consensus.fasta')
-            cohort_consensus = SeqRecord(Seq(''.join(haplotype_master_array)),
-                                         id=header, description="")
-            with open(args.haplotype_master, 'w') as outfile:
-                SeqIO.write(cohort_consensus, outfile, "fasta")
 
-        haplotype_master_array = haplotype_master_array.astype('c')
         if args.msa:
+            # Expected if cohort consensus has gaps
+            if args.reference:
+                tmp, reference = read_fasta(args.reference)
+                reference = reference[0].upper()
+                reference = np.array(list(reference))
+                assert reference.size == haplotype_master_array.size, (
+                    "Reference and cohort consensus have different lengths")
+                idxs_gaps = haplotype_master_array == '-'
+                haplotype_master_array[idxs_gaps] = reference[idxs_gaps]
+                args.haplotype_master = os.path.join(outdir,
+                                                     'cohort_consensus.fasta')
+                cohort_consensus = SeqRecord(Seq(''.join(haplotype_master_array)),
+                                             id=header, description="")
+                with open(args.haplotype_master, 'w') as outfile:
+                    SeqIO.write(cohort_consensus, outfile, "fasta")
+
+            haplotype_master_array = haplotype_master_array.astype('c')
             # construct msa: haplotypes + reference/consensus sequence
             infile = os.path.join(outdir, "tmp.fasta")
             sh.cat([args.haplotype_seqs, args.haplotype_master], _out=infile)
@@ -649,6 +650,9 @@ def main():
             # Remove insertions with respect to consensus/reference sequence
             if haplotype_ref.size != reference_len:
                 haplotype_seqs_array = haplotype_seqs_array[:, ~del_idxs]
+            # Restore gaps into the master sequence
+            if args.reference:
+                haplotype_master_array[idxs_gaps] = b'-'
         else:
             # Sequences of true haplotypes are already reported using the same
             # indexing as reference/consensus
@@ -656,6 +660,7 @@ def main():
             haplotype_ids, haplotype_seqs = read_fasta(args.haplotype_seqs)
             num_haplotypes = len(haplotype_ids)
             haplotype_seqs_array = np.array(haplotype_seqs, dtype='c')
+            haplotype_master_array = haplotype_master_array.astype('c')
     else:
         # if master sequence is not provided, report with respect to the
         # consensus. Note that SNVs are called with respect to the cohort
