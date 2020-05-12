@@ -126,7 +126,6 @@ def get_primers_data(full_path, consensus):
       for offset in offsets:
         primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1})  
     if primer_locations:
-      print(primer_locations)
       primers_map[description] = arrange_gff_data(primer_locations)
     else:
       print("No primer was mapped from ", path, ".")
