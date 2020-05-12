@@ -115,7 +115,10 @@ div.tooltip_plot {
 //            "frequency":0.8, "posterior":0.9}
 // `gffData`: map where the key is a string describing the annotations and the value is an
 //            array of tuples with the following format: {'id': string, 'type': string,
-//            'name': string, 'start': int, 'end': int, 'row_cnt': int},
+//            'name': string, 'start': int, 'end': int, 'row_cnt': int}
+// `primerData`: map where the key is a string describing the provenance of the primers and
+//               the value is an array of tuples with the following format: {'name':string, 
+//               'seq':string, 'start':int, 'end':int, 'row_cnt':int}
 {EXTERNAL_SNAKEMAKE_CODE_MARKER}
 </script>
 
@@ -239,6 +242,7 @@ document.getElementById('sample_name').innerHTML = sample_name;
 document.getElementById('snv_section').innerHTML = "SNVs w.r.t. " + reference_name + " reference genome:";
 var [updateChartGlobal, areaGlobal] = setupPlot(svg)
 displayGffData(gffData, svg)
+displayPrimerData(primerData, svg, 300)
 createSummaryTable("table_summary")
 addColorLegend("#color_legend")
 
@@ -249,6 +253,7 @@ function redrawPlots() {
     d3.selectAll(".snv_marker").remove();
     addLollipops(areaGlobal)
     displayGffData(gffData, svg)
+    displayPrimerData(primerData, svg, 300)
     createSummaryTable("table_summary")
 }
 
@@ -411,6 +416,7 @@ function setupPlot(svg) {
         d3.selectAll(".snv_marker").remove();
         addLollipops(area)
         displayGffData(gffData, svg)
+        displayPrimerData(primerData, svg, 300)
     }
 
     function appendIcon(svg, x, y, action, icon_html, tooltip_text) {
@@ -513,6 +519,7 @@ function setupPlot(svg) {
         d3.selectAll(".snv_marker").remove();
         addLollipops(area)
         displayGffData(gffData, svg)
+        displayPrimerData(primerData, svg, 300)
     }
 
     // making this function globally available to other plots
@@ -643,6 +650,37 @@ function displayGffData(gffData, canvas) {
     expandLollipopLines(canvas, height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
 }
 
+function displayPrimerData(primerData, canvas, height_offset) {
+
+    canvas.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 5)
+        .attr("x", 0 - margin.bottom - 150)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Primers");
+
+    var num_rows_above = 0
+    var rectHeight = 15
+    var padding = 5
+    var titleHeight = 10
+    var num_gff_data = 0
+    for (key in primerData) {
+        addPrimersToPlot(canvas, height_offset + height + 60 + (num_gff_data + num_rows_above) * (rectHeight + padding),
+                      rectHeight,  titleHeight, padding, primerData[key], key)
+        var num_rows = new Set(
+             primerData[key].map(function(x) {
+                return x.row_cnt
+            })
+        ).size
+        num_rows_above += num_rows
+        num_gff_data++
+    }
+   
+    expandLollipopLines(canvas, height_offset + height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
+
+}
+
 function createSummaryTable(div_id) {
 
   var probability_threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
@@ -757,7 +795,70 @@ function createGffPlot(canvas, offset_y, rectHeight,  titleHeight, padding, feat
             updateChartGlobal([d.start, d.end], true)
         })
 }        
-        
+
+function addPrimersToPlot(canvas, offset_y, rectHeight,  titleHeight, padding, features, title) {
+
+    // Keep only the annotations in the strat-end interval.
+    canvas.append("text")
+        .attr("transform",
+            "translate(" + 0 + " ," +
+            (offset_y) + ")")
+        //.style("text-anchor", "middle")
+        .text(title + ":");
+
+    canvas.selectAll("rects")
+        .data(features)
+        .enter()
+        .append("rect")
+        .attr("x", function(d) {
+            return Math.max(0, x(d.start))
+        })
+        .attr("y", function(d) {
+            return offset_y + titleHeight + (rectHeight + padding) * d.row_cnt
+        })
+        .attr("width", function(d) {
+            if (x(d.start) > width || x(d.end) < 0) {
+                return 0
+            }
+            x_start = Math.max(0, x(d.start))
+            rect_width = x(d.end) - x_start
+            if (x(d.end) < width) {
+                return rect_width
+            } else {
+                return width - x_start
+            }
+        })
+        .attr("height", rectHeight)
+        .attr("fill", "darkgray")
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("class", "annotation_rects")
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+            tooltip.html(
+                "name: " + d.name + "<br>" +
+                "seq: " + d.seq
+            )
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+            .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })       
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0)
+        })
+        .on("click", function(d) {
+            updateChartGlobal([d.start, d.end], true)
+        })
+}
+
 function expandLollipopLines(canvas, offset_y, line_heigth) {        
     canvas.selectAll("lines")
         .data(vcfData)

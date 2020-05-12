@@ -107,6 +107,30 @@ def get_gff_data(gff_dir):
     return gff_map
 
 
+def get_primers_data(full_path, consensus):
+    """Returns a map with filename key and primers json data."""
+    # Hardcode metainformation for the filenames provided in the repository.
+    primers_metainfo = {}
+    primers_metainfo["nCoV-2019"] = "ARTIC bioinformatics primers for nanopore sequencing of nCoV2019"
+
+    primers_map = {}
+    consensus_upper = consensus.upper()
+    description = os.path.splitext(full_path)[0]
+    if description in primers_metainfo:
+        description = primers_metainfo[description]
+    csv = pd.read_csv(full_path, sep=',')
+    primers = [{'name':row[0], "seq":row[1].upper()} for row in csv[['name', 'seq']].values]
+    primer_locations = [] 
+    for entry in primers:
+      offsets = [m.start() for m in re.finditer('(?=' + entry['seq'] + ')', consensus_upper)] 
+      for offset in offsets:
+        primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1, 'row_cnt':0})  
+    if primer_locations:
+      primers_map[description] = primer_locations
+    else:
+      print("No primer was mapped from ", path, ".")
+    return primers_map
+
 def convert_coverage(fname, sample_name, genome_length):
     """Convert the read coverage to bp coverage."""
     csv = pd.read_csv(fname, sep="\t", index_col=0, header=0)
@@ -118,6 +142,7 @@ def main(
     coverage_file,
     vcf_file,
     gff_directory,
+    primers_file,
     html_file_in,
     html_file_out,
     wildcards_dataset,
@@ -136,6 +161,7 @@ def main(
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)
     gff_map = get_gff_data(gff_directory)
+    primers_map = get_primers_data(primers_file, str(consensus))
 
     # parse the reference name
     reference_name = re.search(
@@ -149,6 +175,7 @@ def main(
         var coverage = {coverage}
         var vcfData = {vcf_json}
         var gffData = {gff_map}
+        var primerData = {primers_map}
         var reference_name = \"{reference_name}\"
     """
 
@@ -173,4 +200,5 @@ if __name__ == "__main__":
         sys.argv[6],
         sys.argv[7],
         sys.argv[8],
+        sys.argv[9],
     )
