@@ -115,7 +115,7 @@ def get_primers_data(full_path, consensus):
 
     primers_map = {}
     consensus_upper = consensus.upper()
-    description = os.path.splitext(full_path)[0]
+    description = os.path.splitext(os.path.basename(full_path))[0]
     if description in primers_metainfo:
         description = primers_metainfo[description]
     csv = pd.read_csv(full_path, sep=',')
@@ -124,9 +124,10 @@ def get_primers_data(full_path, consensus):
     for entry in primers:
       offsets = [m.start() for m in re.finditer('(?=' + entry['seq'] + ')', consensus_upper)] 
       for offset in offsets:
-        primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1, 'row_cnt':0})  
+        primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1})  
     if primer_locations:
-      primers_map[description] = primer_locations
+      print(primer_locations)
+      primers_map[description] = arrange_gff_data(primer_locations)
     else:
       print("No primer was mapped from ", path, ".")
     return primers_map
