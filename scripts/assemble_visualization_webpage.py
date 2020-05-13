@@ -10,6 +10,8 @@ import pandas as pd
 import vcf
 from BCBio import GFF
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.Alphabet import IUPAC
 
 
 def convert_vcf(fname):
@@ -120,16 +122,22 @@ def get_primers_data(full_path, consensus):
         description = primers_metainfo[description]
     csv = pd.read_csv(full_path, sep=',')
     primers = [{'name':row[0], "seq":row[1].upper()} for row in csv[['name', 'seq']].values]
-    primer_locations = [] 
+    primer_locations = []
     for entry in primers:
-      offsets = [m.start() for m in re.finditer('(?=' + entry['seq'] + ')', consensus_upper)] 
+      lookup_sequence = entry['seq']
+      # If the sequence corresponds to a `right` primer, then reverse and complement.
+      if "RIGHT" in entry['name'].upper():
+        seq = Seq(lookup_sequence, IUPAC.unambiguous_dna)
+        lookup_sequence = str(seq.reverse_complement())
+      offsets = [m.start() for m in re.finditer('(?=' + lookup_sequence + ')', consensus_upper)]
       for offset in offsets:
-        primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1})  
+        primer_locations.append({'name': entry['name'], 'seq': entry['seq'], 'start': offset, 'end': offset + len(entry['seq']) -1})
     if primer_locations:
       primers_map[description] = arrange_gff_data(primer_locations)
     else:
       print("No primer was mapped from ", path, ".")
     return primers_map
+
 
 def convert_coverage(fname, sample_name, genome_length):
     """Convert the read coverage to bp coverage."""
