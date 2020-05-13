@@ -4,7 +4,7 @@ import os
 import argparse
 import csv
 from math import trunc
-from coverageIntervals import read_fasta
+from alignmentIntervals import read_fasta
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -569,7 +569,7 @@ def main():
         with open(args.outfile, 'w') as outfile:
             outfile.write('ID\tTP\tFP\tFN\tTN\n')
         return
-    
+
     outdir = args.outdir if args.outdir is not None else os.getcwd()
     if args.haplotype_master is not None:
         # Parse file containing reference/consensus sequence (sequence w.r.t

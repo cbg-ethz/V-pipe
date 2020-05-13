@@ -42,8 +42,8 @@ class VpipeBenchConfig(VpipeConfig):
                 'art': __RECORD__(value="art_illumina", type=str),
                 'testBench': __RECORD__(
                     value=f"{VPIPE_BASEDIR}/scripts/testBench.py", type=str),
-                'coverageIntervals' : __RECORD__(
-                    value=f"{VPIPE_BASEDIR}/scripts/coverageIntervals.py", type=str),
+                'alignmentIntervals' : __RECORD__(
+                    value=f"{VPIPE_BASEDIR}/scripts/alignmentIntervals.py", type=str),
                 'snakemake': __RECORD__(value="snakemake", type=str),
             }),
             ('benchmark', {

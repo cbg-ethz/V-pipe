@@ -195,7 +195,7 @@ rule alignment_intervals:
         WINDOW_SHIFT = shifts,
         OUTDIR = "variants",
         DIRS = BENCH_DIRS,
-        COVERAGE_INTERVALS = config.applications['coverageIntervals'],
+        ALIGNMENT_INTERVALS = config.applications['alignmentIntervals'],
     log:
         outfile = "logs/alignment_intervals.out.log",
         errfile = "logs/alignment_intervals.out.log",
@@ -203,7 +203,7 @@ rule alignment_intervals:
         1
     shell:
         """
-        {params.COVERAGE_INTERVALS} -r {input.REF} -o {params.OUTDIR} \
+        {params.ALIGNMENT_INTERVALS} -r {input.REF} -o {params.OUTDIR} \
             -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} -d {params.DIRS} > >(tee -a {log.outfile}) 2>&1
         """
 
