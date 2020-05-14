@@ -30,7 +30,11 @@ BENCH_DIRS = ','.join([k for k in configs.keys()])
 RESULTS = [f'{bench_dir}/vpipeBench.lock' for bench_dir in configs.keys()]
 if len(ALIGNERS) > 1:
     RESULTS.append(
-        [f'{bench_dir}/alltests.lock' for bench_dir in configs.keys()]
+        [f'{bench_dir}/aligner_tests.lock' for bench_dir in configs.keys()]
+    )
+if len(SNV_CALLERS) > 1:
+    RESULTS.append(
+        [f'{bench_dir}/caller_tests.lock' for bench_dir in configs.keys()]
     )
 
 rule allbenchRunner:
@@ -209,39 +213,34 @@ rule alignment_intervals:
 
 rule prepare_testing_run:
     input:
-        "variants/union_coverage_intervals.tsv",
-        "variants/intersect_coverage_intervals.tsv",
-        "variants/union_coverage_intervals_ShoRAH.tsv",
-        "variants/intersect_coverage_intervals_ShoRAH.tsv",
+        "variants/{file}.tsv",
     output:
-        "{bench_dir}/variants/union_coverage_intervals.tsv",
-        "{bench_dir}/variants/intersect_coverage_intervals.tsv",
-        "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
-        "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
-    run:
-        for i, f in enumerate(input):
-            src = os.path.join(os.getcwd(), f)
-            os.symlink(src, output[i])
+        "{bench_dir}/variants/{file}.tsv",
+    shell:
+        """
+        ln -fs ${{PWD}}/{input} {output}
+        touch -h {output}
+        """
 
-rule run_alltests:
+rule run_aligner_tests:
     input:
         "{bench_dir}/variants/union_coverage_intervals.tsv",
         "{bench_dir}/variants/intersect_coverage_intervals.tsv",
         "{bench_dir}/variants/union_coverage_intervals_ShoRAH.tsv",
         "{bench_dir}/variants/intersect_coverage_intervals_ShoRAH.tsv",
     output:
-        "{bench_dir}/alltests.lock"
+        "{bench_dir}/aligner_tests.lock"
     params:
         scratch = '1250',
-        mem = config.run_alltests['mem'],
-        time = config.run_alltests['time'],
+        mem = config.run_tests['mem'],
+        time = config.run_tests['time'],
         BASEDIR = VPIPE_BASEDIR,
         SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
         SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
         SNAKEMAKE = config.applications['snakemake']
     log:
-        outfile = "logs/{bench_dir}_alltests.out.log",
-        errfile = "logs/{bench_dir}_alltests.err.log",
+        outfile = "logs/{bench_dir}_aligner_tests.out.log",
+        errfile = "logs/{bench_dir}_aligner_tests.err.log",
     threads:
         1
     shell:
@@ -251,10 +250,75 @@ rule run_alltests:
         cd {wildcards.bench_dir}/
 
         if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
-            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake alltests \
+            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake aligner_tests \
                 {params.SNAKEMAKE_OPTIONS}
         else
-            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake alltests \
+            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake aligner_tests \
+                {params.SNAKEMAKE_OPTS_ENVVAR}
+        fi
+
+        # Change back to working directory
+        cd ${{CWD}}
+        touch {output}
+        """
+
+rule alignment_intervals_callers:
+    input:
+        LOCK = expand("{bench_dir}/vpipeBench.lock", bench_dir=configs.keys()),
+        REF = reference_file,
+    output:
+        expand("variants/union_coverage_intervals_{aligner}.tsv", aligner=ALIGNERS),
+        expand("variants/intersect_coverage_intervals_{aligner}.tsv", aligner=ALIGNERS)
+    params:
+        scratch = '1250',
+        mem = config.alignment_intervals['mem'],
+        time = config.alignment_intervals['time'],
+        WINDOW_LEN = window_lengths,
+        WINDOW_SHIFT = shifts,
+        OUTDIR = "variants",
+        DIRS = BENCH_DIRS,
+        ALIGNMENT_INTERVALS = config.applications['alignmentIntervals'],
+    log:
+        outfile = "logs/alignment_intervals_callers.out.log",
+        errfile = "logs/alignment_intervals_callers.out.log",
+    threads:
+        1
+    shell:
+        """
+        {params.ALIGNMENT_INTERVALS} -r {input.REF} -o {params.OUTDIR} --caller \
+            -wl {params.WINDOW_LEN} -ws {params.WINDOW_SHIFT} -d {params.DIRS} > >(tee -a {log.outfile}) 2>&1
+        """
+
+rule run_caller_tests:
+    input:
+        "{aligner}-{caller}/variants/union_coverage_intervals_{aligner}.tsv",
+        "{aligner}-{caller}/variants/intersect_coverage_intervals_{aligner}.tsv",
+    output:
+        "{aligner}-{caller}/caller_tests.lock"
+    params:
+        scratch = '1250',
+        mem = config.run_tests['mem'],
+        time = config.run_tests['time'],
+        BASEDIR = VPIPE_BASEDIR,
+        SNAKEMAKE_OPTIONS = lambda wildcards: config.benchmark['snakemake_options'],
+        SNAKEMAKE_OPTS_ENVVAR = lambda wildcards: os.environ.get('SNAKEMAKE_OPTS', ''),
+        SNAKEMAKE = config.applications['snakemake']
+    log:
+        outfile = "logs/{aligner}-{caller}_caller_tests.out.log",
+        errfile = "logs/{aligner}-{caller}_caller_tests.err.log",
+    threads:
+        1
+    shell:
+        """
+        # Change to working directory
+        CWD=${{PWD}}
+        cd {wildcards.aligner}-{wildcards.caller}/
+
+        if [[ -z "{params.SNAKEMAKE_OPTS_ENVVAR}" ]]; then
+            {params.SNAKEMAKE}  -s {params.BASEDIR}/vpipeBench.snake snv_caller_tests \
+                {params.SNAKEMAKE_OPTIONS}
+        else
+            {params.SNAKEMAKE} -s {params.BASEDIR}/vpipeBench.snake snv_caller_tests \
                 {params.SNAKEMAKE_OPTS_ENVVAR}
         fi
 

@@ -112,7 +112,7 @@ rule test_snv:
         fi
         """
 
-rule test_snv_aligners:
+rule compare_snv:
     input:
         REF = "variants/cohort_consensus.fasta",
         REF_ALN = reference_file,

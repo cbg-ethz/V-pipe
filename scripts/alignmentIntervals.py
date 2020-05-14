@@ -3,6 +3,7 @@
 import os
 import argparse
 from math import floor
+from shutil import copyfile
 
 DBG = True if os.environ.get('DBG') is not None else False
 
@@ -12,7 +13,8 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         description="Benchmark: compute the union/intersection among coverage "
-                    "intervals",
+                    "intervals to compare performance between aligner or SNV "
+                    "caller",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     requiredNamed = parser.add_argument_group('required named arguments')
     requiredNamed.add_argument(
@@ -34,6 +36,12 @@ def parse_args():
         dest='window_shift', type=str,
         help="Length of the window shift used by ShoRAH to construct "
              "overlapping windows"
+    )
+    parser.add_argument(
+        "--caller", required=False, default=None, action='store_true',
+        dest="comparison_callers",
+        help="Indicate whether to construct alignment intervals for comparing "
+             "mutation callers"
     )
     parser.add_argument(
         "-o", required=False, default=None, metavar='DIR', dest='outdir',
@@ -212,6 +220,25 @@ def parse_intervals(input_file, union_intervals, intersection_intervals,
     return union_intervals, intersection_intervals
 
 
+def read_coverage_file(input_file, reference_file, window_len, window_shift):
+
+    out_dict = {}
+    idx = 0
+    with open(input_file, 'r') as infile:
+        for line in infile:
+            record = line.rstrip().split('\t')
+            key = record[0]
+            if len(record) > 1:
+                win_len = int(window_len[idx]) if window_len else None
+                win_shift = int(window_shift[idx]) if window_shift else None
+                reference_name, intervals = parse_region(
+                        record[1], True, reference_file, win_len, win_shift)
+            idx += 1
+            out_dict[key] = [reference_name, intervals]
+
+    return out_dict
+
+
 def write_output(output_file, intervals_dir):
 
     with open(output_file, 'w') as outfile:
@@ -240,38 +267,68 @@ def main():
         win_len = args.window_len.split(',')
     if args.window_shift:
         win_shift = args.window_shift.split(',')
-    # Aggregarting results
-    directories = args.directories.split(",")
-    for indir in directories:
-        if 'shorah' in indir:
-            input_file = os.path.join(indir, "variants",
-                                      "coverage_intervals.tsv")
-            union_dir_shorah, intersection_dir_shorah = parse_intervals(
-                input_file, union_dir_shorah, intersection_dir_shorah, True,
-                args.reference_file, win_len, win_shift,
-            )
-        else:
-            input_file = os.path.join(indir, "stats", "coverage_intervals.tsv")
-            union_dir, intersection_dir = parse_intervals(
-                input_file, union_dir, intersection_dir, False, None, None,
-                None,
-            )
 
     outdir = args.outdir if args.outdir is not None else os.getcwd()
 
-    output_file = os.path.join(outdir, "union_coverage_intervals_ShoRAH.tsv")
-    write_output(output_file, union_dir_shorah)
+    # Aggregarting results
+    directories = args.directories.split(",")
+    for indir in directories:
+        if args.comparison_callers:
+            # For the comparison of tools for mutation calling, the alignment
+            # remains a constant. However, ShoRAH only reports SNVs that are
+            # covered by at least two of the overlapping windows.
+            # "union", in this context, results in using all positions above
+            # certain coverage
+            # "intersect", accounts for the overlapping windows.
+            aligner = indir.split('-')[0]
+            if 'shorah' in indir:
+                input_file = os.path.join(indir, "variants",
+                                          "coverage_intervals.tsv")
+                intersect_caller = read_coverage_file(
+                        input_file, args.reference_file, win_len, win_shift
+                )
+                output_file = os.path.join(
+                        outdir, f"intersect_coverage_intervals_{aligner}.tsv"
+                )
+                write_output(output_file, intersect_caller)
+            else:
+                src = os.path.join(os.getcwd(), indir, "stats",
+                                   "coverage_intervals.tsv")
+                output_file = os.path.join(
+                        outdir, f"union_coverage_intervals_{aligner}.tsv"
+                )
+                copyfile(src, output_file)
+        else:
+            if 'shorah' in indir:
+                input_file = os.path.join(indir, "variants",
+                                          "coverage_intervals.tsv")
+                union_dir_shorah, intersection_dir_shorah = parse_intervals(
+                    input_file, union_dir_shorah, intersection_dir_shorah,
+                    True, args.reference_file, win_len, win_shift,
+                )
+            else:
+                input_file = os.path.join(indir, "stats",
+                                          "coverage_intervals.tsv")
+                union_dir, intersection_dir = parse_intervals(
+                    input_file, union_dir, intersection_dir, False, None,
+                    None, None,
+                )
 
-    output_file = os.path.join(outdir,
-                               "intersect_coverage_intervals_ShoRAH.tsv")
-    write_output(output_file, intersection_dir_shorah)
+    if not args.comparison_callers:
+        output_file = os.path.join(outdir,
+                                   "union_coverage_intervals_ShoRAH.tsv")
+        write_output(output_file, union_dir_shorah)
 
-    output_file = os.path.join(outdir, "union_coverage_intervals.tsv")
-    write_output(output_file, union_dir)
+        output_file = os.path.join(outdir,
+                                   "intersect_coverage_intervals_ShoRAH.tsv")
+        write_output(output_file, intersection_dir_shorah)
 
-    output_file = os.path.join(outdir,
-                               "intersect_coverage_intervals.tsv")
-    write_output(output_file, intersection_dir)
+        output_file = os.path.join(outdir, "union_coverage_intervals.tsv")
+        write_output(output_file, union_dir)
+
+        output_file = os.path.join(outdir,
+                                   "intersect_coverage_intervals.tsv")
+        write_output(output_file, intersection_dir)
 
 
 if __name__ == '__main__':

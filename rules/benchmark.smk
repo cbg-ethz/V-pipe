@@ -98,7 +98,7 @@ class VpipeBenchConfig(VpipeConfig):
                 'mem': __RECORD__(value=1000, type=int),
                 'time': __RECORD__(value=60, type=int),
             }),
-            ('run_alltests', {
+            ('run_tests', {
                 'mem': __RECORD__(value=5000, type=int),
                 'time': __RECORD__(value=60, type=int),
             }),
@@ -248,15 +248,23 @@ def input_snv(wildcards):
 
 
 def input_tsv(wildcards):
-    if config.general['snv_caller'] == 'shorah':
-        ret = os.path.join(
-            "variants",
-            f"{wildcards.kind}_coverage_intervals_ShoRAH.tsv"
-        )
+    test = wildcards.kind
+    type = test.split('_')[0]
+    if 'aligner' in test:
+        if config.general['snv_caller'] == 'shorah':
+            ret = os.path.join(
+                "variants",
+                f"{type}_coverage_intervals_ShoRAH.tsv"
+            )
+        else:
+            ret = os.path.join(
+                "variants",
+                f"{type}_coverage_intervals.tsv"
+            )
     else:
         ret = os.path.join(
             "variants",
-            f"{wildcards.kind}_coverage_intervals.tsv"
+            f"{type}_coverage_intervals_{config.general['aligner']}.tsv"
         )
     return ret
 
