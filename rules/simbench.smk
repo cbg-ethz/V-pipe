@@ -63,6 +63,7 @@ rule simulate_haplotypes:
         DEL_LEN = get_del_len,
         SEED = lambda wildcards: sample_dict[sample_record(
             sample_name=wildcards.sample_name, date=wildcards.date)]['seed'],
+        TREE_LIKE = '--tree-like' if config.simulate_haplotypes['tree_like'] else '-u',
         OUTDIR_HAP = "{sample_dir}/{sample_name}/{date}/references/haplotypes",
         SIM_BENCH = config.applications['simBench'],
     log:
@@ -77,7 +78,7 @@ rule simulate_haplotypes:
             {params.SIM_BENCH} -f {params.HAPLOTYPE_SEQS} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
         else
             # use master sequence
-            {params.SIM_BENCH} -f {input} -u -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
+            {params.SIM_BENCH} -f {input} {params.TREE_LIKE} -n {params.NUM_HAPLOTYPES} -mr {params.MUT_RATE} -dr {params.DEL_RATE} -ir {params.INS_RATE} {params.NO_FR} {params.DEL_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o haplotypes > >(tee {log.outfile}) 2>&1
         fi
         """
 
