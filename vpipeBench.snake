@@ -35,10 +35,15 @@ rule simulated_data:
         expand("{dataset}/raw_data/simreads_R2.fastq",
                dataset=datasets) if config.input['paired'] else []
 
-rule alltests:
+rule aligner_tests:
     input:
-        "variants/SNV_calling_performance_union.tsv",
-        "variants/SNV_calling_performance_intersect.tsv"
+        "variants/SNV_calling_performance_union_aligner.tsv",
+        "variants/SNV_calling_performance_intersect_aligner.tsv"
+
+rule snv_caller_tests:
+    input:
+        "variants/SNV_calling_performance_union_snv_caller.tsv",
+        "variants/SNV_calling_performance_intersect_snv_caller.tsv"
 
 include: "rules/simbench.smk"
 include: "rules/clean.smk"
