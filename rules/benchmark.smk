@@ -65,6 +65,8 @@ class VpipeBenchConfig(VpipeConfig):
                 'time': __RECORD__(value=30, type=int),
                 'conda': __RECORD__(
                     value=f'{VPIPE_BASEDIR}/envs/simbench.yaml', type=str),
+
+                'tree_like': __RECORD__(value=True, type=bool),
             }),
             ('simulate_reads', {
                 'mem': __RECORD__(value=2000, type=int),
