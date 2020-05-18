@@ -251,21 +251,25 @@ def inferred_snvs(snvs_file):
                                 # Add deleted bases to current deletion
                                 for idx in range(ref_len):
                                     if idx >= del_len:
+                                        ref_base = row[3][idx + 1]
                                         locus = int(row[1]) + idx
                                         loci_inferred_tmp.append(locus)
-                                        # ALL deleted bases w.r.t. reference
-                                        # are reported. However, the first base
-                                        # corresponds to the locus after which
-                                        # the deletion starts
-                                        ref_inferred_tmp.append(row[3][idx + 1])
+                                        ref_inferred_tmp.append(ref_base)
                                         snvs_inferred_tmp.append('-')
-                                        freq_inferred_tmp.append(float(freq))
+                                        if ref_base != '-':
+                                            freq_inferred_tmp.append(float(freq))
+                                        else:
+                                            freq_inferred_tmp.append(0.0)
                                     else:
-                                        freq_inferred_tmp[idx] += float(freq)
+                                        ref_base = row[3][idx + 1]
+                                        if ref_base != '-':
+                                            freq_inferred_tmp[idx] += float(freq)
                             else:
                                 # Add frequencies
                                 for idx in range(ref_len):
-                                    freq_inferred_tmp[idx] += float(freq)
+                                    ref_base = row[3][idx + 1]
+                                    if ref_base != '-':
+                                        freq_inferred_tmp[idx] += float(freq)
                             del_len = len(loci_inferred_tmp)
                         else:
                             # Lofreq uses 1-based indexing
@@ -311,6 +315,16 @@ def inferred_snvs(snvs_file):
                             snvs_inferred.append(row[4])
                             freq_inferred.append(float(freq))
                             del_len = len(loci_inferred_tmp)
+
+        # All deleted bases are reported, even if the reference has a gap at
+        # that position - do not count those
+        for idx, b in reversed(list(enumerate(ref_inferred))):
+            if b == '-':
+                loci_inferred.pop(idx)
+                ref_inferred.pop(idx)
+                snvs_inferred.pop(idx)
+                freq_inferred.pop(idx)
+
     else:
         with open(snvs_file, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
