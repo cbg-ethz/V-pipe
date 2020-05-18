@@ -211,6 +211,7 @@ class VpipeConfig(object):
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
 
+            'consensus': __RECORD__(value=True, type=bool),
             'alpha': __RECORD__(value=0.1, type=float),
             'ignore_indels': __RECORD__(value=False, type=bool),
             'coverage': __RECORD__(value=0, type=int),
@@ -227,6 +228,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=60, type=int),
             'conda': __RECORD__(value='', type=str),
 
+            'consensus': __RECORD__(value=True, type=bool),
             'extra': __RECORD__(value='', type=str),
         }),
         ('alignment_coverage', {

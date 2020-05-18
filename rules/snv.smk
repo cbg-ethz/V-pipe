@@ -99,10 +99,9 @@ def read_len(wildcards):
     read_len = patient_dict[patient_tuple]
     return read_len
 
-
 rule snv:
     input:
-        REF = "variants/cohort_consensus.fasta",
+        REF = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file,
         BAM = "{dataset}/alignments/REF_aln.bam",
         TSV = "{dataset}/variants/coverage_intervals.tsv",
     output:
@@ -233,7 +232,7 @@ rule samtools_index:
 
 rule lofreq:
     input:
-        REF = "variants/cohort_consensus.fasta",
+        REF = "variants/cohort_consensus.fasta" if config.lofreq['consensus'] else reference_file,
         REF_IDX = "variants/cohort_consensus.fasta.fai",
         BAM = "{dataset}/alignments/REF_aln.bam",
     output:
