@@ -41,7 +41,7 @@ sh Miniconda3-latest-MacOSX-x86_64.sh
 2. Create conda virtual environment
 
 ```
-conda create -n V-pipe -c bioconda python=3.8 snakemake-minimal=5.14.0
+conda create -n V-pipe -c conda-forge -c bioconda python=3.8 snakemake-minimal=5.14.0
 conda activate V-pipe
 ```
 
