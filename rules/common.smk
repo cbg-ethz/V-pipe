@@ -132,11 +132,15 @@ class VpipeConfig(object):
             'time': __RECORD__(value=235, type=int),
             'threads': __RECORD__(value=0, type=int),
             'conda': __RECORD__(value='', type=str),
+
+            'ref_panel': __RECORD__(value='references/5-Virus-Mix.fasta', type=str),
         }),
         ('coverage_QA', {
             'mem': __RECORD__(value=1250, type=int),
             'time': __RECORD__(value=235, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
+
+            'target': __RECORD__(value='HXB2:6614-6812,7109-7217,7376-7478,7601-7634', type=str),
         }),
         ('msa', {
             'mem': __RECORD__(value=10000, type=int),

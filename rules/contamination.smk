@@ -10,7 +10,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 rule bwa_QA:
     input:
         patient_ref = "{dataset}/references/ref_{kind}.fasta",
-        virusmix_ref = "references/5-Virus-Mix.fasta",
+        virusmix_ref = config.bwa_QA['ref_panel'],
         FASTQ = input_align,
     output:
         SAM = temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
@@ -63,6 +63,7 @@ rule coverage_QA:
         scratch = '1250',
         mem = config.coverage_QA['mem'],
         time = config.coverage_QA['time'],
+        TARGET = config.coverage_QA['target'],
         COV_STATS = config.applications['coverage_stats'],
     log:
         outfile = "{dataset}/QA_alignments/coverage_QA_{kind}.out.log",
@@ -86,7 +87,7 @@ rule coverage_QA:
         # 2. collect coverage stats
         # we only collect statistics in the loop regions
         # of HIV-1 in order
-        {params.COV_STATS} -t HXB2:6614-6812,7109-7217,7376-7478,7601-7634 -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.COV_STATS} -t {params.TARGET} -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 
