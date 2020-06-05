@@ -40,6 +40,8 @@ class VpipeBenchConfig(VpipeConfig):
                 'simBench': __RECORD__(
                     value=f"{VPIPE_BASEDIR}/scripts/simBench.py", type=str),
                 'art': __RECORD__(value="art_illumina", type=str),
+                'alignmentBias': __RECORD__(
+                    value=f"{VPIPE_BASEDIR}/scripts/alignmentBias.py", type=str),
                 'testBench': __RECORD__(
                     value=f"{VPIPE_BASEDIR}/scripts/testBench.py", type=str),
                 'alignmentIntervals' : __RECORD__(
@@ -81,10 +83,17 @@ class VpipeBenchConfig(VpipeConfig):
                 'mem': __RECORD__(value=5000, type=int),
                 'time': __RECORD__(value=90, type=int),
             }),
+            ('alignment_bias', {
+                'mem': __RECORD__(value=2000, type=int),
+                'time': __RECORD__(value=60, type=int),
+                'conda': __RECORD__(
+                    value=f'{VPIPE_BASEDIR}/envs/testbench.yaml', type=str),
+            }),
             ('test_snv', {
                 'mem': __RECORD__(value=2000, type=int),
                 'time': __RECORD__(value=60, type=int),
-                'conda': __RECORD__(value='', type=str),
+                'conda': __RECORD__(
+                    value=f'{VPIPE_BASEDIR}/envs/testbench.yaml', type=str),
 
                 're_msa': __RECORD__(value=False, type=bool),
             }),
