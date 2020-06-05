@@ -26,6 +26,7 @@ rule allbench:
     input:
         RESULTS,
         "variants/SNV_calling_performance.tsv",
+        "stats/alignment_bias.tsv",
         "stats/coverage_intervals.tsv",
         "stats/read_counts.tsv"
 

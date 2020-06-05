@@ -20,6 +20,51 @@ def snvfiles(wildcards):
         sys.exit(1)
     return snv_files
 
+rule alignment_bias:
+    input:
+        REF = reference_file,
+        BAM = "{sample_dir}/{sample_name}/{date}/alignments/REF_aln.bam",
+        R1gz = "{sample_dir}/{sample_name}/{date}/preprocessed_data/R1.fastq.gz",
+        HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
+    output:
+        "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.tsv"
+    params:
+        scratch = '2000',
+        mem = config.alignment_bias['mem'],
+        time = config.alignment_bias['time'],
+        PAIRED = '-p' if config.input['paired'] else '',
+        ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
+        ALIGNMENT_BIAS = config.applications['alignmentBias'],
+    log:
+        outfile = "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log",
+        errfile = "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log"
+    conda:
+        config.alignment_bias['conda']
+    threads:
+        1
+    shell:
+        """
+        {params.ALIGNMENT_BIAS} -r {input.REF} -b {input.BAM} -f <(zcat {input.R1gz}) --hap {input.HAPLOTYPE_SEQS} {params.PAIRED} -N {params.ID} -o {output}
+        """
+
+rule aggregate_alignment_bias:
+    input:
+        expand("{dataset}/alignments/alignment_bias.tsv", dataset=datasets)
+    output:
+        "stats/alignment_bias.tsv"
+    params:
+        scratch = '1250',
+        mem = config.aggregate['mem'],
+        time = config.aggregate['time']
+    log:
+        outfile = "stats/alignment_bias.out.log",
+        errfile = "stats/alignment_bias.out.log"
+    shell:
+        """
+        awk FNR!=1 {input} > {output}
+        sed -i 1i"SampleID\tHaplotypeID\tDivergence\tPercent-aligned\tPercent-bases-aligne\n" {output}
+        """
+
 
 rule aggregate_beforeSB:
     input:
