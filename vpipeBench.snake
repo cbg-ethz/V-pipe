@@ -13,6 +13,7 @@ functions = srcdir("functions.sh")
 
 RESULTS = []
 if config.general['simulate']:
+    "stats/alignment_bias.tsv",
     RESULTS.append(
         [f'{dataset}/raw_data/simreads_R1.fastq' for dataset in datasets]
     )
@@ -26,7 +27,6 @@ rule allbench:
     input:
         RESULTS,
         "variants/SNV_calling_performance.tsv",
-        "stats/alignment_bias.tsv",
         "stats/coverage_intervals.tsv",
         "stats/read_counts.tsv"
 
