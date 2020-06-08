@@ -40,6 +40,7 @@ class VpipeConfig(object):
             'trim_percent_cutoff': __RECORD__(value=0.8, type=float),
             'reference': __RECORD__(value='references/HXB2.fasta', type=str),
             'gff_directory': __RECORD__(value='', type=str),
+            'primers_file': __RECORD__(value='', type=str),
         }),
         ('output', {
             'QA': __RECORD__(value=False, type=bool),
