@@ -4,6 +4,7 @@ rule generate_web_visualization:
         coverage_file = "variants/coverage.tsv",
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
         gff_directory = config.input['gff_directory'],
+        primers_file = config.input['primers_file'],
         global_ref = reference_file
     output:
         html_file = "{dataset}/visualization/index.html"
@@ -29,6 +30,7 @@ rule generate_web_visualization:
             "{input.coverage_file}" \
             "{input.vcf_file}" \
             "{input.gff_directory}" \
+            "{input.primers_file}" \
             "{workflow.basedir}/scripts/visualization.html" \
             "{output.html_file}" \
             "{wildcards.dataset}" \
