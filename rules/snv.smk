@@ -93,6 +93,7 @@ rule snv:
         SHIFT = config.snv['shift'],
         KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
         WORK_DIR = "{dataset}/variants/SNVs",
+        LOCALSCRATCH = config.snv['localscratch'],
         SHORAH = config.applications['shorah'],
         BCFTOOLS = config.applications['bcftools']
     log:
@@ -120,6 +121,13 @@ rule snv:
         ERRFILE=${{PWD}}/{log.errfile}
         WORK_DIR=${{PWD}}/{params.WORK_DIR}
 
+        if [[ -n "{params.LOCALSCRATCH}" ]]; then
+            # put input files in localscratch
+            rsync -aq "${{BAM}}" "${{REF}}" "{params.LOCALSCRATCH}/"
+            BAM="{params.LOCALSCRATCH}/${{BAM##*/}}"
+            REF="{params.LOCALSCRATCH}/${{REF##*/}}"
+        fi
+
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
         LINE_COUNTER=0
         FILES=""
@@ -145,10 +153,22 @@ rule snv:
                 fi
             fi
             # Change to the directory where ShoRAH is to be executed
-            cd ${{DIR}}
+            if [[ -z "{params.LOCALSCRATCH}" ]]; then
+                cd ${{DIR}}
+            else
+                # special case: go in local scratch instead
+                rsync -aq "${{DIR}}" "{params.LOCALSCRATCH}/"
+                mkdir -p "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}"
+                cd "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}"
+            fi
 
             # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
             {params.SHORAH} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -c {params.COVERAGE} -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            if [[ -n "{params.LOCALSCRATCH}" ]]; then
+                # copyback from localscratch
+                rsync -auq "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}" "${{WORK_DIR}}"
+                cd ${{DIR}}
+            fi
             if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
                 {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
