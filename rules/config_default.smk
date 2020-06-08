@@ -236,6 +236,7 @@ class VpipeConfig(object):
             'coverage': __RECORD__(value=0, type=int),
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
+            'localscratch':  __RECORD__(value='', type=str),
         }),
         ('samtools_index', {
             'mem': __RECORD__(value=2000, type=int),
