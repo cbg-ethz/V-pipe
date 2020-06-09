@@ -95,6 +95,7 @@ rule snv:
         WORK_DIR = "{dataset}/variants/SNVs",
         LOCALSCRATCH = config.snv['localscratch'],
         SHORAH = config.applications['shorah'],
+        COVINT = config.coverage_intervals['coverage'],
         BCFTOOLS = config.applications['bcftools']
     log:
         outfile = "{dataset}/variants/SNVs/shorah.out.log",
@@ -135,7 +136,7 @@ rule snv:
         while read -r region || [[ -n ${{region}} ]]
         do
             echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
-            LINE_COUNTER=$(( $LINE_COUNTER + 1))
+            (( ++LINE_COUNTER ))
             # Create directory for running ShoRAH in a corresponding region (if doesn't exist)
             DIR=${{WORK_DIR}}/REGION_${{LINE_COUNTER}}
             if [[ ! -d "${{DIR}}" ]]; then
@@ -169,12 +170,21 @@ rule snv:
                 rsync -auq "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}" "${{WORK_DIR}}"
                 cd ${{DIR}}
             fi
-            if [[ -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
+            if [[ -s ${{DIR}}/reads.fas && -f ${{DIR}}/snv/SNVs_0.010000_final.csv ]]; then
+                # Non empty reads: run had enough data and should have produced SNVs
                 {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
                 FILES_VCF="$FILES_VCF ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz"
             else
+                # if we have disabled coverage intervales entirely, the first and only line might have no reads
+                # (e.g.: in negative controls )
+                if (( {params.COVINT} == 0 && LINE_COUNTER == 1 )) && [[ -f ${{DIR}}/reads.fas && ( ! -s ${{DIR}}/reads.fas ) ]]; then
+                     echo "No reads while coverage intervals disabled (possible negative control sample)" 2> >(tee -a $ERRFILE >&2)
+                     cd ${{CWD}}
+                     (( --LINE_COUNTER )) || true # Strict mode : (( 0 )) = fail
+                     break
+                fi
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
                 exit 1
             fi
@@ -185,7 +195,7 @@ rule snv:
 
         # Aggregate results from different regions
         if [[ -z ${{FILES}} ]]; then
-            if [[ ${{LINE_COUNTER}} > 0 ]]; then
+            if (( LINE_COUNTER > 0 )); then
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a {log.errfile} >&2)
                 exit 1
             else
