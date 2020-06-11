@@ -121,6 +121,12 @@ Other dependencies are managed by using isolated conda environments per rule, an
 
   We use HaploClique or SAVAGE to perform global haplotype reconstruction for heterogeneous viral populations by using an overlap graph.
 
+## Preprint
+
+Posada-Céspedes S., Seifert D., Topolsky I., Metzner K.J., and Beerenwinkel N. V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput sequencing data. doi:[10.1101/2020.06.09.142919](https://doi.org/10.1101/2020.06.09.142919)
+
+NOTE: During the Gibbs sampling performed by ShoRAH, several clusters may generate the same haplotype representative. Such collisions result in inflated posterior values. Also, the averaging of the haplotype abundances across iterations can be affected by floating-point precision problems. Fortunately, ShoRAH also reports the number of reads assigned to each haplotype per iteration which we use to correct the aforementioned quantities in post-processing. We are currently implementing the changes required to resolve these issues in future releases of ShoRAH.
+
 ## Contributions
 
 - [Susana Posada Céspedes](https://orcid.org/0000-0002-7459-8186)
