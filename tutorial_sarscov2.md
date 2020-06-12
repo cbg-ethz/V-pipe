@@ -150,6 +150,10 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 ./vpipe -p --cores 2
 ```
 
+> **Tips:** you can learn more about running V-pipe in the following wiki sections:
+> - [getting started](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#running-v-pipe)
+> - [advanced](https://github.com/cbg-ethz/V-pipe/wiki/advanced#running-v-pipe)
+
 ## Output
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).

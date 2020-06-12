@@ -136,6 +136,18 @@
       }
 
 @media (max-width: 920px) {
+     a.footnote {
+	font-size:14px;
+     }
+     sup::before {
+	content: ' ';
+     }
+     a.footnote::before {
+	content:'[';
+     }
+     a.footnote::after {
+	content:']';
+     }
      .table-wrapper {
 	overflow-x: scroll;
 	margin-bottom: 30px;
