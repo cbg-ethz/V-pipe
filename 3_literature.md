@@ -16,6 +16,6 @@ permalink: /literature/
 
 {% include literature-use.html %}
 
-## Components in V-pipe
+## Components of V-pipe developed at CBG-ETHZ
 
 {% include literature-components.html %}
