@@ -54,7 +54,7 @@ def parse_gff(fname):
                     {
                         "id": record.id,
                         "type": feature.type,
-                        "name": feature.id,
+                        "name": feature.qualifiers.get('Name', [feature.id])[0],
                         "start": int(feature.location.start),
                         "end": int(feature.location.end),
                     }
