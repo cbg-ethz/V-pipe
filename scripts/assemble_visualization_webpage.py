@@ -19,10 +19,10 @@ def convert_vcf(fname):
     output = []
 
     if os.path.getsize(fname) == 0:
-        print('Empty VCF')
+        print(f'Empty VCF: "{fname}"')
         return output
 
-    print('Parsing VCF')
+    print(f'Parsing VCF: "{fname}"')
     with open(fname) as fd:
         vcf_reader = vcf.Reader(fd)
 
@@ -46,7 +46,7 @@ def parse_gff(fname):
     """Convert GFF to map."""
     features = []
 
-    print('Parsing GFF')
+    print(f'Parsing GFF: "{fname}"')
     with open(fname) as fd:
         for record in GFF.parse(fd):
             for feature in record.features:
