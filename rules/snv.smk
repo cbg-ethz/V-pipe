@@ -131,8 +131,8 @@ rule snv:
 
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
         LINE_COUNTER=0
-        FILES=""
-        FILES_VCF=""
+        FILES=( )
+        FILES_VCF=( )
         while read -r region || [[ -n ${{region}} ]]
         do
             echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
@@ -174,17 +174,17 @@ rule snv:
                 # Non empty reads: run had enough data and should have produced SNVs
                 {params.BCFTOOLS} view ${{DIR}}/snv/SNVs_0.010000_final.vcf -Oz -o ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
-                FILES="$FILES ${{DIR}}/snv/SNVs_0.010000_final.csv"
-                FILES_VCF="$FILES_VCF ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz"
-            else
+                FILES+=("${{DIR}}/snv/SNVs_0.010000_final.csv")
+                FILES_VCF+=("${{DIR}}/snv/SNVs_0.010000_final.vcf.gz")
+            elif (( {params.COVINT} == 0 && LINE_COUNTER == 1 )) && [[ -f ${{DIR}}/reads.fas && ( ! -s ${{DIR}}/reads.fas ) ]]; then
                 # if we have disabled coverage intervales entirely, the first and only line might have no reads
                 # (e.g.: in negative controls )
-                if (( {params.COVINT} == 0 && LINE_COUNTER == 1 )) && [[ -f ${{DIR}}/reads.fas && ( ! -s ${{DIR}}/reads.fas ) ]]; then
-                     echo "No reads while coverage intervals disabled (possible negative control sample)" 2> >(tee -a $ERRFILE >&2)
-                     cd ${{CWD}}
-                     (( --LINE_COUNTER )) || true # Strict mode : (( 0 )) = fail
-                     break
-                fi
+
+                echo "No reads while coverage intervals disabled (possible negative control sample)" 2> >(tee -a $ERRFILE >&2)
+                cd ${{CWD}}
+                (( --LINE_COUNTER )) || true # Strict mode : (( 0 )) = fail
+                break
+            else
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
                 exit 1
             fi
@@ -194,22 +194,20 @@ rule snv:
         done < {input.TSV}
 
         # Aggregate results from different regions
-        if [[ -z ${{FILES}} ]]; then
-            if (( LINE_COUNTER > 0 )); then
-                echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a {log.errfile} >&2)
-                exit 1
-            else
-                echo "No alignment region reports sufficient coverage" >> {log.outfile}
-                touch {output.CSV}
-                touch {output.VCF}
-            fi
-        else
-            echo "Intermediate csv files: ${{FILES}}" >> {log.outfile}
-            echo "Intermediate vcf files: ${{FILES_VCF}}" >> {log.outfile}
-            cat ${{FILES}} | sort -t, -nk2 | tail -n +${{LINE_COUNTER}} > {output.CSV}
-            {params.BCFTOOLS} concat -o ${{WORK_DIR}}/snvs_tmp.vcf ${{FILES_VCF}}
+        if (( ${{#FILES[@]}} )); then
+            echo "Intermediate csv files: ${{FILES[*]}}" >> {log.outfile}
+            echo "Intermediate vcf files: ${{FILES_VCF[*]}}" >> {log.outfile}
+            (head -n 1 "${{FILES[0]}}"; tail -q -n +2 "${{FILES[@]}}" | sort -t, -nk2) > {output.CSV}
+            {params.BCFTOOLS} concat -o ${{WORK_DIR}}/snvs_tmp.vcf "${{FILES_VCF[@]}}"
             {params.BCFTOOLS} sort ${{WORK_DIR}}/snvs_tmp.vcf  -o {output.VCF}
             rm -f ${{WORK_DIR}}/snvs_tmp.vcf
+        elif (( LINE_COUNTER )); then
+            echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a {log.errfile} >&2)
+            exit 1
+        else
+            echo "No alignment region reports sufficient coverage" >> {log.outfile}
+            touch {output.CSV}
+            touch {output.VCF}
         fi
         """
 
