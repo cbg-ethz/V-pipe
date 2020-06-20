@@ -100,6 +100,9 @@ def get_gff_data(gff_dir):
     ] = "Uniprot predicted transmembrane regions"
 
     gff_map = {}
+    if not gff_dir:
+        print("No gff directory provided, skipping.")
+        return gff_map
     for path in os.listdir(gff_dir):
         full_path = os.path.join(gff_dir, path)
         description = os.path.splitext(path)[0]
@@ -116,6 +119,11 @@ def get_primers_data(full_path, consensus):
     primers_metainfo["nCoV-2019"] = "ARTIC bioinformatics primers for nanopore sequencing of nCoV2019"
 
     primers_map = {}
+    if not full_path:
+        print("No primers table provided, skipping.")
+        return primers_map
+    else:
+        print(f'Parsing GFF: "{full_path}"')
     consensus_upper = consensus.upper()
     description = os.path.splitext(os.path.basename(full_path))[0]
     if description in primers_metainfo:
@@ -143,12 +151,13 @@ def get_primers_data(full_path, consensus):
     if primer_locations:
         primers_map[description] = arrange_gff_data(primer_locations)
     else:
-        print("No primer was mapped from ", path, ".")
+        print(f'No primer was mapped from "{full_path}".')
     return primers_map
 
 
 def convert_coverage(fname, sample_name, genome_length):
     """Convert the read coverage to bp coverage."""
+    print(f'Parsing coverage: "{fname}"')
     csv = pd.read_csv(fname, sep="\t", index_col=0, header=0)
     return csv[sample_name].values.tolist()
 
@@ -166,9 +175,10 @@ def main(
 ):
     # parse the sample name
     path_components = os.path.normpath(wildcards_dataset).split(os.path.sep)
-    sample_name = '/'.join(path_components[1:])
+    sample_name = '/'.join(path_components[-2:])
 
     # parse the consensus sequence
+    print(f'Parsing consensus: "{consensus_file}"')
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
 
     # parse coverage file
@@ -185,7 +195,7 @@ def main(
     reference_name = re.search(
         r"(.+)\.fa.*",
         os.path.basename(reference_file)
-    ).group(1)
+    ).group(1).replace('_', '&nbsp;')
 
     embed_code = f"""
         var sample_name = \"{sample_name}\"
