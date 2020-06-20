@@ -5,7 +5,7 @@ rule generate_web_visualization:
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
         gff_directory = config.input['gff_directory'],
         primers_file = config.input['primers_file'],
-        global_ref = reference_file
+        global_ref = "variants/cohort_consensus.fasta" # see input.REF in rule snv
     output:
         html_file = "{dataset}/visualization/index.html"
     params:
