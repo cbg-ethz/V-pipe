@@ -109,5 +109,5 @@ EOF
 
 if [ -z "$MINIMAL" ]; then
     mkdir -p "$PROJECT_DIR/references"
-    cp -iv "$VPIPE_DIR/references"/* "$PROJECT_DIR/references/"
+    cp -riv "$VPIPE_DIR/references"/* "$PROJECT_DIR/references/"
 fi
