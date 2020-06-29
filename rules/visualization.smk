@@ -5,6 +5,7 @@ rule generate_web_visualization:
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
         gff_directory = config.input['gff_directory'],
         primers_file = config.input['primers_file'],
+        metainfo_file = config.input['metainfo_file'],
         global_ref = "variants/cohort_consensus.fasta" # see input.REF in rule snv
     output:
         html_file = "{dataset}/visualization/index.html"
@@ -31,6 +32,7 @@ rule generate_web_visualization:
             --vcf	"{input.vcf_file}" \
             --gff	"{input.gff_directory}" \
             --primers	"{input.primers_file}" \
+            --metainfo	"{input.metainfo_file}" \
             --template	"{workflow.basedir}/scripts/visualization.html" \
             --output	"{output.html_file}" \
             --wildcards	"{wildcards.dataset}" \
