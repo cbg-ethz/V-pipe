@@ -162,7 +162,7 @@ def convert_coverage(fname, sample_name, genome_length):
     return csv[sample_name].values.tolist()
 
 
-def main(
+def assemble_visualization_webpage(
     consensus_file,
     coverage_file,
     vcf_file,
@@ -218,15 +218,58 @@ def main(
         fd.write(mod_html)
 
 
+def main():
+    """Parse command line, run default functions."""
+    import argparse
+    # parse command line
+    # create the top-level parser
+    parser = argparse.ArgumentParser(description="Generate HTML visual report from VCF variants")
+    parser.add_argument('-f','--consensus', metavar='FASTA', required=False,
+        type=str, dest='consensus_file', help="consensus sequence of this sample")
+    parser.add_argument('-c','--coverage', metavar='TSV', required=False,
+        default='variants/coverage.tsv',
+        type=str, dest='coverage_file', help="global coverage table")
+    parser.add_argument('-v','--vcf', metavar='VCF', required=False,
+        type=str, dest='vcf_file', help="VCF containing the SNPs to be visualised")
+    parser.add_argument('-g','--gff', metavar='DIR', required=False,
+        type=str, dest='gff_directory', help="directory containing GFF annotations")
+    parser.add_argument('-p','--primers', metavar='CSV', required=False,
+        type=str, dest='primers_file', help="table with primers")
+    parser.add_argument('-t','--template', metavar='HTML', required=False,
+        default=f'{os.path.dirname(__file__)}/visualization.html',
+        type=str, dest='html_file_in', help="HTML template used to generate visual report")
+    parser.add_argument('-o','--output', metavar='HTML', required=False,
+        type=str, dest='html_file_out', help="produced HTML report")
+    parser.add_argument('-w','--wildcards', metavar='SAMPLE/DATE', required=False,
+        type=str, dest='wildcards_dataset', help="sample's two-level directory hierarchy prefix")
+    parser.add_argument('-r','--reference', metavar='FASTA', required=False,
+        default='variants/cohort_consensus.fasta',
+        type=str, dest='reference_file', help="reference against which SNVs were called (e.g.: cohort's consensus)")
+
+    args = parser.parse_args()
+
+    # defaults which can be guess from one another
+    if args.vcf_file  == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/variants/SNVs/snvs.vcf
+        assert args.wildcards_dataset != None, 'cannot automatically find VCF without wildcards'
+        args.vcf_file = os.path.join(args.wildcards_dataset, 'variants', 'SNVs', 'snvs.vcf')
+
+    if args.consensus_file  == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/references/ref_majority.fasta
+        assert args.wildcards_dataset != None, 'cannot automatically find consensus without wildcards'
+        args.consensus_file = os.path.join(args.wildcards_dataset, 'references', 'ref_majority.fasta')
+
+    if args.wildcards_dataset == None:
+        assert args.vcf_file != None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
+        try1 = '/'.join(os.path.normpath(args.vcf_file).split(os.path.sep)[-5:-3])
+        try2 = '/'.join(os.path.normpath(args.consensus_file).split(os.path.sep)[-4:-2])
+        assert try1 == try2, f'cannot deduce wildcards automatically from <{args.vcf_file}> and <{args.consensus_file}>, please specify explicitly using `--wirdcards`'
+        args.wildcards_dataset = try1
+
+    if args.html_file_out == None:
+        args.html_file_out = os.path.join(args.wildcards_dataset, 'visualization', 'index.html')
+
+    # run the visual report generator
+    assemble_visualization_webpage(**vars(args))
+
+
 if __name__ == "__main__":
-    main(
-        sys.argv[1],
-        sys.argv[2],
-        sys.argv[3],
-        sys.argv[4],
-        sys.argv[5],
-        sys.argv[6],
-        sys.argv[7],
-        sys.argv[8],
-        sys.argv[9],
-    )
+    main()
