@@ -1,0 +1,7 @@
+gff:
+  Genes_NC_045512.2: Genes (ORFs)
+  Sars-Cov2_Mature_products: Mature processed protein products
+  Sars-Cov2_TM_domains: Uniprot predicted transmembrane regions
+  Sars-Cov2_Uniprot_domains: Uniprot domains
+primers:
+  nCoV-2019: ARTIC bioinformatics primers for nanopore sequencing of nCoV2019
