@@ -26,14 +26,14 @@ rule generate_web_visualization:
         # 2) run directive does not allow conda envs
 
         python "{workflow.basedir}/scripts/assemble_visualization_webpage.py" \
-            "{input.consensus_file}" \
-            "{input.coverage_file}" \
-            "{input.vcf_file}" \
-            "{input.gff_directory}" \
-            "{input.primers_file}" \
-            "{workflow.basedir}/scripts/visualization.html" \
-            "{output.html_file}" \
-            "{wildcards.dataset}" \
-            "{input.global_ref}" \
+            --consensus	"{input.consensus_file}" \
+            --coverage	"{input.coverage_file}" \
+            --vcf	"{input.vcf_file}" \
+            --gff	"{input.gff_directory}" \
+            --primers	"{input.primers_file}" \
+            --template	"{workflow.basedir}/scripts/visualization.html" \
+            --output	"{output.html_file}" \
+            --wildcards	"{wildcards.dataset}" \
+            --reference	"{input.global_ref}" \
             > {log.outfile} 2> {log.errfile}
         """
