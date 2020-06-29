@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import json
+import yaml
 from pathlib import Path
 
 import numpy as np
@@ -40,6 +41,20 @@ def convert_vcf(fname):
             )
 
     return json.dumps(output)
+
+
+def get_metainfo(metainfo_yaml):
+    """load metainformation for the GFF and primers from YAML file"""
+
+    if metainfo_yaml:
+        print(f'Parsing metainformation: "{metainfo_yaml}"')
+        with open(metainfo_yaml) as fd:
+            metainfo = yaml.load(fd.read(), Loader=yaml.SafeLoader)
+        assert type(metainfo) is dict, f'Probable syntax error in {metainfo_yaml} - need a dictionnary at top level, got {type(metainfo)} instead.'
+        return metainfo
+    else:
+        print("No metainformation YAML provided, skipping.")
+        return {}
 
 
 def parse_gff(fname):
@@ -86,18 +101,10 @@ def arrange_gff_data(features):
     return [item for row in rows for item in row]
 
 
-def get_gff_data(gff_dir):
+def get_gff_data(gff_dir, gff_metainfo = {}):
     """Returns a map with filename key and gff json data."""
-    # Hardcode metainformation for the GFF file provided in the repository.
-    gff_metainfo = {}
-    gff_metainfo["Genes_NC_045512.2"] = "Genes (ORFs)"
-    gff_metainfo[
-        "Sars-Cov2_Mature_products"
-    ] = "Mature processed protein products"
-    gff_metainfo["Sars-Cov2_Uniprot_domains"] = "Uniprot domains"
-    gff_metainfo[
-        "Sars-Cov2_TM_domains"
-    ] = "Uniprot predicted transmembrane regions"
+    if gff_metainfo==None: gff_metainfo={}
+    assert type(gff_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [gff], got {type(gff_metainfo)} instead.'
 
     gff_map = {}
     if not gff_dir:
@@ -112,11 +119,10 @@ def get_gff_data(gff_dir):
     return gff_map
 
 
-def get_primers_data(full_path, consensus):
+def get_primers_data(full_path, consensus, primers_metainfo={}):
     """Returns a map with filename key and primers json data."""
-    # Hardcode metainformation for the filenames provided in the repository.
-    primers_metainfo = {}
-    primers_metainfo["nCoV-2019"] = "ARTIC bioinformatics primers for nanopore sequencing of nCoV2019"
+    if primers_metainfo==None: primers_metainfo={}
+    assert type(primers_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [primers], got {type(primers_metainfo)} instead.'
 
     primers_map = {}
     if not full_path:
@@ -172,6 +178,7 @@ def assemble_visualization_webpage(
     html_file_out,
     wildcards_dataset,
     reference_file,
+    metainfo_yaml,
 ):
     # parse the sample name
     path_components = os.path.normpath(wildcards_dataset).split(os.path.sep)
@@ -188,8 +195,9 @@ def assemble_visualization_webpage(
 
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)
-    gff_map = get_gff_data(gff_directory)
-    primers_map = get_primers_data(primers_file, str(consensus))
+    metainfo = get_metainfo(metainfo_yaml)
+    gff_map = get_gff_data(gff_directory, gff_metainfo=metainfo['gff'] if 'gff' in metainfo else {})
+    primers_map = get_primers_data(primers_file, str(consensus), primers_metainfo=metainfo['primers'] if 'primers' in metainfo else {})
 
     # parse the reference name
     reference_name = re.search(
@@ -235,6 +243,8 @@ def main():
         type=str, dest='gff_directory', help="directory containing GFF annotations")
     parser.add_argument('-p','--primers', metavar='CSV', required=False,
         type=str, dest='primers_file', help="table with primers")
+    parser.add_argument('-m','--metainfo', metavar='YAML', required=False,
+        type=str, dest='metainfo_yaml', help="metainformation for the GFF and primers")
     parser.add_argument('-t','--template', metavar='HTML', required=False,
         default=f'{os.path.dirname(__file__)}/visualization.html',
         type=str, dest='html_file_in', help="HTML template used to generate visual report")

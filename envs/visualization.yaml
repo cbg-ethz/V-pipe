@@ -8,3 +8,4 @@ dependencies:
   - numpy
   - pandas
   - Biopython
+  - pyyaml
