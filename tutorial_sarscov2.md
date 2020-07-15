@@ -4,6 +4,7 @@ permalink: /tutorial/sars-cov2/
 ---
 
 This tutorial shows the basics of how to interact with V-pipe.
+A [recording of our webinar](https://youtu.be/pIby1UooK94) covering the subject is available [at the bottom of the current page](#webinar-applying-v-pipe-to-sars-coronavirus-2-data).
 
 For the purpose of this Tutorial, we will work with the `sars-cov2` branch which is [adapted for the SARS-CoV-2 virus]({{ "/sars-cov-2/" | relative_url }}).
 
@@ -267,5 +268,14 @@ bsub -I <<<"./vpipe --conda-prefix $SCRATCH/snake-envs -p --cores 2"
 
 
 Check the other [options for running snakemake on clusters](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CLUSTER) if you need more advanced uses.
+
+
+## Webinar: Applying V-pipe to SARS-Coronavirus-2 data
+
+{% include youtubePlayer.html id="pIby1UooK94" %}
+
+This webinar was recorded by the SIB on June 22th [^miseq].
+
+[^miseq]: Image of an Illumina MiSeq sequencer used under license from [Illumina](illumina.com), Inc. All Rights Reserved.
 
 -----

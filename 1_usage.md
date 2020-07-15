@@ -7,6 +7,7 @@ permalink: /usage/
 ## Tutorials
 
 - [How to use V-pipe (specifically for SARS-CoV-2 data)]({{ "/tutorial/sars-cov2/" | relative_url }}).
+- [Webinar: Applying V-pipe to SARS-Coronavirus-2 data](https://youtu.be/pIby1UooK94).
 
 ## Overview
 
