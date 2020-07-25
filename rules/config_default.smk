@@ -233,6 +233,7 @@ class VpipeConfig(object):
             'consensus': __RECORD__(value=True, type=bool),
             'alpha': __RECORD__(value=0.1, type=float),
             'ignore_indels': __RECORD__(value=False, type=bool),
+            'posterior_threshold': __RECORD__(value=0.9, type=float),
             'coverage': __RECORD__(value=0, type=int),
             'shift': __RECORD__(value=3, type=int),
             'keep_files': __RECORD__(value=False, type=bool),
