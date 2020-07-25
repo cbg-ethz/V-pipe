@@ -134,12 +134,13 @@ for p in patient_list:
 
     # SNV
     if config.output['snv']:
+        # in adition to standard VCF files, ShoRAH2 also produces CSV tables
         if config.general['snv_caller'] == 'shorah':
             results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
-        elif config.general['snv_caller'] == 'lofreq':
-            results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
-                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        # all aligners ('shorah', 'lofreq') produce standard VCF files
+        results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
+            sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # local haplotypes
     if config.output['local']:
         results.append(
