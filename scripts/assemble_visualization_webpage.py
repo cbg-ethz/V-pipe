@@ -180,6 +180,7 @@ def assemble_visualization_webpage(
     vcf_file,
     gff_directory,
     primers_file,
+    nwk_file,
     html_file_in,
     html_file_out,
     wildcards_dataset,
@@ -193,6 +194,10 @@ def assemble_visualization_webpage(
     # parse the consensus sequence
     print(f'Parsing consensus: "{consensus_file}"')
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
+
+    # read the NWK file content
+    with open(nwk_file) as fd:
+      nwk_tree = fd.read().rstrip('\n') 
 
     # parse coverage file
     coverage = convert_coverage(
@@ -221,6 +226,7 @@ def assemble_visualization_webpage(
         var vcfData = {vcf_json}
         var gffData = {gff_map}
         var primerData = {primers_map}
+        var phylogenyData = \"{nwk_tree}\"
         var reference_name = \"{reference_name}\"
     """
 
@@ -251,6 +257,8 @@ def main():
                         type=str, dest='gff_directory', help="directory containing GFF annotations")
     parser.add_argument('-p', '--primers', metavar='CSV', required=False,
                         type=str, dest='primers_file', help="table with primers")
+    parser.add_argument('-n', '--nwk', metavar='NWK', required=False,
+                        type=str, dest='nwk_file', help="phylogenetic tree in NWK format")
     parser.add_argument('-m', '--metainfo', metavar='YAML', required=False,
                         type=str, dest='metainfo_yaml', help="metainformation for the GFF and primers")
     parser.add_argument('-t', '--template', metavar='HTML', required=False,
@@ -276,6 +284,11 @@ def main():
         assert args.wildcards_dataset != None, 'cannot automatically find consensus without wildcards'
         args.consensus_file = os.path.join(
             args.wildcards_dataset, 'references', 'ref_majority.fasta')
+
+    if args.nwk_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/tree.nwk 
+        assert args.wildcards_dataset != None, 'cannot automatically find consensus without wildcards'
+        args.nwk_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'tree.nwk')
 
     if args.wildcards_dataset == None:
         assert args.vcf_file != None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'

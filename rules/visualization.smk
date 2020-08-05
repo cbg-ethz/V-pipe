@@ -5,9 +5,12 @@ rule generate_web_visualization:
         vcf_file = "{dataset}/variants/SNVs/snvs.vcf",
         gff_directory = config.input['gff_directory'] if config.input['gff_directory'] else [],
         primers_file = config.input['primers_file'] if config.input['primers_file'] else [],
+        phylogeny_data = config.input['phylogeny_data'] if config.input['phylogeny_data'] else [],
         metainfo_file = config.input['metainfo_file'] if config.input['metainfo_file'] else [],
         global_ref = "variants/cohort_consensus.fasta" # see input.REF in rule snv
     output:
+        alignment_file = "{dataset}/visualization/alignment.fasta",
+        nwk_file = "{dataset}/visualization/tree.nwk",
         html_file = "{dataset}/visualization/index.html"
     params:
         scratch = "2000",
@@ -26,12 +29,16 @@ rule generate_web_visualization:
         # 1) script directive crashes with `VpipeConfig`
         # 2) run directive does not allow conda envs
 
+        augur align --sequences {input.phylogeny_data} {input.consensus_file} --output {output.alignment_file}
+        augur tree --alignment {output.alignment_file} --output {output.nwk_file}
+
         python "{workflow.basedir}/scripts/assemble_visualization_webpage.py" \
             --consensus	"{input.consensus_file}" \
             --coverage	"{input.coverage_file}" \
             --vcf	"{input.vcf_file}" \
             --gff	"{input.gff_directory}" \
             --primers	"{input.primers_file}" \
+            --nwk       "{output.nwk_file}"\
             --metainfo	"{input.metainfo_file}" \
             --template	"{workflow.basedir}/scripts/visualization.html" \
             --output	"{output.html_file}" \
