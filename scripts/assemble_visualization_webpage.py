@@ -51,8 +51,8 @@ def get_metainfo(metainfo_yaml):
         print(f'Parsing metainformation: "{metainfo_yaml}"')
         with open(metainfo_yaml) as fd:
             metainfo = yaml.load(fd.read(), Loader=yaml.SafeLoader)
-        assert isinstance(
-            metainfo, dict), f'Probable syntax error in {metainfo_yaml} - need a dictionnary at top level, got {type(metainfo)} instead.'
+        assert type(
+            metainfo) is dict, f'Probable syntax error in {metainfo_yaml} - need a dictionnary at top level, got {type(metainfo)} instead.'
         return metainfo
     else:
         print("No metainformation YAML provided, skipping.")
@@ -105,10 +105,10 @@ def arrange_gff_data(features):
 
 def get_gff_data(gff_dir, gff_metainfo={}):
     """Returns a map with filename key and gff json data."""
-    if gff_metainfo is None:
+    if gff_metainfo == None:
         gff_metainfo = {}
-    assert isinstance(
-        gff_metainfo, dict), f'Probable syntax error in metainfo YAML - need a dictionnary at [gff], got {type(gff_metainfo)} instead.'
+    assert type(
+        gff_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [gff], got {type(gff_metainfo)} instead.'
 
     gff_map = {}
     if not gff_dir:
@@ -125,10 +125,10 @@ def get_gff_data(gff_dir, gff_metainfo={}):
 
 def get_primers_data(full_path, consensus, primers_metainfo={}):
     """Returns a map with filename key and primers json data."""
-    if primers_metainfo is None:
+    if primers_metainfo == None:
         primers_metainfo = {}
-    assert isinstance(
-        primers_metainfo, dict), f'Probable syntax error in metainfo YAML - need a dictionnary at [primers], got {type(primers_metainfo)} instead.'
+    assert type(
+        primers_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [primers], got {type(primers_metainfo)} instead.'
 
     primers_map = {}
     if not full_path:
@@ -295,35 +295,35 @@ def main():
     args = parser.parse_args()
 
     # defaults which can be guess from one another
-    if args.vcf_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/variants/SNVs/snvs.vcf
-        assert args.wildcards_dataset is not None, 'cannot automatically find VCF without wildcards'
+    if args.vcf_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/variants/SNVs/snvs.vcf
+        assert args.wildcards_dataset != None, 'cannot automatically find VCF without wildcards'
         args.vcf_file = os.path.join(
             args.wildcards_dataset, 'variants', 'SNVs', 'snvs.vcf')
 
-    if args.consensus_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/references/ref_majority.fasta
-        assert args.wildcards_dataset is not None, 'cannot automatically find consensus without wildcards'
+    if args.consensus_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/references/ref_majority.fasta
+        assert args.wildcards_dataset != None, 'cannot automatically find consensus without wildcards'
         args.consensus_file = os.path.join(
             args.wildcards_dataset, 'references', 'ref_majority.fasta')
 
-    if args.nwk_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/tree.nwk
-        assert args.wildcards_dataset is not None, 'cannot automatically find nwk file without wildcards'
+    if args.nwk_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/tree.nwk
+        assert args.wildcards_dataset != None, 'cannot automatically find nwk file without wildcards'
         args.nwk_file = os.path.join(
             args.wildcards_dataset, 'visualization', 'tree.nwk')
 
     # e.g.:
     # samples/140074_395_D02/20200615_J6NRK/visualization/reference_uri_file
-    if args.reference_uri_file is None:
-        assert args.wildcards_dataset is not None, 'cannot automatically find reference_uri_file without wildcards'
+    if args.reference_uri_file == None:
+        assert args.wildcards_dataset != None, 'cannot automatically find reference_uri_file without wildcards'
         args.reference_uri_file = os.path.join(
             args.wildcards_dataset, 'visualization', 'reference_uri_file')
 
-    if args.bam_uri_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/bam_uri_file
-        assert args.wildcards_dataset is not None, 'cannot automatically find bam_uri_file without wildcards'
+    if args.bam_uri_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/bam_uri_file
+        assert args.wildcards_dataset != None, 'cannot automatically find bam_uri_file without wildcards'
         args.bam_uri_file = os.path.join(
             args.wildcards_dataset, 'visualization', 'bam_uri_file')
 
-    if args.wildcards_dataset is None:
-        assert args.vcf_file is not None and args.consensus is not None, 'cannot deduce wilcards without a consensus and a vcf'
+    if args.wildcards_dataset == None:
+        assert args.vcf_file is not None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
         try1 = '/'.join(os.path.normpath(args.vcf_file)
                         .split(os.path.sep)[-5:-3])
         try2 = '/'.join(os.path.normpath(args.consensus_file)
@@ -331,7 +331,7 @@ def main():
         assert try1 == try2, f'cannot deduce wildcards automatically from <{args.vcf_file}> and <{args.consensus_file}>, please specify explicitly using `--wirdcards`'
         args.wildcards_dataset = try1
 
-    if args.html_file_out is None:
+    if args.html_file_out == None:
         args.html_file_out = os.path.join(
             args.wildcards_dataset, 'visualization', 'index.html')
 
