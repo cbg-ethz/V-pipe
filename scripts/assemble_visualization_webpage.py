@@ -323,7 +323,7 @@ def main():
             args.wildcards_dataset, 'visualization', 'bam_uri_file')
 
     if args.wildcards_dataset == None:
-        assert args.vcf_file is not None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
+        assert args.vcf_file != None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
         try1 = '/'.join(os.path.normpath(args.vcf_file)
                         .split(os.path.sep)[-5:-3])
         try2 = '/'.join(os.path.normpath(args.consensus_file)
