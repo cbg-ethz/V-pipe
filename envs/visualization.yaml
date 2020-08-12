@@ -9,3 +9,5 @@ dependencies:
   - pandas
   - Biopython
   - pyyaml
+  - augur
+  - igv-reports

@@ -180,10 +180,13 @@ def assemble_visualization_webpage(
     vcf_file,
     gff_directory,
     primers_file,
+    nwk_file,
     html_file_in,
     html_file_out,
     wildcards_dataset,
     reference_file,
+    reference_uri_file,
+    bam_uri_file,
     metainfo_yaml,
 ):
     # parse the sample name
@@ -193,6 +196,18 @@ def assemble_visualization_webpage(
     # parse the consensus sequence
     print(f'Parsing consensus: "{consensus_file}"')
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
+
+    # read the NWK file content
+    with open(nwk_file) as fd:
+        nwk_tree = fd.read().rstrip('\n')
+
+    # read the reference uri file
+    with open(reference_uri_file) as fd:
+        reference_uri = fd.read().rstrip('\n')
+
+     # read the BAM uri file
+    with open(bam_uri_file) as fd:
+        bam_uri = fd.read().rstrip('\n')
 
     # parse coverage file
     coverage = convert_coverage(
@@ -221,6 +236,7 @@ def assemble_visualization_webpage(
         var vcfData = {vcf_json}
         var gffData = {gff_map}
         var primerData = {primers_map}
+        var phylogenyData = \"{nwk_tree}\"
         var reference_name = \"{reference_name}\"
     """
 
@@ -229,7 +245,13 @@ def assemble_visualization_webpage(
         raw_html = fd.read()
 
     # TODO: make this more robust
-    mod_html = raw_html.replace("{EXTERNAL_SNAKEMAKE_CODE_MARKER}", embed_code)
+    mod_html = raw_html.replace(
+        "{EXTERNAL_SNAKEMAKE_CODE_MARKER}",
+        embed_code).replace(
+        "{EXTERNAL_FASTA_URI}",
+        reference_uri).replace(
+            "{EXTERNAL_BAM_URI}",
+        bam_uri)
 
     with open(html_file_out, "w") as fd:
         fd.write(mod_html)
@@ -251,6 +273,8 @@ def main():
                         type=str, dest='gff_directory', help="directory containing GFF annotations")
     parser.add_argument('-p', '--primers', metavar='CSV', required=False,
                         type=str, dest='primers_file', help="table with primers")
+    parser.add_argument('-n', '--nwk', metavar='NWK', required=False,
+                        type=str, dest='nwk_file', help="phylogenetic tree in NWK format")
     parser.add_argument('-m', '--metainfo', metavar='YAML', required=False,
                         type=str, dest='metainfo_yaml', help="metainformation for the GFF and primers")
     parser.add_argument('-t', '--template', metavar='HTML', required=False,
@@ -263,6 +287,10 @@ def main():
     parser.add_argument('-r', '--reference', metavar='FASTA', required=False,
                         default='variants/cohort_consensus.fasta',
                         type=str, dest='reference_file', help="reference against which SNVs were called (e.g.: cohort's consensus)")
+    parser.add_argument('-u', '--reference_uri_file', metavar='FILE', required=False,
+                        type=str, dest='reference_uri_file', help="reference file uri")
+    parser.add_argument('-b', '--bam_uri_file', metavar='FILE', required=False,
+                        type=str, dest='bam_uri_file', help="bam file uri")
 
     args = parser.parse_args()
 
@@ -277,8 +305,25 @@ def main():
         args.consensus_file = os.path.join(
             args.wildcards_dataset, 'references', 'ref_majority.fasta')
 
+    if args.nwk_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/tree.nwk
+        assert args.wildcards_dataset != None, 'cannot automatically find nwk file without wildcards'
+        args.nwk_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'tree.nwk')
+
+    # e.g.:
+    # samples/140074_395_D02/20200615_J6NRK/visualization/reference_uri_file
+    if args.reference_uri_file == None:
+        assert args.wildcards_dataset != None, 'cannot automatically find reference_uri_file without wildcards'
+        args.reference_uri_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'reference_uri_file')
+
+    if args.bam_uri_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/bam_uri_file
+        assert args.wildcards_dataset != None, 'cannot automatically find bam_uri_file without wildcards'
+        args.bam_uri_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'bam_uri_file')
+
     if args.wildcards_dataset == None:
-        assert args.vcf_file != None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
+        assert args.vcf_file is not None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
         try1 = '/'.join(os.path.normpath(args.vcf_file)
                         .split(os.path.sep)[-5:-3])
         try2 = '/'.join(os.path.normpath(args.consensus_file)
