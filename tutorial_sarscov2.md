@@ -30,7 +30,7 @@ First, you need to prepare the data:
    [SRR10903402](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903402)
    
    > **If you have difficulties** check [this shared directory](https://drive.sib.swiss/index.php/s/mn39LgM3QwnNTzW).
-   > There you can obtain a copy of the .fastq files.
+   > You can obtain there a copy of the .fastq files.
    > More information on the steps necessary to generate the .fastq files from SRA can be found in the README.md file.
  - Then, organize the downloaded files to have the following structure
    (you need to rename the files so that they have `_R1` and `_R2` suffixes):
@@ -161,8 +161,8 @@ Run the V-pipe analysis (the necessary dependencies will be downloaded and insta
 
 The Wiki contains an overview of the [output files](https://github.com/cbg-ethz/V-pipe/wiki/output).
 The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in
-`samples/`*\{hierarchy\}*`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing.
-It is also available in a tabular format in `samples/`*\{hierarchy\}*`/variants/SNVs/snvs.csv`.
+`samples/`&#8203;*\{hierarchy\}*&#8203;`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing.
+It is also available in a tabular format in `samples/`&#8203;*\{hierarchy\}*&#8203;`/variants/SNVs/snvs.csv`.
 
 *[VCF]: Variant Call Format
 
