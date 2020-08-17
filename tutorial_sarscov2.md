@@ -29,7 +29,9 @@ First, you need to prepare the data:
    [SRR10903401](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903401) and
    [SRR10903402](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903402)
    
-   (hint: click on the _data_ tab to find the download links).
+   > **If you have difficulties** check [this shared directory](https://drive.sib.swiss/index.php/s/mn39LgM3QwnNTzW).
+   > There you can obtain a copy of the .fastq files.
+   > More information on the steps necessary to generate the .fastq files from SRA can be found in the README.md file.
  - Then, organize the downloaded files to have the following structure
    (you need to rename the files so that they have `_R1` and `_R2` suffixes):
 
@@ -41,13 +43,13 @@ samples
 ├── SRR10903401
 │   └── 20200102
 │       └── raw_data
-│           ├── wuhan2_R1.fastq
-│           └── wuhan2_R2.fastq
+│           ├── SRR10903401_R1.fastq
+│           └── SRR10903401_R2.fastq
 └── SRR10903402
     └── 20200102
         └── raw_data
-            ├── wuhan1_R1.fastq
-            └── wuhan1_R2.fastq
+            ├── SRR10903402_R1.fastq
+            └── SRR10903402_R2.fastq
 ```
 
 ## Install V-pipe
@@ -276,6 +278,6 @@ Check the other [options for running snakemake on clusters](https://snakemake.re
 
 This webinar was recorded by the SIB on June 22th [^miseq].
 
-[^miseq]: Image of an Illumina MiSeq sequencer used under license from [Illumina](illumina.com), Inc. All Rights Reserved.
+[^miseq]: Image of an Illumina MiSeq sequencer used under license from [Illumina](https://www.illumina.com), Inc. All Rights Reserved.
 
 -----
