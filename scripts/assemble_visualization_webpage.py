@@ -181,11 +181,20 @@ def get_primers_data(full_path, consensus, primers_metainfo={}):
     return primers_map
 
 
-def convert_coverage(fname, sample_name, genome_length):
+def convert_coverage(fname, sample_name=None):
     """Convert the read coverage to bp coverage."""
     print(f'Parsing coverage: "{fname}"')
-    csv = pd.read_csv(fname, sep="\t", index_col=0, header=0)
-    return csv[sample_name].values.tolist()
+    csv = pd.read_csv(fname, sep="\t",compression='infer',
+                      index_col=['ref','pos'], header=0)
+    col = None
+    if len(csv.columns) == 1:
+        if sample_name is not None and sample_name != csv.columns[0]:
+            print(f'Ooops: column name "{csv.columns[0]}" in file is different from requested sample name "{sample_name}"!')
+        col=csv[csv.columns[0]]
+    else:
+        assert sample_name is not None, 'Sample name is required when using combined coverage TSV.'
+        col=csv[sample_name]
+    return col.values.tolist()
 
 
 def assemble_visualization_webpage(
@@ -211,8 +220,7 @@ def assemble_visualization_webpage(
     # parse coverage file
     coverage = convert_coverage(
         coverage_file,
-        sample_name.replace('/', '-'),
-        len(consensus))
+        sample_name.replace('/', '-'))
 
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)

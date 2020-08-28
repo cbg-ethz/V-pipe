@@ -107,6 +107,8 @@ class VpipeConfig(object):
                     "extract_seq": __RECORD__(value="extract_seq", type=str),
                     "coverage_stats": __RECORD__(value="coverage_stats", type=str),
                     "remove_gaps_msa": __RECORD__(value="remove_gaps_msa", type=str),
+                    "aln2basecnt": __RECORD__(value="aln2basecnt", type=str),
+                    "gather_coverage": __RECORD__(value="gather_coverage", type=str),
                     "minority_freq": __RECORD__(value="minority_freq", type=str),
                     "extract_coverage_intervals": __RECORD__(
                         value="extract_coverage_intervals", type=str
@@ -323,6 +325,30 @@ class VpipeConfig(object):
                 },
             ),
             (
+                "basecounts",
+                {
+                    "mem": __RECORD__(value=1250, type=int),
+                    "time": __RECORD__(value=30, type=int),
+                    "threads": __RECORD__(value=1, type=int),
+                    "conda": __RECORD__(
+                        value=f"{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml",
+                        type=str,
+                    ),
+                },
+            ),
+            (
+                "coverage",
+                {
+                    "mem": __RECORD__(value=1250, type=int),
+                    "time": __RECORD__(value=30, type=int),
+                    "threads": __RECORD__(value=4, type=int),
+                    "conda": __RECORD__(
+                        value=f"{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml",
+                        type=str,
+                    ),
+                },
+            ),
+            (
                 "minor_variants",
                 {
                     "mem": __RECORD__(value=1000, type=int),
@@ -340,7 +366,7 @@ class VpipeConfig(object):
                 "coverage_intervals",
                 {
                     "mem": __RECORD__(value=1000, type=int),
-                    "time": __RECORD__(value=60, type=int),
+                    "time": __RECORD__(value=30, type=int),
                     "threads": __RECORD__(value=0, type=int),
                     "conda": __RECORD__(
                         value=f"{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml",
