@@ -191,6 +191,10 @@ if not VPIPE_BENCH:
 # Auxiliary functions
 
 
+def ID(wildcards):
+    return '-'.join(os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:])
+
+
 def window_lengths(wildcards):
     window_len = []
     for p in patient_list:
