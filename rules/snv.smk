@@ -6,70 +6,67 @@ __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
 
+def window_length1(wildcards):
+    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
+    patient_tuple = patient_record(patient_id=patient_ID, date=date)
+
+    read_len = patient_dict[patient_tuple]
+    aux = int(
+        (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
+    return str(aux * config.snv['shift'])
+
+def shift1(wildcards):
+    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
+    patient_tuple = patient_record(patient_id=patient_ID, date=date)
+
+    read_len = patient_dict[patient_tuple]
+    aux = int(
+        (read_len * 4 / 5 + config.snv['shift']) / config.snv['shift'])
+    return str(aux)
+
 # 1. Call single nucleotide variants
 rule coverage_intervals:
     input:
-        BAM = expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
-        TSV = "variants/coverage.tsv",
+        BAM = "{dataset}/alignments/REF_aln.bam",
+        TSV = "{dataset}/alignments/coverage.tsv.gz",
     output:
-        "variants/coverage_intervals.tsv"
+        temp("{dataset}/variants/coverage_intervals.tsv")
     params:
         scratch = '1250',
         mem = config.coverage_intervals['mem'],
         time = config.coverage_intervals['time'],
-        WINDOW_LEN = window_lengths,
+        NAME = ID,
+        WINDOW_LEN = window_length1,
+        SHIFT = shift1,
         COVERAGE = config.coverage_intervals['coverage'],
-        OVERLAP = '' if config.coverage_intervals['overlap'] else '-cf variants/coverage.tsv',
-        SHIFT = shifts,
-        NAMES = IDs,
+        OVERLAP = '' if config.coverage_intervals['overlap'] else '-cf $TMPTSV',
         LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
         EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
     log:
-        outfile = "variants/coverage_intervals.out.log",
-        errfile = "variants/coverage_intervals.out.log",
+        outfile = "{dataset}/variants/coverage_intervals.out.log",
+        errfile = "{dataset}/variants/coverage_intervals.out.log",
     conda:
         config.coverage_intervals['conda']
     benchmark:
-        "variants/coverage_intervals.benchmark"
+        "{dataset}/variants/coverage_intervals.benchmark"
     threads:
         config.coverage_intervals['threads']
     shell:
         """
-        {params.EXTRACT_COVERAGE_INTERVALS} -c {params.COVERAGE} -w {params.WINDOW_LEN} -s {params.SHIFT} -N {params.NAMES} {params.LIBERAL} {params.OVERLAP} -t {threads} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
+        TMPTSV=$(mktemp --tmpdir XXXXXXXX_cov.tsv)
+        TMPINT=$(mktemp --tmpdir XXXXXXXX_int.tsv)
+        zcat {input.TSV} | cut -f'2-' > $TMPTSV
+        mkdir -p "$(dirname "{output}")"
+        {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
+        cat $TMPINT >> "{log.outfile}"
+        read name intervals < $TMPINT
+        IFS=',' read -r -a interarray <<< "$intervals"
+        printf "%s\n" "${{interarray[@]}}" > "{output}"
+        rm $TMPTSV $TMPINT
         """
 
-localrules:
-    shorah_regions
-rule shorah_regions:
-    input:
-        "variants/coverage_intervals.tsv"
-    output:
-        temp(
-            expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
-    params:
-        scratch = '1250',
-    threads:
-        1
-    run:
-        with open(input[0], 'r') as infile:
-            for line in infile:
-                parts = line.rstrip().split('\t')
-                patientID = parts[0].split('-')
-                sample_date = patientID[-1]
-                patientID = '-'.join(patientID[:-1])
-                if len(parts) == 2:
-                    regions = parts[1].split(',')
-                else:
-                    regions = []
-
-                with open(os.path.join(config.input['datadir'], patientID, sample_date, "variants", "coverage_intervals.tsv"), 'w') as outfile:
-                    outfile.write('\n'.join(regions))
-
-
 def read_len(wildcards):
-    parts = wildcards.dataset.split('/')
-    patient_ID = parts[1]
-    date = parts[2]
+    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
     patient_tuple = patient_record(patient_id=patient_ID, date=date)
     read_len = patient_dict[patient_tuple]
     return read_len
