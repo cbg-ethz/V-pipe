@@ -95,7 +95,6 @@ rule snv:
         WORK_DIR = "{dataset}/variants/SNVs",
         LOCALSCRATCH = config.snv['localscratch'],
         SHORAH = config.applications['shorah'],
-        THREADS = config.snv['threads'],
         POSTHRESH = config.snv['posterior_threshold'],
         COVINT = config.coverage_intervals['coverage'],
         BCFTOOLS = config.applications['bcftools']
@@ -166,7 +165,7 @@ rule snv:
             fi
 
             # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
-            {params.SHORAH} -t {params.THREADS} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.SHORAH} -t {threads} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
             if [[ -n "{params.LOCALSCRATCH}" ]]; then
                 # copyback from localscratch
                 rsync -auq "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}" "${{WORK_DIR}}"

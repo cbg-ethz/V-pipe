@@ -138,7 +138,7 @@ for p in patient_list:
         if config.general['snv_caller'] == 'shorah':
             results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
-        # all aligners ('shorah', 'lofreq') produce standard VCF files
+        # all snv callers ('shorah', 'lofreq') produce standard VCF files
         results.append("{sample_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
             sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     # local haplotypes
