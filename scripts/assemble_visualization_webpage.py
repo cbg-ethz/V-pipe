@@ -13,7 +13,6 @@ import vcf
 from BCBio import GFF
 from Bio import SeqIO
 from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
 
 
 def convert_vcf(fname):
@@ -149,7 +148,7 @@ def get_primers_data(full_path, consensus, primers_metainfo={}):
         # If the sequence corresponds to a `right` primer, then reverse and
         # complement.
         if "RIGHT" in entry['name'].upper():
-            seq = Seq(lookup_sequence, IUPAC.unambiguous_dna)
+            seq = Seq(lookup_sequence)
             lookup_sequence = str(seq.reverse_complement())
         offsets = [
             m.start() for m in re.finditer(
