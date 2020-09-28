@@ -34,9 +34,25 @@ rule basecounts:
 
 
 # 1. Gather coverages into central big file
+localrules:
+    coverage_list,
+
+
+rule coverage_list:
+    input:
+        expand("{dataset}/alignments/coverage.tsv.gz", dataset=datasets),
+    output:
+        temp("variants/coverage.tmp.list"),
+    run:
+        with open(output[0], "w") as out:
+            out.write("\n".join(input))
+
+
+# HACK: troubles passing command lines to bash using `-c` that exceed 128kB (MAX_ARGS in limits.h) even when `getconf ARG_MAX` gives higher limits. We use a @list file instead.
 rule coverage:
     input:
         SAMPLECOVS=expand("{dataset}/alignments/coverage.tsv.gz", dataset=datasets),
+        COVLIST=ancient("variants/coverage.tmp.list"),
     output:
         COVERAGE="variants/coverage.tsv",
         COVSTATS="variants/coverage_stats.tsv",
@@ -55,7 +71,7 @@ rule coverage:
     threads: config.coverage["threads"]
     shell:
         """
-        {params.GATHER_COVERAGE} --output {output.COVERAGE} --stats {output.COVSTATS} --threads {threads} {input.SAMPLECOVS} > >(tee {log.outfile}) 2>&1
+        {params.GATHER_COVERAGE} --output {output.COVERAGE} --stats {output.COVSTATS} --threads {threads} @{input.COVLIST} > >(tee {log.outfile}) 2>&1
         """
 
 
