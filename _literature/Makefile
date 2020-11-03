@@ -8,5 +8,5 @@ all: $(HTMLS)
 $(HTMLS): ref.md
 
 ../_includes/literature-%.html:%.bib
-	pandoc --filter=pandoc-citeproc $(patsubst %.csl,--csl=%.csl,$(^:%.bib=--bibliography %.bib)) -o $@
+	pandoc --citeproc $(patsubst %.csl,--csl=%.csl,$(^:%.bib=--bibliography %.bib)) -o $@
 
