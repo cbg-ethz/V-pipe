@@ -47,7 +47,7 @@ def convert_vcf(fname):
                 }
             )
 
-    return json.dumps(output)
+    return output
 
 
 def get_metainfo(metainfo_yaml):
@@ -65,7 +65,7 @@ def get_metainfo(metainfo_yaml):
         return {}
 
 
-def parse_gff(fname):
+def parse_gff(fname, df_vcf):
     """Convert GFF to map."""
     features = []
 
@@ -73,13 +73,40 @@ def parse_gff(fname):
     with open(fname) as fd:
         for record in GFF.parse(fd):
             for feature in record.features:
+                # extract protein range
+                start_pos = int(feature.location.start)
+                end_pos = int(feature.location.end)
+
+                # assemble annotations
+                df_sub = df_vcf[
+                    (df_vcf['position'] >= start_pos) &
+                    (df_vcf['position'] <= end_pos)
+                ]
+                protein_name = feature.qualifiers.get('UNIPROT')
+
+                swiss_model_url = ''
+                if protein_name is not None:
+                    variant_list = [(
+                            (e.position - start_pos) // 3,
+                            (e.position - start_pos) // 3,
+                            f'{e.reference}>{",".join(e.variant)}'
+                        ) for e in df_sub.itertuples()]
+
+                    swiss_model_url = generate_swissmodel_link(
+                        protein_name, variant_list
+                    )
+
+                # finalize
                 features.append(
                     {
                         "id": record.id,
                         "type": feature.type,
                         "name": feature.qualifiers.get('Name', [feature.id])[0],
-                        "start": int(feature.location.start),
-                        "end": int(feature.location.end),
+                        "start": start_pos,
+                        "end": end_pos,
+                        "annotations": {
+                            "swiss-model": swiss_model_url
+                        }
                     }
                 )
     return features
@@ -109,7 +136,7 @@ def arrange_gff_data(features):
     return [item for row in rows for item in row]
 
 
-def get_gff_data(gff_dir, gff_metainfo={}):
+def get_gff_data(gff_dir, df_vcf, gff_metainfo={}):
     """Returns a map with filename key and gff json data."""
     if gff_metainfo == None:
         gff_metainfo = {}
@@ -125,7 +152,7 @@ def get_gff_data(gff_dir, gff_metainfo={}):
         description = os.path.splitext(path)[0]
         if description in gff_metainfo:
             description = gff_metainfo[description]
-        gff_map[description] = arrange_gff_data(parse_gff(full_path))
+        gff_map[description] = arrange_gff_data(parse_gff(full_path, df_vcf))
     return gff_map
 
 
@@ -255,12 +282,15 @@ def assemble_visualization_webpage(
         sample_name.replace('/', '-'))
 
     # load biodata in json format
-    vcf_json = convert_vcf(vcf_file)
+    vcf_data = convert_vcf(vcf_file)
     metainfo = get_metainfo(metainfo_yaml)
     gff_map = get_gff_data(gff_directory,
+                           pd.DataFrame(vcf_data),
                            gff_metainfo=metainfo['gff'] if 'gff' in metainfo else {})
     primers_map = get_primers_data(primers_file, str(consensus),
                                    primers_metainfo=metainfo['primers'] if 'primers' in metainfo else {})
+
+    vcf_json = json.dumps(vcf_data)
 
     # parse the reference name
     reference_name = re.search(

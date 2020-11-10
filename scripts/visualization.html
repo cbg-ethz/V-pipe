@@ -16,18 +16,18 @@
 
 .axisCoverage line{
   stroke: steelblue;
-  opacity: 0.4;    
+  opacity: 0.4;
 }
 
 .axisCoverage path{
   stroke: steelblue;
-  opacity: 0.4;  
+  opacity: 0.4;
 }
 
 .axisCoverage text{
   fill: steelblue;
-  opacity: 0.4;    
-} 
+  opacity: 0.4;
+}
 
 div.tooltip_plot {
     position: absolute;
@@ -117,7 +117,7 @@ div.tooltip_plot {
 //            array of tuples with the following format: {'id': string, 'type': string,
 //            'name': string, 'start': int, 'end': int, 'row_cnt': int}
 // `primerData`: map where the key is a string describing the provenance of the primers and
-//               the value is an array of tuples with the following format: {'name':string, 
+//               the value is an array of tuples with the following format: {'name':string,
 //               'seq':string, 'start':int, 'end':int, 'row_cnt':int}
 {EXTERNAL_SNAKEMAKE_CODE_MARKER}
 </script>
@@ -133,7 +133,7 @@ div.tooltip_plot {
         <div id="plot"></div>
         <div>
             <div id="controls">
-                Color legend for SNV posterior probability 
+                Color legend for SNV posterior probability
                 <div class="tooltip"><i class="fa fa-question-circle"></i>
                   <span class="tooltiptext">Color legend for the lollipop circles that appear on the plot. Blue color indicates a posterior probability of 1, while red indicates probability 0.</span>
                 </div>
@@ -316,34 +316,34 @@ function setupPlot(svg) {
         .style("text-anchor", "middle")
         .text("Position");
 
-    // Add left Y axis for frequency 
+    // Add left Y axis for frequency
     svg.append("g")
         .call(d3.axisLeft(yFrequency));
-        
+
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left + 5)
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
-        
+
         .style("text-anchor", "middle")
         .text("SNV frequency");
-        
-    // Add right Y axis for coverage 
+
+    // Add right Y axis for coverage
     svg.append("g")
         .attr("transform", "translate(" + width + ",0)")
-        .attr("class", "axisCoverage")        
+        .attr("class", "axisCoverage")
         .call(d3.axisRight(yCoverage));
-        
+
     svg.append("text")
         .attr("transform", "rotate(90)")
         .attr("y", -width - 55)
         .attr("x", (height / 2))
         .attr("dy", "1em")
-        .attr("fill", "steelblue")      
-        .attr("fill-opacity", .4)  
+        .attr("fill", "steelblue")
+        .attr("fill-opacity", .4)
         .style("text-anchor", "middle")
-        .text("Coverage");   
+        .text("Coverage");
 
     // Add a clipPath: everything out of this area won't be drawn.
     var clip = svg.append("defs").append("svg:clipPath")
@@ -448,7 +448,7 @@ function setupPlot(svg) {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", 0)
-            })      
+            })
     }
 
     function copyToClipboard() {
@@ -466,7 +466,7 @@ function setupPlot(svg) {
     // Add reset zoom button
     appendIcon(svg, width - 35, -10, resetZoom, '<i class="fas fa-compress-arrows-alt"></i>', "Reset zoom")
     // Add copy dna sub-sequence button
-    appendIcon(svg, width - 60, -10, copyToClipboard, '<i class="fas fa-dna"></i>', "Copy selected consesus sub-sequence")    
+    appendIcon(svg, width - 60, -10, copyToClipboard, '<i class="fas fa-dna"></i>', "Copy selected consesus sub-sequence")
 
     // A function that update the chart for given boundaries
     function updateChart(customExtent, customExtentInDataCoordinates = false) {
@@ -502,7 +502,7 @@ function setupPlot(svg) {
         }
 
         // Update axis and area position
-        global_x_start = Math.round(lower_bound) 
+        global_x_start = Math.round(lower_bound)
         global_x_end = Math.round(upper_bound)
         global_selected_subsequence = consensus.substring(global_x_start, global_x_end + 1)
         global_has_zoom = true
@@ -632,7 +632,7 @@ function displayGffData(gffData, canvas) {
 
     var num_rows_above = 0
     var rectHeight = 15
-    var padding = 5    
+    var padding = 5
     var titleHeight = 10
     var num_gff_data = 0
     for (key in gffData) {
@@ -646,7 +646,7 @@ function displayGffData(gffData, canvas) {
         num_rows_above += num_rows
         num_gff_data++
     }
-    
+
 
     expandLollipopLines(canvas, height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
 }
@@ -678,7 +678,7 @@ function displayPrimerData(primerData, canvas, height_offset) {
         num_rows_above += num_rows
         num_gff_data++
     }
-   
+
     expandLollipopLines(canvas, height_offset + height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
 
 }
@@ -704,7 +704,7 @@ function createSummaryTable(div_id) {
     td.innerHTML = "<strong>" + key + "</strong>&nbsp;<i class='fas fa-sort'></i>&nbsp;"
   }
   var td = tr.insertCell()
-   td.innerHTML = "<strong> coverage </strong>&nbsp;<i class='fas fa-sort'></i>"  
+   td.innerHTML = "<strong> coverage </strong>&nbsp;<i class='fas fa-sort'></i>"
 
   // add content
   vcfData.sort((r1, r2) => r1.position - r2.position);
@@ -794,9 +794,16 @@ function createGffPlot(canvas, offset_y, rectHeight,  titleHeight, padding, feat
                 .style("opacity", 0)
         })
         .on("click", function(d) {
-            updateChartGlobal([d.start, d.end], true)
+            // updateChartGlobal([d.start, d.end], true)
+            var url = d.annotations["swiss-model"]
+
+            if (url === "") {
+                alert("No structure available...")
+            } else {
+                window.open(url)
+            }
         })
-}        
+}
 
 function addPrimersToPlot(canvas, offset_y, rectHeight,  titleHeight, padding, features, title) {
 
@@ -845,7 +852,7 @@ function addPrimersToPlot(canvas, offset_y, rectHeight,  titleHeight, padding, f
             )
             .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
             .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
-        })       
+        })
         .on("mousemove", function(d) {
             tooltip
                 .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
@@ -861,7 +868,7 @@ function addPrimersToPlot(canvas, offset_y, rectHeight,  titleHeight, padding, f
         })
 }
 
-function expandLollipopLines(canvas, offset_y, line_heigth) {        
+function expandLollipopLines(canvas, offset_y, line_heigth) {
     canvas.selectAll("lines")
         .data(vcfData)
         .enter()
