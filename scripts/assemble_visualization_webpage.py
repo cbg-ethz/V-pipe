@@ -189,7 +189,7 @@ def convert_coverage(fname, sample_name=None):
     return col.values.tolist()
 
 
-def generate_swissmodel_link(variant_list, colormap_name='rainbow'):
+def generate_swissmodel_link(protein_name, variant_list, colormap_name='rainbow'):
     """Generate link to SWISS-MODEL visualization.
 
     For now, we implement this in Python instead of Javascript,
@@ -201,18 +201,13 @@ def generate_swissmodel_link(variant_list, colormap_name='rainbow'):
         * https://swissmodel.expasy.org/repository/user_annotation_upload
         * https://matplotlib.org/3.3.2/tutorials/colors/colormaps.html
     """
-    # assert that only a single protein name is given
-    protein_name_set = set(e[0] for e in variant_list)
-    assert len(protein_name_set) == 1, 'Multiple proteins given, only one can be used'
-    protein_name = list(protein_name_set)[0]
-
     # convert variant list to string representation
     reference = 'https://github.com/cbg-ethz/V-pipe'
     color_map = plt.cm.get_cmap(colormap_name, len(variant_list))
 
     string_content = ''
     for i, entry in enumerate(variant_list):
-        _, start_pos, end_pos, annotation = entry
+        start_pos, end_pos, annotation = entry
         color = mpl.colors.to_hex(color_map(i))
 
         string_content += f'{protein_name} {start_pos} {end_pos} {color} {reference} {annotation}\n'
