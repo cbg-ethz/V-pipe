@@ -17,6 +17,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import vcf
+import augur
 from BCBio import GFF
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -65,10 +66,61 @@ def get_metainfo(metainfo_yaml):
         return {}
 
 
-def parse_gff(fname, df_vcf):
+def assemble_variant_entry(
+    vcf_entry,
+    feature_start, feature_end,
+    subfeature_list,
+    consensus, consensus_variants
+):
+    """Warning: very naive and probably wrong."""
+    variant_n_pos = vcf_entry.position
+    assert feature_start <= variant_n_pos <= feature_end
+
+    aa_ref = '?'
+    aa_var = '?'
+    for subfeature in subfeature_list:
+        if subfeature.type != 'CDS':
+            continue
+
+        start_pos = int(subfeature.location.start)
+        end_pos = int(subfeature.location.end)
+
+        if not start_pos <= variant_n_pos <= end_pos:
+            continue
+
+        aa_consensus = augur.translate.safe_translate(consensus[start_pos:end_pos])
+        aa_consensus_variants = augur.translate.safe_translate(consensus_variants[start_pos:end_pos])
+
+        variant_aa_subrelative_pos = (variant_n_pos - start_pos) // 3
+
+        assert aa_ref == '?'  # assert we only have one overlapping CDS
+
+        aa_ref = aa_consensus[variant_aa_subrelative_pos]
+        aa_var = aa_consensus_variants[variant_aa_subrelative_pos]
+
+    variant_aa_relative_pos = (variant_n_pos - feature_start) // 3
+
+    # numbering start at 1 might be more natural to others
+    true_pos = variant_aa_relative_pos + 1
+
+    return (true_pos, true_pos, f'{aa_ref}{true_pos}{aa_var}')
+
+
+def parse_gff(fname, df_vcf, consensus):
     """Convert GFF to map."""
     features = []
 
+    # compute modified consensus
+    # TODO: handle multiple variants in same position
+    tmp = list(consensus)
+    for row in df_vcf.itertuples():
+        # assert tmp[row.position] == row.reference
+        assert len(row.variant) == 1
+
+        tmp[row.position] = row.variant[0]
+    consensus_variants = ''.join(tmp)
+
+    # parse GFF
     print(f'Parsing GFF: "{fname}"')
     with open(fname) as fd:
         for record in GFF.parse(fd):
@@ -89,11 +141,13 @@ def parse_gff(fname, df_vcf):
 
                 swiss_model_url = ''
                 if protein_name is not None:
-                    variant_list = [(
-                            (e.position - start_pos) // 3,
-                            (e.position - start_pos) // 3,
-                            f'{e.reference}>{",".join(e.variant)}'
-                        ) for e in df_sub.itertuples()]
+                    variant_list = [assemble_variant_entry(
+                                        entry,
+                                        start_pos, end_pos,
+                                        feature.sub_features,
+                                        str(consensus), consensus_variants
+                                    )
+                                    for entry in df_sub.itertuples()]
 
                     swiss_model_url = generate_swissmodel_link(
                         protein_name, variant_list
@@ -140,7 +194,7 @@ def arrange_gff_data(features):
     return [item for row in rows for item in row]
 
 
-def get_gff_data(gff_dir, df_vcf, gff_metainfo={}):
+def get_gff_data(gff_dir, df_vcf, consensus, gff_metainfo={}):
     """Returns a map with filename key and gff json data."""
     if gff_metainfo == None:
         gff_metainfo = {}
@@ -156,7 +210,7 @@ def get_gff_data(gff_dir, df_vcf, gff_metainfo={}):
         description = os.path.splitext(path)[0]
         if description in gff_metainfo:
             description = gff_metainfo[description]
-        gff_map[description] = arrange_gff_data(parse_gff(full_path, df_vcf))
+        gff_map[description] = arrange_gff_data(parse_gff(full_path, df_vcf, consensus))
     return gff_map
 
 
@@ -289,7 +343,7 @@ def assemble_visualization_webpage(
     vcf_data = convert_vcf(vcf_file)
     metainfo = get_metainfo(metainfo_yaml)
     gff_map = get_gff_data(gff_directory,
-                           pd.DataFrame(vcf_data),
+                           pd.DataFrame(vcf_data), consensus,
                            gff_metainfo=metainfo['gff'] if 'gff' in metainfo else {})
     primers_map = get_primers_data(primers_file, str(consensus),
                                    primers_metainfo=metainfo['primers'] if 'primers' in metainfo else {})
