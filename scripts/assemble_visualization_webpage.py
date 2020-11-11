@@ -82,7 +82,10 @@ def parse_gff(fname, df_vcf):
                     (df_vcf['position'] >= start_pos) &
                     (df_vcf['position'] <= end_pos)
                 ]
-                protein_name = feature.qualifiers.get('UNIPROT')
+
+                protein_name = None
+                if len(feature.sub_features) > 0:
+                    protein_name = feature.sub_features[0].qualifiers.get('UNIPROT', [None])[0]
 
                 swiss_model_url = ''
                 if protein_name is not None:
@@ -105,6 +108,7 @@ def parse_gff(fname, df_vcf):
                         "start": start_pos,
                         "end": end_pos,
                         "annotations": {
+                            "protein_name": protein_name if protein_name is not None else 'undef',
                             "swiss-model": swiss_model_url
                         }
                     }

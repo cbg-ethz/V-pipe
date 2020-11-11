@@ -778,7 +778,8 @@ function createGffPlot(canvas, offset_y, rectHeight,  titleHeight, padding, feat
                 .style("opacity", .9)
             tooltip.html(
                 "name: " + d.name + "<br>" +
-                "type: " + d.type
+                "type: " + d.type + "<br>" +
+                "UNIPROT: " + d.annotations.protein_name
             )
             .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
             .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
