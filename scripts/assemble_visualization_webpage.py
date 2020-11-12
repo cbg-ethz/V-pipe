@@ -196,7 +196,7 @@ def arrange_gff_data(features):
 
 def get_gff_data(gff_dir, df_vcf, consensus, gff_metainfo={}):
     """Returns a map with filename key and gff json data."""
-    if gff_metainfo == None:
+    if gff_metainfo is None:
         gff_metainfo = {}
     assert type(
         gff_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [gff], got {type(gff_metainfo)} instead.'
@@ -216,7 +216,7 @@ def get_gff_data(gff_dir, df_vcf, consensus, gff_metainfo={}):
 
 def get_primers_data(full_path, consensus, primers_metainfo={}):
     """Returns a map with filename key and primers json data."""
-    if primers_metainfo == None:
+    if primers_metainfo is None:
         primers_metainfo = {}
     assert type(
         primers_metainfo) is dict, f'Probable syntax error in metainfo YAML - need a dictionnary at [primers], got {type(primers_metainfo)} instead.'
@@ -409,18 +409,18 @@ def main():
     args = parser.parse_args()
 
     # defaults which can be guess from one another
-    if args.vcf_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/variants/SNVs/snvs.vcf
-        assert args.wildcards_dataset != None, 'cannot automatically find VCF without wildcards'
+    if args.vcf_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/variants/SNVs/snvs.vcf
+        assert args.wildcards_dataset is not None, 'cannot automatically find VCF without wildcards'
         args.vcf_file = os.path.join(
             args.wildcards_dataset, 'variants', 'SNVs', 'snvs.vcf')
 
-    if args.consensus_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/references/ref_majority.fasta
-        assert args.wildcards_dataset != None, 'cannot automatically find consensus without wildcards'
+    if args.consensus_file is None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/references/ref_majority.fasta
+        assert args.wildcards_dataset is not None, 'cannot automatically find consensus without wildcards'
         args.consensus_file = os.path.join(
             args.wildcards_dataset, 'references', 'ref_majority.fasta')
 
-    if args.wildcards_dataset == None:
-        assert args.vcf_file != None and args.consensus != None, 'cannot deduce wilcards without a consensus and a vcf'
+    if args.wildcards_dataset is None:
+        assert args.vcf_file is not None and args.consensus is not None, 'cannot deduce wilcards without a consensus and a vcf'
         try1 = '/'.join(os.path.normpath(args.vcf_file)
                         .split(os.path.sep)[-5:-3])
         try2 = '/'.join(os.path.normpath(args.consensus_file)
@@ -428,7 +428,7 @@ def main():
         assert try1 == try2, f'cannot deduce wildcards automatically from <{args.vcf_file}> and <{args.consensus_file}>, please specify explicitly using `--wirdcards`'
         args.wildcards_dataset = try1
 
-    if args.html_file_out == None:
+    if args.html_file_out is None:
         args.html_file_out = os.path.join(
             args.wildcards_dataset, 'visualization', 'index.html')
 
