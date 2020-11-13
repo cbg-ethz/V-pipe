@@ -169,7 +169,7 @@ def get_reference_name(reference_file):
 
 
 if not VPIPE_BENCH:
-    reference_file = config.input['reference']
+    reference_file = config.virus_config['reference']
     if not os.path.isfile(reference_file):
         reference_file_alt = os.path.join("references", reference_file)
         LOGGER.warning(
