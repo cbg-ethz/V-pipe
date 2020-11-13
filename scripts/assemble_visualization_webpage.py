@@ -73,7 +73,7 @@ def assemble_variant_entry(
     consensus, consensus_variants
 ):
     """Warning: very naive and probably wrong."""
-    variant_n_pos = vcf_entry.position
+    variant_n_pos = vcf_entry.position - 1
     assert feature_start <= variant_n_pos <= feature_end
 
     aa_ref = '?'
