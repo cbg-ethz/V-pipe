@@ -53,6 +53,13 @@ Make sure to use `source activate V-pipe` everytime you want to run V-pipe
 git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
 ```
 
+### Docker
+
+```bash
+docker build -t vpipe . # to be replaced with link to registry
+docker run -v $PWD:/V-pipe_input vpipe
+```
+
 ## Running V-pipe
 
 First, open a terminal and change into the **working directory** where input files are stored (i.e., the reference and the sequencing reads). We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`. To initialize a project,
@@ -82,7 +89,7 @@ Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wi
 
   VICUNA is a *de novo* assembly software designed for populations with high mutation rates. It is used to build an initial reference for mapping reads with ngshmmalign aligner when a `references/cohort_consensus.fasta` file is not provided. Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) pages.
 
-### Computational tools 
+### Computational tools
 Other dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
 
 - **PRINSEQ**
