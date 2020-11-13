@@ -103,6 +103,11 @@ def parse_args():
              "reference/consensus sequence should be constructed"
     )
     parser.add_argument(
+        "--only-dels", required=False, default=False, action='store_true',
+        dest='only_deletions',
+        help="Indicate if only performance based on deletions should reported"
+    )
+    parser.add_argument(
         "--long-dels", required=False, default=False, action='store_true',
         dest='long_deletions',
         help="Indicate if deletions should be parsed as multipe-base deletions"
@@ -281,6 +286,11 @@ def main():
     # Drop insertions
     ins_mask = df_snvs["ALT"].str.len() > 1
     df_snvs = df_snvs[~ins_mask]
+
+    if args.only_deletions:
+        # Only look at deletions
+        is_deletion = df_snvs["REF"].str.len() > 1
+        df_snvs = df_snvs[is_deletion]
 
     if not args.long_deletions:
         # Unroll deletions into one-base deletions
@@ -592,6 +602,14 @@ def main():
                 haplotype_freqs, si, ei, alphabet)
             df_snvs_expected = pd.concat(
                 [df_snvs_expected, df_out]).reset_index(drop=True)
+
+    if args.only_deletions:
+        # Only look at deletions: drop other entries in expected SNVs dataframe
+        if args.long_deletions:
+            is_deletion = df_snvs_expected["REF"].str.len() > 1
+        else:
+            is_deletion = df_snvs_expected["ALT"].str.startswith('-')
+        df_snvs_expected = df_snvs_expected[is_deletion]
 
     if args.output_true:
         output_file = os.path.join(outdir, 'true_snvs.tsv')
