@@ -96,6 +96,7 @@ class VpipeBenchConfig(VpipeConfig):
                     value=f'{VPIPE_BASEDIR}/envs/testbench.yaml', type=str),
 
                 're_msa': __RECORD__(value=False, type=bool),
+                'extra': __RECORD__(value='', type=str),
             }),
             ('aggregate', {
                 'mem': __RECORD__(value=2000, type=int),

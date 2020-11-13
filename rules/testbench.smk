@@ -108,12 +108,13 @@ rule test_snv:
             sample_dict[sample_record(sample_name=wildcards.sample_name,
                                       date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
-        CALLER_OPT = "-ci" if config.general['snv_caller'] == 'shorah' else "--no-shorah -cf",
+        CALLER_OPT = "-ci" if config.general['snv_caller'] == 'shorah' else "--caller lofreq -cf",
         WINDOW_LEN = window_len,
         WINDOW_SHIFT = config.snv['shift'],
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
+        EXTRA = config.test_snv['extra'],
         TEST_BENCH = config.applications['testBench'],
     log:
         outfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
@@ -138,7 +139,8 @@ rule test_snv:
                 -t -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
                 -of {output} \
-                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                -od {params.OUTDIR} \
+                {params.EXTRA} > >(tee -a {log.outfile}) 2>&1
 
             rm {params.HAPLOTYPE_SEQS_AUX}
         else
@@ -153,7 +155,8 @@ rule test_snv:
                 -t \
                 -N {params.ID} \
                 -of {output} \
-                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                -od {params.OUTDIR} \
+                {params.EXTRA} > >(tee -a {log.outfile}) 2>&1
         fi
         """
 
@@ -182,6 +185,7 @@ rule compare_snv:
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
+        EXTRA = config.test_snv['extra'],
         TEST_BENCH = config.applications['testBench'],
     log:
         outfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log",
@@ -207,7 +211,8 @@ rule compare_snv:
                 -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
                 -of {output} \
-                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                -od {params.OUTDIR} \
+                {params.EXTRA} > >(tee -a {log.outfile}) 2>&1
 
             rm {params.OUTDIR}/hap_tmp.fasta
             rm {params.HAPLOTYPE_SEQS_AUX}
@@ -222,7 +227,8 @@ rule compare_snv:
                 --no-shorah -t \
                 -N {params.ID} \
                 -of {output} \
-                -od {params.OUTDIR} > >(tee -a {log.outfile}) 2>&1
+                -od {params.OUTDIR} \
+                {params.EXTRA} > >(tee -a {log.outfile}) 2>&1
         fi
         """
 
