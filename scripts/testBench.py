@@ -151,18 +151,22 @@ def frequencies(freq_dstr, num_haplotypes, ratio=0.75, infile=None):
 
 
 def parse_info(df, snvcaller):
-    # TODO: remove hard-coded strings and/or infer position from the data
     if snvcaller == 'shorah':
-        # NOTE: It is probably better to ignore 0-counts to compute the SNV
-        #       frequency. A zero count means that the SNV was not found in
-        #       the corresponding window.
-        df[0] = df[0].str.split(r'Freq[1-3]=', expand=True)[1].astype(float)
-        df[1] = df[1].str.split(r'Freq[1-3]=', expand=True)[1].astype(float)
-        df[2] = df[2].str.split(r'Freq[1-3]=', expand=True)[1].astype(float)
-        df_out = df[[0, 1, 2]].apply(np.nanmean, axis=1)
+        df_info = pd.DataFrame.from_dict(
+            [dict([entry.strip().split("=") for entry in line.split(";")])
+                for line in df["INFO"]]).astype('float')
+        # We ignore columns with 0-counts to compute the SNV frequency. A zero
+        # count means that the SNV was not found in the corresponding window.
+        df_freq = df_info[["Freq1", "Freq2", "Freq3"]].copy()
+        df_freq[df_freq == 0] = np.nan
+        df_freq = df_freq.mean(axis=1)
     elif snvcaller == 'lofreq':
-        df_out = df[1].str.split('AF=', expand=True)[1].astype(float)
-    return df_out
+        df["INFO"] = df["INFO"].str.replace("INDEL", "INDEL=1")
+        df_info = pd.DataFrame.from_dict(
+            [dict([entry.strip().split("=") for entry in line.split(";")])
+                for line in df["INFO"]])
+        df_freq = df_info["AF"]
+    return df_freq
 
 
 def parse_vcf(snvfile, snvcaller):
@@ -177,8 +181,7 @@ def parse_vcf(snvfile, snvcaller):
         df_snvs = pd.read_csv(snvfile, sep="\t", skiprows=skiplines, header=0,
                               compression=None)
         df_snvs = df_snvs.rename(columns={'#CHROM': 'CHROM'})
-        df_info = df_snvs["INFO"].str.split(';', expand=True)
-        df_snvs['FREQ'] = parse_info(df_info, snvcaller)
+        df_snvs['FREQ'] = parse_info(df_snvs, snvcaller)
     except pd.errors.EmptyDataError:
         df_snvs = pd.DataFrame()
     return df_snvs
@@ -498,9 +501,10 @@ def main():
                 haplotype_freqs, start, end, alphabet)
             df_snvs_expected = pd.concat(
                 [df_snvs_expected, df_out], ignore_index=True)
-            # Avoid duplicates which can happen if regions are not totally
-            # disjoint
-            df_snvs_expected.drop_duplicates(inplace=True)
+            # Mark reported SNVs within the region
+
+        # Avoid duplicates which can happen if regions are not totally disjoint
+        df_snvs_expected.drop_duplicates(inplace=True)
 
     else:
         loci = np.arange(reference_len)
