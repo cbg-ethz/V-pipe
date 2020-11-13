@@ -192,19 +192,18 @@ def parse_vcf(snvfile, snvcaller):
     return df_snvs
 
 
-def true_snvs(haplotype_master, haplotype_seqs, num_haplotypes,
-              haplotype_freqs, start, end, alphabet):
+def true_snvs(haplotype_master_arr, haplotype_master, haplotype_seqs,
+              num_haplotypes, haplotype_freqs, start, end, long_deletions,
+              alphabet):
     """
     Extract expected SNVs using the MSA of the true haplotype sequences and
     the reference sequence
     """
-    loci = np.arange(haplotype_master.size)
+    loci = np.arange(haplotype_master_arr.size)
     loci = loci[start:end]
     haplotype_idx = np.arange(num_haplotypes)
-    variants = haplotype_master != haplotype_seqs
+    variants = haplotype_master_arr != haplotype_seqs
     variants = variants[:, start:end]
-
-    # TODO: Extract long deletions
 
     df_snvs = pd.DataFrame(columns=('POS', 'REF', 'ALT', 'FREQ', 'HAPLOTYPES'))
     num_snvs = 0
@@ -215,7 +214,7 @@ def true_snvs(haplotype_master, haplotype_seqs, num_haplotypes,
             snv_freq = haplotype_freqs[idxs]
             if np.sum(idxs) == 1:
                 df_snvs.loc[num_snvs] = [
-                    locus, haplotype_master[start:end][idx].decode(),
+                    locus, haplotype_master_arr[start:end][idx].decode(),
                     var[0].decode(), snv_freq[0],
                     haplotype_idx[idxs].astype(str)[0]]
                 num_snvs += 1
@@ -226,10 +225,58 @@ def true_snvs(haplotype_master, haplotype_seqs, num_haplotypes,
                         hap_aux = ','.join(
                             haplotype_idx[idxs][idxs_base].astype(str))
                         df_snvs.loc[num_snvs] = [
-                            locus, haplotype_master[start:end][idx].decode(),
+                            locus,
+                            haplotype_master_arr[start:end][idx].decode(),
                             base.decode(), np.sum(snv_freq[idxs_base]),
                             hap_aux]
                         num_snvs += 1
+    df_snvs["POS"] = df_snvs["POS"].astype(int)
+
+    if long_deletions:
+        df_long_dels = pd.DataFrame({
+            'POS': pd.Series([], dtype='int'),
+            'REF': pd.Series([], dtype='str'),
+            'ALT': pd.Series([], dtype='str'),
+            'FREQ': pd.Series([], dtype='float'),
+            'HAPLOTYPES': pd.Series([], dtype='str')})
+        for idx, seq in enumerate(haplotype_seqs):
+            is_deletion = np.concatenate(([0], seq == b'-', [0]))
+            intervals = np.where(
+                np.abs(np.diff(is_deletion)) == 1)[0].reshape(-1, 2)
+            if intervals.size > 0:
+                assert (intervals[:, 0] > 0).all(), (
+                    "Deletion reported in the first reference position")
+                # Deletions are by convention reported at the preceding
+                # position
+                dict_dels = {
+                    'POS': intervals[:, 0] - 1,
+                    'REF': [
+                        haplotype_master[(x[0] - 1):x[1]] for x in intervals],
+                    'ALT': [haplotype_master[x[0] - 1] for x in intervals],
+                    'FREQ': [haplotype_freqs[idx]] * intervals.shape[0],
+                    'HAPLOTYPES': [
+                        str(haplotype_idx[idx])] * intervals.shape[0]
+                }
+                df_tmp = pd.DataFrame.from_dict(dict_dels)
+                df_long_dels = pd.concat(
+                    [df_long_dels, df_tmp], ignore_index=True)
+        # Merge deletions found in different haplotypes together
+        grpby = df_long_dels.set_index(["POS", "REF", "ALT"])[
+            ["FREQ", "HAPLOTYPES"]].groupby(["POS", "REF", "ALT"])
+
+        df_long_dels = pd.concat(
+            [grpby["FREQ"].sum(),
+             grpby["HAPLOTYPES"].apply(lambda s: ",".join(s))], axis=1)
+        df_long_dels.reset_index(inplace=True)
+
+        # Drop one-base deletions
+        del_mask = df_snvs["ALT"].str.startswith('-')
+        df_snvs = df_snvs[~del_mask]
+        df_snvs = pd.concat(
+                [df_snvs, df_long_dels], ignore_index=True)
+        df_snvs = df_snvs.set_index(["POS", "REF", "ALT"])
+        df_snvs = df_snvs.sort_index()
+        df_snvs.reset_index(inplace=True)
 
     return df_snvs
 
@@ -533,8 +580,9 @@ def main():
 
             # True haplotypes - expected SNVs
             df_out = true_snvs(
-                haplotype_master_array, haplotype_seqs_array, num_haplotypes,
-                haplotype_freqs, start, end, alphabet)
+                haplotype_master_array, haplotype_master, haplotype_seqs_array,
+                num_haplotypes, haplotype_freqs, start, end,
+                args.long_deletions, alphabet)
             df_snvs_expected = pd.concat(
                 [df_snvs_expected, df_out], ignore_index=True)
             # Mark reported SNVs within the region
@@ -598,8 +646,9 @@ def main():
         end = [el[-1] + 1 for el in regions]
         for si, ei in zip(start, end):
             df_out = true_snvs(
-                haplotype_master_array, haplotype_seqs_array, num_haplotypes,
-                haplotype_freqs, si, ei, alphabet)
+                haplotype_master_array, haplotype_master, haplotype_seqs_array,
+                num_haplotypes, haplotype_freqs, si, ei, args.long_deletions,
+                alphabet)
             df_snvs_expected = pd.concat(
                 [df_snvs_expected, df_out]).reset_index(drop=True)
 
@@ -623,9 +672,10 @@ def main():
     df_snvs = df_snvs[df_snvs["IS_CONTAINED"]]
 
     # join on POS and ALT
-    df_snvs_expected["POS"] = df_snvs_expected["POS"].astype(int)
-    df_pairs = df_snvs_expected.merge(df_snvs, how="outer", on=["POS", "ALT"],
-                                      suffixes=["_exp", "_rep"])
+    # df_snvs_expected["POS"] = df_snvs_expected["POS"].astype(int)
+    df_pairs = df_snvs_expected.merge(
+        df_snvs, how="outer", on=["POS", "ALT", "REF"],
+        suffixes=["_exp", "_rep"])
 
     FN_mask = df_pairs["INFO"].isnull()
     FN = sum(FN_mask)
@@ -668,22 +718,26 @@ def main():
 
     output_file = os.path.join(outdir, 'TP_frequencies.tsv')
     df_pairs[TP_mask].to_csv(output_file, sep="\t",
-                             columns=["POS", "ALT", "FREQ_exp", "FREQ_rep",
-                                      "INFO"],
-                             header=["Loci", "Variant", "Freq (expected)",
-                                     "Freq (reported)", "Info"],
+                             columns=["POS", "REF", "ALT", "FREQ_exp",
+                                      "FREQ_rep", "INFO"],
+                             header=["Loci", "Reference", "Variant",
+                                     "Freq (expected)", "Freq (reported)",
+                                     "Info"],
                              index=False, compression=None)
 
     output_file = os.path.join(outdir, 'FP_frequencies.tsv')
     df_pairs[FP_mask].to_csv(output_file, sep="\t",
-                             columns=["POS", "ALT", "FREQ_rep", "INFO"],
-                             header=["Loci", "Variant", "Freq", "Info"],
+                             columns=["POS", "REF", "ALT", "FREQ_rep", "INFO"],
+                             header=["Loci", "Reference", "Variant", "Freq",
+                                     "Info"],
                              index=False, compression=None)
 
     output_file = os.path.join(outdir, 'FN_frequencies.tsv')
     df_pairs[FN_mask].to_csv(output_file, sep="\t",
-                             columns=["POS", "ALT", "FREQ_exp", "HAPLOTYPES"],
-                             header=["Loci", "Variant", "Freq", "Haplotypes"],
+                             columns=["POS", "REF", "ALT", "FREQ_exp",
+                                      "HAPLOTYPES"],
+                             header=["Loci", "Reference", "Variant", "Freq",
+                                     "Haplotypes"],
                              index=False, compression=None)
 
 
