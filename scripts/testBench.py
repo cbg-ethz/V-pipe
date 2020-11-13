@@ -126,7 +126,7 @@ def parse_args():
     parser.add_argument(
         "-of", required=False, default='performance.tsv', metavar='OUTPUT',
         dest='outfile', type=str,
-        help="Output file - file containing expected S1NVs"
+        help="Output file - file containing expected SNVs"
     )
     parser.add_argument(
         "-od", required=False, default=None, metavar='DIR', dest='outdir',
@@ -193,28 +193,25 @@ def parse_vcf(snvfile, snvcaller):
 
 
 def true_snvs(haplotype_master_arr, haplotype_master, haplotype_seqs,
-              num_haplotypes, haplotype_freqs, start, end, long_deletions,
-              alphabet):
+              num_haplotypes, haplotype_freqs, long_deletions, alphabet):
     """
     Extract expected SNVs using the MSA of the true haplotype sequences and
     the reference sequence
     """
-    loci = np.arange(haplotype_master_arr.size)
-    loci = loci[start:end]
+    # loci = np.arange(haplotype_master_arr.size)
     haplotype_idx = np.arange(num_haplotypes)
     variants = haplotype_master_arr != haplotype_seqs
-    variants = variants[:, start:end]
 
     df_snvs = pd.DataFrame(columns=('POS', 'REF', 'ALT', 'FREQ', 'HAPLOTYPES'))
     num_snvs = 0
-    for idx, locus in enumerate(loci):
-        idxs = variants[:, idx]
+    for locus in range(haplotype_master_arr.size):
+        idxs = variants[:, locus]
         if np.any(idxs):
-            var = haplotype_seqs[:, start:end][idxs, idx]
+            var = haplotype_seqs[idxs, locus]
             snv_freq = haplotype_freqs[idxs]
             if np.sum(idxs) == 1:
                 df_snvs.loc[num_snvs] = [
-                    locus, haplotype_master_arr[start:end][idx].decode(),
+                    locus, haplotype_master_arr[locus].decode(),
                     var[0].decode(), snv_freq[0],
                     haplotype_idx[idxs].astype(str)[0]]
                 num_snvs += 1
@@ -226,7 +223,7 @@ def true_snvs(haplotype_master_arr, haplotype_master, haplotype_seqs,
                             haplotype_idx[idxs][idxs_base].astype(str))
                         df_snvs.loc[num_snvs] = [
                             locus,
-                            haplotype_master_arr[start:end][idx].decode(),
+                            haplotype_master_arr[locus].decode(),
                             base.decode(), np.sum(snv_freq[idxs_base]),
                             hap_aux]
                         num_snvs += 1
@@ -496,8 +493,21 @@ def main():
 
     # missed = np.zeros(num_haplotypes)
 
+    df_snvs_expected = true_snvs(
+        haplotype_master_array, haplotype_master, haplotype_seqs_array,
+        num_haplotypes, haplotype_freqs, args.long_deletions, alphabet)
+
+    if args.only_deletions:
+        # Only look at deletions: drop other entries in expected SNVs dataframe
+        if args.long_deletions:
+            is_deletion = df_snvs_expected["REF"].str.len() > 1
+        else:
+            is_deletion = df_snvs_expected["ALT"].str.startswith('-')
+        df_snvs_expected = df_snvs_expected[is_deletion]
+
     # Keep track of SNVs that fall within targeted regions
     df_snvs["IS_CONTAINED"] = False
+    df_snvs_expected["IS_CONTAINED"] = False
     if args.long_deletions:
         deletion_length = df_snvs["REF"].str.len() - 1
         is_deletion = deletion_length > 0
@@ -505,13 +515,21 @@ def main():
         start_locus = df_snvs["POS"] - 1
         start_locus[is_deletion] += 1
         end_locus = start_locus + deletion_length - 1
+        # Similarly for expected SNVs (Already uses 0-based indexing)
+        deletion_length_exp = df_snvs_expected["REF"].str.len() - 1
+        is_deletion_exp = deletion_length_exp > 0
+        start_locus_exp = df_snvs_expected["POS"].copy()
+        start_locus_exp[is_deletion_exp] += 1
+        end_locus_exp = start_locus_exp + deletion_length_exp - 1
     else:
         # Handle SNVs and single-nucleotide deletions
         # Using 0-based indexing
         start_locus = df_snvs.index.get_level_values("POS") - 1
         end_locus = None
+        # Similarly for expected SNVs (Already uses 0-based indexing)
+        start_locus_exp = df_snvs_expected["POS"]
+        end_locus_exp = None
 
-    df_snvs_expected = pd.DataFrame()
     if args.coverage_intervals is not None:
         with open(args.coverage_intervals, 'r') as infile:
             for line in infile:
@@ -578,20 +596,14 @@ def main():
             end = int(end)
             print(f"Region with enough support: {start + 1}-{end}")
 
-            # True haplotypes - expected SNVs
-            df_out = true_snvs(
-                haplotype_master_array, haplotype_master, haplotype_seqs_array,
-                num_haplotypes, haplotype_freqs, start, end,
-                args.long_deletions, alphabet)
-            df_snvs_expected = pd.concat(
-                [df_snvs_expected, df_out], ignore_index=True)
-            # Mark reported SNVs within the region
+            # Mark reported and expected SNVs within the region
             is_contained = target_snvs(start, end, start_locus,
                                        args.long_deletions, end_locus)
             df_snvs["IS_CONTAINED"] = (df_snvs["IS_CONTAINED"] | is_contained)
-
-        # Avoid duplicates which can happen if regions are not totally disjoint
-        df_snvs_expected.drop_duplicates(inplace=True)
+            is_contained = target_snvs(start, end, start_locus_exp,
+                                       args.long_deletions, end_locus_exp)
+            df_snvs_expected["IS_CONTAINED"] = (
+                df_snvs_expected["IS_CONTAINED"] | is_contained)
 
     else:
         loci = np.arange(reference_len)
@@ -645,34 +657,31 @@ def main():
         start = [el[0] for el in regions]
         end = [el[-1] + 1 for el in regions]
         for si, ei in zip(start, end):
-            df_out = true_snvs(
-                haplotype_master_array, haplotype_master, haplotype_seqs_array,
-                num_haplotypes, haplotype_freqs, si, ei, args.long_deletions,
-                alphabet)
-            df_snvs_expected = pd.concat(
-                [df_snvs_expected, df_out]).reset_index(drop=True)
+            # Mark reported and expected SNVs within the region
+            is_contained = target_snvs(si, ei, start_locus,
+                                       args.long_deletions, end_locus)
+            df_snvs["IS_CONTAINED"] = (df_snvs["IS_CONTAINED"] | is_contained)
+            is_contained = target_snvs(si, ei, start_locus_exp,
+                                       args.long_deletions, end_locus_exp)
+            df_snvs_expected["IS_CONTAINED"] = (
+                df_snvs_expected["IS_CONTAINED"] | is_contained)
 
-    if args.only_deletions:
-        # Only look at deletions: drop other entries in expected SNVs dataframe
-        if args.long_deletions:
-            is_deletion = df_snvs_expected["REF"].str.len() > 1
-        else:
-            is_deletion = df_snvs_expected["ALT"].str.startswith('-')
-        df_snvs_expected = df_snvs_expected[is_deletion]
+    # Drop SNVs that fall outside of the targeted regions. Otherwise, these
+    # rows will be counted toward false positives/negatives.
+    df_snvs = df_snvs[df_snvs["IS_CONTAINED"]]
+    df_snvs_expected = df_snvs_expected[df_snvs_expected["IS_CONTAINED"]]
 
     if args.output_true:
         output_file = os.path.join(outdir, 'true_snvs.tsv')
         # Report using 1-based indexing
         df_snvs_expected["POS"] += 1
-        df_snvs_expected.to_csv(output_file, sep="\t", header=True,
-                                index=False, compression=None)
-
-    # Drop SNVs that fall outside of the targeted regions. Otherwise, these
-    # rows will be counted toward false positives.
-    df_snvs = df_snvs[df_snvs["IS_CONTAINED"]]
+        df_snvs_expected.to_csv(
+            output_file, sep="\t",
+            columns=["POS", "REF", "ALT", "FREQ", "HAPLOTYPES"],
+            header=["Loci", "Reference", "Variant", "Frequency", "Haplotypes"],
+            index=False, compression=None)
 
     # join on POS and ALT
-    # df_snvs_expected["POS"] = df_snvs_expected["POS"].astype(int)
     df_pairs = df_snvs_expected.merge(
         df_snvs, how="outer", on=["POS", "ALT", "REF"],
         suffixes=["_exp", "_rep"])
