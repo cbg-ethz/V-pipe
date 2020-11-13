@@ -251,6 +251,17 @@ def consecutive(array, stepsize=1):
     return np.split(array, np.where(np.diff(array) != stepsize)[0] + 1)
 
 
+def target_snvs(start_region, end_region, start_locus, long_deletions,
+                end_locus=None):
+    if long_deletions:
+        is_contained = (start_locus >= start_region) & \
+            (end_locus < end_region)
+    else:
+        is_contained = (start_locus >= start_region) & \
+            (start_locus < end_region)
+    return is_contained
+
+
 def main():
 
     args = parse_args()
@@ -428,6 +439,21 @@ def main():
 
     # missed = np.zeros(num_haplotypes)
 
+    # Keep track of SNVs that fall within targeted regions
+    df_snvs["IS_CONTAINED"] = False
+    if args.long_deletions:
+        deletion_length = df_snvs["REF"].str.len() - 1
+        is_deletion = deletion_length > 0
+        # Using 0-based indexing
+        start_locus = df_snvs["POS"] - 1
+        start_locus[is_deletion] += 1
+        end_locus = start_locus + deletion_length - 1
+    else:
+        # Handle SNVs and single-nucleotide deletions
+        # Using 0-based indexing
+        start_locus = df_snvs.index.get_level_values("POS") - 1
+        end_locus = None
+
     df_snvs_expected = pd.DataFrame()
     if args.coverage_intervals is not None:
         with open(args.coverage_intervals, 'r') as infile:
@@ -502,6 +528,9 @@ def main():
             df_snvs_expected = pd.concat(
                 [df_snvs_expected, df_out], ignore_index=True)
             # Mark reported SNVs within the region
+            is_contained = target_snvs(start, end, start_locus,
+                                       args.long_deletions, end_locus)
+            df_snvs["IS_CONTAINED"] = (df_snvs["IS_CONTAINED"] | is_contained)
 
         # Avoid duplicates which can happen if regions are not totally disjoint
         df_snvs_expected.drop_duplicates(inplace=True)
@@ -570,6 +599,10 @@ def main():
         df_snvs_expected["POS"] += 1
         df_snvs_expected.to_csv(output_file, sep="\t", header=True,
                                 index=False, compression=None)
+
+    # Drop SNVs that fall outside of the targeted regions. Otherwise, these
+    # rows will be counted toward false positives.
+    df_snvs = df_snvs[df_snvs["IS_CONTAINED"]]
 
     # join on POS and ALT
     df_snvs_expected["POS"] = df_snvs_expected["POS"].astype(int)
