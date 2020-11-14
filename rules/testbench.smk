@@ -173,9 +173,7 @@ rule compare_snv:
         mem = config.test_snv['mem'],
         time = config.test_snv['time'],
         RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
-        SNVs = ("{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv"
-                if config.general['snv_caller'] == 'shorah' else
-                "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.vcf"),
+        SNVs = "{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.vcf",
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_{kind}.fasta",
         FREQ_DSTR = lambda wildcards:

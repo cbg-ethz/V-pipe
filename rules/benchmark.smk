@@ -245,16 +245,12 @@ def get_freq_aux(wildcards):
 
 
 def input_snv(wildcards):
-    input = []
+    input = [os.path.join(
+        wildcards.sample_dir, wildcards.sample_name, wildcards.date,
+        "variants", "SNVs", "snvs.vcf")]
     if config.general['snv_caller'] == 'shorah':
-        input.append(os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                                  wildcards.date, "variants", "SNVs",
-                                  "snvs.csv"))
         input.append(os.path.join("variants", "coverage_intervals.tsv"))
     elif config.general['snv_caller'] == 'lofreq':
-        input.append(os.path.join(wildcards.sample_dir, wildcards.sample_name,
-                                  wildcards.date, "variants", "SNVs",
-                                  "snvs.vcf"))
         input.append(os.path.join("variants", "coverage.tsv"))
     return input
 
