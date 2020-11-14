@@ -342,6 +342,12 @@ def main():
         is_deletion = df_snvs["REF"].str.len() > 1
         df_snvs = df_snvs[is_deletion]
 
+    if df_snvs.empty:
+        print("No called SNVs")
+        with open(args.outfile, 'w') as outfile:
+            outfile.write('ID\tTP\tFP\tFN\tTN\n')
+        return
+
     if not args.long_deletions:
         # Unroll deletions into one-base deletions
         del_mask = df_snvs["REF"].str.len() > 1
@@ -365,6 +371,12 @@ def main():
             df_del.iloc[aux_idx:(aux_idx + del_len[idx]), aux_pos] = pos
             df_del.iloc[aux_idx:(aux_idx + del_len[idx]), aux_ref] = ref
             aux_idx += del_len[idx]
+
+        # Handle special case: reference sequence might contain a gap character
+        # and a long deletion could include it. When unrolling long deletions
+        # the REF and ALT fields will contain both gaps symbols
+        is_gap = (df_del["REF"] == '-') & (df_del["ALT"] == '-')
+        df_del = df_del[~is_gap]
 
         # Remove previous rows corresponding to deletions and add the one-base
         # deletions
