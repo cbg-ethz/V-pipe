@@ -75,6 +75,12 @@ def parse_args():
         help="File containing coverage intervals"
     )
     parser.add_argument(
+        "--no-expansion", required=False, default=False, action='store_true',
+        dest='no_expansion',
+        help="Coverage intervals do not correspond to region use to run "
+             "ShoRAH, but the actual target region"
+    )
+    parser.add_argument(
         "--caller", required=False, default='shorah', metavar='str',
         dest='snv_caller', type=str, choices=['shorah', 'lofreq'],
         help="Inidcate if other software different from ShoRAH was used for "
@@ -556,7 +562,7 @@ def main():
             aux = aux[1].split('-')
             start = int(aux[0])
             end = int(aux[1])
-            if args.snv_caller == 'lofreq':
+            if args.snv_caller == 'lofreq' or args.no_expansion:
                 # Region is interpreted as a closed interval and using 1-based
                 # indexing
                 start -= 1
@@ -717,7 +723,7 @@ def main():
     # Write to output file
     with open(args.outfile, 'w') as outfile:
         outfile.write('ID\tTP\tFP\tFN\tTN\n')
-        outfile.write(f'{args.sampleID}\t{TP}\t{FP}\t{FN}\t{TN}\n')
+        outfile.write(f'{args.sampleID}\t{TP}\t{FP}\t{FN}\t{int(TN)}\n')
 
     # output_file = os.path.join(outdir, 'FN_per_haplotype.tsv')
     # with open(output_file, 'w') as outfile:

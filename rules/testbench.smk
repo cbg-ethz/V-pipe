@@ -180,6 +180,7 @@ rule compare_snv:
             sample_dict[sample_record(sample_name=wildcards.sample_name,
                                       date=wildcards.date)]['freq_dstr'],
         FREQ_PARAMS = get_freq_aux,
+        CALLER_OPT = "--caller lofreq" if config.general['snv_caller'] == 'lofreq' else "--no-expansion",
         OUTDIR = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}",
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         MAFFT = config.applications['mafft'],
@@ -205,7 +206,7 @@ rule compare_snv:
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
                 -ci {input.TSV} \
-                --no-shorah -t \
+                {params.CALLER_OPT} -t \
                 -ms -mafft {params.MAFFT} \
                 -N {params.ID} \
                 -of {output} \
@@ -222,7 +223,7 @@ rule compare_snv:
                 -d {params.FREQ_DSTR} \
                 {params.FREQ_PARAMS} \
                 -ci {input.TSV} \
-                --no-shorah -t \
+                {params.CALLER_OPT} -t \
                 -N {params.ID} \
                 -of {output} \
                 -od {params.OUTDIR} \
