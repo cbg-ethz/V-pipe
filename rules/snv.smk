@@ -237,7 +237,7 @@ rule samtools_index:
 rule lofreq:
     input:
         REF = "variants/cohort_consensus.fasta" if config.lofreq['consensus'] else reference_file,
-        REF_IDX = "variants/cohort_consensus.fasta.fai",
+        REF_IDX = "variants/cohort_consensus.fasta.fai" if config.lofreq['consensus'] else f"{reference_file}.fai",
         BAM = "{dataset}/alignments/REF_aln.bam",
     output:
         BAM = "{dataset}/variants/SNVs/REF_aln_indelqual.bam",

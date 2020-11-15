@@ -93,7 +93,7 @@ rule test_snv:
     input:
         INPUT = input_snv,
         HAPLOTYPE_SEQS = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
-        REF = "variants/cohort_consensus.fasta",
+        REF = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file,
         REF_ALN = reference_file,
     output:
         temp(
@@ -162,7 +162,7 @@ rule test_snv:
 
 rule compare_snv:
     input:
-        REF = "variants/cohort_consensus.fasta",
+        REF = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file,
         REF_ALN = reference_file,
         TSV = input_tsv,
     output:
