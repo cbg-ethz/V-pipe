@@ -57,7 +57,7 @@ git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
 
 ```bash
 docker build -t vpipe . # to be replaced with link to registry
-docker run -v $PWD:/V-pipe_input vpipe
+docker run -v $PWD:/V-pipe vpipe
 ```
 
 ## Running V-pipe
