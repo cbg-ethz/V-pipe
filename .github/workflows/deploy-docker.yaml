@@ -17,5 +17,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: cbg-ethz/V-pipe/v-pipe
+          repository: cbg-ethz/v-pipe/v-pipe
           tags: latest
