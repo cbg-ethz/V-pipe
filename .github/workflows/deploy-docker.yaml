@@ -2,7 +2,7 @@ name: Deploy Docker image
 
 on:
   push:
-    branches: master
+    branches: [master, feature-docker]
 
 jobs:
   push_to_registry:
