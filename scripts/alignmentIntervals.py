@@ -94,7 +94,7 @@ def parse_region(region, shorah, reference_file, win_len, win_shift):
             num_windows = floor((end_ - (start_ + win_len - 1)) / win_shift) + 1
             offset = 2 * win_shift
 
-            start = max(0, start - offset)
+            start = max(0, start - offset - 1)
             # In order to identify the region which is covered by at least
             # two windows, add to the end of the first window the
             # increment multiply by the number of windows - 2 (i.e.,
@@ -147,12 +147,7 @@ def parse_intervals(input_file, union_intervals, intersection_intervals,
         return intervals_merged
 
     def find_intersect(intervals_new, intervals_old):
-        """
-        Find interscetiong regions by:
-        (1) sorting the intervals in decreasing order, and
-        (2) iterate through intervals, comparing the current interval with the
-            last one. If the interval overlap, find the intersect
-        """
+
         intervals_intersected = []
 
         for i_new in intervals_new:

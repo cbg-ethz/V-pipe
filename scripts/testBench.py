@@ -574,12 +574,7 @@ def main():
             aux = aux[1].split('-')
             start = int(aux[0])
             end = int(aux[1])
-            if args.snv_caller == 'lofreq' or args.no_expansion:
-                # Region is interpreted as a closed interval and using 1-based
-                # indexing
-                start -= 1
-                start = max(0, start)
-            elif args.snv_caller == 'shorah':
+            if args.snv_caller == 'shorah' and not args.no_expansion:
                 # ShoRAH was used for SNV calling
                 # Assuming 3 windows were used for SNV calling, identify
                 # region that is covered by at least 2 windows (below, using
