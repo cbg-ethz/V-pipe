@@ -1,6 +1,7 @@
-FROM continuumio/miniconda:4.7.12
+FROM debian:stable
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
  && rm -rf /var/lib/apt/lists/*
 
