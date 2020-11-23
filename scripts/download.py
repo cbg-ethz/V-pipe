@@ -24,6 +24,7 @@ def main(fname_info, accession, restart_times, threads, logfiles):
         available_files = list(outdir.glob(f"{accession}*.fastq"))
         if len(available_files) in (1, 2, 3):
             # downloaded SE, PE, varying read number per spot
+            os.rmdir(tmpdir)
 
             # TODO: maybe check all files for >SE reads
             read_len = int(shell.check_output(
