@@ -9,39 +9,21 @@ rule all:
         "samples.tsv"
 
 
-rule download:
+rule download_fastq:
     output:
-        temp("samples/{accession}/19700101/raw_data/info.tsv")
+        fname_info = temp("samples/{accession}/19700101/raw_data/info.tsv")
+    params:
+        restart_times = 3
+    log:
+        outfile = "logs/download.{accession}.out.log",
+        errfile = "logs/download.{accession}.err.log"
     conda:
         "envs/sratools.yaml"
-    log:
-        "logs/download.{accession}.log"
-    shell:
-        """
-        # TODO: make all of this more robust
-        outdir="$(dirname {output[0]})"
-
-        # download FastQ
-        fasterq-dump \
-            --outdir "$outdir" \
-            {wildcards.accession} \
-            &> "{log}"
-
-        # make V-pipe recognize output files
-        rename 's/_1/_R1/' "$outdir"/*.fastq
-        rename 's/_2/_R2/' "$outdir"/*.fastq
-
-        # get fastq filename
-        fname=$(ls "$outdir"/*.fastq | head -1)
-        echo "Selected filename: $fname" &>> "{log}"
-
-        # get read length
-        read_length=$(bioawk -c fastx '{{ bases += length($seq); count++ }} END{{print int(bases/count)}}' $fname)
-        echo "Computed read length: $read_length" &>> "{log}"
-
-        # store in info file
-        echo -e "{wildcards.accession}\t19700101\t$read_length" > {output}
-        """
+    resources:
+        mem_mb = 5_000
+    threads: 6
+    script:
+        "scripts/download.py"
 
 
 rule create_samples_tsv:
