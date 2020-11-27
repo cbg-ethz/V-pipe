@@ -20,7 +20,7 @@ def main(fname_info, accession, restart_times, threads, logfiles):
             print("Download process crashed, hopefully this is just a fluke...")
             time.sleep(100)
 
-        # make sure the files were actually created
+        # make sure the files were actually created (network issues...)
         available_files = list(outdir.glob(f"{accession}*.fastq"))
         if len(available_files) in (1, 2, 3):
             # downloaded SE, PE, varying read number per spot
@@ -34,6 +34,13 @@ def main(fname_info, accession, restart_times, threads, logfiles):
             # TODO: how to get date
             with open(fname_info, "w") as fd:
                 fd.write(f"{accession}\t19700101\t{read_len}\n")
+
+            # rename files to make V-pipe recognize them (_R3 is not used)
+            for entry in available_files:
+                fname_new = (str(entry).replace('_1.fastq', '_R1.fastq')
+                                       .replace('_2.fastq', '_R2.fastq')
+                                       .replace('_3.fastq', '_R3.fastq'))
+                entry.rename(fname_new)
 
             break
 
