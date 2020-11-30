@@ -339,8 +339,19 @@ def main():
 
     if args.only_deletions:
         # Only look at deletions
-        is_deletion = df_snvs["REF"].str.len() > 1
+        # NOTE: temporary work-around while ShoRAH (v1.99.2) is modified to
+        #       report indels complying to VCF format
+        if args.snv_caller == 'shorah':
+            is_deletion = df_snvs["ALT"] == '-'
+        elif args.snv_caller == 'lofreq':
+            is_deletion = df_snvs["REF"].str.len() > 1
         df_snvs = df_snvs[is_deletion]
+
+    # NOTE: once ShoRAH (v1.99.2) is upgraded to report indels complying to
+    #       VCF format, --long-dels can also be executed and raising an error
+    #       won't be needed
+    if args.long_deletions and args.snv_caller == 'shorah':
+        raise ValueError("No curent support for --long-dels and ShoRAH")
 
     if df_snvs.empty:
         print("No called SNVs")
