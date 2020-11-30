@@ -183,7 +183,7 @@ localrules:
     create_simple_initial
 rule create_simple_initial:
     input:
-        "references/cohort_consensus.fasta"
+        config.input["reference"]
     output:
         "{dataset}/references/initial_consensus.fasta"
     shell:
