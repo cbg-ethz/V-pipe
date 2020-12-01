@@ -144,3 +144,42 @@ else:
             """
 
 
+if config.input['paired']:
+    rule predicthaplo:
+        input:
+            fname_bam = "{dataset}/alignments/REF_aln.bam",
+            fname_ref = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file
+        output:
+            fname_sam = temp("{dataset}/variants/global/REF_aln.sam"),
+            fname_out = "{dataset}/variants/global/predicthaplo_haplotypes.fasta"
+        params:
+            scratch = '1250',
+            mem = config.predicthaplo['mem'],
+            time = config.predicthaplo['time'],
+            OUTPREFIX = "{dataset}/variants/global/predicthaplo/",
+            SAMTOOLS = config.applications['samtools'],
+            PREDICTHAPLO = config.applications['predicthaplo'],
+        log:
+            outfile = "{dataset}/variants/global/predicthaplo.out.log",
+            errfile = "{dataset}/variants/global/predicthaplo.err.log",
+        conda:
+            config.predicthaplo['conda']
+        benchmark:
+            "{dataset}/variants/global/predicthaplo.benchmark"
+        threads:
+            config.predicthaplo['threads']
+        shell:
+            """
+            {params.SAMTOOLS} view -h -o {output.fname_sam} {input.fname_bam}
+
+            {params.PREDICTHAPLO} \
+                --sam {output.fname_sam} \
+                --reference {input.fname_ref} \
+                --prefix {params.OUTPREFIX} \
+                2> >(tee -a {log.errfile} >&2)
+
+            # TODO: copy over actual haplotypes
+            touch {output.fname_out}
+            """
+else:
+    raise NotImplementedError('PredictHaplo only works with paired-end reads')
