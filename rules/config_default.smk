@@ -89,7 +89,8 @@ class VpipeConfig(object):
             'bcftools': __RECORD__(value="bcftools", type=str),
             'haploclique': __RECORD__(value="haploclique", type='str'),
             'compute_mds': __RECORD__(value="compute_mds", type='str'),
-            'savage': __RECORD__(value="savage", type='str')
+            'savage': __RECORD__(value="savage", type='str'),
+            'predicthaplo': __RECORD__(value="predicthaplo", type='str')
         }),
 
         ('gunzip', {
@@ -294,6 +295,12 @@ class VpipeConfig(object):
 
             'split': __RECORD__(value=20, type=int),
         }),
+        ('predicthaplo', {
+            'mem': __RECORD__(value=10000, type=int),
+            'time': __RECORD__(value=1435, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/predicthaplo.yaml', type=str)
+        }),
         ('web_visualization', {
             'mem': __RECORD__(value=2000, type=int),
             'time': __RECORD__(value=235, type=int),
@@ -309,7 +316,7 @@ class VpipeConfig(object):
         self._vpipe_configfile = configparser.ConfigParser()
         self._vpipe_configfile.read('vpipe.config')
 
-        # clone to validate vpipe.config file 
+        # clone to validate vpipe.config file
         vpipe_configfile = configparser.ConfigParser()
         vpipe_configfile.read('vpipe.config')
 
