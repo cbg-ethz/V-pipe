@@ -156,6 +156,7 @@ if config.input['paired']:
             scratch = '1250',
             mem = config.predicthaplo['mem'],
             time = config.predicthaplo['time'],
+            read_min_length = config.predicthaplo['read_min_length'],
             OUTPREFIX = "{dataset}/variants/global/predicthaplo/",
             SAMTOOLS = config.applications['samtools'],
             PREDICTHAPLO = config.applications['predicthaplo'],
@@ -177,6 +178,7 @@ if config.input['paired']:
                 --reference {input.fname_ref} \
                 --prefix {params.OUTPREFIX} \
                 --have_true_haplotypes 0 \
+                --min_length {params.read_min_length} \
                 2> >(tee -a {log.errfile} >&2)
 
             # TODO: copy over actual haplotypes

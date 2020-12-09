@@ -299,6 +299,7 @@ class VpipeConfig(object):
             'mem': __RECORD__(value=10000, type=int),
             'time': __RECORD__(value=1435, type=int),
             'threads': __RECORD__(value=0, type=int),
+            'read_min_length': __RECORD__(value=0, type=int),  # TODO: make this a fraction (float) of read length
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/predicthaplo.yaml', type=str)
         }),
         ('web_visualization', {
