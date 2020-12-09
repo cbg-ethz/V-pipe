@@ -117,3 +117,12 @@ rule haplocliqueclean:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
         """
+
+
+rule predicthaploclean:
+    params:
+        DIR = config.input['datadir']
+    shell:
+        """
+        rm -rf {params.DIR}/*/*/variants/global/predicthaplo/
+        """

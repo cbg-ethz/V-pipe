@@ -153,6 +153,9 @@ for p in patient_list:
         elif config.general['haplotype_reconstruction'] == 'haploclique':
             results.append("{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        elif config.general['haplotype_reconstruction'] == 'predicthaplo':
+            results.append("{sample_dir}/{patient}/{date}/variants/global/predicthaplo_haplotypes.fasta".format(
+                sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # merge lists contaiing expected output
     all_files = alignments + consensus + results
