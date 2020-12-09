@@ -176,6 +176,7 @@ if config.input['paired']:
                 --sam {output.fname_sam} \
                 --reference {input.fname_ref} \
                 --prefix {params.OUTPREFIX} \
+                --have_true_haplotypes 0 \
                 2> >(tee -a {log.errfile} >&2)
 
             # TODO: copy over actual haplotypes
