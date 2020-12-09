@@ -170,7 +170,7 @@ if config.input['paired']:
             config.predicthaplo['threads']
         shell:
             """
-            {params.SAMTOOLS} view -h -o {output.fname_sam} {input.fname_bam}
+            {params.SAMTOOLS} sort -n {input.fname_bam} -o {output.fname_sam}
 
             {params.PREDICTHAPLO} \
                 --sam {output.fname_sam} \
