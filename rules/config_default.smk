@@ -77,6 +77,7 @@ class VpipeConfig(object):
             'bowtie': __RECORD__(value="bowtie2", type=str),
             'samtools': __RECORD__(value="samtools", type=str),
             'extract_consensus': __RECORD__(value="extract_consensus", type=str),
+            'matcher': __RECORD__(value="matcher", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
             'ngshmmalign': __RECORD__(value="ngshmmalign", type=str),
             'convert_reference': __RECORD__(value="convert_reference", type=str),
@@ -211,6 +212,12 @@ class VpipeConfig(object):
             'n_coverage': __RECORD__(value=5, type=int),
             'qual_thrd': __RECORD__(value=15, type=int),
             'min_freq': __RECORD__(value=0.05, type=float),
+        }),
+        ('consseq_QA', {
+            'mem': __RECORD__(value=4096, type=int),
+            'time': __RECORD__(value=30, type=int),
+            'threads': __RECORD__(value=1, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/consseq_qa.yaml', type=str),
         }),
         ('basecounts', {
             'mem': __RECORD__(value=1250, type=int),

@@ -558,6 +558,7 @@ rule consensus_sequences:
     output:
         REF_amb = "{dataset}/references/ref_ambig.fasta",
         REF_majority = "{dataset}/references/ref_majority.fasta",
+        REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
     params:
         scratch = '1250',
         mem = config.consensus_sequences['mem'],
@@ -585,6 +586,40 @@ rule consensus_sequences:
 
         {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
         """
+
+# QA checks performed on consensus_sequences
+# - do pairwise alignement
+rule consseq_QA:
+    input:
+        REF = reference_file,
+        REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
+    output:
+        REF_matcher = "{dataset}/references/ref_majority_dels.matcher",
+    params:
+        scratch = '1250',
+        mem = config.consseq_QA['mem'],
+        time = config.consseq_QA['time'],
+        MATCHER = config.applications['matcher'],
+    log:
+        outfile = "{dataset}/references/qa_consseq.out.log",
+        errfile = "{dataset}/references/qa_consseq.err.log",
+    conda:
+        config.consseq_QA['conda']
+    benchmark:
+        "{dataset}/alignments/qa_consseq.benchmark"
+    threads:
+        1
+    shell:
+        """
+        if tail -n +2 {input.REF_majority_dels} | grep -qP '[^n]'; then
+            {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher}
+        else
+            touch {output.REF_matcher}
+            echo "pure 'nnnn...' consensus, no possible alignement"
+        fi
+        """
+
+
 
 
 if config.general["aligner"] == "ngshmmalign":

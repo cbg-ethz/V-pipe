@@ -101,11 +101,11 @@ for p in patient_list:
 
     alignments.append(
         "{sample_dir}/{patient}/{date}/alignments/REF_aln.bam".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
-    if config.output['QA']:
-        alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
-        alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    #if config.output['QA']:
+        #alignments.append(
+            #"{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        #alignments.append(
+            #"{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     vicuna_refs.append(
         "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
@@ -116,6 +116,9 @@ for p in patient_list:
         "{sample_dir}/{patient}/{date}/references/ref_ambig.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     consensus.append(
         "{sample_dir}/{patient}/{date}/references/ref_majority.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+    if config.output['QA']:
+        alignments.append(
+            "{sample_dir}/{patient}/{date}/references/ref_majority_dels.matcher".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
