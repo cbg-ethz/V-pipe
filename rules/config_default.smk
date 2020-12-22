@@ -99,6 +99,7 @@ class VpipeConfig(object):
                     "extract_consensus": __RECORD__(
                         value="extract_consensus", type=str
                     ),
+                    "matcher": __RECORD__(value="matcher", type=str),
                     "mafft": __RECORD__(value="mafft", type=str),
                     "ngshmmalign": __RECORD__(value="ngshmmalign", type=str),
                     "convert_reference": __RECORD__(
@@ -321,6 +322,17 @@ class VpipeConfig(object):
                     "mask_coverage_threshold": __RECORD__(value=10, type=int),
                     "ambiguous_base_coverage_threshold": __RECORD__(
                         value=0.05, type=float
+                    ),
+                },
+            ),
+            (
+                "consseq_QA",
+                {
+                    "mem": __RECORD__(value=4096, type=int),
+                    "time": __RECORD__(value=30, type=int),
+                    "threads": __RECORD__(value=1, type=int),
+                    "conda": __RECORD__(
+                        value=f"{VPIPE_BASEDIR}/envs/consseq_qa.yaml", type=str
                     ),
                 },
             ),

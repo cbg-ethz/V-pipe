@@ -119,17 +119,17 @@ for p in patient_list:
             sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
         )
     )
-    if config.output["QA"]:
-        alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
-            )
-        )
-        alignments.append(
-            "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
-            )
-        )
+    # if config.output["QA"]:
+    #    alignments.append(
+    #        "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(
+    #            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+    #        )
+    #    )
+    #    alignments.append(
+    #        "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(
+    #            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+    #        )
+    #    )
 
     vicuna_refs.append(
         "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(
@@ -158,6 +158,13 @@ for p in patient_list:
             sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
         )
     )
+
+    if config.output["QA"]:
+        alignments.append(
+            "{sample_dir}/{patient}/{date}/references/ref_majority_dels.matcher".format(
+                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            )
+        )
 
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(
@@ -274,7 +281,7 @@ def get_reference_name(reference_file):
 
 
 if not VPIPE_BENCH:
-    reference_file = config.virus_config['reference']
+    reference_file = config.virus_config["reference"]
     if not os.path.isfile(reference_file):
         reference_file_alt = os.path.join("references", reference_file)
         LOGGER.warning(
@@ -291,7 +298,7 @@ if not VPIPE_BENCH:
 
 
 def ID(wildcards):
-    return '-'.join(os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:])
+    return "-".join(os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:])
 
 
 def window_lengths(wildcards):
