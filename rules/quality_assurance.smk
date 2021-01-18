@@ -12,7 +12,7 @@ rule gunzip:
     input:
         "{file}.{ext}.gz",
     output:
-        temp(config.general["temp_prefix"] + "{file}.{ext,(fastq|fq)}"),
+        temp(os.path.join(config.general["temp_prefix"], "{file}.{ext,(fastq|fq)}")),
     params:
         scratch="10000",
         mem=config.gunzip["mem"],
@@ -32,7 +32,11 @@ rule extract:
     input:
         construct_input_fastq,
     output:
-        temp(config.general["temp_prefix"] + "{dataset}/extracted_data/R{pair}.fastq"),
+        temp(
+            os.path.join(
+                config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq"
+            )
+        ),
     params:
         scratch="2000",
         mem=config.extract["mem"],
@@ -64,8 +68,12 @@ if config.input["paired"]:
 
     rule preprocessing:
         input:
-            R1=config.general["temp_prefix"] + "{dataset}/extracted_data/R1.fastq",
-            R2=config.general["temp_prefix"] + "{dataset}/extracted_data/R2.fastq",
+            R1=os.path.join(
+                config.general["temp_prefix"], "{dataset}/extracted_data/R1.fastq"
+            ),
+            R2=os.path.join(
+                config.general["temp_prefix"], "{dataset}/extracted_data/R2.fastq"
+            ),
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
             R2gz="{dataset}/preprocessed_data/R2.fastq.gz",
@@ -114,7 +122,9 @@ else:
 
     rule preprocessing_se:
         input:
-            R1=config.general["temp_prefix"] + "{dataset}/extracted_data/R1.fastq",
+            R1=os.path.join(
+                config.general["temp_prefix"], "{dataset}/extracted_data/R1.fastq"
+            ),
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
         params:
@@ -158,7 +168,9 @@ else:
 # 3. QC reports
 rule fastqc:
     input:
-        config.general["temp_prefix"] + "{dataset}/extracted_data/R{pair}.fastq",
+        os.path.join(
+            config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq"
+        ),
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
     params:
