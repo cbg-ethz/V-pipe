@@ -226,9 +226,9 @@ ruleorder:
 # 2. aligning
 def input_align(wildcards):
     list_output = []
-    list_output.append(wildcards.dataset + "/preprocessed_data/R1.fastq")
+    list_output.append(config.general["temp_prefix"] + wildcards.dataset + "/preprocessed_data/R1.fastq")
     if config.input['paired']:
-        list_output.append(wildcards.dataset + "/preprocessed_data/R2.fastq")
+        list_output.append(config.general["temp_prefix"] + wildcards.dataset + "/preprocessed_data/R2.fastq")
     return(list_output)
 
 
@@ -489,7 +489,7 @@ elif config.general["aligner"] == "bowtie":
                 TMP_SAM = "{dataset}/alignments/tmp_aln.sam",
                 PHRED = config.bowtie_align['phred'],
                 PRESET = config.bowtie_align['preset'],
-                MAXINS = get_maxins, 
+                MAXINS = get_maxins,
                 EXTRA = config.bowtie_align['extra'],
                 BOWTIE = config.applications['bowtie'],
                 SAMTOOLS = config.applications['samtools'],
@@ -596,4 +596,3 @@ elif config.general["aligner"] == "bwa":
 elif config.general["aligner"] == "bowtie":
     ruleorder: consensus_sequences > hmm_align
     ruleorder: sam2bam > convert_to_ref
-

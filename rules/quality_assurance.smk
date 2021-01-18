@@ -11,7 +11,7 @@ rule gunzip:
     input:
         "{file}.{ext}.gz"
     output:
-        temp("{file}.{ext,(fastq|fq)}")
+        temp(config.general["temp_prefix"] + "{file}.{ext,(fastq|fq)}")
     params:
         scratch = '10000',
         mem = config.gunzip['mem'],
@@ -31,7 +31,7 @@ rule extract:
     input:
         construct_input_fastq
     output:
-        temp("{dataset}/extracted_data/R{pair}.fastq")
+        temp(config.general["temp_prefix"] + "{dataset}/extracted_data/R{pair}.fastq")
     params:
         scratch = '2000',
         mem = config.extract['mem'],
@@ -63,8 +63,8 @@ def len_cutoff(wildcards):
 if config.input['paired']:
     rule preprocessing:
         input:
-            R1 = "{dataset}/extracted_data/R1.fastq",
-            R2 = "{dataset}/extracted_data/R2.fastq",
+            R1 = config.general["temp_prefix"] + "{dataset}/extracted_data/R1.fastq",
+            R2 = config.general["temp_prefix"] + "{dataset}/extracted_data/R2.fastq",
         output:
             R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
             R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
@@ -80,6 +80,7 @@ if config.input['paired']:
             errfile = "{dataset}/preprocessed_data/prinseq.err.log"
         conda:
             config.preprocessing['conda']
+        shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
         threads:
@@ -109,7 +110,7 @@ if config.input['paired']:
 else:
     rule preprocessing_se:
         input:
-            R1 = "{dataset}/extracted_data/R1.fastq",
+            R1 = config.general["temp_prefix"] + "{dataset}/extracted_data/R1.fastq",
         output:
             R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
         params:
@@ -124,6 +125,7 @@ else:
             errfile = "{dataset}/preprocessed_data/prinseq.err.log"
         conda:
             config.preprocessing['conda']
+        shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
         threads:
@@ -152,7 +154,7 @@ else:
 # 3. QC reports
 rule fastqc:
     input:
-        "{dataset}/extracted_data/R{pair}.fastq",
+        config.general["temp_prefix"] + "{dataset}/extracted_data/R{pair}.fastq",
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
     params:
@@ -173,4 +175,3 @@ rule fastqc:
         """
         {params.FASTQC} -o {params.OUTDIR} -t {threads} {params.NOGROUP} {input} 2> >(tee {log.errfile} >&2)
         """
-

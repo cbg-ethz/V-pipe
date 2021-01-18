@@ -43,7 +43,8 @@ class VpipeConfig(object):
             'threads': __RECORD__(value=4, type=int),
             'aligner': __RECORD__(value='ngshmmalign', type=str),
             'snv_caller': __RECORD__(value='shorah', type=str),
-            'haplotype_reconstruction': __RECORD__(value='savage', type=str)
+            'haplotype_reconstruction': __RECORD__(value='savage', type=str),
+            'temp_prefix': __RECORD__(value='', type=str),  # path must end with '/'
         }),
         ('input', {
             'datadir': __RECORD__(value='samples', type=str),
@@ -309,7 +310,7 @@ class VpipeConfig(object):
         self._vpipe_configfile = configparser.ConfigParser()
         self._vpipe_configfile.read('vpipe.config')
 
-        # clone to validate vpipe.config file 
+        # clone to validate vpipe.config file
         vpipe_configfile = configparser.ConfigParser()
         vpipe_configfile.read('vpipe.config')
 
