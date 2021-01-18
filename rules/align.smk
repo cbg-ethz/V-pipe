@@ -226,9 +226,9 @@ ruleorder:
 # 2. aligning
 def input_align(wildcards):
     list_output = []
-    list_output.append(config.general["temp_prefix"] + wildcards.dataset + "/preprocessed_data/R1.fastq")
+    list_output.append(os.path.join(config.general["temp_prefix"], wildcards.dataset, "preprocessed_data/R1.fastq"))
     if config.input['paired']:
-        list_output.append(config.general["temp_prefix"] + wildcards.dataset + "/preprocessed_data/R2.fastq")
+        list_output.append(os.path.join(config.general["temp_prefix"], wildcards.dataset, "preprocessed_data/R2.fastq"))
     return(list_output)
 
 
