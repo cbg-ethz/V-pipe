@@ -51,7 +51,12 @@ class VpipeConfig(object):
                     "aligner": __RECORD__(value="ngshmmalign", type=str),
                     "snv_caller": __RECORD__(value="shorah", type=str),
                     "haplotype_reconstruction": __RECORD__(value="savage", type=str),
-                    "virus_config_file": __RECORD__(value="virus_configs/hiv.yaml", type=str),
+                    "virus_config_file": __RECORD__(
+                        value="virus_configs/hiv.yaml", type=str
+                    ),
+                    "temp_prefix": __RECORD__(
+                        value="", type=str
+                    ),  # path must end with '/'
                 },
             ),
             (
@@ -545,12 +550,12 @@ class VpipeConfig(object):
             )
 
         # TODO: rework whole config system (e.g. improve config merging)
-        with open(self.general['virus_config_file']) as fd:
+        with open(self.general["virus_config_file"]) as fd:
             virus_config = yaml.safe_load(fd)
 
-        self.__members['virus_config'] = {}
+        self.__members["virus_config"] = {}
         for key, value in virus_config.items():
-            self.set_option('virus_config', key, value)
+            self.set_option("virus_config", key, value)
 
     def __getattr__(self, section_name) -> _SectionWrapper:
         return _SectionWrapper(self, section_name)
