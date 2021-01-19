@@ -259,7 +259,7 @@ rule lofreq:
             else reference_file
         ),
         REF_IDX=(
-            "variants/cohort_consensus.fasta.far"
+            "variants/cohort_consensus.fasta.fai"
             if config.lofreq["consensus"]
             else "%s.fai" % reference_file
         ),
