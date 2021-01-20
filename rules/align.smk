@@ -258,79 +258,53 @@ def input_align(wildcards):
     return list_output
 
 
-rule hmm_align:
-    input:
-        initial_ref="{dataset}/references/initial_consensus.fasta",
-        FASTQ=input_align,
-    output:
-        good_aln=temp("{dataset}/alignments/full_aln.sam"),
-        reject_aln=temp("{dataset}/alignments/rejects.sam"),
-        REF_ambig="{dataset}/references/ref_ambig.fasta",
-        REF_majority="{dataset}/references/ref_majority.fasta",
-    params:
-        scratch="1250",
-        mem=config.hmm_align["mem"],
-        time=config.hmm_align["time"],
-        LEAVE_TEMP="-l" if config.hmm_align["leave_msa_temp"] else "",
-        EXTRA=config.hmm_align["extra"],
-        MAFFT=config.applications["mafft"],
-        NGSHMMALIGN=config.applications["ngshmmalign"],
-    log:
-        outfile="{dataset}/alignments/ngshmmalign.out.log",
-        errfile="{dataset}/alignments/ngshmmalign.err.log",
-    conda:
-        config.hmm_align["conda"]
-    benchmark:
-        "{dataset}/alignments/ngshmmalign.benchmark"
-    threads: config.hmm_align["threads"]
-    shell:
-        """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+if config.general["aligner"] == "ngshmmalign":
 
-        # 1. clean previous run
-        rm -rf   {wildcards.dataset}/alignments
-        rm -f    {wildcards.dataset}/references/ref_ambig.fasta
-        rm -f    {wildcards.dataset}/references/ref_majority.fasta
-        mkdir -p {wildcards.dataset}/alignments
-        mkdir -p {wildcards.dataset}/references
+    rule hmm_align:
+        input:
+            initial_ref="{dataset}/references/initial_consensus.fasta",
+            FASTQ=input_align,
+        output:
+            good_aln=temp("{dataset}/alignments/full_aln.sam"),
+            reject_aln=temp("{dataset}/alignments/rejects.sam"),
+            REF_ambig="{dataset}/references/ref_ambig.fasta",
+            REF_majority="{dataset}/references/ref_majority.fasta",
+        params:
+            scratch="1250",
+            mem=config.hmm_align["mem"],
+            time=config.hmm_align["time"],
+            LEAVE_TEMP="-l" if config.hmm_align["leave_msa_temp"] else "",
+            EXTRA=config.hmm_align["extra"],
+            MAFFT=config.applications["mafft"],
+            NGSHMMALIGN=config.applications["ngshmmalign"],
+        log:
+            outfile="{dataset}/alignments/ngshmmalign.out.log",
+            errfile="{dataset}/alignments/ngshmmalign.err.log",
+        conda:
+            config.hmm_align["conda"]
+        benchmark:
+            "{dataset}/alignments/ngshmmalign.benchmark"
+        threads: config.hmm_align["threads"]
+        shell:
+            """
+            CONSENSUS_NAME={wildcards.dataset}
+            CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+            CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        # 2. perform alignment # -l = leave temps
-        {params.NGSHMMALIGN} -v {params.EXTRA} -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
+            # 1. clean previous run
+            rm -rf   {wildcards.dataset}/alignments
+            rm -f    {wildcards.dataset}/references/ref_ambig.fasta
+            rm -f    {wildcards.dataset}/references/ref_majority.fasta
+            mkdir -p {wildcards.dataset}/alignments
+            mkdir -p {wildcards.dataset}/references
 
-        # 3. move references into place
-        mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
-        mv {wildcards.dataset}/{{alignments,references}}/ref_majority.fasta
-        """
+            # 2. perform alignment # -l = leave temps
+            {params.NGSHMMALIGN} -v {params.EXTRA} -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
 
-
-rule sam2bam:
-    input:
-        "{file}.sam",
-    output:
-        BAM="{file}.bam",
-        BAI="{file}.bam.bai",
-    params:
-        scratch="1250",
-        mem=config.sam2bam["mem"],
-        time=config.sam2bam["time"],
-        SAMTOOLS=config.applications["samtools"],
-        FUNCTIONS=functions,
-    log:
-        outfile="{file}_sam2bam.out.log",
-        errfile="{file}_sam2bam.err.log",
-    conda:
-        config.sam2bam["conda"]
-    benchmark:
-        "{file}_sam2bam.benchmark"
-    threads: 1
-    shell:
-        """
-        # convert sam -> bam
-        source {params.FUNCTIONS}
-        sam2bam {params.SAMTOOLS} {input} > {log.outfile} 2> >(tee {log.errfile} >&2)
-        """
+            # 3. move references into place
+            mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
+            mv {wildcards.dataset}/{{alignments,references}}/ref_majority.fasta
+            """
 
 
 # 3. construct MSA from all patient files
@@ -368,45 +342,76 @@ rule msa:
 
 
 # 4. convert alignments to REF alignment
-def get_reference_name(wildcards):
-    with open(reference_file, "r") as infile:
-        reference_name = infile.readline().rstrip()
-    reference_name = reference_name.split(">")[1]
-    reference_name = reference_name.split(" ")[0]
-    return reference_name
+if config.general["aligner"] == "ngshmmalign":
+
+    def get_reference_name(wildcards):
+        with open(reference_file, "r") as infile:
+            reference_name = infile.readline().rstrip()
+        reference_name = reference_name.split(">")[1]
+        reference_name = reference_name.split(" ")[0]
+        return reference_name
+
+    rule convert_to_ref:
+        input:
+            REF_ambig="references/ALL_aln_ambig.fasta",
+            REF_majority="references/ALL_aln_majority.fasta",
+            BAM="{dataset}/alignments/full_aln.bam",
+            REJECTS_BAM="{dataset}/alignments/rejects.bam",
+        output:
+            "{dataset}/alignments/REF_aln.bam",
+        params:
+            scratch="1250",
+            mem=config.convert_to_ref["mem"],
+            time=config.convert_to_ref["time"],
+            REF_NAME=reference_name if reference_name else get_reference_name,
+            CONVERT_REFERENCE=config.applications["convert_reference"],
+        log:
+            outfile="{dataset}/alignments/convert_to_ref.out.log",
+            errfile="{dataset}/alignments/convert_to_ref.err.log",
+        conda:
+            config.convert_to_ref["conda"]
+        benchmark:
+            "{dataset}/alignments/convert_to_ref.benchmark"
+        threads: 1
+        shadow:
+            "shallow"
+        shell:
+            """
+            {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
+            """
 
 
-rule convert_to_ref:
-    input:
-        REF_ambig="references/ALL_aln_ambig.fasta",
-        REF_majority="references/ALL_aln_majority.fasta",
-        BAM="{dataset}/alignments/full_aln.bam",
-        REJECTS_BAM="{dataset}/alignments/rejects.bam",
-    output:
-        "{dataset}/alignments/REF_aln.bam",
-    params:
-        scratch="1250",
-        mem=config.convert_to_ref["mem"],
-        time=config.convert_to_ref["time"],
-        REF_NAME=reference_name if reference_name else get_reference_name,
-        CONVERT_REFERENCE=config.applications["convert_reference"],
-    log:
-        outfile="{dataset}/alignments/convert_to_ref.out.log",
-        errfile="{dataset}/alignments/convert_to_ref.err.log",
-    conda:
-        config.convert_to_ref["conda"]
-    benchmark:
-        "{dataset}/alignments/convert_to_ref.benchmark"
-    threads: 1
-    shadow:
-        "shallow"
-    shell:
-        """
-        {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
-        """
+else:
+    # 2-4. Alternative: align reads using bwa or bowtie
+
+    rule sam2bam:
+        input:
+            "{file}.sam",
+        output:
+            BAM="{file}.bam",
+            BAI="{file}.bam.bai",
+        params:
+            scratch="1250",
+            mem=config.sam2bam["mem"],
+            time=config.sam2bam["time"],
+            SAMTOOLS=config.applications["samtools"],
+            FUNCTIONS=functions,
+        log:
+            outfile="{file}_sam2bam.out.log",
+            errfile="{file}_sam2bam.err.log",
+        conda:
+            config.sam2bam["conda"]
+        benchmark:
+            "{file}_sam2bam.benchmark"
+        threads: 1
+        shell:
+            """
+            # convert sam -> bam
+            source {params.FUNCTIONS}
+            sam2bam {params.SAMTOOLS} {input} > {log.outfile} 2> >(tee {log.errfile} >&2)
+            """
 
 
-# 2-4. Alternative: align reads using bwa or bowtie
 if config.general["aligner"] == "bwa":
 
     rule ref_bwa_index:
@@ -649,16 +654,18 @@ rule consseq_QA:
 if config.general["aligner"] == "ngshmmalign":
 
     ruleorder: hmm_align > consensus_sequences
-    ruleorder: convert_to_ref > sam2bam
 
 
-elif config.general["aligner"] == "bwa":
-
-    ruleorder: consensus_sequences > hmm_align
-    ruleorder: sam2bam > convert_to_ref
-
-
-elif config.general["aligner"] == "bowtie":
-
-    ruleorder: consensus_sequences > hmm_align
-    ruleorder: sam2bam > convert_to_ref
+#    ruleorder: convert_to_ref > sam2bam
+#
+#
+# elif config.general["aligner"] == "bwa":
+#
+#    ruleorder: consensus_sequences > hmm_align
+#    ruleorder: sam2bam > convert_to_ref
+#
+#
+# elif config.general["aligner"] == "bowtie":
+#
+#    ruleorder: consensus_sequences > hmm_align
+#    ruleorder: sam2bam > convert_to_ref
