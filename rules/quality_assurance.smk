@@ -11,7 +11,7 @@ rule gunzip:
     input:
         "{file}.{ext}.gz"
     output:
-        temp(os.path.join(config.general["temp_prefix"], "{file}.{ext,(fastq|fq)}"))
+        pipe("{file}.{ext,(fastq|fq)}")
     params:
         scratch = '10000',
         mem = config.gunzip['mem'],
