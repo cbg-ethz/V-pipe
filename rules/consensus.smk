@@ -52,5 +52,6 @@ rule consensus_bcftools:
             --fasta-ref {input.fname_ref} \
             --mask {output.fname_mask} \
             --iupac-codes \
+            --mark-del - \
             {output.fname_bcf}
         """
