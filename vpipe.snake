@@ -28,6 +28,7 @@ rule allfastqc:
 include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
+include: "rules/consensus.smk"
 include: "rules/mafs.smk"
 include: "rules/stats.smk"
 
