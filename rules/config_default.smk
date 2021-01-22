@@ -209,6 +209,15 @@ class VpipeConfig(object):
             'qual_thrd': __RECORD__(value=15, type=int),
             'min_freq': __RECORD__(value=0.05, type=float),
         }),
+        ('consensus_bcftools', {
+            'mem': __RECORD__(value=1250, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'threads': __RECORD__(value=0, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/bcftools.yaml', type=str),
+
+            'max_coverage': __RECORD__(value=10000, type=int),
+            'mask_coverage_threshold': __RECORD__(value=5, type=int),
+        }),
         ('minor_variants', {
             'mem': __RECORD__(value=1000, type=int),
             'time': __RECORD__(value=235, type=int),
@@ -309,7 +318,7 @@ class VpipeConfig(object):
         self._vpipe_configfile = configparser.ConfigParser()
         self._vpipe_configfile.read('vpipe.config')
 
-        # clone to validate vpipe.config file 
+        # clone to validate vpipe.config file
         vpipe_configfile = configparser.ConfigParser()
         vpipe_configfile.read('vpipe.config')
 
