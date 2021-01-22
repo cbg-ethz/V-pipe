@@ -7,9 +7,15 @@ rule consensus_bcftools:
         fname_fasta = "{dataset}/references/consensus.bcftools.fasta",
         fname_mask = temp("{dataset}/references/coverage_mask.bed"),
     params:
-        max_coverage = 1000,
-        mask_coverage_threshold = 5,
-    threads: 1
+        scratch = '1250',
+        mem = config.consensus_bcftools['mem'],
+        time = config.consensus_bcftools['time'],
+
+        max_coverage = config.consensus_bcftools['max_coverage'],
+        mask_coverage_threshold = config.consensus_bcftools['mask_coverage_threshold'],
+    conda:
+        config.consensus_bcftools['conda']
+    threads: config.consensus_bcftools['threads']
     shell:
         """
         bcftools mpileup \
