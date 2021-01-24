@@ -32,9 +32,6 @@ rule coverage_intervals:
     output:
         temp("{dataset}/variants/coverage_intervals.tsv")
     params:
-        scratch = '1250',
-        mem = config.coverage_intervals['mem'],
-        time = config.coverage_intervals['time'],
         NAME = ID,
         WINDOW_LEN = window_length1,
         SHIFT = shift1,
@@ -49,6 +46,11 @@ rule coverage_intervals:
         config.coverage_intervals['conda']
     benchmark:
         "{dataset}/variants/coverage_intervals.benchmark"
+    group: 'snv'
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.coverage_intervals['mem'],
+        time_min = config.coverage_intervals['time'],
     threads:
         config.coverage_intervals['threads']
     shell:
@@ -80,9 +82,6 @@ rule snv:
         CSV = "{dataset}/variants/SNVs/snvs.csv",
         VCF = "{dataset}/variants/SNVs/snvs.vcf"
     params:
-        scratch = '1250',
-        mem = config.snv['mem'],
-        time = config.snv['time'],
         READ_LEN = read_len,
         ALPHA = config.snv['alpha'],
         IGNORE_INDELS = '--ignore_indels' if config.snv['ignore_indels'] else '',
@@ -102,6 +101,11 @@ rule snv:
         config.snv['conda']
     benchmark:
         "{dataset}/variants/SNVs/shorah.benchmark"
+    group: 'snv'
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.snv['mem'],
+        time_min = config.snv['time'],
     threads:
         config.snv['threads']
     shell:
@@ -215,9 +219,6 @@ rule samtools_index:
     output:
         "{file}.fasta.fai",
     params:
-        scratch = '2000',
-        mem = config.samtools_index['mem'],
-        time = config.samtools_index['time'],
         SAMTOOLS = config.applications['samtools'],
     log:
         outfile = "{file}_samtools_index.out.log",
@@ -226,6 +227,13 @@ rule samtools_index:
         config.samtools_index['conda']
     benchmark:
         "{file}_samtools_index.benchmark"
+    group: 'snv'
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.samtools_index['mem'],
+        time_min = config.samtools_index['time'],
+    threads:
+        1
     shell:
         """
         {params.SAMTOOLS} faidx {input} -o {output} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
@@ -240,9 +248,6 @@ rule lofreq:
         BAM = "{dataset}/variants/SNVs/REF_aln_indelqual.bam",
         SNVs = "{dataset}/variants/SNVs/snvs.vcf"
     params:
-        scratch = '2000',
-        mem = config.lofreq['mem'],
-        time = config.lofreq['time'],
         OUTDIR = "{dataset}/variants/SNVs",
         EXTRA = config.lofreq['extra'],
         SAMTOOLS = config.applications['samtools'],
@@ -254,6 +259,11 @@ rule lofreq:
         config.lofreq['conda']
     benchmark:
         "{dataset}/variants/SNVs/lofreq.benchmark"
+    group: 'snv'
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.lofreq['mem'],
+        time_min = config.lofreq['time'],
     shell:
         """
         # Add qualities to indels

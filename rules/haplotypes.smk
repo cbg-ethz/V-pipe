@@ -11,9 +11,6 @@ rule haploclique:
         FASTA = "{dataset}/variants/global/quasispecies.fasta",
         BAM = "{dataset}/variants/global/quasispecies.bam",
     params:
-        scratch = '1250',
-        mem = config.haploclique['mem'],
-        time = config.haploclique['time'],
         RELAX = '--edge_quasi_cutoff_cliques=0.85 --edge_quasi_cutoff_mixed=0.85 --edge_quasi_cutoff_single=0.8 --min_overlap_cliques=0.6 --min_overlap_single=0.5' if config.haploclique[
             'relax'] else '',
         NO_SINGLETONS = '--no_singletons' if config.haploclique['no_singletons'] else '',
@@ -29,6 +26,10 @@ rule haploclique:
         config.haploclique['conda']
     benchmark:
         "{dataset}/variants/global/haploclique.benchmark"
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.haploclique['mem'],
+        time_min = config.haploclique['time'],
     threads:
         1
     shell:
@@ -43,9 +44,6 @@ rule haploclique_visualization:
     output:
         PDF = "{dataset}/variants/global/quasispecies_plot.pdf",
     params:
-        scratch = '1250',
-        mem = config.haploclique_visualization['mem'],
-        time = config.haploclique_visualization['time'],
         REGION_START = config.haploclique_visualization['region_start'],
         REGION_END = config.haploclique_visualization['region_end'],
         USE_MSA = '-r' if len(
@@ -61,6 +59,10 @@ rule haploclique_visualization:
         config.haploclique_visualization['conda']
     benchmark:
         "{dataset}/variants/global/haploclique_visualization.benchmark"
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.haploclique_visualization['mem'],
+        time_min = config.haploclique_visualization['time'],
     threads:
         1
     shell:
@@ -78,9 +80,6 @@ if config.input['paired']:
             R2 = temp("{dataset}/variants/global/R2.fastq"),
             FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
         params:
-            scratch = '1250',
-            mem = config.savage['mem'],
-            time = config.savage['time'],
             SPLIT = config.savage['split'],
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
@@ -93,6 +92,10 @@ if config.input['paired']:
             config.savage['conda']
         benchmark:
             "{dataset}/variants/global/savage.benchmark"
+        resources:
+            disk_mb = 1250,
+            mem_mb = config.savage['mem'],
+            time_min = config.savage['time'],
         threads:
             config.savage['threads']
         shell:
@@ -116,9 +119,6 @@ else:
             R1 = temp("{dataset}/variants/global/R1.fastq"),
             FASTA = "{dataset}/variants/global/contigs_stage_c.fasta",
         params:
-            scratch = '1250',
-            mem = config.savage['mem'],
-            time = config.savage['time'],
             SPLIT = config.savage['split'],
             PICARD = config.applications['picard'],
             SAVAGE = config.applications['savage'],
@@ -131,6 +131,10 @@ else:
             config.savage['conda']
         benchmark:
             "{dataset}/variants/global/savage.benchmark"
+        resources:
+            disk_mb = 1250,
+            mem_mb = config.savage['mem'],
+            time_min = config.savage['time'],
         threads:
             config.savage['threads']
         shell:

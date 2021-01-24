@@ -9,10 +9,6 @@ rule generate_web_visualization:
         global_ref = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file, # see input.REF in rule snv
     output:
         html_file = "{dataset}/visualization/index.html"
-    params:
-        scratch = "2000",
-        mem = config.web_visualization["mem"],
-        time = config.web_visualization["time"],
     log:
         outfile = "{dataset}/visualization/stdout.log",
         errfile = "{dataset}/visualization/stderr.log"
@@ -20,6 +16,13 @@ rule generate_web_visualization:
         config.web_visualization["conda"]
     benchmark:
         "{dataset}/visualization/html_generation.benchmark"
+    group: 'snv'
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.web_visualization["mem"],
+        time_min = config.web_visualization["time"],
+    threads:
+        1
     shell:
         """
         # Why a shell directive?

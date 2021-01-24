@@ -13,13 +13,14 @@ rule gunzip:
     output:
         pipe("{file}.{ext,(fastq|fq)}")
     params:
-        scratch = '10000',
-        mem = config.gunzip['mem'],
-        time = config.gunzip['time'],
         GUNZIP = config.applications['gunzip'],
     log:
         outfile = temp("{file}_{ext}_gunzip.out.log"),
         errfile = temp("{file}_{ext}_gunzip.err.log"),
+    resources:
+        disk_mb = 1000,
+        mem_mb = config.gunzip['mem'],
+        time_min = config.gunzip['time'],
     threads:
         1
     shell:
@@ -31,16 +32,18 @@ rule extract:
     input:
         construct_input_fastq
     output:
-        temp(os.path.join(config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq"))
+        temp(os.path.join(config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq")),
     params:
-        scratch = '2000',
-        mem = config.extract['mem'],
-        time = config.extract['time'],
     log:
         outfile = "{dataset}/extracted_data/extract_R{pair}.out.log",
         errfile = "{dataset}/extracted_data/extract_R{pair}.err.log"
     benchmark:
         "{dataset}/extracted_data/extract_R{pair}.benchmark"
+    group: 'extract'
+    resources:
+        disk_mb = 20000, # for large files sort stores its temp data on disk
+        mem_mb = config.extract['mem'],
+        time_min = config.extract['time'],
     threads:
         1
     shell:
@@ -69,9 +72,6 @@ if config.input['paired']:
             R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
             R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
         params:
-            scratch = '2000',
-            mem = config.preprocessing['mem'],
-            time = config.preprocessing['time'],
             EXTRA = config.preprocessing['extra'],
             LEN_CUTOFF = len_cutoff,
             PRINSEQ = config.applications['prinseq'],
@@ -83,6 +83,11 @@ if config.input['paired']:
         shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
+        group: 'preprocessing'
+        resources:
+            disk_mb = 20000,
+            mem_mb = config.preprocessing['mem'],
+            time_min = config.preprocessing['time'],
         threads:
             1
         shell:
@@ -114,9 +119,6 @@ else:
         output:
             R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
         params:
-            scratch = '2000',
-            mem = config.preprocessing['mem'],
-            time = config.preprocessing['time'],
             EXTRA = config.preprocessing['extra'],
             LEN_CUTOFF = len_cutoff,
             PRINSEQ = config.applications['prinseq'],
@@ -128,6 +130,11 @@ else:
         shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
+        group: 'preprocessing'
+        resources:
+            disk_mb = 10000,
+            mem_mb = config.preprocessing['mem'],
+            time_min = config.preprocessing['time'],
         threads:
             1
         shell:
@@ -158,9 +165,6 @@ rule fastqc:
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
     params:
-        scratch = '2000',
-        mem = config.fastqc['mem'],
-        time = config.fastqc['time'],
         NOGROUP = '--nogroup' if config.fastqc['no_group'] else '',
         OUTDIR = "{dataset}/extracted_data",
         FASTQC = config.applications['fastqc'],
@@ -169,6 +173,10 @@ rule fastqc:
         errfile = "{dataset}/extracted_data/R{pair}_fastqc.err.log",
     conda:
         config.fastqc['conda']
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.fastqc['mem'],
+        time_min = config.fastqc['time'],
     threads:
         config.fastqc['threads']
     shell:

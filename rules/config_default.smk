@@ -97,11 +97,11 @@ class VpipeConfig(object):
         }),
 
         ('gunzip', {
-            'mem': __RECORD__(value=30000, type=int),
+            'mem': __RECORD__(value=32, type=int), # gunzip stream its output to disk and requires close to no memory
             'time': __RECORD__(value=60, type=int),
         }),
         ('extract', {
-            'mem': __RECORD__(value=10000, type=int),
+            'mem': __RECORD__(value=256, type=int), # for large files sort stores its temp data on disk
             'time': __RECORD__(value=20, type=int),
         }),
         ('preprocessing', {

@@ -29,9 +29,6 @@ rule alignment_bias:
     output:
         "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.tsv"
     params:
-        scratch = '2000',
-        mem = config.alignment_bias['mem'],
-        time = config.alignment_bias['time'],
         PAIRED = '-p' if config.input['paired'] else '',
         ID = lambda wildcards: f'{wildcards.sample_name}-{wildcards.date}',
         ALIGNMENT_BIAS = config.applications['alignmentBias'],
@@ -40,6 +37,10 @@ rule alignment_bias:
         errfile = "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log"
     conda:
         config.alignment_bias['conda']
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.alignment_bias['mem'],
+        time_min = config.alignment_bias['time'],
     threads:
         1
     shell:
@@ -52,10 +53,10 @@ rule aggregate_alignment_bias:
         expand("{dataset}/alignments/alignment_bias.tsv", dataset=datasets)
     output:
         "stats/alignment_bias.tsv"
-    params:
-        scratch = '1250',
-        mem = config.aggregate['mem'],
-        time = config.aggregate['time']
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.aggregate['mem'],
+        time_min = config.aggregate['time'],
     log:
         outfile = "stats/alignment_bias.out.log",
         errfile = "stats/alignment_bias.out.log"
@@ -72,10 +73,10 @@ rule aggregate_beforeSB:
     output:
         TXT = temp("{dataset}/variants/SNVs/SNVs_beforeSB.txt"),
         CSV = "{dataset}/variants/SNVs/SNVs_beforeSB.csv"
-    params:
-        scratch = '1250',
-        mem = '2000',
-        time = '20'
+    resources:
+        disk_mb = 1250,
+        mem_mb = 2000,
+        time_min = 20,
     log:
         outfile = "{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
         errfile = "{dataset}/variants/SNVs/aggregate_beforeSB.err.log"
@@ -99,9 +100,6 @@ rule test_snv:
         temp(
             "{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv")
     params:
-        scratch = '2000',
-        mem = config.test_snv['mem'],
-        time = config.test_snv['time'],
         RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
         HAPLOTYPE_SEQS_AUX = "{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
         FREQ_DSTR = lambda wildcards:
@@ -120,6 +118,10 @@ rule test_snv:
         errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
     conda:
         config.test_snv['conda']
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.test_snv['mem'],
+        time_min = config.test_snv['time'],
     threads:
         1
     shell:
@@ -166,9 +168,6 @@ rule compare_snv:
         temp(
             "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/performance.tsv")
     params:
-        scratch = '2000',
-        mem = config.test_snv['mem'],
-        time = config.test_snv['time'],
         RE_MSA = 'true' if config.test_snv['re_msa'] else 'false',
         SNVs = ("{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.csv"
                 if config.general['snv_caller'] == 'shorah' else
@@ -188,6 +187,10 @@ rule compare_snv:
         errfile = "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log",
     conda:
         config.test_snv['conda']
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.test_snv['mem'],
+        time_min = config.test_snv['time'],
     threads:
         1
     shell:
@@ -231,10 +234,10 @@ rule aggregate:
         expand("{dataset}/variants/SNVs/performance.tsv", dataset=datasets)
     output:
         "variants/SNV_calling_performance.tsv"
-    params:
-        scratch = '1250',
-        mem = config.aggregate['mem'],
-        time = config.aggregate['time']
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.aggregate['mem'],
+        time_min = config.aggregate['time'],
     log:
         outfile = "variants/SNV_calling_performance.out.log",
         errfile = "variants/SNV_calling_performance.out.log"
@@ -249,10 +252,10 @@ rule aggregate_kind:
         expand("{dataset}/variants/SNVs/{{kind}}/performance.tsv", dataset=datasets)
     output:
         "variants/SNV_calling_performance_{kind}.tsv"
-    params:
-        scratch = '1250',
-        mem = config.aggregate['mem'],
-        time = config.aggregate['time']
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.aggregate['mem'],
+        time_min = config.aggregate['time'],
     log:
         outfile = "variants/SNV_calling_performance_{kind}.out.log",
         errfile = "variants/SNV_calling_performance_{kind}.out.log"

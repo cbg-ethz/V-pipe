@@ -16,9 +16,6 @@ rule bwa_QA:
         SAM = temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
         MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     params:
-        scratch = '1250',
-        mem = config.bwa_QA['mem'],
-        time = config.bwa_QA['time'],
         BWA = config.applications['bwa'],
         MAFFT = config.applications['mafft'],
     log:
@@ -28,6 +25,10 @@ rule bwa_QA:
         config.bwa_QA['conda']
     benchmark:
         "{dataset}/QA_alignments/bwa_{kind}.benchmark"
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.bwa_QA['mem'],
+        time_min = config.bwa_QA['time'],
     threads:
         config.bwa_QA['threads']
     shell:
@@ -60,9 +61,6 @@ rule coverage_QA:
     output:
         "{dataset}/QA_alignments/coverage_{kind}.tsv",
     params:
-        scratch = '1250',
-        mem = config.coverage_QA['mem'],
-        time = config.coverage_QA['time'],
         TARGET = config.coverage_QA['target'],
         COV_STATS = config.applications['coverage_stats'],
     log:
@@ -72,6 +70,10 @@ rule coverage_QA:
         config.coverage_QA['conda']
     benchmark:
         "{dataset}/QA_alignments/coverage_QA_{kind}.benchmark"
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.coverage_QA['mem'],
+        time_min = config.coverage_QA['time'],
     threads:
         1
     shell:
