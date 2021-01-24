@@ -10,9 +10,6 @@ rule consensus_bcftools:
             "{dataset}/references/coverage_mask_lowcoverage.bed"
         ),
     params:
-        scratch="1250",
-        mem=config.consensus_bcftools["mem"],
-        time=config.consensus_bcftools["time"],
         max_coverage=config.consensus_bcftools["max_coverage"],
         mask_coverage_threshold=config.consensus_bcftools["mask_coverage_threshold"],
         ambiguous_base_coverage_threshold=config.consensus_bcftools[
@@ -21,6 +18,10 @@ rule consensus_bcftools:
         script_dir=os.path.join(VPIPE_BASEDIR, "scripts"),
     conda:
         config.consensus_bcftools["conda"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consensus_bcftools["mem"],
+        time_min=config.consensus_bcftools["time"],
     threads: config.consensus_bcftools["threads"]
     shell:
         """

@@ -14,9 +14,6 @@ rule basecounts:
         COVERAGE="{dataset}/alignments/coverage.tsv.gz",
         STATS="{dataset}/alignments/REF_aln_stats.yaml",
     params:
-        scratch="1250",
-        mem=config.basecounts["mem"],
-        time=config.basecounts["time"],
         NAME=ID,
         ALN2BASECNT=config.applications["aln2basecnt"],
     log:
@@ -26,6 +23,10 @@ rule basecounts:
         config.basecounts["conda"]
     benchmark:
         "{dataset}/alignments/basecounts.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.basecounts["mem"],
+        time_min=config.basecounts["time"],
     threads: 1
     shell:
         """
@@ -57,9 +58,6 @@ rule coverage:
         COVERAGE="variants/coverage.tsv",
         COVSTATS="variants/coverage_stats.tsv",
     params:
-        scratch="1250",
-        mem=config.coverage["mem"],
-        time=config.coverage["time"],
         GATHER_COVERAGE=config.applications["gather_coverage"],
     log:
         outfile="variants/coverage.out.log",
@@ -68,6 +66,10 @@ rule coverage:
         config.coverage["conda"]
     benchmark:
         "variants/minority_variants.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.coverage["mem"],
+        time_min=config.coverage["time"],
     threads: config.coverage["threads"]
     shell:
         """
@@ -85,9 +87,6 @@ rule minor_variants:
         VARIANTS="variants/minority_variants.tsv",
         CONSENSUS="variants/cohort_consensus.fasta",
     params:
-        scratch="1250",
-        mem=config.minor_variants["mem"],
-        time=config.minor_variants["time"],
         OUTDIR="variants",
         NAMES=IDs,
         MIN_COVERAGE=config.minor_variants["min_coverage"],
@@ -100,6 +99,10 @@ rule minor_variants:
         config.minor_variants["conda"]
     benchmark:
         "variants/minority_variants.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.minor_variants["mem"],
+        time_min=config.minor_variants["time"],
     threads: config.minor_variants["threads"]
     shell:
         """

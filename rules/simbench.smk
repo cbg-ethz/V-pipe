@@ -9,9 +9,6 @@ rule simulate_master:
     output:
         reference_file,
     params:
-        scratch="2000",
-        mem=config.simulate_master["mem"],
-        time=config.simulate_master["time"],
         GENOME_LEN=config.simulate_master["genome_length"],
         SEED=config.simulate_master["seed"],
         OUTDIR_HAP="references",
@@ -21,6 +18,10 @@ rule simulate_master:
         errfile="references/simulate_master.out.log",
     conda:
         config.simulate_master["conda"]
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.simulate_master["mem"],
+        time_min = config.simulate_master["time"],
     shell:
         """
         {params.SIM_BENCH} -g {params.GENOME_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o master > >(tee {log.outfile}) 2>&1
@@ -51,9 +52,6 @@ rule simulate_haplotypes:
     output:
         HAP="{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes.fasta",
     params:
-        scratch="2000",
-        mem=config.simulate_haplotypes["mem"],
-        time=config.simulate_haplotypes["time"],
         HAPLOTYPE_SEQS=get_haplotype_seqs,
         NUM_HAPLOTYPES=lambda wildcards: sample_dict[
             sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
@@ -78,6 +76,10 @@ rule simulate_haplotypes:
     log:
         outfile="{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
         errfile="{sample_dir}/{sample_name}/{date}/references/haplotypes/simulate_haplotypes.out.log",
+    resources:
+        disk_mb = 2000,
+        mem_mb = config.simulate_haplotypes["mem"],
+        time_min = config.simulate_haplotypes["time"],
     conda:
         config.simulate_haplotypes["conda"]
     shell:
@@ -103,9 +105,6 @@ if config.input["paired"]:
             R1_raw="{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
             R2_raw="{sample_dir}/{sample_name}/{date}/raw_data/simreads_R2.fastq",
         params:
-            scratch="2000",
-            mem=config.simulate_reads["mem"],
-            time=config.simulate_reads["time"],
             NUM_HAPLOTYPES=lambda wildcards: sample_dict[
                 sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
             ]["num_haplotypes"],
@@ -135,6 +134,10 @@ if config.input["paired"]:
         log:
             outfile="{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
             errfile="{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
+        resources:
+            disk_mb = 2000,
+            mem_mb = config.simulate_reads["mem"],
+            time_min = config.simulate_reads["time"],
         conda:
             config.simulate_reads["conda"]
         shell:
@@ -156,9 +159,6 @@ else:
         output:
             R1_raw="{sample_dir}/{sample_name}/{date}/raw_data/simreads_R1.fastq",
         params:
-            scratch="2000",
-            mem=config.simulate_reads["mem"],
-            time=config.simulate_reads["time"],
             NUM_HAPLOTYPES=lambda wildcards: sample_dict[
                 sample_record(sample_name=wildcards.sample_name, date=wildcards.date)
             ]["num_haplotypes"],
@@ -189,6 +189,10 @@ else:
             errfile="{sample_dir}/{sample_name}/{date}/raw_data/simBench.out.log",
         conda:
             config.simulate_reads["conda"]
+        resources:
+            disk_mb = 2000,
+            mem_mb = config.simulate_reads["mem"],
+            time_min = config.simulate_reads["time"],
         shell:
             """
             {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} {params.HIGH_QUAL} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1
