@@ -5,6 +5,7 @@ rule consensus_bcftools:
     output:
         fname_bcf = "{dataset}/references/consensus.bcftools.bcf.gz",
         fname_fasta = "{dataset}/references/consensus.bcftools.fasta",
+        fname_fasta_ambig = "{dataset}/references/consensus_ambig.bcftools.fasta",
         fname_mask = temp("{dataset}/references/coverage_mask.bed"),
     params:
         scratch = '1250',
@@ -49,6 +50,12 @@ rule consensus_bcftools:
         bcftools index {output.fname_bcf}
         bcftools consensus \
             --output {output.fname_fasta} \
+            --fasta-ref {input.fname_ref} \
+            --mask {output.fname_mask} \
+            --mark-del - \
+            {output.fname_bcf}
+        bcftools consensus \
+            --output {output.fname_fasta_ambig} \
             --fasta-ref {input.fname_ref} \
             --mask {output.fname_mask} \
             --iupac-codes \
