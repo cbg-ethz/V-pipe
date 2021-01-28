@@ -216,7 +216,7 @@ class VpipeConfig(object):
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/bcftools.yaml', type=str),
 
             'max_coverage': __RECORD__(value=10000, type=int),
-            'mask_coverage_threshold': __RECORD__(value=5, type=int),
+            'mask_coverage_threshold': __RECORD__(value=50, type=int),
         }),
         ('minor_variants', {
             'mem': __RECORD__(value=1000, type=int),

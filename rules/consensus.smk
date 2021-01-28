@@ -6,7 +6,8 @@ rule consensus_bcftools:
         fname_bcf = "{dataset}/references/consensus.bcftools.bcf.gz",
         fname_fasta = "{dataset}/references/consensus.bcftools.fasta",
         fname_fasta_ambig = "{dataset}/references/consensus_ambig.bcftools.fasta",
-        fname_mask = temp("{dataset}/references/coverage_mask.bed"),
+        fname_mask_nocoverage = temp("{dataset}/references/coverage_mask_nocoverage.bed"),
+        fname_mask_lowcoverage = temp("{dataset}/references/coverage_mask_lowcoverage.bed"),
     params:
         scratch = '1250',
         mem = config.consensus_bcftools['mem'],
@@ -45,25 +46,30 @@ rule consensus_bcftools:
         samtools depth \
             -a {input.fname_bam} \
         | awk \
-            '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
-        > {output.fname_mask}
+            '$3 == 0 {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
+        > {output.fname_mask_nocoverage}
 
+        samtools depth \
+            -a {input.fname_bam} \
+        | awk \
+            '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
+        > {output.fname_mask_lowcoverage}
+
+        # preparations
         bcftools index {output.fname_bcf}
+
+        common_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with lc --mask {output.fname_mask_nocoverage} --mask-with N"
 
         # majority bases
         bcftools consensus \
             --output {output.fname_fasta} \
-            --fasta-ref {input.fname_ref} \
-            --mask {output.fname_mask} \
-            --mark-del - \
+            $common_params \
             {output.fname_bcf}
 
         # ambiguous bases
         bcftools consensus \
             --output {output.fname_fasta_ambig} \
-            --fasta-ref {input.fname_ref} \
-            --mask {output.fname_mask} \
+            $common_params \
             --iupac-codes \
-            --mark-del - \
             {output.fname_bcf}
         """
