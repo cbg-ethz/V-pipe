@@ -41,6 +41,7 @@ rule consensus_bcftools:
             --output {output.fname_bcf}
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
+        # TODO: retrieve this data from other rules
         samtools depth \
             -a {input.fname_bam} \
         | awk \
@@ -48,12 +49,16 @@ rule consensus_bcftools:
         > {output.fname_mask}
 
         bcftools index {output.fname_bcf}
+
+        # majority bases
         bcftools consensus \
             --output {output.fname_fasta} \
             --fasta-ref {input.fname_ref} \
             --mask {output.fname_mask} \
             --mark-del - \
             {output.fname_bcf}
+
+        # ambiguous bases
         bcftools consensus \
             --output {output.fname_fasta_ambig} \
             --fasta-ref {input.fname_ref} \
