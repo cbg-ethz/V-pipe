@@ -653,6 +653,33 @@ rule consseq_QA:
         fi
         """
 
+rule frameshift_del_checks:
+    input:
+        REF = reference_file,
+        BAM = "{dataset}/alignments/REF_aln.bam",
+        REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
+    output:
+        REF_matcher = "{dataset}/references/ref_majority_dels.matcher",
+    params:
+        OUTDIR = "{dataset}/references/frameshift_deletions_check.csv",
+        FRAMESHIFT_DEL_CHECK = config.applications['frameshift_deletions_check'],
+    log:
+        outfile = "{dataset}/references/frameshift_deletions_check.out.log",
+        errfile = "{dataset}/references/frameshift_deletions_check.err.log",
+    conda:
+        config.consseq_QA['conda']
+    benchmark:
+        "{dataset}/alignments/qa_consseq.benchmark"
+    resources:
+        disk_mb = 1250,
+        mem_mb = config.frameshift_del_checks['mem'],
+        time_min = config.frameshift_del_checks['time'],
+    threads:
+        1
+    shell:
+        """
+        {params.FRAMESHIFT_DEL_CHECK} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -o {params.OUTDIR}
+        """
 
 
 
