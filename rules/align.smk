@@ -669,7 +669,7 @@ rule frameshift_del_checks:
     conda:
         config.consseq_QA['conda']
     benchmark:
-        "{dataset}/alignments/qa_consseq.benchmark"
+        "{dataset}/alignments/frameshift_deletions_check.benchmark"
     resources:
         disk_mb = 1250,
         mem_mb = config.frameshift_del_checks['mem'],
