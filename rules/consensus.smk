@@ -6,7 +6,6 @@ rule consensus_bcftools:
         fname_bcf = "{dataset}/references/consensus.bcftools.bcf.gz",
         fname_fasta = "{dataset}/references/consensus.bcftools.fasta",
         fname_fasta_ambig = "{dataset}/references/consensus_ambig.bcftools.fasta",
-        fname_mask_nocoverage = temp("{dataset}/references/coverage_mask_nocoverage.bed"),
         fname_mask_lowcoverage = temp("{dataset}/references/coverage_mask_lowcoverage.bed"),
     params:
         scratch = '1250',
@@ -47,19 +46,13 @@ rule consensus_bcftools:
         samtools depth \
             $common_samtools_params \
         | awk \
-            '$3 == 0 {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
-        > {output.fname_mask_nocoverage}
-
-        samtools depth \
-            $common_samtools_params \
-        | awk \
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
         > {output.fname_mask_lowcoverage}
 
         # preparations
         bcftools index {output.fname_bcf}
 
-        common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with lc --mask {output.fname_mask_nocoverage} --mask-with N"
+        common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with N"
 
         # majority bases
         bcftools consensus \
