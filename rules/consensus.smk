@@ -43,14 +43,15 @@ rule consensus_bcftools:
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
         # TODO: retrieve this data from other rules
+        common_samtools_params="-a -d 0 -J {input.fname_bam}"
         samtools depth \
-            -a {input.fname_bam} \
+            $common_samtools_params \
         | awk \
             '$3 == 0 {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
         > {output.fname_mask_nocoverage}
 
         samtools depth \
-            -a {input.fname_bam} \
+            $common_samtools_params \
         | awk \
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
         > {output.fname_mask_lowcoverage}
@@ -58,18 +59,18 @@ rule consensus_bcftools:
         # preparations
         bcftools index {output.fname_bcf}
 
-        common_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with lc --mask {output.fname_mask_nocoverage} --mask-with N"
+        common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with lc --mask {output.fname_mask_nocoverage} --mask-with N"
 
         # majority bases
         bcftools consensus \
             --output {output.fname_fasta} \
-            $common_params \
+            $common_consensus_params \
             {output.fname_bcf}
 
         # ambiguous bases
         bcftools consensus \
             --output {output.fname_fasta_ambig} \
-            $common_params \
+            $common_consensus_params \
             --iupac-codes \
             {output.fname_bcf}
         """
