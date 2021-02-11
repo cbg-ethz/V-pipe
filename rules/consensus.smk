@@ -14,6 +14,8 @@ rule consensus_bcftools:
 
         max_coverage = config.consensus_bcftools['max_coverage'],
         mask_coverage_threshold = config.consensus_bcftools['mask_coverage_threshold'],
+
+        script_dir = os.path.join(VPIPE_BASEDIR, 'scripts')
     conda:
         config.consensus_bcftools['conda']
     threads: config.consensus_bcftools['threads']
@@ -30,6 +32,7 @@ rule consensus_bcftools:
             --threads {threads} \
             -Ou \
             -mv \
+            --keep-alts \
             --ploidy 1 \
         | bcftools norm \
             --threads {threads} \
@@ -50,6 +53,9 @@ rule consensus_bcftools:
         > {output.fname_mask_lowcoverage}
 
         # preparations
+        python3 {params.script_dir}/enhance_bcf.py {output.fname_bcf} temp.bcf.gz
+        mv temp.bcf.gz {output.fname_bcf}
+
         bcftools index {output.fname_bcf}
 
         common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with N"
@@ -58,12 +64,13 @@ rule consensus_bcftools:
         bcftools consensus \
             --output {output.fname_fasta} \
             $common_consensus_params \
+            -H A \
             {output.fname_bcf}
 
         # ambiguous bases
         bcftools consensus \
             --output {output.fname_fasta_ambig} \
             $common_consensus_params \
-            --iupac-codes \
+            -H I --iupac-codes \
             {output.fname_bcf}
         """
