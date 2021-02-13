@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pyvcf
+  - bcbio-gff
+  - numpy
+  - pandas
+  - Biopython
+  - pyyaml

@@ -52,12 +52,16 @@ class VpipeConfig(object):
             'fastq_suffix': __RECORD__(value='', type=str),
             'trim_percent_cutoff': __RECORD__(value=0.8, type=float),
             'reference': __RECORD__(value='references/HXB2.fasta', type=str),
+            'gff_directory': __RECORD__(value='', type=str),
+            'primers_file': __RECORD__(value='', type=str),
+            'metainfo_file': __RECORD__(value='', type=str),
         }),
         ('output', {
             'QA': __RECORD__(value=False, type=bool),
             'snv': __RECORD__(value=True, type=bool),
             'local': __RECORD__(value=True, type=bool),
             'global': __RECORD__(value=True, type=bool),
+            'visualization': __RECORD__(value=True, type=bool),
         }),
         ('applications', {
             'gunzip': __RECORD__(value="gunzip", type=str),
@@ -289,7 +293,12 @@ class VpipeConfig(object):
             'conda': __RECORD__(value='', type=str),
 
             'split': __RECORD__(value=20, type=int),
-        })
+        }),
+        ('web_visualization', {
+            'mem': __RECORD__(value=2000, type=int),
+            'time': __RECORD__(value=235, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/visualization.yaml', type=str),
+        }),
     ])
 
     def __init__(self):
