@@ -69,6 +69,7 @@ rule consensus_bcftools:
             --output {output.fname_fasta} \
             $common_consensus_params \
             -H A \
+            -i "INFO/AD[0]<INFO/AD[*]" \
             {output.fname_bcf}
 
         # ambiguous bases
