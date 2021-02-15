@@ -62,7 +62,7 @@ rule consensus_bcftools:
 
         bcftools index {output.fname_bcf}
 
-        common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with N"
+        common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with n"
 
         # majority bases
         bcftools consensus \
