@@ -35,7 +35,6 @@ rule consensus_bcftools:
             -Ou \
             -mv \
             --keep-alts \
-            --ploidy 1 \
         | bcftools norm \
             --threads {threads} \
             -Ou \
