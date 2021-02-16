@@ -41,6 +41,7 @@ rule consensus_bcftools:
             -f {input.fname_ref} \
         | bcftools filter \
             --threads {threads} \
+            -e 'TYPE="INDEL" & INFO/AD[1]<INFO/AD[0]' \
             -Ob \
             --output {output.fname_bcf}
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
