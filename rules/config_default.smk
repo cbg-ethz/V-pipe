@@ -217,7 +217,7 @@ class VpipeConfig(object):
 
             'max_coverage': __RECORD__(value=10000, type=int),
             'mask_coverage_threshold': __RECORD__(value=10, type=int),
-            'amibugous_base_coverage_threshold': __RECORD__(value=3, type=int),
+            'amibugous_base_coverage_threshold': __RECORD__(value=0.05, type=float),
         }),
         ('minor_variants', {
             'mem': __RECORD__(value=1000, type=int),
