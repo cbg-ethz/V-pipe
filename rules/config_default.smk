@@ -102,7 +102,7 @@ class VpipeConfig(object):
             'time': __RECORD__(value=60, type=int),
         }),
         ('extract', {
-            'mem': __RECORD__(value=256, type=int), # for large files sort stores its temp data on disk
+            'mem': __RECORD__(value=4096, type=int), # for large files sort stores its temp data on disk
             'time': __RECORD__(value=20, type=int),
         }),
         ('preprocessing', {

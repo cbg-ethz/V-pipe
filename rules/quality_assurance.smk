@@ -83,7 +83,7 @@ if config.input['paired']:
         shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        group: 'preprocessing'
+        #group: 'preprocessing'
         resources:
             disk_mb = 20000,
             mem_mb = config.preprocessing['mem'],
@@ -130,7 +130,7 @@ else:
         shadow: "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        group: 'preprocessing'
+        #group: 'preprocessing'
         resources:
             disk_mb = 10000,
             mem_mb = config.preprocessing['mem'],

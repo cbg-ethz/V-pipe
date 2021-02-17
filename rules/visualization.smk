@@ -16,7 +16,7 @@ rule generate_web_visualization:
         config.web_visualization["conda"]
     benchmark:
         "{dataset}/visualization/html_generation.benchmark"
-    group: 'snv'
+    #group: 'snv' # HACK it's too fast and it confuses snakemake's timestamping
     resources:
         disk_mb = 2000,
         mem_mb = config.web_visualization["mem"],
