@@ -139,7 +139,7 @@ class VpipeConfig(object):
                 "extract",
                 {
                     "mem": __RECORD__(
-                        value=256, type=int
+                        value=4096, type=int
                     ),  # for large files sort stores its temp data on disk
                     "time": __RECORD__(value=20, type=int),
                 },
