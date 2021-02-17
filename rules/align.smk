@@ -646,39 +646,38 @@ rule consseq_QA:
     shell:
         """
         if tail -n +2 {input.REF_majority_dels} | grep -qP '[^n]'; then
-            {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher}
+            {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher} 2> >(tee {log.errfile} >&2)
         else
             touch {output.REF_matcher}
             echo "pure 'nnnn...' consensus, no possible alignement"
         fi
         """
 
-rule frameshift_del_checks:
+rule frameshift_deletions_checks:
     input:
-        REF = reference_file,
+        REF_NAME = reference_file,
         BAM = "{dataset}/alignments/REF_aln.bam",
         REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
     output:
-        REF_matcher = "{dataset}/references/ref_majority_dels.matcher",
+        FRAMESHIFT_DEL_CHECK_CSV = "{dataset}/references/frameshift_deletions_check.csv",
     params:
-        OUTDIR = "{dataset}/references/frameshift_deletions_check.csv",
-        FRAMESHIFT_DEL_CHECK = config.applications['frameshift_deletions_check'],
+        FRAMESHIFT_DEL_CHECKS = config.applications['frameshift_deletions_checks'],
     log:
         outfile = "{dataset}/references/frameshift_deletions_check.out.log",
         errfile = "{dataset}/references/frameshift_deletions_check.err.log",
     conda:
-        config.consseq_QA['conda']
+        config.frameshift_deletions_checks['conda']
     benchmark:
         "{dataset}/alignments/frameshift_deletions_check.benchmark"
     resources:
         disk_mb = 1250,
-        mem_mb = config.frameshift_del_checks['mem'],
-        time_min = config.frameshift_del_checks['time'],
+        mem_mb = config.frameshift_deletions_checks['mem'],
+        time_min = config.frameshift_deletions_checks['time'],
     threads:
         1
     shell:
         """
-        {params.FRAMESHIFT_DEL_CHECK} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -o {params.OUTDIR}
+        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -o {output.FRAMESHIFT_DEL_CHECK_CSV} 2> >(tee {log.errfile} >&2)
         """
 
 
