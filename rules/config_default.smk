@@ -78,6 +78,7 @@ class VpipeConfig(object):
             'samtools': __RECORD__(value="samtools", type=str),
             'extract_consensus': __RECORD__(value="extract_consensus", type=str),
             'matcher': __RECORD__(value="matcher", type=str),
+            'frameshift_deletions_checks': __RECORD__(value="frameshift_deletions_checks", type=str),
             'mafft': __RECORD__(value="mafft", type=str),
             'ngshmmalign': __RECORD__(value="ngshmmalign", type=str),
             'convert_reference': __RECORD__(value="convert_reference", type=str),
@@ -218,6 +219,12 @@ class VpipeConfig(object):
             'time': __RECORD__(value=30, type=int),
             'threads': __RECORD__(value=1, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/consseq_qa.yaml', type=str),
+        }),
+        ('frameshift_deletions_checks', {
+            'mem': __RECORD__(value=1250, type=int),
+            'time': __RECORD__(value=30, type=int),
+            'threads': __RECORD__(value=1, type=int),
+            'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
         }),
         ('basecounts', {
             'mem': __RECORD__(value=1250, type=int),

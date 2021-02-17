@@ -119,6 +119,8 @@ for p in patient_list:
     if config.output['QA']:
         alignments.append(
             "{sample_dir}/{patient}/{date}/references/ref_majority_dels.matcher".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+        alignments.append(
+            "{sample_dir}/{patient}/{date}/references/frameshift_deletions_check.csv".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
