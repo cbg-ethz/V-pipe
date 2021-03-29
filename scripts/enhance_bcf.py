@@ -6,23 +6,25 @@ from cyvcf2 import VCF, Writer
 
 
 def main(fname_in, fname_out, amibugous_base_coverage_threshold):
-    #amibugous_base_coverage_threshold: the frequency threshold to include a
-    #variant to the computation of ambiguous code. 
+    """
+    amibugous_base_coverage_threshold:
+        frequency threshold to include a variant in computation of ambiguous code
+    """
     vcf_reader = VCF(fname_in)
     vcf_writer = Writer(fname_out, vcf_reader)
 
     for variant in vcf_reader:
         base_list = [variant.REF] + variant.ALT
         coverage_list = variant.INFO.get('AD')
-        total_coverage = variant.INFO.get('DP')
 
+        total_coverage = sum(coverage_list)
         assert len(base_list) == len(coverage_list)
 
         # genotype 0 is reference (base is not really needed)
         genotype = [
             i
             for i, (base, coverage) in enumerate(zip(base_list, coverage_list))
-            if coverage >= amibugous_base_coverage_threshold*total_coverage
+            if coverage / total_coverage >= amibugous_base_coverage_threshold
         ]
 
         variant.genotypes = [[*genotype, False]]
