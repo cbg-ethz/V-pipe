@@ -162,7 +162,7 @@ for p in patient_list:
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # visualization
-    if config.output['visualization']:
+    if config.output['snv'] and config.output['visualization']:
         visualizations.append("{sample_dir}/{patient}/{date}/visualization/index.html".format(
             sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
