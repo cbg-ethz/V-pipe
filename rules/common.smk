@@ -156,6 +156,9 @@ for p in patient_list:
                 sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
     # visualization
+    if not config.output['snv'] and config.output['visualization']:
+        raise RuntimeError('Cannot generate visualization without calling variants (make sure to set `snv = True`) in config.')
+
     if config.output['snv'] and config.output['visualization']:
         visualizations.append("{sample_dir}/{patient}/{date}/visualization/index.html".format(
             sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
