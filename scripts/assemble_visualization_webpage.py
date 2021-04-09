@@ -28,15 +28,30 @@ def convert_vcf(fname):
     with open(fname) as fd:
         vcf_reader = vcf.Reader(fd)
 
+        # check caller
+        caller_source = vcf_reader.metadata['source'][0].lower()
+        if caller_source.startswith('lofreq'):
+            mode = 'lofreq'
+        elif caller_source.startswith('shorah'):
+            mode = 'shorah'
+        else:
+            raise RuntimeError(f'Invalid variant caller: {caller_source}')
+
+        # parse records
         for record in vcf_reader:
+            if mode == 'lofreq':
+                freq = round(record.INFO['AF'], 3)
+            elif mode == 'shorah':
+                freq = round(np.mean(
+                    [v for k, v in record.INFO.items() if k.startswith("Freq")]
+                ), 3)
+
             output.append(
                 {
                     "position": record.POS,
                     "reference": record.REF,
                     "variant": [v.sequence for v in record.ALT],
-                    "frequency": round(np.mean(
-                        [v for k, v in record.INFO.items() if k.startswith("Freq")]
-                    ), 3),
+                    "frequency": freq,
                     "posterior": round(1 - 10**(-record.QUAL / 10), 3)
                 }
             )
