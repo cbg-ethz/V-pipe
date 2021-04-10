@@ -126,7 +126,7 @@ Other dependencies are managed by using isolated conda environments per rule, an
 
 If you use this software in your research, please cite:
 
-Posada-Céspedes S., Seifert D., Topolsky I., Metzner K.J., and Beerenwinkel N.
+Posada-Céspedes S., Seifert D., Topolsky I., Jablonski K., Metzner K.J., and Beerenwinkel N. 2021.
 "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput sequencing data."
 _Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/10.1093/bioinformatics/btab015).
 
