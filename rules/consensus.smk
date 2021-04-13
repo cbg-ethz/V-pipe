@@ -14,7 +14,7 @@ rule consensus_bcftools:
 
         max_coverage = config.consensus_bcftools['max_coverage'],
         mask_coverage_threshold = config.consensus_bcftools['mask_coverage_threshold'],
-        amibugous_base_coverage_threshold = config.consensus_bcftools['amibugous_base_coverage_threshold'],
+        ambiguous_base_coverage_threshold = config.consensus_bcftools['ambiguous_base_coverage_threshold'],
 
         script_dir = os.path.join(VPIPE_BASEDIR, 'scripts'),
     conda:
@@ -58,7 +58,7 @@ rule consensus_bcftools:
         python3 {params.script_dir}/enhance_bcf.py \
             {output.fname_bcf} \
             temp.bcf.gz \
-            {params.amibugous_base_coverage_threshold}
+            {params.ambiguous_base_coverage_threshold}
         mv temp.bcf.gz {output.fname_bcf}
 
         bcftools index {output.fname_bcf}
