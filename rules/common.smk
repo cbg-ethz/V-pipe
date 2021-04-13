@@ -117,6 +117,9 @@ for p in patient_list:
     consensus.append(
         "{sample_dir}/{patient}/{date}/references/ref_majority.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
 
+    consensus.append(
+        "{sample_dir}/{patient}/{date}/references/consensus.bcftools.fasta".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
+
     trimmed_files.append(
         "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(sample_dir=config.input['datadir'], patient=p.patient_id, date=p.date))
     if config.input['paired']:
