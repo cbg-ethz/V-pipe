@@ -1,0 +1,1074 @@
+{
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "general": {
+            "properties": {
+                "threads": {
+                    "type": "integer",
+                    "default": 4
+                },
+                "aligner": {
+                    "type": "string",
+                    "default": "ngshmmalign"
+                },
+                "snv_caller": {
+                    "type": "string",
+                    "default": "shorah"
+                },
+                "haplotype_reconstruction": {
+                    "type": "string",
+                    "default": "savage"
+                },
+                "virus_config_file": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/config/hiv.yaml"
+                },
+                "temp_prefix": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "input": {
+            "properties": {
+                "datadir": {
+                    "type": "string",
+                    "default": "samples"
+                },
+                "samples_file": {
+                    "type": "string",
+                    "default": "samples.tsv"
+                },
+                "paired": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "fastq_suffix": {
+                    "type": "string",
+                    "default": ""
+                },
+                "trim_percent_cutoff": {
+                    "type": "number",
+                    "default": 0.8
+                },
+                "reference": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/results/cohort_consensus.fasta"
+                },
+                "gff_directory": {
+                    "type": "string",
+                    "default": ""
+                },
+                "primers_file": {
+                    "type": "string",
+                    "default": ""
+                },
+                "metainfo_file": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "output": {
+            "properties": {
+                "QA": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "snv": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "local": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "global": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "visualization": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "applications": {
+            "properties": {
+                "gunzip": {
+                    "type": "string",
+                    "default": "gunzip"
+                },
+                "prinseq": {
+                    "type": "string",
+                    "default": "prinseq-lite.pl"
+                },
+                "fastqc": {
+                    "type": "string",
+                    "default": "fastqc"
+                },
+                "vicuna": {
+                    "type": "string",
+                    "default": "vicuna"
+                },
+                "indelfixer": {
+                    "type": "string",
+                    "default": "InDelFixer"
+                },
+                "consensusfixer": {
+                    "type": "string",
+                    "default": "ConsensusFixer"
+                },
+                "picard": {
+                    "type": "string",
+                    "default": "picard"
+                },
+                "bwa": {
+                    "type": "string",
+                    "default": "bwa"
+                },
+                "bowtie_idx": {
+                    "type": "string",
+                    "default": "bowtie2-build"
+                },
+                "bowtie": {
+                    "type": "string",
+                    "default": "bowtie2"
+                },
+                "samtools": {
+                    "type": "string",
+                    "default": "samtools"
+                },
+                "extract_consensus": {
+                    "type": "string",
+                    "default": "extract_consensus"
+                },
+                "matcher": {
+                    "type": "string",
+                    "default": "matcher"
+                },
+                "frameshift_deletions_checks": {
+                    "type": "string",
+                    "default": "frameshift_deletions_checks"
+                },
+                "mafft": {
+                    "type": "string",
+                    "default": "mafft"
+                },
+                "ngshmmalign": {
+                    "type": "string",
+                    "default": "ngshmmalign"
+                },
+                "convert_reference": {
+                    "type": "string",
+                    "default": "convert_reference"
+                },
+                "extract_seq": {
+                    "type": "string",
+                    "default": "extract_seq"
+                },
+                "coverage_stats": {
+                    "type": "string",
+                    "default": "coverage_stats"
+                },
+                "remove_gaps_msa": {
+                    "type": "string",
+                    "default": "remove_gaps_msa"
+                },
+                "aln2basecnt": {
+                    "type": "string",
+                    "default": "aln2basecnt"
+                },
+                "gather_coverage": {
+                    "type": "string",
+                    "default": "gather_coverage"
+                },
+                "minority_freq": {
+                    "type": "string",
+                    "default": "minority_freq"
+                },
+                "extract_coverage_intervals": {
+                    "type": "string",
+                    "default": "extract_coverage_intervals"
+                },
+                "shorah": {
+                    "type": "string",
+                    "default": "shorah shotgun"
+                },
+                "lofreq": {
+                    "type": "string",
+                    "default": "lofreq"
+                },
+                "bcftools": {
+                    "type": "string",
+                    "default": "bcftools"
+                },
+                "haploclique": {
+                    "type": "string",
+                    "default": "haploclique"
+                },
+                "compute_mds": {
+                    "type": "string",
+                    "default": "compute_mds"
+                },
+                "savage": {
+                    "type": "string",
+                    "default": "savage"
+                },
+                "predicthaplo": {
+                    "type": "string",
+                    "default": "predicthaplo"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "gunzip": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 32
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "extract": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 4096
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 20
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "preprocessing": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/preprocessing.yaml"
+                },
+                "extra": {
+                    "type": "string",
+                    "default": "-ns_max_n 4 -min_qual_mean 30 -trim_qual_left 30 -trim_qual_right 30 -trim_qual_window 10"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "fastqc": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/fastqc.yaml"
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 6
+                },
+                "no_group": {
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "initial_vicuna": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 600
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/initial_vicuna.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "initial_vicuna_msa": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/initial_vicuna_msa.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "create_vicuna_initial": {
+            "properties": {
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "hmm_align": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 1435
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/hmm_align.yaml"
+                },
+                "leave_msa_temp": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "extra": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "sam2bam": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 5000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/sam2bam.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "bwa_QA": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bwa_QA.yaml"
+                },
+                "ref_panel": {
+                    "type": "string",
+                    "default": "references/5-Virus-Mix.fasta"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "coverage_QA": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "target": {
+                    "type": "string",
+                    "default": "HXB2:6614-6812,7109-7217,7376-7478,7601-7634"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "msa": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/msa.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "convert_to_ref": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 8000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "ref_bwa_index": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bwa_align.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "bwa_align": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bwa_align.yaml"
+                },
+                "extra": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "ref_bowtie_index": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bowtie_align.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "bowtie_align": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bowtie_align.yaml"
+                },
+                "phred": {
+                    "type": "string",
+                    "default": "--phred33"
+                },
+                "preset": {
+                    "type": "string",
+                    "default": "--local --sensitive-local"
+                },
+                "maxins": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "consensus_sequences": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "min_coverage": {
+                    "type": "integer",
+                    "default": 50
+                },
+                "n_coverage": {
+                    "type": "integer",
+                    "default": 5
+                },
+                "qual_thrd": {
+                    "type": "integer",
+                    "default": 15
+                },
+                "min_freq": {
+                    "type": "number",
+                    "default": 0.05
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "consensus_bcftools": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/bcftools.yaml"
+                },
+                "max_coverage": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "mask_coverage_threshold": {
+                    "type": "integer",
+                    "default": 10
+                },
+                "ambiguous_base_coverage_threshold": {
+                    "type": "number",
+                    "default": 0.05
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "consseq_QA": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 4096
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/consseq_qa.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "frameshift_deletions_checks": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "genes_gff": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "basecounts": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "coverage": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "minor_variants": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "min_coverage": {
+                    "type": "integer",
+                    "default": 100
+                },
+                "frequencies": {
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "coverage_intervals": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "overlap": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "coverage": {
+                    "type": "integer",
+                    "default": 50
+                },
+                "liberal": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "snv": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 2880
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/snv.yaml"
+                },
+                "consensus": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "alpha": {
+                    "type": "number",
+                    "default": 0.1
+                },
+                "ignore_indels": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "posterior_threshold": {
+                    "type": "number",
+                    "default": 0.9
+                },
+                "coverage": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "shift": {
+                    "type": "integer",
+                    "default": 3
+                },
+                "keep_files": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "localscratch": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "samtools_index": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 20
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/lofreq.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "lofreq": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/lofreq.yaml"
+                },
+                "consensus": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "extra": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "alignment_coverage": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "coverage": {
+                    "type": "integer",
+                    "default": 5
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "stats": {
+            "properties": {
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/sam2bam.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "haploclique": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 1435
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/haploclique.yaml"
+                },
+                "relax": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "no_singletons": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "no_prob0": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "clique_size_limit": {
+                    "type": "integer",
+                    "default": 3
+                },
+                "max_num_cliques": {
+                    "type": "integer",
+                    "default": 10000
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "haploclique_visualization": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "region_start": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "region_end": {
+                    "type": "integer",
+                    "default": 9719
+                },
+                "msa": {
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "savage": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 1435
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/savage.yaml"
+                },
+                "split": {
+                    "type": "integer",
+                    "default": 20
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "predicthaplo": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 1435
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "read_min_length": {
+                    "type": "integer",
+                    "default": 0
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/predicthaplo.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "web_visualization": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/visualization.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        }
+    }
+}

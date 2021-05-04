@@ -22,7 +22,12 @@ if "VPIPE_CONFIG" not in dir():
     VPIPE_CONFIG = VpipeConfig
 
 
-config = VPIPE_CONFIG()
+
+with open(srcdir("config_schema.json"), "r") as fh:
+    schema = json.load(fh)
+
+
+config = VPIPE_CONFIG(schema)
 
 
 # 2. glob patients/samples + store as TSV if file is not provided
