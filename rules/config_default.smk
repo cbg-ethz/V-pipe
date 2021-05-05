@@ -63,7 +63,6 @@ VPIPE_CONFIG_OPTS = os.environ.get("VPIPE_CONFIG_OPTS") is not None
 class _SectionWrapper:
     def __init__(self, config: "VpipeConfig", section):
         if not config.has_section(section):
-            breakpoint()
             raise KeyError(
                 "ERROR: Section '{}' is not a valid section!".format(section)
             )
