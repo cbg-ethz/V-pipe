@@ -18,3 +18,9 @@
    $ # populate samples folder
    $ # maybe edit vpipe-config
    $ ${PATHTOTHISFOLDER}/vpipe_docker.sh -p -j 2
+
+   Technical note: the .snakemake folder is mounted into the current working directory
+   on the host. Thus conda packages and conda environments are not created within
+   the container but on the host file system.
+   This reduces container size and persists state between different calls of 
+   vpipe_docker.sh
