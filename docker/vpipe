@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+. /V-pipe/../miniconda3/bin/activate 'base'
+exec -a "$0" snakemake -s "/V-pipe/vpipe.snake" --use-conda "$@"
