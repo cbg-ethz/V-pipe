@@ -11,4 +11,4 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 BRANCH=$(git -C ${SCRIPT_DIR} branch --show-current)
 
-docker build -t vpipe-${BRANCH} -f ${SCRIPT_DIR}/Dockerfile ..
+docker build --progress plain -t vpipe-${BRANCH} -f ${SCRIPT_DIR}/Dockerfile ..

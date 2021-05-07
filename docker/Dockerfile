@@ -15,9 +15,12 @@ RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
     && /miniconda3/bin/conda install --yes snakemake-minimal
 
 COPY . /V-pipe
-RUN mkdir /work && cd /work && /V-pipe/init_project.sh
+RUN mkdir /work
 
 WORKDIR /work
+
+COPY docker/setup_conda.sh /V-pipe
+RUN /V-pipe/setup_conda.sh
 
 COPY docker/entry_point.sh /V-pipe
 
