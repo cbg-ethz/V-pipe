@@ -1,0 +1,45 @@
+name: Basic tests
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        conda config --add channels defaults
+        conda config --add channels bioconda
+        conda config --add channels conda-forge
+        conda install --yes --quiet snakemake-minimal
+    - name: Setup project
+      run: |
+        # curl --no-progress-meter -o "SRR1090340#1_R#2.fastq" "https://drive.sib.swiss/index.php/s/mn39LgM3QwnNTzW/download?path=%2F&files=SRR1090340{1,2}_{1,2}.fastq"
+        mkdir project; cd project; ../init_project.sh; mkdir samples; cd ..
+        # mkdir -p project/samples/SRR10903401/20200102/raw_data
+        # mkdir -p project/samples/SRR10903402/20200102/raw_data
+        # mv SRR10903401_R*.fastq project/samples/SRR10903401/20200102/raw_data
+        # mv SRR10903402_R*.fastq project/samples/SRR10903402/20200102/raw_data
+        cp -R testdata/pos_M* project/samples/
+
+    - name: Run workflow
+      working-directory: project
+      run: |
+        snakemake -s ../vpipe.snake --use-conda --dry-run
+        # ls -al
+        # cat samples.tsv
+        # sed -i -e "s/$/	250/g" samples.tsv
+        cat samples.tsv
+        snakemake -s ../vpipe.snake --use-conda -p -j 2
