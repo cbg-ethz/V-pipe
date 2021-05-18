@@ -91,3 +91,6 @@ ENV/
 # Misc files
 .DS_Store
 img/
+
+# vim backup files
+.*.sw?
