@@ -9,24 +9,35 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda config --add channels defaults
-        conda config --add channels bioconda
-        conda config --add channels conda-forge
-        conda install --yes --quiet snakemake-minimal
-    - name: run test_0
-      working-directory: tests
-      run: ./test_0.sh
-    - name: check output from test_0
-      working-directory: tests
-      run: ./compare_output.sh test_0
+
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          conda config --add channels defaults
+          conda config --add channels bioconda
+          conda config --add channels conda-forge
+          conda install --yes --quiet snakemake-minimal
+
+      - name: run test_0
+        working-directory: tests
+        run: ./test_0.sh
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: regression test output and diffs
+          path: |
+            /tmp/diffs_test_0.txt
+            /tmp/log_test_0.txt
+          if-no-files-found: ignore

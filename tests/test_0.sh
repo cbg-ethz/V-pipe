@@ -22,21 +22,22 @@ function setup_project {
 
 
 function run_workflow {
-    snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda --dry-run
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda --dry-run
+    echo
     cat samples.tsv
-    snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda -p -j 2
+    echo
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda -p -j 2
 }
 
 
 TEST_NAME=$(basename ${0%.*})
 EXIT_CODE=0
 DIFF_FILE=/tmp/diffs_${TEST_NAME}.txt
+LOG_FILE=/tmp/log_${TEST_NAME}.txt
 
 function compare_to_recorded_results {
 
     cd ${CWD}/expected_outputs/${TEST_NAME}
-
-    rm -f ${DIFF_FILE}
 
     for RECORDED_OUTPUT in $(find . -type f); do
         CURRENT_OUTPUT=${PROJECT_DIR}/${RECORDED_OUTPUT}
@@ -53,14 +54,15 @@ function compare_to_recorded_results {
 }
 
 setup_project
-run_workflow
+run_workflow 2>&1 | tee ${LOG_FILE}
+echo
+echo
 compare_to_recorded_results
 
 echo
-echo
 
 if [ ${EXIT_CODE} = 1 ]; then
-    echo TESTS FAILED, CHECK ${DIFF_FILE} FOR FUTHER INFORMATION
+    echo TESTS FAILED, CHECK ${DIFF_FILE} and ${LOG_FILE} FOR FUTHER INFORMATION
 else
     echo TESTS SUCEEDED
 fi
