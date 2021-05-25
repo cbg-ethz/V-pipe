@@ -1,0 +1,191 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20210519
+##source=ShoRAH_1.99.2
+##reference=/Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/variants/cohort_consensus.fasta
+##contig=<ID=NC_045512.2,length=29903>
+##INFO=<ID=Fvar,Number=1,Type=Integer,Description="Number of forward reads with variant">
+##INFO=<ID=Rvar,Number=1,Type=Integer,Description="Number of reverse reads with variant">
+##INFO=<ID=Ftot,Number=1,Type=Integer,Description="Total number of forward reads">
+##INFO=<ID=Rtot,Number=1,Type=Integer,Description="Total number of reverse reads">
+##INFO=<ID=Pval,Number=1,Type=Float,Description="P-value for strand bias">
+##INFO=<ID=Qval,Number=1,Type=Float,Description="Q-value for strand bias">
+##INFO=<ID=Freq1,Number=1,Type=Float,Description="Frequency of the variant in window 1">
+##INFO=<ID=Freq2,Number=1,Type=Float,Description="Frequency of the variant in window 2">
+##INFO=<ID=Freq3,Number=1,Type=Float,Description="Frequency of the variant in window 3">
+##INFO=<ID=Post1,Number=1,Type=Float,Description="Posterior probability of the variant in window 1">
+##INFO=<ID=Post2,Number=1,Type=Float,Description="Posterior probability of the variant in window 2">
+##INFO=<ID=Post3,Number=1,Type=Float,Description="Posterior probability of the variant in window 3">
+##bcftools_viewVersion=1.10.2+htslib-1.10.2
+##bcftools_viewCommand=view -Oz -o /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_1/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_1/snv/SNVs_0.010000_final.vcf; Date=Wed May 19 10:49:00 2021
+##bcftools_concatVersion=1.10.2+htslib-1.10.2
+##bcftools_concatCommand=concat -o /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/snvs_tmp.vcf /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_1/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_2/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_3/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_4/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_5/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_6/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_7/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_8/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_9/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_10/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_11/snv/SNVs_0.010000_final.vcf.gz /Users/uweschmitt/Projects/V-pipe/sars-cov2/testing_old/work/samples/pos_MN908947_3_1/20200729/variants/SNVs/REGION_12/snv/SNVs_0.010000_final.vcf.gz; Date=Wed May 19 10:50:52 2021
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+NC_045512.2	4210	.	A	G	4.77121	PASS	Freq1=0;Freq2=0.0689;Freq3=0.0628;Post1=0;Post2=1;Post3=1;Fvar=15;Rvar=14;Ftot=251;Rtot=245;Pval=1;Qval=1
+NC_045512.2	6669	.	G	A	4.77121	PASS	Freq1=0.1051;Freq2=0;Freq3=0.0986;Post1=1;Post2=0;Post3=1;Fvar=23;Rvar=23;Ftot=247;Rtot=246;Pval=1;Qval=1
+NC_045512.2	13451	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.0921;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=218;Pval=0.966328;Qval=1
+NC_045512.2	13452	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.0921;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=218;Pval=0.966328;Qval=1
+NC_045512.2	13453	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.0921;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=219;Pval=0.974192;Qval=1
+NC_045512.2	13454	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=219;Pval=0.936074;Qval=1
+NC_045512.2	13455	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=221;Pval=0.953211;Qval=1
+NC_045512.2	13456	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=222;Pval=0.961731;Qval=1
+NC_045512.2	13457	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=224;Pval=0.97867;Qval=1
+NC_045512.2	13458	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=224;Pval=0.97867;Qval=1
+NC_045512.2	13459	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=224;Pval=0.97867;Qval=1
+NC_045512.2	13460	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=224;Pval=0.97867;Qval=1
+NC_045512.2	13461	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13462	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13463	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13464	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13465	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13466	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=225;Pval=0.987088;Qval=1
+NC_045512.2	13467	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=226;Pval=0.995471;Qval=1
+NC_045512.2	13468	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=228;Pval=1;Qval=1
+NC_045512.2	13469	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=229;Pval=1;Qval=1
+NC_045512.2	13470	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=230;Pval=1;Qval=1
+NC_045512.2	13471	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=230;Pval=1;Qval=1
+NC_045512.2	13472	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=15;Rvar=15;Ftot=243;Rtot=231;Pval=1;Qval=1
+NC_045512.2	13473	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=231;Pval=1;Qval=1
+NC_045512.2	13474	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=231;Pval=1;Qval=1
+NC_045512.2	13475	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=233;Pval=1;Qval=1
+NC_045512.2	13476	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1172;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=233;Pval=1;Qval=1
+NC_045512.2	13477	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=234;Pval=1;Qval=1
+NC_045512.2	13478	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=234;Pval=1;Qval=1
+NC_045512.2	13479	.	T	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=237;Pval=1;Qval=1
+NC_045512.2	13480	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13481	.	T	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13482	.	A	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13483	.	A	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13484	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13485	.	T	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=241;Pval=1;Qval=1
+NC_045512.2	13486	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=242;Pval=1;Qval=1
+NC_045512.2	13487	.	C	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13488	.	A	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13489	.	G	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13490	.	C	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13491	.	C	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13492	.	C	-	4.7621	PASS	Freq1=0;Freq2=0.1004;Freq3=0.1211;Post1=0;Post2=1;Post3=0.9979;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13493	.	G	-	31.549	PASS	Freq1=0.1004;Freq2=0.1211;Freq3=0.0455;Post1=1;Post2=0.9979;Post3=1;Fvar=15;Rvar=15;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13494	.	T	-	100	PASS	Freq1=0.1004;Freq2=0.1172;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13495	.	C	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13496	.	T	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13497	.	T	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13498	.	A	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13499	.	C	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13500	.	A	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13501	.	C	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13502	.	C	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13503	.	G	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13504	.	T	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13505	.	G	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13506	.	C	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	13507	.	G	-	100	PASS	Freq1=0.1004;Freq2=0.0921;Freq3=0.0455;Post1=1;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=243;Rtot=243;Pval=1;Qval=1
+NC_045512.2	17058	.	G	T	28.5387	PASS	Freq1=0.0676;Freq2=0.0681;Post1=0.9972;Post2=1;Fvar=0;Rvar=15;Ftot=0;Rtot=256;Pval=1;Qval=1
+NC_045512.2	18125	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.125;Freq3=0.1399;Post1=0;Post2=1;Post3=1;Fvar=30;Rvar=30;Ftot=256;Rtot=246;Pval=0.982958;Qval=1
+NC_045512.2	21281	.	G	T	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=3;Rvar=3;Ftot=254;Rtot=256;Pval=1;Qval=1
+NC_045512.2	21297	.	C	-	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=2;Rvar=3;Ftot=238;Rtot=256;Pval=1;Qval=1
+NC_045512.2	21298	.	A	-	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=2;Rvar=3;Ftot=238;Rtot=256;Pval=1;Qval=1
+NC_045512.2	21299	.	A	-	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=2;Rvar=3;Ftot=234;Rtot=256;Pval=1;Qval=1
+NC_045512.2	21300	.	A	-	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=2;Rvar=3;Ftot=234;Rtot=256;Pval=1;Qval=1
+NC_045512.2	21301	.	C	-	4.61008	PASS	Freq1=0.0079;Freq2=0;Freq3=0.0118;Post1=0.9739;Post2=0;Post3=0.9883;Fvar=2;Rvar=3;Ftot=234;Rtot=256;Pval=1;Qval=1
+NC_045512.2	23559	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23560	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23561	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23562	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23563	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23564	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23565	.	C	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23566	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23567	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23568	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23569	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23570	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23571	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23572	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23573	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23574	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23575	.	C	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23576	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23577	.	C	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23578	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23579	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23580	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23581	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23582	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23583	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=17;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23584	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23585	.	C	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23586	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=0;Pval=1;Qval=1
+NC_045512.2	23587	.	G	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=1;Pval=1;Qval=1
+NC_045512.2	23588	.	A	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=1;Pval=1;Qval=1
+NC_045512.2	23589	.	C	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=1;Pval=1;Qval=1
+NC_045512.2	23590	.	T	-	100	PASS	Freq2=0.0278;Freq3=0.0401;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=1;Pval=1;Qval=1
+NC_045512.2	23591	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=6;Pval=1;Qval=1
+NC_045512.2	23592	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=6;Pval=1;Qval=1
+NC_045512.2	23593	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=7;Pval=1;Qval=1
+NC_045512.2	23594	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=11;Pval=1;Qval=1
+NC_045512.2	23595	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=11;Pval=1;Qval=1
+NC_045512.2	23596	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=13;Pval=1;Qval=1
+NC_045512.2	23597	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=148;Pval=0.0920441;Qval=1
+NC_045512.2	23598	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=152;Pval=0.0861745;Qval=1
+NC_045512.2	23599	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=153;Pval=0.0847754;Qval=1
+NC_045512.2	23600	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=160;Pval=0.0756854;Qval=1
+NC_045512.2	23601	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=167;Pval=0.0677037;Qval=1
+NC_045512.2	23602	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=170;Pval=0.0645841;Qval=1
+NC_045512.2	23603	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=186;Pval=0.0505068;Qval=1
+NC_045512.2	23604	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=189;Pval=0.0482815;Qval=1
+NC_045512.2	23605	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=197;Pval=0.0428808;Qval=1
+NC_045512.2	23606	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=212;Pval=0.0345295;Qval=1
+NC_045512.2	23607	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=215;Pval=0.0330945;Qval=1
+NC_045512.2	23608	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=217;Pval=0.0321762;Qval=1
+NC_045512.2	23609	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=221;Pval=0.0304266;Qval=1
+NC_045512.2	23610	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=224;Pval=0.0291866;Qval=1
+NC_045512.2	23611	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=228;Pval=0.0276231;Qval=1
+NC_045512.2	23612	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=235;Pval=0.0251145;Qval=1
+NC_045512.2	23613	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=236;Pval=0.0247781;Qval=1
+NC_045512.2	23614	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=238;Pval=0.0241209;Qval=1
+NC_045512.2	23615	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=239;Pval=0.0237999;Qval=1
+NC_045512.2	23616	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23617	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23618	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23619	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23620	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23621	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23622	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23623	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=245;Pval=0.0219746;Qval=1
+NC_045512.2	23624	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=246;Pval=0.0216864;Qval=1
+NC_045512.2	23625	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23626	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23627	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23628	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23629	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23630	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23631	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23632	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23633	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23634	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23635	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=247;Pval=0.0214026;Qval=1
+NC_045512.2	23636	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=248;Pval=0.021123;Qval=1
+NC_045512.2	23637	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23638	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23639	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23640	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23641	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23642	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23643	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23644	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23645	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=8;Rvar=1;Ftot=256;Rtot=249;Pval=0.0522965;Qval=1
+NC_045512.2	23646	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23647	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23648	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23649	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23650	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23651	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23652	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23653	.	G	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23654	.	T	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=256;Rtot=249;Pval=0.0208477;Qval=1
+NC_045512.2	23655	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=255;Rtot=249;Pval=0.0205829;Qval=1
+NC_045512.2	23656	.	A	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=254;Rtot=249;Pval=0.02032;Qval=1
+NC_045512.2	23657	.	C	-	100	PASS	Freq1=0.0278;Freq2=0.0401;Freq3=0.0314;Post1=1;Post2=1;Post3=1;Fvar=7;Rvar=0;Ftot=254;Rtot=249;Pval=0.02032;Qval=1
+NC_045512.2	29192	.	T	-	4.54528	PASS	Freq1=0.0166;Freq2=0;Freq3=0.0152;Post1=1;Post2=0;Post3=0.9466;Fvar=4;Rvar=4;Ftot=253;Rtot=256;Pval=1;Qval=1
+NC_045512.2	29213	.	T	-	4.54528	PASS	Freq1=0.0166;Freq2=0;Freq3=0.0152;Post1=1;Post2=0;Post3=0.9466;Fvar=4;Rvar=4;Ftot=223;Rtot=256;Pval=1;Qval=1
