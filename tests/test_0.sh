@@ -11,29 +11,40 @@ function restore_wd {
 }
 trap restore_wd EXIT
 
+PROJECT_DIR=/tmp/project
 
 function setup_project {
     PROJECT_DIR=$(mktemp -d)
-    cd ${PROJECT_DIR}
+    pushd ${PROJECT_DIR}
     ${VPIPEROOT}/init_project.sh
     mkdir samples
     cp -R ${VPIPEROOT}/testdata/pos_M* samples
+    popd
 }
+
+# setup project files when not run on via github actions
+[ x$CI == x ] && setup_project
 
 
 function run_workflow {
+
+    pushd ${PROJECT_DIR}
     PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda --dry-run
     echo
     cat samples.tsv
     echo
     PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda -p -j 2
+    popd
 }
 
 
 TEST_NAME=$(basename ${0%.*})
 EXIT_CODE=0
+
 DIFF_FILE=/tmp/diffs_${TEST_NAME}.txt
 LOG_FILE=/tmp/log_${TEST_NAME}.txt
+rm -f ${DIFF_FILE}
+rm -f ${LOG_FILE}
 
 function compare_to_recorded_results {
 
@@ -53,7 +64,7 @@ function compare_to_recorded_results {
     done
 }
 
-setup_project
+# setup_project
 run_workflow 2>&1 | tee ${LOG_FILE}
 echo
 echo
