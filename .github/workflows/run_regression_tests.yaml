@@ -27,10 +27,28 @@ jobs:
           conda config --add channels defaults
           conda config --add channels bioconda
           conda config --add channels conda-forge
-          conda install --yes --quiet snakemake-minimal
+          conda install --yes --quiet snakemake-minimal snakefmt
+
+      - name: Check if code is properly formatted
+        run: snakefmt --check .
+
+      - name: Setup project
+        run: |
+          mkdir /tmp/project
+          cd /tmp/project
+          $GITHUB_WORKSPACE/init_project.sh
+          mkdir samples
+          cp -R --link --force $GITHUB_WORKSPACE/testdata/*/ samples
+
+      - name: Run Linter
+        working-directory: /tmp/project
+        env:
+          PYTHONUNBUFFERED: 1
+        run: snakemake --lint -s $GITHUB_WORKSPACE/vpipe.snake | tee /tmp/lint_result.txt
+        continue-on-error: true
 
       - name: run test_0
-        working-directory: tests
+        working-directory: ./tests
         run: ./test_0.sh
 
       - name: Archive code coverage results
@@ -40,4 +58,5 @@ jobs:
           path: |
             /tmp/diffs_test_0.txt
             /tmp/log_test_0.txt
+            /tmp/lint_result.txt
           if-no-files-found: ignore
