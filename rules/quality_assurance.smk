@@ -6,43 +6,43 @@ __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
+
 # 1. extract
 rule gunzip:
     input:
-        "{file}.{ext}.gz"
+        "{file}.{ext}.gz",
     output:
-        temp("{file}.{ext,(fastq|fq)}")
+        temp("{file}.{ext,(fastq|fq)}"),
     params:
-        scratch = '10000',
-        mem = config.gunzip['mem'],
-        time = config.gunzip['time'],
-        GUNZIP = config.applications['gunzip'],
+        scratch="10000",
+        mem=config.gunzip["mem"],
+        time=config.gunzip["time"],
+        GUNZIP=config.applications["gunzip"],
     log:
-        outfile = temp("{file}_{ext}_gunzip.out.log"),
-        errfile = temp("{file}_{ext}_gunzip.err.log"),
-    threads:
-        1
+        outfile=temp("{file}_{ext}_gunzip.out.log"),
+        errfile=temp("{file}_{ext}_gunzip.err.log"),
+    threads: 1
     shell:
         """
         {params.GUNZIP} -c {input} > {output}
         """
 
+
 rule extract:
     input:
-        construct_input_fastq
+        construct_input_fastq,
     output:
-        temp("{dataset}/extracted_data/R{pair}.fastq")
+        temp("{dataset}/extracted_data/R{pair}.fastq"),
     params:
-        scratch = '2000',
-        mem = config.extract['mem'],
-        time = config.extract['time'],
+        scratch="2000",
+        mem=config.extract["mem"],
+        time=config.extract["time"],
     log:
-        outfile = "{dataset}/extracted_data/extract_R{pair}.out.log",
-        errfile = "{dataset}/extracted_data/extract_R{pair}.err.log"
+        outfile="{dataset}/extracted_data/extract_R{pair}.out.log",
+        errfile="{dataset}/extracted_data/extract_R{pair}.err.log",
     benchmark:
         "{dataset}/extracted_data/extract_R{pair}.benchmark"
-    threads:
-        1
+    threads: 1
     shell:
         """
         cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
@@ -51,39 +51,39 @@ rule extract:
 
 # 2. clipping
 def len_cutoff(wildcards):
-    parts = wildcards.dataset.split('/')
+    parts = wildcards.dataset.split("/")
     patient_ID = parts[1]
     date = parts[2]
     patient_tuple = patient_record(patient_id=patient_ID, date=date)
     read_len = patient_dict[patient_tuple]
-    len_cutoff = int(config.input['trim_percent_cutoff'] * read_len)
+    len_cutoff = int(config.input["trim_percent_cutoff"] * read_len)
     return len_cutoff
 
 
-if config.input['paired']:
+if config.input["paired"]:
+
     rule preprocessing:
         input:
-            R1 = "{dataset}/extracted_data/R1.fastq",
-            R2 = "{dataset}/extracted_data/R2.fastq",
+            R1="{dataset}/extracted_data/R1.fastq",
+            R2="{dataset}/extracted_data/R2.fastq",
         output:
-            R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
-            R2gz = "{dataset}/preprocessed_data/R2.fastq.gz"
+            R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
+            R2gz="{dataset}/preprocessed_data/R2.fastq.gz",
         params:
-            scratch = '2000',
-            mem = config.preprocessing['mem'],
-            time = config.preprocessing['time'],
-            EXTRA = config.preprocessing['extra'],
-            LEN_CUTOFF = len_cutoff,
-            PRINSEQ = config.applications['prinseq'],
+            scratch="2000",
+            mem=config.preprocessing["mem"],
+            time=config.preprocessing["time"],
+            EXTRA=config.preprocessing["extra"],
+            LEN_CUTOFF=len_cutoff,
+            PRINSEQ=config.applications["prinseq"],
         log:
-            outfile = "{dataset}/preprocessed_data/prinseq.out.log",
-            errfile = "{dataset}/preprocessed_data/prinseq.err.log"
+            outfile="{dataset}/preprocessed_data/prinseq.out.log",
+            errfile="{dataset}/preprocessed_data/prinseq.err.log",
         conda:
-            config.preprocessing['conda']
+            config.preprocessing["conda"]
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        threads:
-            1
+        threads: 1
         shell:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
@@ -106,28 +106,30 @@ if config.input['paired']:
             gzip {wildcards.dataset}/preprocessed_data/R1.fastq
             gzip {wildcards.dataset}/preprocessed_data/R2.fastq
             """
+
+
 else:
+
     rule preprocessing_se:
         input:
-            R1 = "{dataset}/extracted_data/R1.fastq",
+            R1="{dataset}/extracted_data/R1.fastq",
         output:
-            R1gz = "{dataset}/preprocessed_data/R1.fastq.gz",
+            R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
         params:
-            scratch = '2000',
-            mem = config.preprocessing['mem'],
-            time = config.preprocessing['time'],
-            EXTRA = config.preprocessing['extra'],
-            LEN_CUTOFF = len_cutoff,
-            PRINSEQ = config.applications['prinseq'],
+            scratch="2000",
+            mem=config.preprocessing["mem"],
+            time=config.preprocessing["time"],
+            EXTRA=config.preprocessing["extra"],
+            LEN_CUTOFF=len_cutoff,
+            PRINSEQ=config.applications["prinseq"],
         log:
-            outfile = "{dataset}/preprocessed_data/prinseq.out.log",
-            errfile = "{dataset}/preprocessed_data/prinseq.err.log"
+            outfile="{dataset}/preprocessed_data/prinseq.out.log",
+            errfile="{dataset}/preprocessed_data/prinseq.err.log",
         conda:
-            config.preprocessing['conda']
+            config.preprocessing["conda"]
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        threads:
-            1
+        threads: 1
         shell:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
@@ -156,21 +158,19 @@ rule fastqc:
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
     params:
-        scratch = '2000',
-        mem = config.fastqc['mem'],
-        time = config.fastqc['time'],
-        NOGROUP = '--nogroup' if config.fastqc['no_group'] else '',
-        OUTDIR = "{dataset}/extracted_data",
-        FASTQC = config.applications['fastqc'],
+        scratch="2000",
+        mem=config.fastqc["mem"],
+        time=config.fastqc["time"],
+        NOGROUP="--nogroup" if config.fastqc["no_group"] else "",
+        OUTDIR="{dataset}/extracted_data",
+        FASTQC=config.applications["fastqc"],
     log:
-        outfile = "{dataset}/extracted_data/R{pair}_fastqc.out.log",
-        errfile = "{dataset}/extracted_data/R{pair}_fastqc.err.log",
+        outfile="{dataset}/extracted_data/R{pair}_fastqc.out.log",
+        errfile="{dataset}/extracted_data/R{pair}_fastqc.err.log",
     conda:
-        config.fastqc['conda']
-    threads:
-        config.fastqc['threads']
+        config.fastqc["conda"]
+    threads: config.fastqc["threads"]
     shell:
         """
         {params.FASTQC} -o {params.OUTDIR} -t {threads} {params.NOGROUP} {input} 2> >(tee {log.errfile} >&2)
         """
-

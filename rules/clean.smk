@@ -1,13 +1,13 @@
-
 __author__ = "Susana Posada-Cespedes"
 __author__ = "David Seifert"
 __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
+
 rule extractclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/extracted_data
@@ -16,7 +16,7 @@ rule extractclean:
 
 rule trimmingclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/preprocessed_data
@@ -25,7 +25,7 @@ rule trimmingclean:
 
 rule vicunaclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/initial_consensus
@@ -47,7 +47,7 @@ rule msaclean:
 
 rule alignclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/alignments
@@ -60,9 +60,9 @@ rule alignclean:
 
 rule bwaclean:
     input:
-        "{}.bwt".format(reference_file)
+        "{}.bwt".format(reference_file),
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -f {input}
@@ -74,14 +74,14 @@ rule bwaclean:
 
 rule bowtieclean:
     input:
-        INDEX1 = "{}.1.bt2".format(reference_file),
-        INDEX2 = "{}.2.bt2".format(reference_file),
-        INDEX3 = "{}.3.bt2".format(reference_file),
-        INDEX4 = "{}.4.bt2".format(reference_file),
-        INDEX5 = "{}.rev.1.bt2".format(reference_file),
-        INDEX6 = "{}.rev.2.bt2".format(reference_file)
+        INDEX1="{}.1.bt2".format(reference_file),
+        INDEX2="{}.2.bt2".format(reference_file),
+        INDEX3="{}.3.bt2".format(reference_file),
+        INDEX4="{}.4.bt2".format(reference_file),
+        INDEX5="{}.rev.1.bt2".format(reference_file),
+        INDEX6="{}.rev.2.bt2".format(reference_file),
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -f {input}
@@ -93,7 +93,7 @@ rule bowtieclean:
 
 rule snvclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/SNVs
@@ -102,7 +102,7 @@ rule snvclean:
 
 rule savageclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/global/contigs_stage_?.fasta
@@ -112,7 +112,7 @@ rule savageclean:
 
 rule haplocliqueclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
@@ -121,7 +121,7 @@ rule haplocliqueclean:
 
 rule visualizationclean:
     params:
-        DIR = config.input['datadir']
+        DIR=config.input["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/visualization
