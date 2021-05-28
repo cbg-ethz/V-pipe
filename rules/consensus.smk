@@ -1,25 +1,27 @@
 rule consensus_bcftools:
     input:
-        fname_bam = "{dataset}/alignments/REF_aln.bam",
-        fname_ref = reference_file,
+        fname_bam="{dataset}/alignments/REF_aln.bam",
+        fname_ref=reference_file,
     output:
-        fname_bcf = "{dataset}/references/consensus.bcftools.bcf.gz",
-        fname_fasta = "{dataset}/references/consensus.bcftools.fasta",
-        fname_fasta_ambig = "{dataset}/references/consensus_ambig.bcftools.fasta",
-        fname_mask_lowcoverage = temp("{dataset}/references/coverage_mask_lowcoverage.bed"),
+        fname_bcf="{dataset}/references/consensus.bcftools.bcf.gz",
+        fname_fasta="{dataset}/references/consensus.bcftools.fasta",
+        fname_fasta_ambig="{dataset}/references/consensus_ambig.bcftools.fasta",
+        fname_mask_lowcoverage=temp(
+            "{dataset}/references/coverage_mask_lowcoverage.bed"
+        ),
     params:
-        scratch = '1250',
-        mem = config.consensus_bcftools['mem'],
-        time = config.consensus_bcftools['time'],
-
-        max_coverage = config.consensus_bcftools['max_coverage'],
-        mask_coverage_threshold = config.consensus_bcftools['mask_coverage_threshold'],
-        ambiguous_base_coverage_threshold = config.consensus_bcftools['ambiguous_base_coverage_threshold'],
-
-        script_dir = os.path.join(VPIPE_BASEDIR, 'scripts'),
+        scratch="1250",
+        mem=config.consensus_bcftools["mem"],
+        time=config.consensus_bcftools["time"],
+        max_coverage=config.consensus_bcftools["max_coverage"],
+        mask_coverage_threshold=config.consensus_bcftools["mask_coverage_threshold"],
+        ambiguous_base_coverage_threshold=config.consensus_bcftools[
+            "ambiguous_base_coverage_threshold"
+        ],
+        script_dir=os.path.join(VPIPE_BASEDIR, "scripts"),
     conda:
-        config.consensus_bcftools['conda']
-    threads: config.consensus_bcftools['threads']
+        config.consensus_bcftools["conda"]
+    threads: config.consensus_bcftools["threads"]
     shell:
         """
         bcftools mpileup \

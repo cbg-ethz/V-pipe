@@ -9,104 +9,119 @@ __email__ = "v-pipe@bsse.ethz.ch"
 # 1. Call single nucleotide variants
 rule coverage_intervals:
     input:
-        BAM = expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
-        TSV = "variants/coverage.tsv",
+        BAM=expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
+        TSV="variants/coverage.tsv",
     output:
-        "variants/coverage_intervals.tsv"
+        "variants/coverage_intervals.tsv",
     params:
-        scratch = '1250',
-        mem = config.coverage_intervals['mem'],
-        time = config.coverage_intervals['time'],
-        WINDOW_LEN = window_lengths,
-        COVERAGE = config.coverage_intervals['coverage'],
-        OVERLAP = '' if config.coverage_intervals['overlap'] else '-cf variants/coverage.tsv',
-        SHIFT = shifts,
-        NAMES = IDs,
-        LIBERAL = '-e' if config.coverage_intervals['liberal'] else '',
-        EXTRACT_COVERAGE_INTERVALS = config.applications['extract_coverage_intervals']
+        scratch="1250",
+        mem=config.coverage_intervals["mem"],
+        time=config.coverage_intervals["time"],
+        WINDOW_LEN=window_lengths,
+        COVERAGE=config.coverage_intervals["coverage"],
+        OVERLAP=(
+            "" if config.coverage_intervals["overlap"] else "-cf variants/coverage.tsv"
+        ),
+        SHIFT=shifts,
+        NAMES=IDs,
+        LIBERAL="-e" if config.coverage_intervals["liberal"] else "",
+        EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
     log:
-        outfile = "variants/coverage_intervals.out.log",
-        errfile = "variants/coverage_intervals.out.log",
+        outfile="variants/coverage_intervals.out.log",
+        errfile="variants/coverage_intervals.out.log",
     conda:
-        config.coverage_intervals['conda']
+        config.coverage_intervals["conda"]
     benchmark:
         "variants/coverage_intervals.benchmark"
-    threads:
-        config.coverage_intervals['threads']
+    threads: config.coverage_intervals["threads"]
     shell:
         """
         {params.EXTRACT_COVERAGE_INTERVALS} -c {params.COVERAGE} -w {params.WINDOW_LEN} -s {params.SHIFT} -N {params.NAMES} {params.LIBERAL} {params.OVERLAP} -t {threads} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
         """
 
+
 localrules:
-    shorah_regions
+    shorah_regions,
+
+
 rule shorah_regions:
     input:
-        "variants/coverage_intervals.tsv"
+        "variants/coverage_intervals.tsv",
     output:
-        temp(
-            expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets))
+        temp(expand("{dataset}/variants/coverage_intervals.tsv", dataset=datasets)),
     params:
-        scratch = '1250',
-    threads:
-        1
+        scratch="1250",
+    threads: 1
     run:
-        with open(input[0], 'r') as infile:
+        with open(input[0], "r") as infile:
             for line in infile:
-                parts = line.rstrip().split('\t')
-                patientID = parts[0].split('-')
+                parts = line.rstrip().split("\t")
+                patientID = parts[0].split("-")
                 sample_date = patientID[-1]
-                patientID = '-'.join(patientID[:-1])
+                patientID = "-".join(patientID[:-1])
                 if len(parts) == 2:
-                    regions = parts[1].split(',')
+                    regions = parts[1].split(",")
                 else:
                     regions = []
 
-                with open(os.path.join(config.input['datadir'], patientID, sample_date, "variants", "coverage_intervals.tsv"), 'w') as outfile:
-                    outfile.write('\n'.join(regions))
+                with open(
+                    os.path.join(
+                        config.input["datadir"],
+                        patientID,
+                        sample_date,
+                        "variants",
+                        "coverage_intervals.tsv",
+                    ),
+                    "w",
+                ) as outfile:
+                    outfile.write("\n".join(regions))
 
 
 def read_len(wildcards):
-    parts = wildcards.dataset.split('/')
+    parts = wildcards.dataset.split("/")
     patient_ID = parts[1]
     date = parts[2]
     patient_tuple = patient_record(patient_id=patient_ID, date=date)
     read_len = patient_dict[patient_tuple]
     return read_len
 
+
 rule snv:
     input:
-        REF = "variants/cohort_consensus.fasta" if config.snv['consensus'] else reference_file,
-        BAM = "{dataset}/alignments/REF_aln.bam",
-        TSV = "{dataset}/variants/coverage_intervals.tsv",
+        REF=(
+            "variants/cohort_consensus.fasta"
+            if config.snv["consensus"]
+            else reference_file
+        ),
+        BAM="{dataset}/alignments/REF_aln.bam",
+        TSV="{dataset}/variants/coverage_intervals.tsv",
     output:
-        CSV = "{dataset}/variants/SNVs/snvs.csv",
-        VCF = "{dataset}/variants/SNVs/snvs.vcf"
+        CSV="{dataset}/variants/SNVs/snvs.csv",
+        VCF="{dataset}/variants/SNVs/snvs.vcf",
     params:
-        scratch = '1250',
-        mem = config.snv['mem'],
-        time = config.snv['time'],
-        READ_LEN = read_len,
-        ALPHA = config.snv['alpha'],
-        IGNORE_INDELS = '--ignore_indels' if config.snv['ignore_indels'] else '',
-        COVERAGE = config.snv['coverage'],
-        SHIFT = config.snv['shift'],
-        KEEP_FILES = 'true' if config.snv['keep_files'] else 'false',
-        WORK_DIR = "{dataset}/variants/SNVs",
-        LOCALSCRATCH = config.snv['localscratch'],
-        SHORAH = config.applications['shorah'],
-        POSTHRESH = config.snv['posterior_threshold'],
-        COVINT = config.coverage_intervals['coverage'],
-        BCFTOOLS = config.applications['bcftools']
+        scratch="1250",
+        mem=config.snv["mem"],
+        time=config.snv["time"],
+        READ_LEN=read_len,
+        ALPHA=config.snv["alpha"],
+        IGNORE_INDELS="--ignore_indels" if config.snv["ignore_indels"] else "",
+        COVERAGE=config.snv["coverage"],
+        SHIFT=config.snv["shift"],
+        KEEP_FILES="true" if config.snv["keep_files"] else "false",
+        WORK_DIR="{dataset}/variants/SNVs",
+        LOCALSCRATCH=config.snv["localscratch"],
+        SHORAH=config.applications["shorah"],
+        POSTHRESH=config.snv["posterior_threshold"],
+        COVINT=config.coverage_intervals["coverage"],
+        BCFTOOLS=config.applications["bcftools"],
     log:
-        outfile = "{dataset}/variants/SNVs/shorah.out.log",
-        errfile = "{dataset}/variants/SNVs/shorah.err.log",
+        outfile="{dataset}/variants/SNVs/shorah.out.log",
+        errfile="{dataset}/variants/SNVs/shorah.err.log",
     conda:
-        config.snv['conda']
+        config.snv["conda"]
     benchmark:
         "{dataset}/variants/SNVs/shorah.benchmark"
-    threads:
-        config.snv['threads']
+    threads: config.snv["threads"]
     shell:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
@@ -212,21 +227,22 @@ rule snv:
         fi
         """
 
+
 rule samtools_index:
     input:
         "{file}.fasta",
     output:
         "{file}.fasta.fai",
     params:
-        scratch = '2000',
-        mem = config.samtools_index['mem'],
-        time = config.samtools_index['time'],
-        SAMTOOLS = config.applications['samtools'],
+        scratch="2000",
+        mem=config.samtools_index["mem"],
+        time=config.samtools_index["time"],
+        SAMTOOLS=config.applications["samtools"],
     log:
-        outfile = "{file}_samtools_index.out.log",
-        errfile = "{file}_samtools_index.err.log",
+        outfile="{file}_samtools_index.out.log",
+        errfile="{file}_samtools_index.err.log",
     conda:
-        config.samtools_index['conda']
+        config.samtools_index["conda"]
     benchmark:
         "{file}_samtools_index.benchmark"
     shell:
@@ -234,27 +250,36 @@ rule samtools_index:
         {params.SAMTOOLS} faidx {input} -o {output} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
+
 rule lofreq:
     input:
-        REF = "variants/cohort_consensus.fasta" if config.lofreq['consensus'] else reference_file,
-        REF_IDX = "variants/cohort_consensus.fasta.fai" if config.lofreq['consensus'] else f"{reference_file}.fai",
-        BAM = "{dataset}/alignments/REF_aln.bam",
+        REF=(
+            "variants/cohort_consensus.fasta"
+            if config.lofreq["consensus"]
+            else reference_file
+        ),
+        REF_IDX=(
+            "variants/cohort_consensus.fasta.far"
+            if config.lofreq["consensus"]
+            else "%s.fai" % reference_file
+        ),
+        BAM="{dataset}/alignments/REF_aln.bam",
     output:
-        BAM = "{dataset}/variants/SNVs/REF_aln_indelqual.bam",
-        SNVs = "{dataset}/variants/SNVs/snvs.vcf"
+        BAM="{dataset}/variants/SNVs/REF_aln_indelqual.bam",
+        SNVs="{dataset}/variants/SNVs/snvs.vcf",
     params:
-        scratch = '2000',
-        mem = config.lofreq['mem'],
-        time = config.lofreq['time'],
-        OUTDIR = "{dataset}/variants/SNVs",
-        EXTRA = config.lofreq['extra'],
-        SAMTOOLS = config.applications['samtools'],
-        LOFREQ = config.applications['lofreq'],
+        scratch="2000",
+        mem=config.lofreq["mem"],
+        time=config.lofreq["time"],
+        OUTDIR="{dataset}/variants/SNVs",
+        EXTRA=config.lofreq["extra"],
+        SAMTOOLS=config.applications["samtools"],
+        LOFREQ=config.applications["lofreq"],
     log:
-        outfile = "{dataset}/variants/SNVs/lofreq.out.log",
-        errfile = "{dataset}/variants/SNVs/lofreq.err.log",
+        outfile="{dataset}/variants/SNVs/lofreq.out.log",
+        errfile="{dataset}/variants/SNVs/lofreq.err.log",
     conda:
-        config.lofreq['conda']
+        config.lofreq["conda"]
     benchmark:
         "{dataset}/variants/SNVs/lofreq.benchmark"
     shell:
@@ -269,8 +294,12 @@ rule lofreq:
         {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
-if config.general["snv_caller"] == "shorah":
-    ruleorder: snv > lofreq
-elif config.general["snv_caller"] == "lofreq":
-    ruleorder: lofreq > snv
 
+if config.general["snv_caller"] == "shorah":
+
+    ruleorder: snv > lofreq
+
+
+elif config.general["snv_caller"] == "lofreq":
+
+    ruleorder: lofreq > snv
