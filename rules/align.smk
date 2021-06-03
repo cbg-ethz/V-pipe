@@ -658,6 +658,7 @@ rule frameshift_deletions_checks:
         REF_NAME = reference_file,
         BAM = "{dataset}/alignments/REF_aln.bam",
         REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
+        GENES_GFF = config.frameshift_deletions_checks['genes_gff'] if config.frameshift_deletions_checks['genes_gff'] else []
     output:
         FRAMESHIFT_DEL_CHECK_CSV = "{dataset}/references/frameshift_deletions_check.csv",
     params:
@@ -677,7 +678,7 @@ rule frameshift_deletions_checks:
         1
     shell:
         """
-        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -o {output.FRAMESHIFT_DEL_CHECK_CSV} 2> >(tee {log.errfile} >&2)
+        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -g {input.GENES_GFF} -o {output.FRAMESHIFT_DEL_CHECK_CSV} 2> >(tee {log.errfile} >&2)
         """
 
 

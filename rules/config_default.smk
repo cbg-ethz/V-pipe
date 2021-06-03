@@ -225,6 +225,8 @@ class VpipeConfig(object):
             'time': __RECORD__(value=30, type=int),
             'threads': __RECORD__(value=1, type=int),
             'conda': __RECORD__(value=f'{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml', type=str),
+
+            'genes_gff': __RECORD__(value='', type=str),
         }),
         ('basecounts', {
             'mem': __RECORD__(value=1250, type=int),

@@ -41,7 +41,7 @@ rule extract:
         "{dataset}/extracted_data/extract_R{pair}.benchmark"
     group: 'extract'
     resources:
-        disk_mb = 20000, # for large files sort stores its temp data on disk
+        disk_mb = 32768, # for large files sort stores its temp data on disk
         mem_mb = config.extract['mem'],
         time_min = config.extract['time'],
     threads:
