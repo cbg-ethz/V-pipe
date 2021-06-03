@@ -353,6 +353,7 @@ class VpipeConfig(object):
                         value=f"{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml",
                         type=str,
                     ),
+                    "genes_gff": __RECORD__(value="", type=str),
                 },
             ),
             (
