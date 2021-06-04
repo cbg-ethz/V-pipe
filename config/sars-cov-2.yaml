@@ -1,3 +1,21 @@
 ---
 name: SARS-CoV-2
-reference: references/NC_045512.2.fasta
+general:
+    aligner: "bwa"
+
+input:
+    samples_file: "samples.tsv"
+    fastq_suffix: ""
+    reference: "references/NC_045512.2.fasta"
+    metainfo_file: "references/metainfo.yaml"
+    gff_directory: "references/gffs/"
+    primers_file: "references/primers/nCoV-2019.tsv"
+
+output:
+    snv: true
+    local: true
+    global: false
+    visualization: true
+
+hmm_align:
+    leave_msa_temp: true

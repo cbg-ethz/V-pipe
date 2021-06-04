@@ -3,7 +3,7 @@
 USAGE="
 usage: $0 [options]
 
--m           bootstrap only a minimal set of files (vpipe.config and vpipe wrapper)
+-m           bootstrap only a minimal set of files (vpipe_config.yaml and vpipe wrapper)
 -n           disable auto-detection and management of conda environments
 -b           include wrappers for benchmark runs
 -h           print this help message and exit
@@ -47,7 +47,7 @@ PROJECT_DIR=$(pwd)
 # https://stackoverflow.com/a/242550
 VPIPE_DIR=$(dirname "$0")
 
-cp -iv "$VPIPE_DIR/vpipe.config" "$PROJECT_DIR/"
+cp -iv "$VPIPE_DIR/vpipe_config.yaml" "$PROJECT_DIR/"
 
 # guess activation command
 ACTIVATE=
@@ -102,7 +102,7 @@ fi
 cat <<EOF
 V-pipe project initialized!
 
-Create and populate 'references' and 'samples' directories or adjust vpipe.config.
+Create and populate 'references' and 'samples' directories or adjust vpipe_config.yaml.
 Then, use ./vpipe to run V-pipe.
 EOF
 
