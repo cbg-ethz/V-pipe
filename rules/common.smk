@@ -1,32 +1,54 @@
-import csv
-import os
-import typing
-
 __author__ = "Susana Posada-Cespedes"
 __author__ = "David Seifert"
 __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
+import csv
+import os
+import typing
+
+from collections import UserDict
+
+from snakemake.utils import validate
+
 if not 'VPIPE_BENCH' in dir():
     VPIPE_BENCH = False
 
-# 1. Parse config file
 
-if 'VPIPE_CONFIG' not in dir():
-    # Import VpipeConfig class defining defaults
-    include: "config_default.smk"
-
-    VPIPE_CONFIG = VpipeConfig
+configfile: "vpipe_config.yaml"
 
 
+def process_config(config):
 
-with open(srcdir("config_schema.json"), "r") as fh:
-    schema = json.load(fh)
+    # validates, but also fills up default values:
+    validate(config, srcdir("config_schema.json"))
+
+    # use general.threads entry as default for all affected sections
+    # if not specified:
+    for (name, section) in config.items():
+        if name == "general":
+            continue
+        if "threads" not in section:
+            section["threads"] = config["general"]["threads"]
+
+        for entry, value in section.items():
+            if isinstance(value, str):
+                section[entry] = value.format(VPIPE_BASEDIR=VPIPE_BASEDIR)
+
+    """
+    The following hack supports `.` access to dictionary entries, e.g.
+    config.input instead of config["input"] so we don't have to change all
+    existing rules.
+    This works only on the upper-level of config and not for the nested
+    dictionaries.
+    """
+    config = UserDict(config)
+    config.__dict__.update(config)
+    return config
 
 
-config = VPIPE_CONFIG(schema)
-
+config = process_config(config)
 
 # 2. glob patients/samples + store as TSV if file is not provided
 
