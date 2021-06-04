@@ -51,6 +51,18 @@ jobs:
         working-directory: ./tests
         run: ./test_0.sh
 
+      - name: same with snakemake action
+        uses: snakemake/snakemake-github-action@v1.19.0
+        with:
+          directory: /tmp/project
+          snakefile: $GITHUB_WORKSPACE/vpipe.snake
+          args: '--use-conda -p -j 2'
+          stagein: |
+            conda config --add channels defaults
+            conda config --add channels bioconda
+            conda config --add channels conda-forge
+
+
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
         with:
