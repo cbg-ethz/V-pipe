@@ -6,30 +6,30 @@ __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
+
 # 1. align against 5VM as a QA check
 rule bwa_QA:
     input:
-        patient_ref = "{dataset}/references/ref_{kind}.fasta",
-        virusmix_ref = config.bwa_QA['ref_panel'],
-        FASTQ = input_align,
+        patient_ref="{dataset}/references/ref_{kind}.fasta",
+        virusmix_ref=config.bwa_QA["ref_panel"],
+        FASTQ=input_align,
     output:
-        SAM = temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
-        MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
+        SAM=temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
+        MSA="{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     params:
-        scratch = '1250',
-        mem = config.bwa_QA['mem'],
-        time = config.bwa_QA['time'],
-        BWA = config.applications['bwa'],
-        MAFFT = config.applications['mafft'],
+        scratch="1250",
+        mem=config.bwa_QA["mem"],
+        time=config.bwa_QA["time"],
+        BWA=config.applications["bwa"],
+        MAFFT=config.applications["mafft"],
     log:
-        outfile = "{dataset}/QA_alignments/bwa_{kind}.out.log",
-        errfile = "{dataset}/QA_alignments/bwa_{kind}.err.log",
+        outfile="{dataset}/QA_alignments/bwa_{kind}.out.log",
+        errfile="{dataset}/QA_alignments/bwa_{kind}.err.log",
     conda:
-        config.bwa_QA['conda']
+        config.bwa_QA["conda"]
     benchmark:
         "{dataset}/QA_alignments/bwa_{kind}.benchmark"
-    threads:
-        config.bwa_QA['threads']
+    threads: config.bwa_QA["threads"]
     shell:
         """
         # 1. cleanup old run
@@ -52,28 +52,28 @@ rule bwa_QA:
         rm -f {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta.*
         """
 
+
 # 2. Call coverage statistics
 rule coverage_QA:
     input:
-        BAM = "{dataset}/QA_alignments/bwa_QA_{kind}.bam",
-        MSA = "{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
+        BAM="{dataset}/QA_alignments/bwa_QA_{kind}.bam",
+        MSA="{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     output:
         "{dataset}/QA_alignments/coverage_{kind}.tsv",
     params:
-        scratch = '1250',
-        mem = config.coverage_QA['mem'],
-        time = config.coverage_QA['time'],
-        TARGET = config.coverage_QA['target'],
-        COV_STATS = config.applications['coverage_stats'],
+        scratch="1250",
+        mem=config.coverage_QA["mem"],
+        time=config.coverage_QA["time"],
+        TARGET=config.coverage_QA["target"],
+        COV_STATS=config.applications["coverage_stats"],
     log:
-        outfile = "{dataset}/QA_alignments/coverage_QA_{kind}.out.log",
-        errfile = "{dataset}/QA_alignments/coverage_QA_{kind}.err.log",
+        outfile="{dataset}/QA_alignments/coverage_QA_{kind}.out.log",
+        errfile="{dataset}/QA_alignments/coverage_QA_{kind}.err.log",
     conda:
-        config.coverage_QA['conda']
+        config.coverage_QA["conda"]
     benchmark:
         "{dataset}/QA_alignments/coverage_QA_{kind}.benchmark"
-    threads:
-        1
+    threads: 1
     shell:
         """
         CONSENSUS_NAME={wildcards.dataset}
@@ -89,5 +89,3 @@ rule coverage_QA:
         # of HIV-1 in order
         {params.COV_STATS} -t {params.TARGET} -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
-
-

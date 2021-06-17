@@ -180,14 +180,14 @@ conda config --add channels conda-forge
 # NOTE conda-forge *HAS TO* be higher than bioconda
 
 VPIPEENV=
-if conda install --yes snakemake-minimal $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
+if conda install --yes snakemake-minimal mamba $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
 	: # success!
 else
 	oops 'I cannot install snakemake in base environment. Conflicts ?'
 
 	VPIPEENV=V-pipe
 	# HACK Alternate to consider if we have have version conflicts
-	conda create --yes -n ${VPIPEENV} -c conda-forge -c bioconda snakemake-minimal conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
+	conda create --yes -n ${VPIPEENV} -c conda-forge -c bioconda snakemake-minimal mamba conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
 	conda activate ${VPIPEENV}
 fi
 

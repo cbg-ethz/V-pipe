@@ -3,9 +3,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python>=3.6
+  - pyvcf
+  - bcbio-gff
   - numpy
-  - sh
-  - biopython
   - pandas
-  - mafft=7.305
+  - Biopython
+  - pyyaml

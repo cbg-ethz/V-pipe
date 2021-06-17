@@ -2,8 +2,6 @@
 
 import os
 import argparse
-import csv
-from math import trunc
 from alignmentIntervals import read_fasta
 
 from Bio import SeqIO
@@ -11,6 +9,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 import sh
 import numpy as np
+import pandas as pd
 
 
 __author__ = "Susana Posada-Cespedes"
@@ -76,8 +75,14 @@ def parse_args():
         help="File containing coverage intervals"
     )
     parser.add_argument(
-        "--no-shorah", required=False, default=False, action='store_true',
-        dest='snv_caller',
+        "--no-expansion", required=False, default=False, action='store_true',
+        dest='no_expansion',
+        help="Coverage intervals do not correspond to region use to run "
+             "ShoRAH, but the actual target region"
+    )
+    parser.add_argument(
+        "--caller", required=False, default='shorah', metavar='str',
+        dest='snv_caller', type=str, choices=['shorah', 'lofreq'],
         help="Inidcate if other software different from ShoRAH was used for "
              "SNV calling"
     )
@@ -102,6 +107,16 @@ def parse_args():
         "-ms", required=False, default=False, action='store_true', dest='msa',
         help="Indicate if the multiple sequence alignment including "
              "reference/consensus sequence should be constructed"
+    )
+    parser.add_argument(
+        "--only-dels", required=False, default=False, action='store_true',
+        dest='only_deletions',
+        help="Indicate if only performance based on deletions should reported"
+    )
+    parser.add_argument(
+        "--long-dels", required=False, default=False, action='store_true',
+        dest='long_deletions',
+        help="Indicate if deletions should be parsed as multipe-base deletions"
     )
     parser.add_argument(
         "-t", required=False, default=False, action='store_true',
@@ -146,209 +161,127 @@ def frequencies(freq_dstr, num_haplotypes, ratio=0.75, infile=None):
     return haplotype_freqs
 
 
-def true_snvs(haplotype_master, haplotype_seqs, num_haplotypes, haplotype_freqs,
-              alphabet):
+def parse_info(df, snvcaller):
+    if snvcaller == 'shorah':
+        df_info = pd.DataFrame.from_dict(
+            [dict([entry.strip().split("=") for entry in line.split(";")])
+                for line in df["INFO"]]).astype('float')
+        # We ignore columns with 0-counts to compute the SNV frequency. A zero
+        # count means that the SNV was not found in the corresponding window.
+        df_freq = df_info[["Freq1", "Freq2", "Freq3"]].copy()
+        df_freq[df_freq == 0] = np.nan
+        df_freq = df_freq.mean(axis=1)
+    elif snvcaller == 'lofreq':
+        df["INFO"] = df["INFO"].str.replace("INDEL", "INDEL=1")
+        df_info = pd.DataFrame.from_dict(
+            [dict([entry.strip().split("=") for entry in line.split(";")])
+                for line in df["INFO"]])
+        df_freq = df_info["AF"]
+    return df_freq
+
+
+def parse_vcf(snvfile, snvcaller):
+    # Read VCF file to infer how many lines to skip
+    skiplines = 0
+    with open(snvfile, 'r') as infile:
+        for line in infile:
+            if not line.startswith('##'):
+                break
+            skiplines += 1
+    try:
+        df_snvs = pd.read_csv(snvfile, sep="\t", skiprows=skiplines, header=0,
+                              compression=None)
+        df_snvs = df_snvs.rename(columns={'#CHROM': 'CHROM'})
+        df_snvs['FREQ'] = parse_info(df_snvs, snvcaller)
+    except pd.errors.EmptyDataError:
+        df_snvs = pd.DataFrame()
+    return df_snvs
+
+
+def true_snvs(haplotype_master_arr, haplotype_master, haplotype_seqs,
+              num_haplotypes, haplotype_freqs, long_deletions, alphabet):
     """
     Extract expected SNVs using the MSA of the true haplotype sequences and
     the reference sequence
     """
-    loci = np.arange(haplotype_master.size)
+    # loci = np.arange(haplotype_master_arr.size)
     haplotype_idx = np.arange(num_haplotypes)
-    variants = haplotype_master != haplotype_seqs
+    variants = haplotype_master_arr != haplotype_seqs
 
-    loci_true = []
-    ref_true = []
-    snvs_true = []
-    freq_true = []
-    haps_true = []
-    for idx in loci:
-        idxs = variants[:, idx]
+    df_snvs = pd.DataFrame(columns=('POS', 'REF', 'ALT', 'FREQ', 'HAPLOTYPES'))
+    num_snvs = 0
+    for locus in range(haplotype_master_arr.size):
+        idxs = variants[:, locus]
         if np.any(idxs):
-            var = haplotype_seqs[idxs, idx]
+            var = haplotype_seqs[idxs, locus]
             snv_freq = haplotype_freqs[idxs]
-            haplotypeIDs = haplotype_idx[idxs]
             if np.sum(idxs) == 1:
-                loci_true.append(loci[idx])
-                ref_true.append(haplotype_master[idx].decode())
-                snvs_true.append(var[0].decode())
-                freq_true.append(snv_freq[0])
-                haps_true.append(str(haplotypeIDs[0]))
+                df_snvs.loc[num_snvs] = [
+                    locus, haplotype_master_arr[locus].decode(),
+                    var[0].decode(), snv_freq[0],
+                    haplotype_idx[idxs].astype(str)[0]]
+                num_snvs += 1
             else:
-                for a in alphabet:
-                    idxs_a = var == a
-                    hapIDs = haplotypeIDs[idxs_a]
-                    if np.sum(idxs_a) > 0:
-                        loci_true.append(loci[idx])
-                        ref_true.append(haplotype_master[idx].decode())
-                        snvs_true.append(a)
-                        freq_true.append(np.sum(snv_freq[idxs_a]))
-                        haps_true.append(
-                            str(hapIDs[0]) if len(idxs_a) == 1 else ','.join((
-                                str(x) for x in hapIDs)))
+                for base in alphabet:
+                    idxs_base = var == base
+                    if np.sum(idxs_base) > 0:
+                        hap_aux = ','.join(
+                            haplotype_idx[idxs][idxs_base].astype(str))
+                        df_snvs.loc[num_snvs] = [
+                            locus,
+                            haplotype_master_arr[locus].decode(),
+                            base.decode(), np.sum(snv_freq[idxs_base]),
+                            hap_aux]
+                        num_snvs += 1
+    df_snvs["POS"] = df_snvs["POS"].astype(int)
 
-    snvs_true = np.array(snvs_true, dtype='c')
+    if long_deletions:
+        df_long_dels = pd.DataFrame({
+            'POS': pd.Series([], dtype='int'),
+            'REF': pd.Series([], dtype='str'),
+            'ALT': pd.Series([], dtype='str'),
+            'FREQ': pd.Series([], dtype='float'),
+            'HAPLOTYPES': pd.Series([], dtype='str')})
+        for idx, seq in enumerate(haplotype_seqs):
+            is_deletion = np.concatenate(([0], seq == b'-', [0]))
+            intervals = np.where(
+                np.abs(np.diff(is_deletion)) == 1)[0].reshape(-1, 2)
+            if intervals.size > 0:
+                assert (intervals[:, 0] > 0).all(), (
+                    "Deletion reported in the first reference position")
+                # Deletions are by convention reported at the preceding
+                # position
+                dict_dels = {
+                    'POS': intervals[:, 0] - 1,
+                    'REF': [
+                        haplotype_master[(x[0] - 1):x[1]] for x in intervals],
+                    'ALT': [haplotype_master[x[0] - 1] for x in intervals],
+                    'FREQ': [haplotype_freqs[idx]] * intervals.shape[0],
+                    'HAPLOTYPES': [
+                        str(haplotype_idx[idx])] * intervals.shape[0]
+                }
+                df_tmp = pd.DataFrame.from_dict(dict_dels)
+                df_long_dels = pd.concat(
+                    [df_long_dels, df_tmp], ignore_index=True)
+        # Merge deletions found in different haplotypes together
+        grpby = df_long_dels.set_index(["POS", "REF", "ALT"])[
+            ["FREQ", "HAPLOTYPES"]].groupby(["POS", "REF", "ALT"])
 
-    return loci_true, ref_true, snvs_true, freq_true, haps_true
+        df_long_dels = pd.concat(
+            [grpby["FREQ"].sum(),
+             grpby["HAPLOTYPES"].apply(lambda s: ",".join(s))], axis=1)
+        df_long_dels.reset_index(inplace=True)
 
+        # Drop one-base deletions
+        del_mask = df_snvs["ALT"].str.startswith('-')
+        df_snvs = df_snvs[~del_mask]
+        df_snvs = pd.concat(
+                [df_snvs, df_long_dels], ignore_index=True)
+        df_snvs = df_snvs.set_index(["POS", "REF", "ALT"])
+        df_snvs = df_snvs.sort_index()
+        df_snvs.reset_index(inplace=True)
 
-def inferred_snvs(snvs_file):
-    "Compute average frequency for SNVs called using ShoRAH"
-    loci_inferred = []
-    ref_inferred = []
-    snvs_inferred = []
-    freq_inferred = []
-    loci_inferred_tmp = []
-    ref_inferred_tmp = []
-    snvs_inferred_tmp = []
-    freq_inferred_tmp = []
-    del_len = 0
-
-    extension = os.path.splitext(snvs_file)[1][1:]
-    if extension == "vcf":
-        with open(snvs_file) as infile:
-            for line in infile:
-                record = line.rstrip()
-                if record and record[0] != '#':
-                    row = record.split("\t")
-                    freq = row[7]
-                    freq = freq.split("AF=")[1]
-                    freq = freq.split(";")[0]
-                    # first base corresponds to the locus after which the
-                    # deletion starts
-                    ref_len = len(row[3]) - 1
-                    var_len = len(row[4])
-
-                    # Check that variant do not correspond to a insertion
-                    if var_len == 1:
-                        # Check if variant corresponds to a deletion
-                        if ref_len >= 1:
-                            # first base corresponds to the locus after which
-                            # the deletion starts
-                            locus = int(row[1])
-                            # report deletions per loci w.r.t reference
-                            if del_len > 0:
-                                idx = locus - loci_inferred_tmp[0]
-                                assert idx >= 0
-                                loci_inferred = loci_inferred + \
-                                    loci_inferred_tmp[:idx]
-                                ref_inferred = ref_inferred + \
-                                    ref_inferred_tmp[:idx]
-                                snvs_inferred = snvs_inferred + \
-                                    snvs_inferred_tmp[:idx]
-                                freq_inferred = freq_inferred + \
-                                    freq_inferred_tmp[:idx]
-                                # shorten the current deletion
-                                loci_inferred_tmp = loci_inferred_tmp[idx:]
-                                ref_inferred_tmp = ref_inferred_tmp[idx:]
-                                snvs_inferred_tmp = snvs_inferred_tmp[idx:]
-                                freq_inferred_tmp = freq_inferred_tmp[idx:]
-                                del_len = len(loci_inferred_tmp)
-                            # There are two options:
-                            # (1) the second deletion outruns the first one, or
-                            # (2) the second deletion is fully contained in the
-                            #     first one
-                            if ref_len > del_len:
-                                # Add deleted bases to current deletion
-                                for idx in range(ref_len):
-                                    if idx >= del_len:
-                                        ref_base = row[3][idx + 1]
-                                        locus = int(row[1]) + idx
-                                        loci_inferred_tmp.append(locus)
-                                        ref_inferred_tmp.append(ref_base)
-                                        snvs_inferred_tmp.append('-')
-                                        if ref_base != '-':
-                                            freq_inferred_tmp.append(float(freq))
-                                        else:
-                                            freq_inferred_tmp.append(0.0)
-                                    else:
-                                        ref_base = row[3][idx + 1]
-                                        if ref_base != '-':
-                                            freq_inferred_tmp[idx] += float(freq)
-                            else:
-                                # Add frequencies
-                                for idx in range(ref_len):
-                                    ref_base = row[3][idx + 1]
-                                    if ref_base != '-':
-                                        freq_inferred_tmp[idx] += float(freq)
-                            del_len = len(loci_inferred_tmp)
-                        else:
-                            # Lofreq uses 1-based indexing
-                            locus = int(row[1]) - 1
-                            # check if a deletion is to be inserted before this
-                            # locus
-                            if del_len > 0:
-                                # There are two options:
-                                # (1) The next locus happens after the last
-                                #     locus of the deletion, or
-                                # (2) in between the deletion
-                                if loci_inferred_tmp[-1] <= locus:
-                                    loci_inferred = loci_inferred + loci_inferred_tmp
-                                    ref_inferred = ref_inferred + ref_inferred_tmp
-                                    snvs_inferred = snvs_inferred + snvs_inferred_tmp
-                                    freq_inferred = freq_inferred + freq_inferred_tmp
-                                    loci_inferred_tmp = []
-                                    ref_inferred_tmp = []
-                                    snvs_inferred_tmp = []
-                                    freq_inferred_tmp = []
-                                else:
-                                    # insert leading loci - loci before snv
-                                    idx = locus - loci_inferred_tmp[0] + 1
-                                    # Deletions are reported at the preceding
-                                    # locus, so it can be that an snv at this
-                                    # locus is reported after the deletion
-                                    if idx > 0:
-                                        loci_inferred = loci_inferred + \
-                                            loci_inferred_tmp[:idx]
-                                        ref_inferred = ref_inferred + \
-                                            ref_inferred_tmp[:idx]
-                                        snvs_inferred = snvs_inferred + \
-                                            snvs_inferred_tmp[:idx]
-                                        freq_inferred = freq_inferred + \
-                                            freq_inferred_tmp[:idx]
-                                        loci_inferred_tmp = loci_inferred_tmp[idx:]
-                                        ref_inferred_tmp = ref_inferred_tmp[idx:]
-                                        snvs_inferred_tmp = snvs_inferred_tmp[idx:]
-                                        freq_inferred_tmp = freq_inferred_tmp[idx:]
-                            # insert the snv
-                            loci_inferred.append(locus)
-                            ref_inferred.append(row[3])
-                            snvs_inferred.append(row[4])
-                            freq_inferred.append(float(freq))
-                            del_len = len(loci_inferred_tmp)
-
-        # All deleted bases are reported, even if the reference has a gap at
-        # that position - do not count those
-        for idx, b in reversed(list(enumerate(ref_inferred))):
-            if b == '-':
-                loci_inferred.pop(idx)
-                ref_inferred.pop(idx)
-                snvs_inferred.pop(idx)
-                freq_inferred.pop(idx)
-
-    else:
-        with open(snvs_file, newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            next(reader, None)    # skip the header
-            for row in reader:
-                locus = int(row[1]) - 1    # ShoRAH uses 1-based indexing
-                freq = np.zeros(shape=3)
-                for idx in np.arange(3):
-                    aux = row[idx + 4]
-                    if aux == '-':
-                        freq[idx] = 0.0
-                    elif aux == '*':
-                        freq[idx] = np.nan
-                    else:
-                        freq[idx] = float(aux)
-                freq = np.nanmean(freq)
-                loci_inferred.append(locus)
-                ref_inferred.append(row[2])
-                snvs_inferred.append(row[3])
-                freq_inferred.append(freq)
-
-    snvs_inferred = np.array(snvs_inferred, dtype='c')
-
-    return loci_inferred, ref_inferred, snvs_inferred, freq_inferred
+    return df_snvs
 
 
 def mafft(infile, outfile, max_iter=1000, thrd=4, mafft='mafft'):
@@ -369,203 +302,19 @@ def mafft(infile, outfile, max_iter=1000, thrd=4, mafft='mafft'):
     cmd()
 
 
-def get_FN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, FN_freq,
-           missed, haps_true):
-    "Count false negatives"
-    while loci_true[i] == locus:
-        FN += 1
-        print("At locus {}, SNV missed {} ({:.6f})".format(
-            loci_true[i] + 1, snvs_true[i].decode('UTF-8'), freq_true[i]))
-        FN_freq = FN_freq + \
-            [[loci_true[i] + 1,
-                snvs_true[i].decode('UTF-8'), freq_true[i], haps_true[i]]]
-        missed[[int(x) for x in haps_true[i].split(',')]] += 1
-        i += 1
-        if i == i_max:
-            break
-    return FN, FN_freq, i, missed
-
-
-def get_FN_TN(locus, i, i_max, loci_true, snvs_true, freq_true, FN, TN, FN_freq,
-              missed, haps_true):
-    """
-    Handle cases in which there are no more reported SNVs, but some are
-    expected
-    """
-    if loci_true[i] == locus:
-        FN, FN_freq, i, missed = get_FN(
-            locus, i, i_max, loci_true, snvs_true, freq_true, FN, FN_freq,
-            missed, haps_true)
-    else:
-        if DBG:
-            print(f"At locus {locus + 1}, true negative reported")
-        TN += 1
-    return FN, TN, FN_freq, i, missed
-
-
-def get_FP(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP,
-           FP_freq):
-    "Count false positives"
-    while loci_inferred[j] == locus:
-        FP += 1
-        print(
-            "At locus {}, technical error / artefact reported as true variant: {} ({:.6f})"
-            .format(loci_inferred[j] + 1, snvs_inferred[j].decode('UTF-8'),
-                    freq_inferred[j]))
-        FP_freq = FP_freq + [[loci_inferred[j] + 1,
-                              snvs_inferred[j].decode('UTF-8'),
-                              freq_inferred[j]]]
-        j += 1
-        if j == j_max:
-            break
-    return FP, FP_freq, j
-
-
-def get_FP_TN(locus, j, j_max, loci_inferred, snvs_inferred, freq_inferred, FP,
-              TN, FP_freq):
-    """
-    Handle cases in which there are no more expected SNVs, but nevertheless
-    reported by the caller
-    """
-    if loci_inferred[j] == locus:
-        FP, FP_freq, j = get_FP(locus, j, j_max, loci_inferred, snvs_inferred,
-                                freq_inferred, FP, FP_freq)
-    else:
-        if DBG:
-            print(f"At locus {locus + 1}, true negative reported")
-        TN += 1
-    return FP, TN, FP_freq, j
-
-
 def consecutive(array, stepsize=1):
     return np.split(array, np.where(np.diff(array) != stepsize)[0] + 1)
 
 
-def get_performance(loci_true, loci_inferred, snvs_true, snvs_inferred,
-                    freq_true, freq_inferred, haps_true, num_haplotypes,
-                    loci_region, i, j, TP, FP, TN, FN, TP_freq, FP_freq,
-                    FN_freq, missed, coverage_file=False, regions=None):
-    i_max = len(loci_true)
-    j_max = len(loci_inferred)
-
-    while loci_true[i] < loci_region[0]:
-        i += 1
-    if DBG:
-        print(f"DBG loci_true[i]: {loci_true[i]}")
-    # Inferred loci can be outside of the target region, e.g., when
-    # reporting metrics based on intersection between tools
-    while j < j_max and loci_inferred[j] < loci_region[0]:
-        j += 1
-
-    idx_region = 0
-    for idx in loci_region:
-
-        if coverage_file:
-            if len(regions) > idx_region:
-                if idx == regions[idx_region][0]:
-                    while loci_true[i] < idx:
-                        i += 1
-                    print("Region with enough support: {:d}-{:d}".format(
-                        int(regions[idx_region][0]) + 1,
-                        int(regions[idx_region][-1] + 1)))
-                    idx_region += 1
-
-        if i == i_max or j == j_max:
-            if i == i_max and j < j_max:
-                # There are no more expected SNVs, but nevertheless reported
-                # by the caller
-                FP, TN, FP_freq, j = get_FP_TN(
-                    idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred,
-                    FP, TN, FP_freq)
-
-            if j == j_max and i < i_max:
-                # There are no more reported SNVs, but some are expected
-                FN, TN, FN_freq, i, missed = get_FN_TN(
-                    idx, i, i_max, loci_true, snvs_true, freq_true, FN, TN,
-                    FN_freq, missed, haps_true)
-
-            if i == i_max and j == j_max:
-                break
-        else:
-            assert loci_true[i] >= idx
-            assert loci_inferred[j] >= idx
-
-            if loci_true[i] == idx and loci_inferred[j] == idx:
-                while loci_true[i] == idx and loci_inferred[j] == idx:
-                    if snvs_true[i] == snvs_inferred[j]:
-                        TP += 1
-                        if DBG:
-                            print(
-                                "At locus {}, true positive reported: {} ({:.6f})"
-                                .format(loci_inferred[j] + 1,
-                                        snvs_inferred[j].decode('UTF-8'),
-                                        freq_inferred[j]))
-                        TP_freq = TP_freq + \
-                            [[loci_inferred[j] + 1,
-                                snvs_inferred[j].decode('UTF-8'),
-                                freq_true[i], freq_inferred[j]]]
-                        i += 1
-                        j += 1
-                    elif snvs_true[i] > snvs_inferred[j]:
-                        FP += 1
-                        print(
-                            "At locus {}, technical error / artefact reported as true variant: {} ({:.6f})"
-                            .format(loci_inferred[j] + 1,
-                                    snvs_inferred[j].decode('UTF-8'),
-                                    freq_inferred[j]))
-                        FP_freq = FP_freq + \
-                            [[loci_inferred[j] + 1,
-                                snvs_inferred[j].decode('UTF-8'),
-                                freq_inferred[j]]]
-                        j += 1
-                    elif snvs_true[i] < snvs_inferred[j]:
-                        FN += 1
-                        print("At locus {}, SNV missed {} ({:.6f})".format(
-                            loci_true[i] + 1, snvs_true[i].decode('UTF-8'),
-                            freq_true[i]))
-                        missed[[int(x) for x in haps_true[i].split(',')]] += 1
-                        FN_freq = FN_freq + \
-                            [[loci_true[i] + 1,
-                                snvs_true[i].decode('UTF-8'), freq_true[i],
-                                haps_true[i]]]
-                        i += 1
-                    if i == i_max or j == j_max:
-                        break
-
-                if i < i_max:
-                    FN, FN_freq, i, missed = get_FN(
-                        idx, i, i_max, loci_true, snvs_true, freq_true, FN,
-                        FN_freq, missed, haps_true)
-                if j < j_max:
-                    FP, FP_freq, j = get_FP(
-                        idx, j, j_max, loci_inferred, snvs_inferred,
-                        freq_inferred, FP, FP_freq)
-
-                if i == i_max and j == j_max:
-                    # There are no expected nor reported SNVs. Hence, the rest
-                    # of the positions correspond to true negatives
-                    break
-            elif loci_true[i] == idx:
-                FN, FN_freq, i, missed = get_FN(
-                    idx, i, i_max, loci_true, snvs_true, freq_true, FN, FN_freq,
-                    missed, haps_true)
-            elif loci_inferred[j] == idx:
-                FP, FP_freq, j = get_FP(
-                    idx, j, j_max, loci_inferred, snvs_inferred, freq_inferred,
-                    FP, FP_freq)
-            else:
-                if DBG:
-                    print(f"At locus {idx + 1}, true negative reported")
-                TN += 1
-
-    # Add positions that were not reported as polymorphic by the caller and
-    # were not expected as true SNVs
-    if DBG:
-        if loci_region[-1] > idx:
-            print(f"Loci {idx + 1}-{loci_region[-1]}, reported as true negative")
-    TN += loci_region[-1] - idx
-
-    return TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed, i, j
+def target_snvs(start_region, end_region, start_locus, long_deletions,
+                end_locus=None):
+    if long_deletions:
+        is_contained = (start_locus >= start_region) & \
+            (end_locus < end_region)
+    else:
+        is_contained = (start_locus >= start_region) & \
+            (start_locus < end_region)
+    return is_contained
 
 
 def main():
@@ -576,13 +325,84 @@ def main():
     alphabet = np.array(alphabet, dtype='c')
 
     # Compute average frequency for SNVs called using ShoRAH
-    loci_inferred, ref_inferred, snvs_inferred, freq_inferred = inferred_snvs(
-        args.snvs)
-    if not loci_inferred:
+    df_snvs = parse_vcf(args.snvs, args.snv_caller)
+
+    if df_snvs.empty:
         print("No called SNVs")
         with open(args.outfile, 'w') as outfile:
             outfile.write('ID\tTP\tFP\tFN\tTN\n')
         return
+
+    # Drop insertions
+    ins_mask = df_snvs["ALT"].str.len() > 1
+    df_snvs = df_snvs[~ins_mask]
+
+    if args.only_deletions:
+        # Only look at deletions
+        # NOTE: temporary work-around while ShoRAH (v1.99.2) is modified to
+        #       report indels complying to VCF format
+        if args.snv_caller == 'shorah':
+            is_deletion = df_snvs["ALT"] == '-'
+        elif args.snv_caller == 'lofreq':
+            is_deletion = df_snvs["REF"].str.len() > 1
+        df_snvs = df_snvs[is_deletion]
+
+    # NOTE: once ShoRAH (v1.99.2) is upgraded to report indels complying to
+    #       VCF format, --long-dels can also be executed and raising an error
+    #       won't be needed
+    if args.long_deletions and args.snv_caller == 'shorah':
+        raise ValueError("No curent support for --long-dels and ShoRAH")
+
+    if df_snvs.empty:
+        print("No called SNVs")
+        with open(args.outfile, 'w') as outfile:
+            outfile.write('ID\tTP\tFP\tFN\tTN\n')
+        return
+
+    if not args.long_deletions:
+        # Unroll deletions into one-base deletions
+        del_mask = df_snvs["REF"].str.len() > 1
+        assert (df_snvs.loc[del_mask, "ALT"] == df_snvs.loc[
+            del_mask, "REF"].str[0]).all(), (
+                "Reference base preceding deletion does not match")
+
+        del_len = df_snvs.loc[del_mask, "REF"].str.len() - 1
+        df_del = pd.DataFrame(
+            np.repeat(df_snvs[del_mask].values, del_len.to_list(), axis=0))
+        df_del.columns = df_snvs.columns
+        df_del["ALT"] = '-'
+        aux_idx = 0
+        aux_pos = df_del.columns.get_loc("POS")
+        aux_ref = df_del.columns.get_loc("REF")
+        for idx, row in df_snvs[del_mask].iterrows():
+            # ignore first base as it corresponds to the reference at the
+            # preceding locus
+            ref = list(row["REF"][1:])
+            pos = [row["POS"] + x + 1 for x in range(len(ref))]
+            df_del.iloc[aux_idx:(aux_idx + del_len[idx]), aux_pos] = pos
+            df_del.iloc[aux_idx:(aux_idx + del_len[idx]), aux_ref] = ref
+            aux_idx += del_len[idx]
+
+        # Handle special case: reference sequence might contain a gap character
+        # and a long deletion could include it. When unrolling long deletions
+        # the REF and ALT fields will contain both gaps symbols
+        is_gap = (df_del["REF"] == '-') & (df_del["ALT"] == '-')
+        df_del = df_del[~is_gap]
+
+        # Remove previous rows corresponding to deletions and add the one-base
+        # deletions
+        df_snvs = df_snvs[~del_mask]
+        df_snvs = pd.concat(
+                [df_snvs, df_del], ignore_index=True)
+        df_snvs = df_snvs.set_index(["POS", "ALT", "REF"])
+        df_snvs = df_snvs.sort_index()
+
+        # Merge on POS and ALT
+        grpby = df_snvs.set_index("CHROM", append=True)[
+            ["INFO", "FREQ"]].groupby(["POS", "ALT", "REF", "CHROM"])
+        df_snvs = pd.concat([grpby["INFO"].apply(lambda s: ";".join(s)),
+                             grpby["FREQ"].sum()], axis=1)
+        # grpby["REF"].first() # If not part of the index
 
     outdir = args.outdir if args.outdir is not None else os.getcwd()
     if args.haplotype_master is not None:
@@ -606,8 +426,8 @@ def main():
                 haplotype_master_array[idxs_gaps] = reference[idxs_gaps]
                 args.haplotype_master = os.path.join(outdir,
                                                      'cohort_consensus.fasta')
-                cohort_consensus = SeqRecord(Seq(''.join(haplotype_master_array)),
-                                             id=header, description="")
+                cohort_consensus = SeqRecord(Seq(''.join(
+                    haplotype_master_array)), id=header, description="")
                 with open(args.haplotype_master, 'w') as outfile:
                     SeqIO.write(cohort_consensus, outfile, "fasta")
 
@@ -699,38 +519,45 @@ def main():
 
     haplotype_freqs = frequencies(args.freq_dstr, num_haplotypes,
                                   args.ratio, args.dirichlet_freqs)
-    # True haplotypes - expected SNVs
-    loci_true, ref_true, snvs_true, freq_true, haps_true = true_snvs(
-        haplotype_master_array, haplotype_seqs_array, num_haplotypes,
-        haplotype_freqs, alphabet)
 
-    if args.output_true:
-        output_file = os.path.join(outdir, 'true_snvs.tsv')
-        with open(output_file, 'w') as outfile:
-            outfile.write('Locus\tRef\tVar\tFreq\tHaplotypes\n')
-            for idx in range(len(loci_true)):
-                outfile.write('{}\t{}\t{}\t{}\t{}\n'.format(
-                    loci_true[idx] + 1, ref_true[idx],
-                    snvs_true[idx].decode('utf-8'), freq_true[idx],
-                    haps_true[idx]))
+    # missed = np.zeros(num_haplotypes)
 
-    missed = np.zeros(num_haplotypes)
-    # TP: loci that are truly polymorphic
-    TP = 0
-    # FP: technical error reported as SNVs
-    FP = 0
-    # TN: loci that are not polymorphic
-    TN = 0
-    # FN: SNVs that are missed
-    FN = 0
-    # SNV frequencies
-    TP_freq = []
-    FP_freq = []
-    FN_freq = []
+    df_snvs_expected = true_snvs(
+        haplotype_master_array, haplotype_master, haplotype_seqs_array,
+        num_haplotypes, haplotype_freqs, args.long_deletions, alphabet)
 
-    loci = np.arange(reference_len)
-    i = 0
-    j = 0
+    if args.only_deletions:
+        # Only look at deletions: drop other entries in expected SNVs dataframe
+        if args.long_deletions:
+            is_deletion = df_snvs_expected["REF"].str.len() > 1
+        else:
+            is_deletion = df_snvs_expected["ALT"].str.startswith('-')
+        df_snvs_expected = df_snvs_expected[is_deletion]
+
+    # Keep track of SNVs that fall within targeted regions
+    df_snvs["IS_CONTAINED"] = False
+    df_snvs_expected["IS_CONTAINED"] = False
+    if args.long_deletions:
+        deletion_length = df_snvs["REF"].str.len() - 1
+        is_deletion = deletion_length > 0
+        # Using 0-based indexing
+        start_locus = df_snvs["POS"] - 1
+        start_locus[is_deletion] += 1
+        end_locus = start_locus + deletion_length - 1
+        # Similarly for expected SNVs (Already uses 0-based indexing)
+        deletion_length_exp = df_snvs_expected["REF"].str.len() - 1
+        is_deletion_exp = deletion_length_exp > 0
+        start_locus_exp = df_snvs_expected["POS"].copy()
+        start_locus_exp[is_deletion_exp] += 1
+        end_locus_exp = start_locus_exp + deletion_length_exp - 1
+    else:
+        # Handle SNVs and single-nucleotide deletions
+        # Using 0-based indexing
+        start_locus = df_snvs.index.get_level_values("POS") - 1
+        end_locus = None
+        # Similarly for expected SNVs (Already uses 0-based indexing)
+        start_locus_exp = df_snvs_expected["POS"]
+        end_locus_exp = None
 
     if args.coverage_intervals is not None:
         with open(args.coverage_intervals, 'r') as infile:
@@ -747,6 +574,7 @@ def main():
         regions = regions.split(',')
         idxs = np.zeros(reference_len, dtype=bool)
         print("Reporting using 1-based indexing (and closed intervals)")
+        num_loci = 0
         for r in regions:
             aux = r.split(':')
             ref_name = aux[0]
@@ -757,12 +585,7 @@ def main():
             aux = aux[1].split('-')
             start = int(aux[0])
             end = int(aux[1])
-            if args.snv_caller:
-                # Region is interpreted as a closed interval and using 1-based
-                # indexing
-                start -= 1
-                start = max(0, start)
-            else:
+            if args.snv_caller == 'shorah' and not args.no_expansion:
                 # ShoRAH was used for SNV calling
                 # Assuming 3 windows were used for SNV calling, identify
                 # region that is covered by at least 2 windows (below, using
@@ -784,29 +607,31 @@ def main():
                 end = min(
                     reference_len, start_ + args.window_len +
                     (num_windows - 2) * (args.window_len // args.window_shift))
-            idxs[range(int(start), int(end))] = True
-            loci_region = loci[int(start):int(end)]
+            # idxs[range(int(start), int(end))] = True
+            # loci_region = loci[int(start):int(end)]
 
-            if DBG:
-                print(f"DBG loci_true[i]: {loci_true[i]}")
-                print(f"DBG loci_region[0]: {loci_region[0]}")
+            # if DBG:
+            #     print(f"DBG loci_true[i]: {loci_true[i]}")
+            #     print(f"DBG loci_region[0]: {loci_region[0]}")
             # Here, loci are reported using 1-based indexing and a closed
             # interval
-            print("Region with enough support: {:d}-{:d}".format(
-                trunc(start) + 1, trunc(end)))
+            num_loci += (end - start)
+            start = int(start)
+            end = int(end)
+            print(f"Region with enough support: {start + 1}-{end}")
 
-            TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed, i, j = get_performance(
-                loci_true, loci_inferred, snvs_true, snvs_inferred, freq_true,
-                freq_inferred, haps_true, num_haplotypes, loci_region, i, j,
-                TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed)
+            # Mark reported and expected SNVs within the region
+            is_contained = target_snvs(start, end, start_locus,
+                                       args.long_deletions, end_locus)
+            df_snvs["IS_CONTAINED"] = (df_snvs["IS_CONTAINED"] | is_contained)
+            is_contained = target_snvs(start, end, start_locus_exp,
+                                       args.long_deletions, end_locus_exp)
+            df_snvs_expected["IS_CONTAINED"] = (
+                df_snvs_expected["IS_CONTAINED"] | is_contained)
 
-        loci = loci[idxs]
-        if loci_inferred[0] < loci[0] or loci_inferred[-1] > loci[-1]:
-            print("Warning: some reported SNVs are outside the target region."
-                  " It can happen when target region is smaller than region"
-                  " where SNVs were called.")
     else:
-        if not args.snv_caller:
+        loci = np.arange(reference_len)
+        if args.snv_caller == 'shorah':
             idxs = np.zeros(reference_len, dtype=bool)
             offset = (args.window_len // args.window_shift)
             # Parse coverage intervals from ShoRAH output
@@ -851,14 +676,50 @@ def main():
                     "Expected coverage file as input when target region is not specified"
                 )
 
+        num_loci = loci_region.size
         regions = consecutive(loci_region)
+        start = [el[0] for el in regions]
+        end = [el[-1] + 1 for el in regions]
+        for si, ei in zip(start, end):
+            # Mark reported and expected SNVs within the region
+            is_contained = target_snvs(si, ei, start_locus,
+                                       args.long_deletions, end_locus)
+            df_snvs["IS_CONTAINED"] = (df_snvs["IS_CONTAINED"] | is_contained)
+            is_contained = target_snvs(si, ei, start_locus_exp,
+                                       args.long_deletions, end_locus_exp)
+            df_snvs_expected["IS_CONTAINED"] = (
+                df_snvs_expected["IS_CONTAINED"] | is_contained)
 
-        TP, FP, TN, FN, TP_freq, FP_freq, FN_freq, missed, i, j = get_performance(
-            loci_true, loci_inferred, snvs_true, snvs_inferred, freq_true,
-            freq_inferred, haps_true, num_haplotypes, loci_region, i, j, TP,
-            FP, TN, FN, TP_freq, FP_freq, FN_freq, missed,
-            coverage_file=True, regions=regions)
+    # Drop SNVs that fall outside of the targeted regions. Otherwise, these
+    # rows will be counted toward false positives/negatives.
+    df_snvs = df_snvs[df_snvs["IS_CONTAINED"]]
+    df_snvs_expected = df_snvs_expected[df_snvs_expected["IS_CONTAINED"]]
 
+    if args.output_true:
+        output_file = os.path.join(outdir, 'true_snvs.tsv')
+        # Report using 1-based indexing
+        df_snvs_expected["POS"] += 1
+        df_snvs_expected.to_csv(
+            output_file, sep="\t",
+            columns=["POS", "REF", "ALT", "FREQ", "HAPLOTYPES"],
+            header=["Loci", "Reference", "Variant", "Frequency", "Haplotypes"],
+            index=False, compression=None)
+
+    # join on POS and ALT
+    df_pairs = df_snvs_expected.merge(
+        df_snvs, how="outer", on=["POS", "ALT", "REF"],
+        suffixes=["_exp", "_rep"])
+
+    FN_mask = df_pairs["INFO"].isnull()
+    FN = sum(FN_mask)
+
+    FP_mask = df_pairs["HAPLOTYPES"].isnull()
+    FP = sum(FP_mask)
+
+    TP_mask = ~FN_mask & ~FP_mask
+    TP = sum(TP_mask)
+
+    TN = num_loci - len(df_pairs["POS"].value_counts())
     # Sensitivity
     if TP or FN:
         print("Sensitivity: {:.6f}".format(TP / (TP + FN)))
@@ -874,37 +735,43 @@ def main():
     print("TP: ", TP)
     print("FP: ", FP)
     print("FN: ", FN)
-    print("TN: ", TN)
-    print("Number of FN per haplotype: ", missed)
+    print("TN: ", int(TN))
+    # print("Number of FN per haplotype: ", missed)
 
     # Write to output file
     with open(args.outfile, 'w') as outfile:
         outfile.write('ID\tTP\tFP\tFN\tTN\n')
-        outfile.write(f'{args.sampleID}\t{TP}\t{FP}\t{FN}\t{TN}\n')
+        outfile.write(f'{args.sampleID}\t{TP}\t{FP}\t{FN}\t{int(TN)}\n')
 
-    output_file = os.path.join(outdir, 'FN_per_haplotype.tsv')
-    with open(output_file, 'w') as outfile:
-        for idx, name in enumerate(haplotype_ids):
-            aux = name.split(' ')[0]
-            outfile.write(f'{aux}\t{missed[idx]}\n')
+    # output_file = os.path.join(outdir, 'FN_per_haplotype.tsv')
+    # with open(output_file, 'w') as outfile:
+    #     for idx, name in enumerate(haplotype_ids):
+    #         aux = name.split(' ')[0]
+    #         outfile.write(f'{aux}\t{missed[idx]}\n')
 
     output_file = os.path.join(outdir, 'TP_frequencies.tsv')
-    with open(output_file, 'w', newline='') as outfile:
-        writer = csv.writer(outfile, delimiter='\t')
-        writer.writerow(['Loci', 'Variant', 'Freq', 'Inferred freq'])
-        writer.writerows(TP_freq)
+    df_pairs[TP_mask].to_csv(output_file, sep="\t",
+                             columns=["POS", "REF", "ALT", "FREQ_exp",
+                                      "FREQ_rep", "INFO"],
+                             header=["Loci", "Reference", "Variant",
+                                     "Freq (expected)", "Freq (reported)",
+                                     "Info"],
+                             index=False, compression=None)
 
     output_file = os.path.join(outdir, 'FP_frequencies.tsv')
-    with open(output_file, 'w', newline='') as outfile:
-        writer = csv.writer(outfile, delimiter='\t')
-        writer.writerow(['Loci', 'Variant', 'Inferred freq'])
-        writer.writerows(FP_freq)
+    df_pairs[FP_mask].to_csv(output_file, sep="\t",
+                             columns=["POS", "REF", "ALT", "FREQ_rep", "INFO"],
+                             header=["Loci", "Reference", "Variant", "Freq",
+                                     "Info"],
+                             index=False, compression=None)
 
     output_file = os.path.join(outdir, 'FN_frequencies.tsv')
-    with open(output_file, 'w', newline='') as outfile:
-        writer = csv.writer(outfile, delimiter='\t')
-        writer.writerow(['Loci', 'Variant', 'Freq'])
-        writer.writerows(FN_freq)
+    df_pairs[FN_mask].to_csv(output_file, sep="\t",
+                             columns=["POS", "REF", "ALT", "FREQ_exp",
+                                      "HAPLOTYPES"],
+                             header=["Loci", "Reference", "Variant", "Freq",
+                                     "Haplotypes"],
+                             index=False, compression=None)
 
 
 if __name__ == '__main__':
