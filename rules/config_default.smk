@@ -3,6 +3,8 @@ import configparser
 import os
 import typing
 
+import yaml  # TODO: record this dependency somewhere
+
 __author__ = "Susana Posada-Cespedes"
 __author__ = "David Seifert"
 __license__ = "Apache2.0"
@@ -49,6 +51,7 @@ class VpipeConfig(object):
                     "aligner": __RECORD__(value="ngshmmalign", type=str),
                     "snv_caller": __RECORD__(value="shorah", type=str),
                     "haplotype_reconstruction": __RECORD__(value="savage", type=str),
+                    "virus_config_file": __RECORD__(value="virus_configs/hiv.yaml", type=str),
                 },
             ),
             (
@@ -59,7 +62,6 @@ class VpipeConfig(object):
                     "paired": __RECORD__(value=True, type=bool),
                     "fastq_suffix": __RECORD__(value="", type=str),
                     "trim_percent_cutoff": __RECORD__(value=0.8, type=float),
-                    "reference": __RECORD__(value="references/HXB2.fasta", type=str),
                     "gff_directory": __RECORD__(value="", type=str),
                     "primers_file": __RECORD__(value="", type=str),
                     "metainfo_file": __RECORD__(value="", type=str),
@@ -541,6 +543,14 @@ class VpipeConfig(object):
                 f"ERROR: Unrecognized sections in config file: "
                 + ", ".join(sections_left)
             )
+
+        # TODO: rework whole config system (e.g. improve config merging)
+        with open(self.general['virus_config_file']) as fd:
+            virus_config = yaml.safe_load(fd)
+
+        self.__members['virus_config'] = {}
+        for key, value in virus_config.items():
+            self.set_option('virus_config', key, value)
 
     def __getattr__(self, section_name) -> _SectionWrapper:
         return _SectionWrapper(self, section_name)
