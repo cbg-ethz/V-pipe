@@ -34,11 +34,10 @@ rule alignment_coverage:
     benchmark:
         "stats/alignment_coverage.benchmark"
     resources:
-        disk_mb = 1250,
-        mem_mb = config.alignment_coverage['mem'],
-        time_min = config.alignment_coverage['time'],
-    threads:
-        1
+        disk_mb=1250,
+        mem_mb=config.alignment_coverage["mem"],
+        time_min=config.alignment_coverage["time"],
+    threads: 1
     shell:
         """
         {params.EXTRACT_COVERAGE_INTERVALS} -cf {input.TSV} -c {params.COVERAGE} --no-shorah -N {params.NAMES} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1

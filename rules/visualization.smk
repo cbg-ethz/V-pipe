@@ -16,7 +16,8 @@ rule generate_web_visualization:
             "variants/cohort_consensus.fasta"
             if config.snv["consensus"]
             else reference_file
-        ),  # see input.REF in rule snv
+        ),
+        # see input.REF in rule snv
     output:
         html_file="{dataset}/visualization/index.html",
     log:

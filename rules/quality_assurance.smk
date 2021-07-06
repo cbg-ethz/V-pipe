@@ -14,14 +14,14 @@ rule gunzip:
     output:
         pipe("{file}.{ext,(fastq|fq)}"),
     params:
-       GUNZIP=config.applications["gunzip"],
+        GUNZIP=config.applications["gunzip"],
     log:
         outfile=temp("{file}_{ext}_gunzip.out.log"),
         errfile=temp("{file}_{ext}_gunzip.err.log"),
     resources:
-        disk_mb = 1000,
-        mem_mb = config.gunzip['mem'],
-        time_min = config.gunzip['time'],
+        disk_mb=1000,
+        mem_mb=config.gunzip["mem"],
+        time_min=config.gunzip["time"],
     threads: 1
     shell:
         """
@@ -43,11 +43,12 @@ rule extract:
         errfile="{dataset}/extracted_data/extract_R{pair}.err.log",
     benchmark:
         "{dataset}/extracted_data/extract_R{pair}.benchmark"
-    group: 'extract'
+    group:
+        "extract"
     resources:
-        disk_mb = 32768, # for large files sort stores its temp data on disk
-        mem_mb = config.extract['mem'],
-        time_min = config.extract['time'],
+        disk_mb=32768,  # for large files sort stores its temp data on disk
+        mem_mb=config.extract["mem"],
+        time_min=config.extract["time"],
     threads: 1
     shell:
         """
@@ -92,11 +93,11 @@ if config.input["paired"]:
             "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        #group: 'preprocessing'
+        # group: 'preprocessing'
         resources:
-            disk_mb = 20000,
-            mem_mb = config.preprocessing['mem'],
-            time_min = config.preprocessing['time'],
+            disk_mb=20000,
+            mem_mb=config.preprocessing["mem"],
+            time_min=config.preprocessing["time"],
         threads: 1
         shell:
             """
@@ -144,11 +145,11 @@ else:
             "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        #group: 'preprocessing'
+        # group: 'preprocessing'
         resources:
-            disk_mb = 10000,
-            mem_mb = config.preprocessing['mem'],
-            time_min = config.preprocessing['time'],
+            disk_mb=10000,
+            mem_mb=config.preprocessing["mem"],
+            time_min=config.preprocessing["time"],
         threads: 1
         shell:
             """

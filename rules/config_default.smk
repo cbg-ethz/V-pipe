@@ -23,6 +23,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 # https://python-jsonschema.readthedocs.io/en/latest/faq/#why-doesn-t-my-schema-s-default-property-set-the-default-on-my-instance
 
+
 def extend_with_default(validator_class):
     validate_properties = validator_class.VALIDATORS["properties"]
 
@@ -89,12 +90,12 @@ class VpipeConfig:
         self._vpipe_configfile.read("vpipe.config")
 
         # TODO: rework whole config system (e.g. improve config merging)
-        #with open(self.general["virus_config_file"]) as fd:
-            #virus_config = yaml.safe_load(fd)
+        # with open(self.general["virus_config_file"]) as fd:
+        # virus_config = yaml.safe_load(fd)
 
-        #self.__members["virus_config"] = {}
-        #for key, value in virus_config.items():
-            #self.set_option("virus_config", key, value)
+        # self.__members["virus_config"] = {}
+        # for key, value in virus_config.items():
+        # self.set_option("virus_config", key, value)
         config = {}
         for (name, section) in self._vpipe_configfile.items():
             config[name] = {}
@@ -106,7 +107,6 @@ class VpipeConfig:
 
         # DEFAULT entry is always created by configparser
         config.pop("DEFAULT", None)
-
 
         try:
             DefaultValidatingDraft7Validator(schema).validate(config)

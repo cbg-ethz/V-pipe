@@ -244,15 +244,14 @@ else:
 
 
 # 3. V-pipe expects a reference as input. We need to "mask" this behaviour
-reference_file = config.virus_config['reference']
+reference_file = config.virus_config["reference"]
 if reference_file:
     # Locate reference file
     if os.path.isfile(reference_file):
         reference_file = reference_file
         reference_name = get_reference_name(reference_file)
     elif os.path.isfile(os.path.join("references", reference_file)):
-        reference_file = os.path.join(
-            "references", reference_file)
+        reference_file = os.path.join("references", reference_file)
         reference_name = get_reference_name(reference_file)
     else:
         # If reference file not found, create it

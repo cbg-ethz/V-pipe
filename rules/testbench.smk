@@ -47,13 +47,12 @@ rule alignment_bias:
         outfile="{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log",
         errfile="{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log",
     conda:
-        config.alignment_bias['conda']
+        config.alignment_bias["conda"]
     resources:
-        disk_mb = 2000,
-        mem_mb = config.alignment_bias['mem'],
-        time_min = config.alignment_bias['time'],
-    threads:
-        1
+        disk_mb=2000,
+        mem_mb=config.alignment_bias["mem"],
+        time_min=config.alignment_bias["time"],
+    threads: 1
     shell:
         """
         {params.ALIGNMENT_BIAS} -r {input.REF} -b {input.BAM} -f <(zcat {input.R1gz}) --hap {input.HAPLOTYPE_SEQS} {params.PAIRED} -N {params.ID} -o {output}
@@ -64,11 +63,11 @@ rule aggregate_alignment_bias:
     input:
         expand("{dataset}/alignments/alignment_bias.tsv", dataset=datasets),
     output:
-        "stats/alignment_bias.tsv"
+        "stats/alignment_bias.tsv",
     resources:
-        disk_mb = 1250,
-        mem_mb = config.aggregate['mem'],
-        time_min = config.aggregate['time'],
+        disk_mb=1250,
+        mem_mb=config.aggregate["mem"],
+        time_min=config.aggregate["time"],
     log:
         outfile="stats/alignment_bias.out.log",
         errfile="stats/alignment_bias.out.log",
@@ -83,12 +82,12 @@ rule aggregate_beforeSB:
     input:
         snvfiles,
     output:
-        TXT = temp("{dataset}/variants/SNVs/SNVs_beforeSB.txt"),
-        CSV = "{dataset}/variants/SNVs/SNVs_beforeSB.csv"
+        TXT=temp("{dataset}/variants/SNVs/SNVs_beforeSB.txt"),
+        CSV="{dataset}/variants/SNVs/SNVs_beforeSB.csv",
     resources:
-        disk_mb = 1250,
-        mem_mb = 2000,
-        time_min = 20,
+        disk_mb=1250,
+        mem_mb=2000,
+        time_min=20,
     log:
         outfile="{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
         errfile="{dataset}/variants/SNVs/aggregate_beforeSB.err.log",
@@ -138,13 +137,12 @@ rule test_snv:
         outfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
         errfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
     conda:
-        config.test_snv['conda']
+        config.test_snv["conda"]
     resources:
-        disk_mb = 2000,
-        mem_mb = config.test_snv['mem'],
-        time_min = config.test_snv['time'],
-    threads:
-        1
+        disk_mb=2000,
+        mem_mb=config.test_snv["mem"],
+        time_min=config.test_snv["time"],
+    threads: 1
     shell:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
@@ -222,13 +220,12 @@ rule compare_snv:
             "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log"
         ),
     conda:
-        config.test_snv['conda']
+        config.test_snv["conda"]
     resources:
-        disk_mb = 2000,
-        mem_mb = config.test_snv['mem'],
-        time_min = config.test_snv['time'],
-    threads:
-        1
+        disk_mb=2000,
+        mem_mb=config.test_snv["mem"],
+        time_min=config.test_snv["time"],
+    threads: 1
     shell:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
@@ -272,11 +269,11 @@ rule aggregate:
     input:
         expand("{dataset}/variants/SNVs/performance.tsv", dataset=datasets),
     output:
-        "variants/SNV_calling_performance.tsv"
+        "variants/SNV_calling_performance.tsv",
     resources:
-        disk_mb = 1250,
-        mem_mb = config.aggregate['mem'],
-        time_min = config.aggregate['time'],
+        disk_mb=1250,
+        mem_mb=config.aggregate["mem"],
+        time_min=config.aggregate["time"],
     log:
         outfile="variants/SNV_calling_performance.out.log",
         errfile="variants/SNV_calling_performance.out.log",
@@ -291,11 +288,11 @@ rule aggregate_kind:
     input:
         expand("{dataset}/variants/SNVs/{{kind}}/performance.tsv", dataset=datasets),
     output:
-        "variants/SNV_calling_performance_{kind}.tsv"
+        "variants/SNV_calling_performance_{kind}.tsv",
     resources:
-        disk_mb = 1250,
-        mem_mb = config.aggregate['mem'],
-        time_min = config.aggregate['time'],
+        disk_mb=1250,
+        mem_mb=config.aggregate["mem"],
+        time_min=config.aggregate["time"],
     log:
         outfile="variants/SNV_calling_performance_{kind}.out.log",
         errfile="variants/SNV_calling_performance_{kind}.out.log",

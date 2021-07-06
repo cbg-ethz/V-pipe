@@ -12,9 +12,8 @@ from collections import UserDict
 
 from snakemake.utils import validate
 
-if not 'VPIPE_BENCH' in dir():
+if not "VPIPE_BENCH" in dir():
     VPIPE_BENCH = False
-
 
 
 configfile: "config/config.yaml"

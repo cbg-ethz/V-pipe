@@ -708,33 +708,38 @@ rule consseq_QA:
         fi
         """
 
+
 rule frameshift_deletions_checks:
     input:
-        REF_NAME = reference_file,
-        BAM = "{dataset}/alignments/REF_aln.bam",
-        REF_majority_dels = "{dataset}/references/ref_majority_dels.fasta",
-        GENES_GFF = config.frameshift_deletions_checks['genes_gff'] if config.frameshift_deletions_checks['genes_gff'] else []
+        REF_NAME=reference_file,
+        BAM="{dataset}/alignments/REF_aln.bam",
+        REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+        GENES_GFF=(
+            config.frameshift_deletions_checks["genes_gff"]
+            if config.frameshift_deletions_checks["genes_gff"]
+            else []
+        ),
     output:
-        FRAMESHIFT_DEL_CHECK_CSV = "{dataset}/references/frameshift_deletions_check.csv",
+        FRAMESHIFT_DEL_CHECK_CSV="{dataset}/references/frameshift_deletions_check.csv",
     params:
-        FRAMESHIFT_DEL_CHECKS = config.applications['frameshift_deletions_checks'],
+        FRAMESHIFT_DEL_CHECKS=config.applications["frameshift_deletions_checks"],
     log:
-        outfile = "{dataset}/references/frameshift_deletions_check.out.log",
-        errfile = "{dataset}/references/frameshift_deletions_check.err.log",
+        outfile="{dataset}/references/frameshift_deletions_check.out.log",
+        errfile="{dataset}/references/frameshift_deletions_check.err.log",
     conda:
-        config.frameshift_deletions_checks['conda']
+        config.frameshift_deletions_checks["conda"]
     benchmark:
         "{dataset}/alignments/frameshift_deletions_check.benchmark"
     resources:
-        disk_mb = 1250,
-        mem_mb = config.frameshift_deletions_checks['mem'],
-        time_min = config.frameshift_deletions_checks['time'],
-    threads:
-        1
+        disk_mb=1250,
+        mem_mb=config.frameshift_deletions_checks["mem"],
+        time_min=config.frameshift_deletions_checks["time"],
+    threads: 1
     shell:
         """
         {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -g {input.GENES_GFF} -o {output.FRAMESHIFT_DEL_CHECK_CSV} 2> >(tee {log.errfile} >&2)
         """
+
 
 if config.general["aligner"] == "ngshmmalign":
 

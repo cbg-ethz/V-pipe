@@ -46,13 +46,13 @@ rule coverage_intervals:
         config.coverage_intervals["conda"]
     benchmark:
         "{dataset}/variants/coverage_intervals.benchmark"
-    group: 'snv'
+    group:
+        "snv"
     resources:
-        disk_mb = 1250,
-        mem_mb = config.coverage_intervals['mem'],
-        time_min = config.coverage_intervals['time'],
-    threads:
-        config.coverage_intervals['threads']
+        disk_mb=1250,
+        mem_mb=config.coverage_intervals["mem"],
+        time_min=config.coverage_intervals["time"],
+    threads: config.coverage_intervals["threads"]
     shell:
         """
         TMPTSV=$(mktemp --tmpdir XXXXXXXX_cov.tsv)
@@ -107,13 +107,13 @@ rule snv:
         config.snv["conda"]
     benchmark:
         "{dataset}/variants/SNVs/shorah.benchmark"
-    group: 'snv'
+    group:
+        "snv"
     resources:
-        disk_mb = 1250,
-        mem_mb = config.snv['mem'],
-        time_min = config.snv['time'],
-    threads:
-        config.snv['threads']
+        disk_mb=1250,
+        mem_mb=config.snv["mem"],
+        time_min=config.snv["time"],
+    threads: config.snv["threads"]
     shell:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
