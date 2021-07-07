@@ -1,0 +1,9 @@
+general:
+    virus_config_file: config/sars-cov-2.yaml
+    aligner: bwa
+
+output:
+    snv: true
+    local: true
+    global: false
+    visualization: true

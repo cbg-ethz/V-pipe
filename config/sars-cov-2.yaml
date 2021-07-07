@@ -6,10 +6,10 @@ general:
 input:
     samples_file: "samples.tsv"
     fastq_suffix: ""
-    reference: "references/NC_045512.2.fasta"
-    metainfo_file: "references/metainfo.yaml"
-    gff_directory: "references/gffs/"
-    primers_file: "references/primers/nCoV-2019.tsv"
+    reference: "resources/sars-cov-2/NC_045512.2.fasta"
+    metainfo_file: "resources/sars-cov-2/metainfo.yaml"
+    gff_directory: "resources/sars-cov-2/gffs/"
+    primers_file: "resources/sars-cov-2/primers/nCoV-2019.tsv"
 
 output:
     snv: true

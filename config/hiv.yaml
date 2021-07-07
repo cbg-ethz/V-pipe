@@ -1,3 +1,5 @@
 ---
 name: HIV
-reference: references/HXB2.fasta
+
+input:
+    reference: resources/hiv/HXB2.fasta

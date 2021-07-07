@@ -10,6 +10,8 @@ import typing
 
 from collections import UserDict
 
+import yaml  # TODO: record this dependency somewhere
+
 from snakemake.utils import validate
 
 if not "VPIPE_BENCH" in dir():
@@ -23,6 +25,10 @@ def process_config(config):
 
     # validates, but also fills up default values:
     validate(config, srcdir("config_schema.json"))
+
+    # TODO: rework whole config system (e.g. improve config merging)
+    with open(config["general"]["virus_config_file"]) as fd:
+        config["virus_config"] = yaml.safe_load(fd)
 
     # use general.threads entry as default for all affected sections
     # if not specified:
@@ -311,7 +317,7 @@ def get_reference_name(reference_file):
 
 
 if not VPIPE_BENCH:
-    reference_file = config.virus_config["reference"]
+    reference_file = config.virus_config["input"]["reference"]
     if not os.path.isfile(reference_file):
         reference_file_alt = os.path.join("references", reference_file)
         LOGGER.warning(
