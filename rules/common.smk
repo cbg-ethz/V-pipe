@@ -10,30 +10,80 @@ import typing
 
 from collections import UserDict
 
-import yaml  # TODO: record this dependency somewhere
+from snakemake.io import load_configfile
+from snakemake.utils import update_config, validate
 
-from snakemake.utils import validate
+import logging
+
+LOGGER = logging.getLogger("snakemake.logging")
 
 if not "VPIPE_BENCH" in dir():
     VPIPE_BENCH = False
 
 
-configfile: "config/config.yaml"
+# BUG even if the --configfile option overload is used this default *must* always exist
+if os.path.exists("config/config.yaml"):
+
+    configfile: "config/config.yaml"
+
+
+elif os.path.exists("config.yaml"):
+
+    configfile: "config.yaml"
+
+
+elif os.path.exists("vpipe.config"):
+
+    configfile: "vpipe.config"
 
 
 def process_config(config):
+    # precedence logic:
+    # snakemake (configfile(s) + --confg) >> virus base config >> schema default
+    print(config)
+    # merging of virus' base configuration
+    vf = None
+    try:
+        # shorthand - e.g.: hiv
+        if config["general"]["virus_base_config"]:
+            vf = "{VPIPE_BASEDIR}/config/{VIRUS}.yaml".format(
+                VPIPE_BASEDIR=VPIPE_BASEDIR,
+                VIRUS=config["general"]["virus_base_config"],
+            )
+            if not os.path.exists(vf):
+                # normal search (with normal macro expansion, like the default values)
+                vf = config["general"]["virus_base_config"].format(
+                    VPIPE_BASEDIR=VPIPE_BASEDIR
+                )
+                if not os.path.exists(vf):
+                    raise ValueError(
+                        "Cannot find virus base config",
+                        config["general"]["virus_base_config"],
+                    )
+    except TypeError:
+        LOGGER.info("No virus base configuration, using defaults")
+    if vf:
+        # current configuration overwrites virus base config
+        cur_config = config
+        config = load_configfile(vf)
+        if "name" in config:
+            LOGGER.info("Using base configuration virus %s" % config["name"])
+            config.pop("name")
+        else:
+            LOGGER.info(
+                "Using base configuration from %s"
+                % porevious_config["general"]["virus_base_config"]
+            )
+        update_config(config, cur_config)
 
     # validates, but also fills up default values:
     validate(config, srcdir("config_schema.json"))
-
-    # TODO: rework whole config system (e.g. improve config merging)
-    with open(config["general"]["virus_config_file"]) as fd:
-        config["virus_config"] = yaml.safe_load(fd)
-
     # use general.threads entry as default for all affected sections
     # if not specified:
     for (name, section) in config.items():
         if name == "general":
+            continue
+        if not isinstance(section, dict):
             continue
         if "threads" not in section:
             section["threads"] = config["general"]["threads"]
@@ -317,7 +367,7 @@ def get_reference_name(reference_file):
 
 
 if not VPIPE_BENCH:
-    reference_file = config.virus_config["input"]["reference"]
+    reference_file = config["input"]["reference"]
     if not os.path.isfile(reference_file):
         reference_file_alt = os.path.join("references", reference_file)
         LOGGER.warning(

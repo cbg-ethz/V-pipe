@@ -262,13 +262,49 @@ def input_align(wildcards):
 
 if config.general["aligner"] == "ngshmmalign":
 
+    # HACK hmm_align doesn't support pipes, we use a temp file instead
+    rule preproc_gunzip:
+        input:
+            "{dataset}/preprocessed_data/{file}.fastq.gz",
+        output:
+            temp(
+                os.path.join(
+                    config.general["temp_prefix"],
+                    "{dataset}/preprocessed_data/{file}.fastq",
+                )
+            ),
+        params:
+            GUNZIP=config.applications["gunzip"],
+        log:
+            outfile=temp("{dataset}/preprocessed_data/{file}_gunzip.out.log"),
+            errfile=temp("{dataset}/preprocessed_data/{file}_gunzip.err.log"),
+        resources:
+            disk_mb=1000,
+            mem_mb=config.gunzip["mem"],
+            time_min=config.gunzip["time"],
+        threads: 1
+        shell:
+            """
+            {params.GUNZIP} -c {input} > {output}
+            """
+
+    ruleorder: preproc_gunzip > gunzip
+
     rule hmm_align:
         input:
             initial_ref="{dataset}/references/initial_consensus.fasta",
             FASTQ=input_align,
         output:
-            good_aln=temp("{dataset}/alignments/full_aln.sam"),
-            reject_aln=temp("{dataset}/alignments/rejects.sam"),
+            good_aln=temp(
+                os.path.join(
+                    config.general["temp_prefix"], "{dataset}/alignments/full_aln.sam"
+                )
+            ),
+            reject_aln=temp(
+                os.path.join(
+                    config.general["temp_prefix"], "{dataset}/alignments/rejects.sam"
+                )
+            ),
             REF_ambig="{dataset}/references/ref_ambig.fasta",
             REF_majority="{dataset}/references/ref_majority.fasta",
         params:
@@ -360,7 +396,7 @@ if config.general["aligner"] == "ngshmmalign":
             REF_ambig="references/ALL_aln_ambig.fasta",
             REF_majority="references/ALL_aln_majority.fasta",
             BAM="{dataset}/alignments/full_aln.bam",
-            REJECTS_BAM="{dataset}/alignments/rejects.bam",
+            #REJECTS_BAM="{dataset}/alignments/rejects.bam",
         output:
             "{dataset}/alignments/REF_aln.bam",
         params:
@@ -386,39 +422,39 @@ if config.general["aligner"] == "ngshmmalign":
             """
 
 
-else:
-    # 2-4. Alternative: align reads using bwa or bowtie
+# 2-4. Alternative: align reads using bwa or bowtie
 
-    rule sam2bam:
-        input:
-            os.path.join(config.general["temp_prefix"], "{file}.sam"),
-        output:
-            # TODO support cram here
-            BAM="{file}.bam",
-            BAI="{file}.bam.bai",
-        params:
-            SAMTOOLS=config.applications["samtools"],
-            FUNCTIONS=functions,
-        log:
-            outfile="{file}_sam2bam.out.log",
-            errfile="{file}_sam2bam.err.log",
-        conda:
-            config.sam2bam["conda"]
-        benchmark:
-            "{file}_sam2bam.benchmark"
-        group:
-            "align"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.sam2bam["mem"],
-            time_min=config.sam2bam["time"],
-        threads: 1
-        shell:
-            """
-            echo "Writing BAM file"
-            {params.SAMTOOLS} sort -o "{output.BAM}" "{input}"
-            {params.SAMTOOLS} index "{output.BAM}"
-            """
+
+rule sam2bam:
+    input:
+        os.path.join(config.general["temp_prefix"], "{file}.sam"),
+    output:
+        # TODO support cram here
+        BAM="{file}.bam",
+        BAI="{file}.bam.bai",
+    params:
+        SAMTOOLS=config.applications["samtools"],
+        FUNCTIONS=functions,
+    log:
+        outfile="{file}_sam2bam.out.log",
+        errfile="{file}_sam2bam.err.log",
+    conda:
+        config.sam2bam["conda"]
+    benchmark:
+        "{file}_sam2bam.benchmark"
+    group:
+        "align"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.sam2bam["mem"],
+        time_min=config.sam2bam["time"],
+    threads: 1
+    shell:
+        """
+        echo "Writing BAM file"
+        {params.SAMTOOLS} sort -o "{output.BAM}" "{input}"
+        {params.SAMTOOLS} index "{output.BAM}"
+        """
 
 
 if config.general["aligner"] == "bwa":
@@ -553,14 +589,19 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5="{}.rev.1.bt2".format(reference_file),
                 INDEX6="{}.rev.2.bt2".format(reference_file),
             output:
-                temp(
+                REF=temp(
                     os.path.join(
                         config.general["temp_prefix"],
                         "{dataset}/alignments/REF_aln.sam",
                     )
                 ),
+                TMP_SAM=temp(
+                    os.path.join(
+                        config.general["temp_prefix"],
+                        "{dataset}/alignments/tmp_aln.sam",
+                    )
+                ),
             params:
-                TMP_SAM="{dataset}/alignments/tmp_aln.sam",
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
                 MAXINS=get_maxins,
@@ -583,9 +624,9 @@ elif config.general["aligner"] == "bowtie":
             threads: config.bowtie_align["threads"]
             shell:
                 """
-                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} -X {params.MAXINS} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} -X {params.MAXINS} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -f 2 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
                 """
 
@@ -603,14 +644,19 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5="{}.rev.1.bt2".format(reference_file),
                 INDEX6="{}.rev.2.bt2".format(reference_file),
             output:
-                temp(
+                REF=temp(
                     os.path.join(
                         config.general["temp_prefix"],
                         "{dataset}/alignments/REF_aln.sam",
                     )
                 ),
+                TMP_SAM=temp(
+                    os.path.join(
+                        config.general["temp_prefix"],
+                        "{dataset}/alignments/tmp_aln.sam",
+                    )
+                ),
             params:
-                TMP_SAM="{dataset}/alignments/tmp_aln.sam",
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
                 EXTRA=config.bowtie_align["extra"],
@@ -632,9 +678,9 @@ elif config.general["aligner"] == "bowtie":
             threads: config.bowtie_align["threads"]
             shell:
                 """
-                {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {params.TMP_SAM} 2> >(tee {log.errfile} >&2)
+                {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -F 4 -F 2048 {params.TMP_SAM} > {output} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h -F 4 -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
                 """
 

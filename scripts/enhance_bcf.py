@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Amend genotype field to contain all variants."""
 
 import sys

@@ -1,9 +1,26 @@
 #!/bin/bash
 set -e
 
+THREADS=5
+
 # https://stackoverflow.com/questions/59895/
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 VPIPEROOT=${HERE}/..
+
+if [[ -z "${1}" ]]; then
+	echo "Usage: $0 <virus>" >&2
+	exit 2
+elif [[ ! "${1}" =~ ^[[:alnum:]_-]+$ ]]; then
+	echo "Bad virus name $1" >&2
+	exit 2
+elif [[ ! -f ${VPIPEROOT}/config/${1}.yaml ]]; then
+	echo "Missing virus base config for ${1}" >&2
+	exit 2
+elif [[ ! -d ${VPIPEROOT}/tests/data/${1}/ ]]; then
+	echo "Missing virus test data for ${1}" >&2
+	exit 2
+fi
+VIRUS=$1
 
 CWD=$(pwd)
 function restore_wd {
@@ -11,14 +28,15 @@ function restore_wd {
 }
 trap restore_wd EXIT
 
-PROJECT_DIR=/tmp/project
+PROJECT_DIR=/tmp/project/${VIRUS}
 
 function setup_project {
     PROJECT_DIR=$(mktemp -d)
     pushd ${PROJECT_DIR}
     ${VPIPEROOT}/init_project.sh
     mkdir samples
-    cp -R ${VPIPEROOT}/testdata/pos_M* samples
+    cp -R ${VPIPEROOT}/tests/data/${VIRUS}/* samples/
+    [ -e samples/samples.tsv ] && mv samples/samples.tsv ./
     popd
 }
 
@@ -29,16 +47,32 @@ function setup_project {
 function run_workflow {
 
     pushd ${PROJECT_DIR}
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda --dry-run
+    cat > config.yaml <<CONFIG
+general:
+    virus_base_config: "${VIRUS}"
+
+output:
+    snv: true
+    local: true
+    global: false
+    visualization: true
+    QA: false
+
+snv:
+    threads: ${THREADS}
+    consensus: false
+CONFIG
+
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --configfile config.yaml --use-conda --cores ${THREADS} --dry-run
     echo
     cat samples.tsv
     echo
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --use-conda -p -j 2
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --configfile config.yaml --use-conda --cores ${THREADS} -p --keep-going
     popd
 }
 
 
-TEST_NAME=$(basename ${0%.*})
+TEST_NAME=$(basename ${0%.*})_${VIRUS}
 EXIT_CODE=0
 
 DIFF_FILE=/tmp/diffs_${TEST_NAME}.txt

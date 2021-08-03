@@ -1,9 +1,10 @@
 general:
-    virus_config_file: config/sars-cov-2.yaml
-    aligner: bwa
+    virus_base_config: ''
+    # e.g: 'hiv', 'sars-cov-2', or absent
 
 output:
-    snv: true
-    local: true
+    snv: false
+    local: false
     global: false
-    visualization: true
+    visualization: false
+    QA: false

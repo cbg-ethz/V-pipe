@@ -6,7 +6,7 @@
             "properties": {
                 "threads": {
                     "type": "integer",
-                    "default": 4
+                    "default": 1
                 },
                 "aligner": {
                     "type": "string",
@@ -20,9 +20,9 @@
                     "type": "string",
                     "default": "savage"
                 },
-                "virus_config_file": {
+                "virus_base_config": {
                     "type": "string",
-                    "default": "{VPIPE_BASEDIR}/config/hiv.yaml"
+                    "default": ""
                 },
                 "temp_prefix": {
                     "type": "string",
@@ -82,19 +82,19 @@
                 },
                 "snv": {
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 },
                 "local": {
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 },
                 "global": {
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 },
                 "visualization": {
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 }
             },
             "default": {},

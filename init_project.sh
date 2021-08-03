@@ -47,7 +47,7 @@ PROJECT_DIR=$(pwd)
 # https://stackoverflow.com/a/242550
 VPIPE_DIR=$(dirname "$0")
 
-cp -iv "$VPIPE_DIR/vpipe_config.yaml" "$PROJECT_DIR/"
+cp -iv "$VPIPE_DIR/config/config.yaml" "$PROJECT_DIR/"
 
 # guess activation command
 ACTIVATE=
@@ -102,12 +102,13 @@ fi
 cat <<EOF
 V-pipe project initialized!
 
-Create and populate 'references' and 'samples' directories or adjust vpipe_config.yaml.
+Create and populate 'samples' directory or adjust config.yaml.
 Then, use ./vpipe to run V-pipe.
 EOF
 
 
 if [ -z "$MINIMAL" ]; then
-    mkdir -p "$PROJECT_DIR/references"
-    cp -riv "$VPIPE_DIR/references"/* "$PROJECT_DIR/references/"
+    # NOTE currently all the necessary files are packaged as resources. Here is an example how to provide extra files to a project
+    : #mkdir -p "$PROJECT_DIR/references"
+    : #cp -riv "$VPIPE_DIR/references"/* "$PROJECT_DIR/references/"
 fi

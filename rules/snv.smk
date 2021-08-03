@@ -125,7 +125,7 @@ rule snv:
         # Get absolute path for input files
         CWD=${{PWD}}
         BAM=${{PWD}}/{input.BAM}
-        REF=${{PWD}}/{input.REF}
+        REF={input.REF}; [[ ${{REF}} =~ ^/ ]] || REF=${{PWD}}/${{REF}}
         OUTFILE=${{PWD}}/{log.outfile}
         ERRFILE=${{PWD}}/{log.errfile}
         WORK_DIR=${{PWD}}/{params.WORK_DIR}

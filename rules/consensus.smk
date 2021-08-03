@@ -1,6 +1,7 @@
 rule consensus_bcftools:
     input:
         fname_bam="{dataset}/alignments/REF_aln.bam",
+        fname_cov="{dataset}/alignments/coverage.tsv.gz",
         fname_ref=reference_file,
     output:
         fname_bcf="{dataset}/references/consensus.bcftools.bcf.gz",
@@ -16,6 +17,9 @@ rule consensus_bcftools:
             "ambiguous_base_coverage_threshold"
         ],
         script_dir=os.path.join(VPIPE_BASEDIR, "scripts"),
+    log:
+        outfile="{dataset}/references/consensus.bcftools.out.log",
+        errfile="{dataset}/references/consensus.bcftools.err.log",
     conda:
         config.consensus_bcftools["conda"]
     resources:
@@ -49,20 +53,18 @@ rule consensus_bcftools:
             --output {output.fname_bcf}
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
-        # TODO: retrieve this data from other rules
-        common_samtools_params="-a -d 0 -J {input.fname_bam}"
-        samtools depth \
-            $common_samtools_params \
-        | awk \
-            '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - 1, $2}}' \
+        # TODO: homogene use of 0-base vs 1-base
+        zcat {input.fname_cov} | tail -n +2 \
+        | awk -v base=0 \
+            '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
         > {output.fname_mask_lowcoverage}
 
         # preparations
-        python3 {params.script_dir}/enhance_bcf.py \
-            {output.fname_bcf} \
-            temp.bcf.gz \
-            {params.ambiguous_base_coverage_threshold}
-        mv temp.bcf.gz {output.fname_bcf}
+        #{params.script_dir}/enhance_bcf.py \
+        #    {output.fname_bcf} \
+        #    temp.bcf.gz \
+        #    {params.ambiguous_base_coverage_threshold}
+        #mv temp.bcf.gz {output.fname_bcf}
 
         bcftools index {output.fname_bcf}
 
