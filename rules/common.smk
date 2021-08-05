@@ -40,7 +40,7 @@ elif os.path.exists("vpipe.config"):
 def process_config(config):
     # precedence logic:
     # snakemake (configfile(s) + --confg) >> virus base config >> schema default
-    print(config)
+
     # merging of virus' base configuration
     vf = None
     try:
@@ -61,7 +61,10 @@ def process_config(config):
                         config["general"]["virus_base_config"],
                     )
     except TypeError:
-        LOGGER.info("No virus base configuration, using defaults")
+        vf = None
+    except KeyError:
+        vf = None
+
     if vf:
         # current configuration overwrites virus base config
         cur_config = config
@@ -75,6 +78,8 @@ def process_config(config):
                 % porevious_config["general"]["virus_base_config"]
             )
         update_config(config, cur_config)
+    else:
+        LOGGER.info("No virus base configuration, using defaults")
 
     # validates, but also fills up default values:
     validate(config, srcdir("config_schema.json"))
@@ -153,6 +158,9 @@ else:
         spamreader = csv.reader(csvfile, delimiter="\t")
 
         for row in spamreader:
+            if len(row) == 0 or row[0][0] == "#":
+                # Skip completely empty lines, or comments begining with '#' (numpy style)
+                continue
             assert (
                 len(row) >= 2
             ), "ERROR: Line '{}' does not contain at least two entries!".format(
@@ -173,7 +181,7 @@ else:
 
             if len(row) == 2:
                 # All samples are assumed to have same read length and the default, 250 bp
-                patient_dict[patient_tuple] = 250
+                patient_dict[patient_tuple] = config.input["read_length"]
 
             elif len(row) >= 3:
                 # Extract read length from input.samples_file. Samples may have

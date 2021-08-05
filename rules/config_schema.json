@@ -46,6 +46,10 @@
                     "type": "boolean",
                     "default": true
                 },
+                "read_length": {
+                    "type": "integer",
+                    "default": 250
+                },
                 "fastq_suffix": {
                     "type": "string",
                     "default": ""
