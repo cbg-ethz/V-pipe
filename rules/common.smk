@@ -8,6 +8,10 @@ import csv
 import os
 import typing
 
+# for legacy
+import configparser
+import json  # NOTE jsonschema  is only part of the full snakemake, not snakemake-minimal
+
 from collections import UserDict
 
 from snakemake.io import load_configfile
@@ -20,8 +24,9 @@ LOGGER = logging.getLogger("snakemake.logging")
 if not "VPIPE_BENCH" in dir():
     VPIPE_BENCH = False
 
-
-# BUG even if the --configfile option overload is used this default *must* always exist
+# even if the --configfile option overload is used this default *must* always exist:
+# - the _content_ of these extra configfiles will overwrite the basefile's _content_
+# - not the _filenames_ themselves
 if os.path.exists("config/config.yaml"):
 
     configfile: "config/config.yaml"
@@ -32,20 +37,95 @@ elif os.path.exists("config.yaml"):
     configfile: "config.yaml"
 
 
-elif os.path.exists("vpipe.config"):
+def load_legacy_ini(ininame, schemaname):
+    """
+    Load a legacy INI-style config file with Python configparser
+    and uses a schema to load it correctly:
 
-    configfile: "vpipe.config"
+    - configparser does not guess the datatpye of value in config files
+      always storing them internally as strings.
+      it provides getter methods for integers, floats and booleans.
+
+      we apply the getter corresponding to the type expected in the schema
+
+    - configpasrer keys are not case-sensitive and stored in lowercase,
+      whereas JSON and YAML are case sensitive.
+
+      we convert to the case expected by the schema
+    """
+    cp = configparser.ConfigParser()
+    cp.read(ininame)
+
+    with open(schemaname) as sf:
+        sch = json.load(sf)
+
+    ini = {}
+    # build the result structure by:
+    # - looping the whole configparser object
+    # - applying types from the jsonschema
+    # - fixing the case of keys
+    for (name, section) in cp.items():
+        if name == "DEFAULT":
+            # configparser-specific, skip
+            continue
+        if name not in sch["properties"]:
+            # technically, missing part should be handled by validator,
+            # but we need valid names anyway to do the types
+            raise ValueError(
+                "Invalid section in {inif} :".format(sec=name, inif=ininame), name
+            )
+        ini[name] = {}
+        # configpasrer keys are not case-sensitive and stored in lowercase
+        lcentries = {k.lower(): k for k in sch["properties"][name]["properties"].keys()}
+        for (entry, value) in section.items():
+            if entry not in lcentries:
+                raise ValueError(
+                    "Invalid entry in section {sec} of {inif} :".format(
+                        sec=name, inif=ininame
+                    ),
+                    entry,
+                )
+            entry = lcentries[entry]
+            # configparser doesn't convert type automatically
+            # convert if necessary based on schema
+            ty = sch["properties"][name]["properties"][entry]["type"]
+            if ty == "boolean":
+                value = section.getboolean(entry)
+            elif ty == "integer":
+                value = section.getint(entry)
+            elif ty == "number":
+                value = section.getfloat(entry)
+            # string are left as-is
+            ini[name][entry] = value
+    return ini
 
 
 def process_config(config):
-    # precedence logic:
-    # snakemake (configfile(s) + --confg) >> virus base config >> schema default
+    """
+    process configuration.
+
+    - precedence logic:
+      snakemake (configfile(s) + --confg) >> legacy configparse INI >> virus base config >> schema default
+
+    - validate with schema
+    """
+
+    schema = srcdir("config_schema.json")
+
+    # merging of legacy INI-style
+    if os.path.exists("vpipe.config"):
+        LOGGER.info("Importing legacy configuration file vpipe.config")
+        # snakemake configuration overwrites legacy vpipe.config
+        cur_config = config
+        config = load_legacy_ini("vpipe.config", schema)
+        update_config(config, cur_config)
 
     # merging of virus' base configuration
     vf = None
     try:
-        # shorthand - e.g.: hiv
+        # search for file location
         if config["general"]["virus_base_config"]:
+            # shorthand - e.g.: hiv
             vf = "{VPIPE_BASEDIR}/config/{VIRUS}.yaml".format(
                 VPIPE_BASEDIR=VPIPE_BASEDIR,
                 VIRUS=config["general"]["virus_base_config"],
@@ -60,6 +140,7 @@ def process_config(config):
                         "Cannot find virus base config",
                         config["general"]["virus_base_config"],
                     )
+    # (empty entry)
     except TypeError:
         vf = None
     except KeyError:
@@ -70,8 +151,7 @@ def process_config(config):
         cur_config = config
         config = load_configfile(vf)
         if "name" in config:
-            LOGGER.info("Using base configuration virus %s" % config["name"])
-            config.pop("name")
+            LOGGER.info("Using base configuration virus %s" % config.pop("name"))
         else:
             LOGGER.info(
                 "Using base configuration from %s"
@@ -82,7 +162,7 @@ def process_config(config):
         LOGGER.info("No virus base configuration, using defaults")
 
     # validates, but also fills up default values:
-    validate(config, srcdir("config_schema.json"))
+    validate(config, srcdir("config_schema.json"), set_default=True)
     # use general.threads entry as default for all affected sections
     # if not specified:
     for (name, section) in config.items():
@@ -93,6 +173,8 @@ def process_config(config):
         if "threads" not in section:
             section["threads"] = config["general"]["threads"]
 
+        # interpolate some parameters
+        # (currently only the base directory for resources packaged in V-pipe)
         for entry, value in section.items():
             if isinstance(value, str):
                 section[entry] = value.format(VPIPE_BASEDIR=VPIPE_BASEDIR)
