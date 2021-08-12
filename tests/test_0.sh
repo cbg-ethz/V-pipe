@@ -60,7 +60,6 @@ output:
 
 snv:
     threads: ${THREADS}
-    consensus: false
 CONFIG
 
     PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --configfile config.yaml --use-conda --cores ${THREADS} --dry-run

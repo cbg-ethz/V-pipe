@@ -83,6 +83,7 @@ rule minor_variants:
     input:
         REF=reference_file,
         BASECNT=expand("{dataset}/alignments/basecnt.tsv.gz", dataset=datasets),
+        BAM=expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
     output:
         VARIANTS="variants/minority_variants.tsv",
         CONSENSUS="variants/cohort_consensus.fasta",
@@ -106,6 +107,5 @@ rule minor_variants:
     threads: config.minor_variants["threads"]
     shell:
         """
-        exit 2
+        {params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2>&1
         """
-        #{params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} -d {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2>&1

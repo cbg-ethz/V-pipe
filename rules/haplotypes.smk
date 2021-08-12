@@ -158,7 +158,10 @@ if config.input["paired"]:
             fname_bam="{dataset}/alignments/REF_aln.bam",
             fname_ref=(
                 "variants/cohort_consensus.fasta"
-                if config.snv["consensus"]
+                if config[
+                    # NOTE  shorah and lofreq each have their independent option "consensus"
+                    "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
+                ]["consensus"]
                 else reference_file
             ),
         output:
