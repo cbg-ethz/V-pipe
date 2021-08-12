@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bcftools >= 0.13
-  - cyvcf2 # >= 0.30
+  - bcftools = 1.13
+  - cyvcf2 = 0.30.11

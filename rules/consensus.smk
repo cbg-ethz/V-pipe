@@ -5,6 +5,7 @@ rule consensus_bcftools:
         fname_ref=reference_file,
     output:
         fname_bcf="{dataset}/references/consensus.bcftools.bcf.gz",
+        fname_temp_bcf=temp("{dataset}/references/temp.consensus.bcftools.bcf.gz"),
         fname_fasta="{dataset}/references/consensus.bcftools.fasta",
         fname_fasta_ambig="{dataset}/references/consensus_ambig.bcftools.fasta",
         fname_mask_lowcoverage=temp(
@@ -50,7 +51,7 @@ rule consensus_bcftools:
             --threads {threads} \
             -e 'TYPE="INDEL" & INFO/AD[1]<INFO/AD[0]' \
             -Ob \
-            --output {output.fname_bcf}
+            --output {output.fname_temp_bcf}
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
         # TODO: homogene use of 0-base vs 1-base
@@ -59,12 +60,11 @@ rule consensus_bcftools:
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
         > {output.fname_mask_lowcoverage}
 
-        # preparations
-        #{params.script_dir}/enhance_bcf.py \
-        #    {output.fname_bcf} \
-        #    temp.bcf.gz \
-        #    {params.ambiguous_base_coverage_threshold}
-        #mv temp.bcf.gz {output.fname_bcf}
+        preparations
+        {params.script_dir}/enhance_bcf.py \
+           {output.fname_temp_bcf} \
+           {output.fname_bcf} \
+           {params.ambiguous_base_coverage_threshold}
 
         bcftools index {output.fname_bcf}
 
