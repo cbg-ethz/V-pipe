@@ -85,3 +85,123 @@ rule consensus_bcftools:
             -H I --iupac-codes \
             {output.fname_bcf}
         """
+
+
+rule consensus_sequences:
+    input:
+        BAM="{dataset}/alignments/REF_aln.bam",
+        REF=reference_file,
+    output:
+        REF_amb="{dataset}/references/ref_ambig.fasta",
+        REF_majority="{dataset}/references/ref_majority.fasta",
+        REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+    params:
+        MIN_COVERAGE=config.consensus_sequences["min_coverage"],
+        N_COVERAGE=config.consensus_sequences["n_coverage"],
+        QUAL_THRD=config.consensus_sequences["qual_thrd"],
+        MIN_FREQ=config.consensus_sequences["min_freq"],
+        OUTDIR="{dataset}/references",
+        EXTRACT_CONSENSUS=config.applications["extract_consensus"],
+    log:
+        outfile="{dataset}/references/consensus_sequences.out.log",
+        errfile="{dataset}/references/consensus_sequences.err.log",
+    conda:
+        config.consensus_sequences["conda"]
+    benchmark:
+        "{dataset}/alignments/consensus.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consensus_sequences["mem"],
+        time_min=config.consensus_sequences["time"],
+    threads: 1
+    shell:
+        """
+        CONSENSUS_NAME={wildcards.dataset}
+        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        """
+
+
+# QA checks performed on consensus_sequences
+# - do pairwise alignement
+rule consseq_QA:
+    input:
+        REF=reference_file,
+        REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+    output:
+        REF_matcher="{dataset}/references/ref_majority_dels.matcher",
+    params:
+        MATCHER=config.applications["matcher"],
+    log:
+        outfile="{dataset}/references/qa_consseq.out.log",
+        errfile="{dataset}/references/qa_consseq.err.log",
+    conda:
+        config.consseq_QA["conda"]
+    benchmark:
+        "{dataset}/alignments/qa_consseq.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consseq_QA["mem"],
+        time_min=config.consseq_QA["time"],
+    threads: 1
+    shell:
+        """
+        if tail -n +2 {input.REF_majority_dels} | grep -qP '[^n]'; then
+            {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher} 2> >(tee {log.errfile} >&2)
+        else
+            touch {output.REF_matcher}
+            echo "pure 'nnnn...' consensus, no possible alignement"
+        fi
+        """
+
+
+rule frameshift_deletions_checks:
+    input:
+        REF_NAME=reference_file,
+        BAM="{dataset}/alignments/REF_aln.bam",
+        #REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+        REF_majority_dels="{dataset}/references/consensus.bcftools.fasta",
+        GENES_GFF=(
+            config.frameshift_deletions_checks["genes_gff"]
+            if config.frameshift_deletions_checks["genes_gff"]
+            else []
+        ),
+    output:
+        FRAMESHIFT_DEL_CHECK_TSV="{dataset}/references/frameshift_deletions_check.tsv",
+    params:
+        FRAMESHIFT_DEL_CHECKS=config.applications["frameshift_deletions_checks"],
+    log:
+        outfile="{dataset}/references/frameshift_deletions_check.out.log",
+        errfile="{dataset}/references/frameshift_deletions_check.err.log",
+    conda:
+        config.frameshift_deletions_checks["conda"]
+    benchmark:
+        "{dataset}/alignments/frameshift_deletions_check.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.frameshift_deletions_checks["mem"],
+        time_min=config.frameshift_deletions_checks["time"],
+    threads: 1
+    shell:
+        """
+        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -g {input.GENES_GFF} --english=true -o {output.FRAMESHIFT_DEL_CHECK_TSV} 2> >(tee {log.errfile} >&2)
+        """
+
+
+if config.general["aligner"] == "ngshmmalign":
+
+    ruleorder: hmm_align > consensus_sequences
+
+
+#
+#
+# elif config.general["aligner"] == "bwa":
+#
+#    ruleorder: consensus_sequences > hmm_align
+#
+#
+# elif config.general["aligner"] == "bowtie":
+#
+#    ruleorder: consensus_sequences > hmm_align

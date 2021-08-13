@@ -337,7 +337,7 @@ for p in patient_list:
             )
         )
         alignments.append(
-            "{sample_dir}/{patient}/{date}/references/frameshift_deletions_check.csv".format(
+            "{sample_dir}/{patient}/{date}/references/frameshift_deletions_check.tsv".format(
                 sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
             )
         )
