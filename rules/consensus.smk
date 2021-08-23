@@ -7,7 +7,9 @@ rule consensus_bcftools:
         fname_bcf="{dataset}/references/consensus.bcftools.bcf.gz",
         fname_temp_bcf=temp("{dataset}/references/temp.consensus.bcftools.bcf.gz"),
         fname_fasta="{dataset}/references/consensus.bcftools.fasta",
+        fname_chain="{dataset}/references/consensus.bcftools.chain",
         fname_fasta_ambig="{dataset}/references/consensus_ambig.bcftools.fasta",
+        fname_chain_ambig="{dataset}/references/consensus_ambig.bcftools.chain",
         fname_mask_lowcoverage=temp(
             "{dataset}/references/coverage_mask_lowcoverage.bed"
         ),
@@ -73,6 +75,7 @@ rule consensus_bcftools:
         # majority bases
         bcftools consensus \
             --output {output.fname_fasta} \
+            --chain {output.fname_chain} \
             $common_consensus_params \
             -H A \
             -i "INFO/AD[0]<INFO/AD[*]" \
@@ -81,6 +84,7 @@ rule consensus_bcftools:
         # ambiguous bases
         bcftools consensus \
             --output {output.fname_fasta_ambig} \
+            --chain {output.fname_chain_ambig} \
             $common_consensus_params \
             -H I --iupac-codes \
             {output.fname_bcf}
