@@ -56,7 +56,7 @@ output:
     local: true
     global: false
     visualization: true
-    QA: false
+    QA: true
 
 snv:
     threads: ${THREADS}
@@ -73,6 +73,10 @@ CONFIG
 
 TEST_NAME=$(basename ${0%.*})_${VIRUS}
 EXIT_CODE=0
+
+function check_logs {
+    grep -E 'failed|for error' ${PROJECT_DIR}/.snakemake/log/*.snakemake.log && EXIT_CODE=1 || echo "snakemake execution successful"
+}
 
 DIFF_FILE=/tmp/diffs_${TEST_NAME}.txt
 LOG_FILE=/tmp/log_${TEST_NAME}.txt
@@ -99,6 +103,9 @@ function compare_to_recorded_results {
 
 # setup_project
 run_workflow 2>&1 | tee ${LOG_FILE}
+echo
+echo
+check_logs
 echo
 echo
 compare_to_recorded_results

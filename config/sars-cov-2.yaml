@@ -9,6 +9,9 @@ input:
     gff_directory: "{VPIPE_BASEDIR}/resources/sars-cov-2/gffs/"
     primers_file: "{VPIPE_BASEDIR}/resources/sars-cov-2/primers/nCoV-2019.tsv"
 
+frameshift_deletions_checks:
+    genes_gff: "{VPIPE_BASEDIR}/resources/sars-cov-2/gffs/Genes_NC_045512.2.GFF3"
+
 snv:
     consensus: false
 
