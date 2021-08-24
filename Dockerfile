@@ -2,6 +2,7 @@ FROM snakemake/snakemake:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     rsync \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 # TODO: only move workflow files
@@ -11,11 +12,12 @@ VOLUME /work
 WORKDIR /work
 
 RUN echo '{"output": {"snv": true, "local": true, "global": true, "visualization": true, "QA": true}}' > config.yaml \
- && ln -sf /V-pipe/tests/data/hiv samples \
+ && rm -f samples samples.tsv && ln -sf /V-pipe/tests/data/hiv/ ./samples  \
  && snakemake -s /V-pipe/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix /conda_prefix --config "general={virus_base_config: hiv}" \
- && ln -sf /V-pipe/tests/data/sars-cov-2 samples \
+ && rm -f samples samples.tsv && ln -sf /V-pipe/tests/data/sars-cov-2 samples && cp -f samples/samples.tsv ./samples.tsv \
  && snakemake -s /V-pipe/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix /conda_prefix --config "general={virus_base_config: sars-cov-2}" \
- && rm config.yaml
+ && rm -f samples samples.tsv config.yaml \
+ && mamba clean --yes --all
 
 ENTRYPOINT [ \
     "snakemake", \
