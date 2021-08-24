@@ -156,10 +156,10 @@ if config.input["paired"]:
     rule predicthaplo:
         input:
             fname_bam="{dataset}/alignments/REF_aln.bam",
+            # NOTE  shorah and lofreq each have their independent option "consensus"
             fname_ref=(
                 "variants/cohort_consensus.fasta"
                 if config[
-                    # NOTE  shorah and lofreq each have their independent option "consensus"
                     "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
                 ]["consensus"]
                 else reference_file

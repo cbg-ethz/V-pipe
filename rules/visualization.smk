@@ -12,12 +12,12 @@ rule generate_web_visualization:
         metainfo_file=(
             config.input["metainfo_file"] if config.input["metainfo_file"] else []
         ),
+        # NOTE  shorah and lofreq each have their independent option "consensus"
         global_ref=(
             "variants/cohort_consensus.fasta"
-            if config[
-                # NOTE  shorah and lofreq each have their independent option "consensus"
-                "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
-            ]["consensus"]
+            if config["lofreq" if config.general["snv_caller"] == "lofreq" else "snv"][
+                "consensus"
+            ]
             else reference_file
         ),
         # see input.REF in rule snv
