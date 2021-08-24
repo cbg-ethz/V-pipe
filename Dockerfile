@@ -1,5 +1,6 @@
 FROM snakemake/snakemake:latest
 
+# NOTE rsync only used with local scratch
 RUN apt-get update && apt-get install -y --no-install-recommends \
     rsync \
  && apt-get clean \
@@ -17,7 +18,7 @@ RUN echo '{"output": {"snv": true, "local": true, "global": true, "visualization
  && rm -f samples samples.tsv && ln -sf /V-pipe/tests/data/sars-cov-2 samples && cp -f samples/samples.tsv ./samples.tsv \
  && snakemake -s /V-pipe/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix /conda_prefix --config "general={virus_base_config: sars-cov-2}" \
  && rm -f samples samples.tsv config.yaml \
- && mamba clean --yes --all
+ && mamba clean --yes --all && rm -rf /opt/conda/pkgs
 
 ENTRYPOINT [ \
     "snakemake", \

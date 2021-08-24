@@ -62,7 +62,7 @@ rule consensus_bcftools:
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
         > {output.fname_mask_lowcoverage}
 
-        preparations
+        # preparations
         {params.script_dir}/enhance_bcf.py \
            {output.fname_temp_bcf} \
            {output.fname_bcf} \
