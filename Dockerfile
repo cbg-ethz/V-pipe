@@ -1,18 +1,25 @@
-FROM debian:stable
+FROM snakemake/snakemake:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
+    rsync \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -O "https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh" \
-    && bash quick_install.sh -b master -p /V-pipe_source -w /V-pipe_workdir
+# TODO: only move workflow files
+COPY . /V-pipe
 
-WORKDIR /V-pipe_workdir
-RUN ln -s /V-pipe_source/V-pipe/testdata/ samples \
-    && ./vpipe -j 1 --conda-create-envs-only --conda-prefix /conda_prefix
+VOLUME /work
+WORKDIR /work
 
-VOLUME /V-pipe
-WORKDIR /V-pipe
+RUN echo '{"output": {"snv": true, "local": true, "global": true, "visualization": true, "QA": true}}' > config.yaml \
+ && ln -sf /V-pipe/tests/data/hiv samples \
+ && snakemake -s /V-pipe/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix /conda_prefix --config "general={virus_base_config: hiv}" \
+ && ln -sf /V-pipe/tests/data/sars-cov-2 samples \
+ && snakemake -s /V-pipe/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix /conda_prefix --config "general={virus_base_config: sars-cov-2}" \
+ && rm config.yaml
 
-ENTRYPOINT ["/V-pipe_workdir/vpipe", "--conda-prefix", "/conda_prefix"]
+ENTRYPOINT [ \
+    "snakemake", \
+    "-s", "/V-pipe/vpipe.snake", \
+    "--use-conda", \
+    "--conda-prefix", "/conda_prefix" \
+]
