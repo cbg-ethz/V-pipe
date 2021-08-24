@@ -75,7 +75,7 @@ output:
 Then execute:
 
 ```bash
-docker run --rm -ti -v $PWD:/work ghcr.io/cbg-ethz/vpipe:master -j 4
+docker run --rm -ti -v $PWD:/work ghcr.io/cbg-ethz/v-pipe:master -j 4
 ```
 
 ## Running V-pipe
