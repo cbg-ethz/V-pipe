@@ -55,9 +55,27 @@ git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
 
 ### Docker
 
+Note: the docker image is only setup with components to run the workflow for HIV and SARS-CoV-2.
+Using V-pipe with other viruses might require internet connectivity for additional software components.
+
+Populate the `samples` directory and create `config.yaml` or `vpipe.config`.
+For example, the following config file could be used:
+```yaml
+general:
+  virus_base_config: hiv
+
+output:
+  snv: true
+  local: true
+  global: false
+  visualization: true
+  QA: true
+```
+
+Then execute:
+
 ```bash
-docker build -t vpipe . # to be replaced with link to registry
-docker run -v $PWD:/V-pipe vpipe
+docker run -v $PWD:/work ghcr.io/cbg-ethz/vpipe:latest -j 4
 ```
 
 ## Running V-pipe
