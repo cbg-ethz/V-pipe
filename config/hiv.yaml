@@ -5,9 +5,9 @@ general:
     aligner: "ngshmmalign"
 
 input:
-    reference: "{VPIPE_BASEDIR}/resources/hiv/HXB2.fasta"
-    metainfo_file: "{VPIPE_BASEDIR}/resources/hiv/metainfo.yaml"
-    gff_directory: "{VPIPE_BASEDIR}/resources/hiv/gffs/"
+    reference: "{VPIPE_BASEDIR}/../resources/hiv/HXB2.fasta"
+    metainfo_file: "{VPIPE_BASEDIR}/../resources/hiv/metainfo.yaml"
+    gff_directory: "{VPIPE_BASEDIR}/../resources/hiv/gffs/"
 
 frameshift_deletions_checks:
-    genes_gff: "{VPIPE_BASEDIR}/resources/hiv/gffs/GCF_000864765.1_ViralProj15476_genomic.gff"
+    genes_gff: "{VPIPE_BASEDIR}/../resources/hiv/gffs/GCF_000864765.1_ViralProj15476_genomic.gff"

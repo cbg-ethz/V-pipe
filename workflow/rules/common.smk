@@ -126,7 +126,7 @@ def process_config(config):
         # search for file location
         if config["general"]["virus_base_config"]:
             # shorthand - e.g.: hiv
-            vf = "{VPIPE_BASEDIR}/config/{VIRUS}.yaml".format(
+            vf = "{VPIPE_BASEDIR}/../config/{VIRUS}.yaml".format(
                 VPIPE_BASEDIR=VPIPE_BASEDIR,
                 VIRUS=config["general"]["virus_base_config"],
             )
