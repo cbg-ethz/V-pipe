@@ -11,7 +11,7 @@ LOGGER.info("VPIPE_BASEDIR = %s", VPIPE_BASEDIR)
 include: "rules/common.smk"
 
 
-functions = srcdir("functions.sh")
+functions = srcdir("../resources/utils/functions.sh")
 
 
 # DUMMY RULES

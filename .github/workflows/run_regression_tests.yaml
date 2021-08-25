@@ -38,11 +38,11 @@ jobs:
         run: |
           mkdir -p /tmp/project/hiv/samples
           cd /tmp/project/hiv
-          $GITHUB_WORKSPACE/init_project.sh
+          $GITHUB_WORKSPACE/resources/utils/init_project.sh
           cp -R --link --force $GITHUB_WORKSPACE/tests/data/hiv/* samples/
           mkdir -p /tmp/project/sars-cov-2/samples
           cd /tmp/project/sars-cov-2
-          $GITHUB_WORKSPACE/init_project.sh
+          $GITHUB_WORKSPACE/resources/utils/init_project.sh
           cp -R --link --force $GITHUB_WORKSPACE/tests/data/sars-cov-2/* samples/
           mv samples/samples.tsv ./
 
@@ -50,7 +50,7 @@ jobs:
         working-directory: /tmp/project/hiv
         env:
           PYTHONUNBUFFERED: 1
-        run: snakemake --lint -s $GITHUB_WORKSPACE/vpipe.snake | tee /tmp/lint_result.txt
+        run: snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/lint_result.txt
         continue-on-error: true
 
       - name: run test_0 on hiv
@@ -65,7 +65,7 @@ jobs:
         #uses: snakemake/snakemake-github-action@v1.19.0
         #with:
           #directory: /tmp/project/hiv
-          #snakefile: $GITHUB_WORKSPACE/vpipe.snake
+          #snakefile: $GITHUB_WORKSPACE/workflow/Snakefile
           #args: '--use-conda -p -j 5'
           #stagein: |
             #conda config --add channels defaults

@@ -62,11 +62,11 @@ snv:
     threads: ${THREADS}
 CONFIG
 
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --configfile config.yaml --use-conda --cores ${THREADS} --dry-run
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config.yaml --use-conda --cores ${THREADS} --dry-run
     echo
     cat samples.tsv
     echo
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/vpipe.snake --configfile config.yaml --use-conda --cores ${THREADS} -p --keep-going
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config.yaml --use-conda --cores ${THREADS} -p --keep-going
     popd
 }
 

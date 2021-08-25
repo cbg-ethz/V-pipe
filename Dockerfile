@@ -29,17 +29,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # TODO: only move workflow files
 #COPY . ${vpipe_path}
 WORKDIR ${vpipe_path}/
-COPY README.md 	./README.md
-COPY LICENSE 	./LICENSE
-COPY vpipe.snake 	./vpipe.snake
-COPY rules 	./rules
-COPY envs 	./envs
-COPY scripts 	./scripts
-COPY resources 	./resources
-COPY config 	./config
-COPY functions.sh 	./functions.sh
-COPY utils 	./utils
-COPY init_project.sh 	./init_project.sh
+COPY LICENSE ./LICENSE
+COPY workflow ./workflow
+COPY resources ./resources
+COPY config ./config
+COPY utils ./utils
+COPY init_project.sh ./init_project.sh
 
 COPY tests/data ${test_data}
 
@@ -52,7 +47,7 @@ RUN echo 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: 
 RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do echo "\n\n\e[36;1mvirus: ${virus}\e[0m\n" \
  &&   ln -sf "${test_data}/${virus}/" ./samples \
  &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi \
- &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/vpipe.snake -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
+ &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
  &&   rm -f samples samples.tsv \
   ; done \
  && jdupes -Lr ${envs_path}/
@@ -91,7 +86,7 @@ COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
-    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/vpipe.snake -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
+    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
  && echo "$(date --iso-8601=sec ; grep -E 'failed|for error' .snakemake/log/*.snakemake.log)" > ${install_path}/${virus}.teststamp
 
 
@@ -112,7 +107,7 @@ COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
-    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/vpipe.snake -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
+    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
  && echo "$(date --iso-8601=sec ; grep -E 'failed|for error' .snakemake/log/*.snakemake.log)" > ${install_path}/${virus}.teststamp
 
 
@@ -161,7 +156,7 @@ WORKDIR /work
 # NOTE current docker versions do not offer a way to bake the content of an ARG into an ENTRYPOINT
 ENTRYPOINT [ \
     "snakemake", \
-    "-s", "/opt/V-dock/V-pipe/vpipe.snake", \
+    "-s", "/opt/V-dock/V-pipe/workflow/Snakefile", \
     "--use-conda", \
     "--conda-prefix", "/opt/V-dock/conda_envs" \
 ]
