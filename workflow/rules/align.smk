@@ -396,7 +396,6 @@ if config.general["aligner"] == "ngshmmalign":
             REF_ambig="references/ALL_aln_ambig.fasta",
             REF_majority="references/ALL_aln_majority.fasta",
             BAM="{dataset}/alignments/full_aln.bam",
-            #REJECTS_BAM="{dataset}/alignments/rejects.bam",
         output:
             "{dataset}/alignments/REF_aln.bam",
         params:
@@ -497,11 +496,11 @@ if config.general["aligner"] == "bwa":
             """
 
     rule bwa_align:
+        # all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa
         input:
             FASTQ=input_align_gz,
             REF=reference_file,
             INDEX="{}.bwt".format(reference_file),
-            # all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa
         output:
             REF=temp(
                 os.path.join(
