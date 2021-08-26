@@ -41,14 +41,15 @@ COPY tests/data ${test_data}
 WORKDIR /work
 
 # configuration: activate all steps
-RUN echo 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  QA: true' > config.yaml
+RUN mkdir config
+RUN echo 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  QA: true' > config/config.yaml
 
 # TODO harmonize list with CI tests and Docker tests
 RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do echo "\n\n\e[36;1mvirus: ${virus}\e[0m\n" \
  &&   ln -sf "${test_data}/${virus}/" ./samples \
- &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi \
+ &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi \
  &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
- &&   rm -f samples samples.tsv \
+ &&   rm -f samples config/samples.tsv \
   ; done \
  && jdupes -Lr ${envs_path}/
 
@@ -81,9 +82,10 @@ ARG test_data
 ENV virus=hiv
 
 WORKDIR /work
-RUN echo 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  QA: true' > config.yaml
+RUN mkdir config
+RUN echo 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  QA: true' > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
-RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi
+RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
     PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
@@ -102,9 +104,10 @@ ARG test_data
 ENV virus=sars-cov-2
 
 WORKDIR /work
-RUN echo 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  QA: true' > config.yaml
+RUN mkdir config
+RUN echo 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  QA: true' > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
-RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./samples.tsv; fi
+RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
     PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \

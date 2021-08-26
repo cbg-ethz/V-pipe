@@ -47,12 +47,7 @@ PROJECT_DIR=$(pwd)
 # https://stackoverflow.com/a/242550
 VPIPE_DIR=$(dirname "$0")
 
-cp -iv "$VPIPE_DIR/config/config.yaml" "$PROJECT_DIR/"
-cat <<CONFIG >> "$PROJECT_DIR/config.yaml"
-
-input:
-    samples_file: samples.tsv
-CONFIG
+sed $'s@^output:@input:\\\n    samples_file: samples.tsv\\\n\\\noutput:\\\n    datadir: samples/\\\n@' "$VPIPE_DIR/config/config.yaml" > "$PROJECT_DIR/config.yaml"
 
 # guess activation command
 ACTIVATE=

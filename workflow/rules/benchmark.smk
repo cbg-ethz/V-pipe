@@ -197,7 +197,7 @@ else:
 
             datasets.append(
                 "{sample_dir}/{ID}/{date}".format(
-                    sample_dir=config.input["datadir"], ID=row[0], date=row[1]
+                    sample_dir=config.output["datadir"], ID=row[0], date=row[1]
                 )
             )
 
