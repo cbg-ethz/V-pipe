@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # TODO: only move workflow files
 #COPY . ${vpipe_path}
 WORKDIR ${vpipe_path}/
-COPY LICENSE ./LICENSE
+COPY LICENSE.md ./LICENSE.md
 COPY workflow ./workflow
 COPY resources ./resources
 COPY config ./config
