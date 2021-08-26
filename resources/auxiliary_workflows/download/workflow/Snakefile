@@ -1,7 +1,7 @@
 # TODO: how to set date?
 
 
-configfile: "vpipeFetch.config.yaml"
+configfile: "config/config.yaml"
 
 
 rule all:
