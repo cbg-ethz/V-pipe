@@ -6,6 +6,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 import csv
 import os
+import re
 import typing
 
 # for legacy
@@ -203,7 +204,12 @@ if not os.path.isfile(config.input["samples_file"]):
     # list that would pass QA checks
 
     patient_sample_pairs = glob_wildcards(
-        "{}/{{patient_date}}/raw_data/{{file}}".format(config.input["datadir"])
+        os.path.join(
+            config.input["datadir"],
+            "{patient_date}",
+            "raw_data",
+            "{file}"
+        )
     )
 
     if not set(patient_sample_pairs.patient_date):
@@ -286,89 +292,89 @@ IDs = []
 for p in patient_list:
 
     alignments.append(
-        "{sample_dir}/{patient}/{date}/alignments/REF_aln.bam".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/alignments/REF_aln.bam".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     # if config.output["QA"]:
     #    alignments.append(
-    #        "{sample_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(
-    #            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+    #        "{data_dir}/{patient}/{date}/QA_alignments/coverage_ambig.tsv".format(
+    #            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
     #        )
     #    )
     #    alignments.append(
-    #        "{sample_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(
-    #            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+    #        "{data_dir}/{patient}/{date}/QA_alignments/coverage_majority.tsv".format(
+    #            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
     #        )
     #    )
 
     vicuna_refs.append(
-        "{sample_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/references/vicuna_consensus.fasta".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     references.append(
-        "{sample_dir}/{patient}/{date}/references/ref_".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/references/ref_".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
 
     consensus.append(
-        "{sample_dir}/{patient}/{date}/references/ref_ambig.fasta".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/references/ref_ambig.fasta".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     consensus.append(
-        "{sample_dir}/{patient}/{date}/references/ref_majority.fasta".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/references/ref_majority.fasta".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
 
     consensus.append(
-        "{sample_dir}/{patient}/{date}/references/consensus.bcftools.fasta".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/references/consensus.bcftools.fasta".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
 
     if config.output["QA"]:
         alignments.append(
-            "{sample_dir}/{patient}/{date}/references/ref_majority_dels.matcher".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/references/ref_majority_dels.matcher".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
         alignments.append(
-            "{sample_dir}/{patient}/{date}/references/frameshift_deletions_check.tsv".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/references/frameshift_deletions_check.tsv".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
 
     trimmed_files.append(
-        "{sample_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/preprocessed_data/R1.fastq.gz".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     if config.input["paired"]:
         trimmed_files.append(
-            "{sample_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/preprocessed_data/R2.fastq.gz".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
 
     fastqc_files.append(
-        "{sample_dir}/{patient}/{date}/extracted_data/R1_fastqc.html".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}/extracted_data/R1_fastqc.html".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     if config.input["paired"]:
         fastqc_files.append(
-            "{sample_dir}/{patient}/{date}/extracted_data/R2_fastqc.html".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/extracted_data/R2_fastqc.html".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
 
     datasets.append(
-        "{sample_dir}/{patient}/{date}".format(
-            sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+        "{data_dir}/{patient}/{date}".format(
+            data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
         )
     )
     IDs.append(("{}-{}").format(p.patient_id, p.date))
@@ -378,39 +384,39 @@ for p in patient_list:
         # in adition to standard VCF files, ShoRAH2 also produces CSV tables
         if config.general["snv_caller"] == "shorah":
             results.append(
-                "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
-                    sample_dir=config.input["datadir"],
+                "{data_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
+                    data_dir=config.output["datadir"],
                     patient=p.patient_id,
                     date=p.date,
                 )
             )
         # all snv callers ('shorah', 'lofreq') produce standard VCF files
         results.append(
-            "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/variants/SNVs/snvs.vcf".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
     # local haplotypes
     if config.output["local"]:
         results.append(
-            "{sample_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/variants/SNVs/snvs.csv".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
     # global haplotypes
     if config.output["global"]:
         if config.general["haplotype_reconstruction"] == "savage":
             results.append(
-                "{sample_dir}/{patient}/{date}/variants/global/contigs_stage_c.fasta".format(
-                    sample_dir=config.input["datadir"],
+                "{data_dir}/{patient}/{date}/variants/global/contigs_stage_c.fasta".format(
+                    data_dir=config.output["datadir"],
                     patient=p.patient_id,
                     date=p.date,
                 )
             )
         elif config.general["haplotype_reconstruction"] == "haploclique":
             results.append(
-                "{sample_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(
-                    sample_dir=config.input["datadir"],
+                "{data_dir}/{patient}/{date}/variants/global/quasispecies.bam".format(
+                    data_dir=config.output["datadir"],
                     patient=p.patient_id,
                     date=p.date,
                 )
@@ -418,8 +424,8 @@ for p in patient_list:
         elif config.general["haplotype_reconstruction"] == "predicthaplo":
             if config.input["paired"]:
                 results.append(
-                    "{sample_dir}/{patient}/{date}/variants/global/predicthaplo_haplotypes.fasta".format(
-                        sample_dir=config.input["datadir"],
+                    "{data_dir}/{patient}/{date}/variants/global/predicthaplo_haplotypes.fasta".format(
+                        data_dir=config.output["datadir"],
                         patient=p.patient_id,
                         date=p.date,
                     )
@@ -437,8 +443,8 @@ for p in patient_list:
 
     if config.output["snv"] and config.output["visualization"]:
         visualizations.append(
-            "{sample_dir}/{patient}/{date}/visualization/index.html".format(
-                sample_dir=config.input["datadir"], patient=p.patient_id, date=p.date
+            "{data_dir}/{patient}/{date}/visualization/index.html".format(
+                data_dir=config.output["datadir"], patient=p.patient_id, date=p.date
             )
         )
 
@@ -511,7 +517,13 @@ def get_maxins(wildcards):
 
 
 def construct_input_fastq(wildcards):
-    indir = os.path.join(wildcards.dataset, "raw_data")
+    # TODO: this might fail horribly
+    dataset_path = os.path.join(
+        config.input["datadir"],
+        construct_input_fastq.regex_remover.sub("", wildcards.dataset)
+    ) if wildcards.dataset.startswith(config.output["datadir"]) else wildcards.dataset
+
+    indir = os.path.join(dataset_path, "raw_data")
     aux = glob_wildcards(
         indir + "/{prefix, [^/]+}" + "{ext, (\.fastq|\.fastq\.gz|\.fq|\.fq\.gz)}"
     )
@@ -554,3 +566,6 @@ def construct_input_fastq(wildcards):
         )
 
     return list_output
+
+
+construct_input_fastq.regex_remover = re.compile(r"^{}/*".format(config.output["datadir"]))

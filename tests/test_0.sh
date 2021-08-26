@@ -36,7 +36,7 @@ function setup_project {
     ${VPIPEROOT}/init_project.sh
     mkdir samples
     cp -R ${VPIPEROOT}/tests/data/${VIRUS}/* samples/
-    [ -e samples/samples.tsv ] && mv samples/samples.tsv ./
+    [ -e samples/samples.tsv ] && mv samples/samples.tsv ./config/
     popd
 }
 
@@ -47,7 +47,7 @@ function setup_project {
 function run_workflow {
 
     pushd ${PROJECT_DIR}
-    cat > config.yaml <<CONFIG
+    cat > config/config.yaml <<CONFIG
 general:
     virus_base_config: "${VIRUS}"
 
@@ -62,11 +62,11 @@ snv:
     threads: ${THREADS}
 CONFIG
 
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config.yaml --use-conda --cores ${THREADS} --dry-run
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config/config.yaml --use-conda --cores ${THREADS} --dry-run
     echo
-    cat samples.tsv
+    cat config/samples.tsv
     echo
-    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config.yaml --use-conda --cores ${THREADS} -p --keep-going
+    PYTHONUNBUFFERED=1 snakemake -s ${VPIPEROOT}/workflow/Snakefile --configfile config/config.yaml --use-conda --cores ${THREADS} -p --keep-going
     popd
 }
 

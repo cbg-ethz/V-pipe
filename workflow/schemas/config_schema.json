@@ -36,7 +36,7 @@
             "properties": {
                 "datadir": {
                     "type": "string",
-                    "default": "samples"
+                    "default": "samples/"
                 },
                 "samples_file": {
                     "type": "string",
@@ -60,7 +60,7 @@
                 },
                 "reference": {
                     "type": "string",
-                    "default": "{VPIPE_BASEDIR}/results/cohort_consensus.fasta"
+                    "default": "results/cohort_consensus.fasta"
                 },
                 "gff_directory": {
                     "type": "string",
@@ -80,6 +80,14 @@
         },
         "output": {
             "properties": {
+                "datadir": {
+                    "type": "string",
+                    "default": "results"
+                },
+                "cohortdir": {
+                    "type": "string",
+                    "default": ""
+                },
                 "QA": {
                     "type": "boolean",
                     "default": false

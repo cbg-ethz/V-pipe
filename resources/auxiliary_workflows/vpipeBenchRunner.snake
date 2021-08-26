@@ -108,7 +108,7 @@ rule prepare_run:
         LOCK = "{bench_dir}/prepare_run.lock",
     params:
         SAMPLES = config.input['samples_file'],
-        DATADIR = config.input['datadir'],
+        DATADIR = config.output['datadir'],
         REF = reference_file,
     log:
         outfile = "logs/{bench_dir}_prepare_run.out.log",

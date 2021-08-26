@@ -7,7 +7,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 rule extractclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/extracted_data
@@ -16,7 +16,7 @@ rule extractclean:
 
 rule trimmingclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/preprocessed_data
@@ -25,7 +25,7 @@ rule trimmingclean:
 
 rule vicunaclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/initial_consensus
@@ -47,7 +47,7 @@ rule msaclean:
 
 rule alignclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/alignments
@@ -62,7 +62,7 @@ rule bwaclean:
     input:
         "{}.bwt".format(reference_file),
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -f {input}
@@ -81,7 +81,7 @@ rule bowtieclean:
         INDEX5="{}.rev.1.bt2".format(reference_file),
         INDEX6="{}.rev.2.bt2".format(reference_file),
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -f {input}
@@ -93,7 +93,7 @@ rule bowtieclean:
 
 rule snvclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/SNVs
@@ -102,7 +102,7 @@ rule snvclean:
 
 rule savageclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/global/contigs_stage_?.fasta
@@ -112,7 +112,7 @@ rule savageclean:
 
 rule haplocliqueclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm {params.DIR}/*/*/variants/global/quasispecies.*
@@ -121,7 +121,7 @@ rule haplocliqueclean:
 
 rule predicthaploclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/variants/global/predicthaplo/
@@ -130,7 +130,7 @@ rule predicthaploclean:
 
 rule visualizationclean:
     params:
-        DIR=config.input["datadir"],
+        DIR=config.output["datadir"],
     shell:
         """
         rm -rf {params.DIR}/*/*/visualization
