@@ -204,12 +204,7 @@ if not os.path.isfile(config.input["samples_file"]):
     # list that would pass QA checks
 
     patient_sample_pairs = glob_wildcards(
-        os.path.join(
-            config.input["datadir"],
-            "{patient_date}",
-            "raw_data",
-            "{file}"
-        )
+        os.path.join(config.input["datadir"], "{patient_date}", "raw_data", "{file}")
     )
 
     if not set(patient_sample_pairs.patient_date):
@@ -518,10 +513,14 @@ def get_maxins(wildcards):
 
 def construct_input_fastq(wildcards):
     # TODO: this might fail horribly
-    dataset_path = os.path.join(
-        config.input["datadir"],
-        construct_input_fastq.regex_remover.sub("", wildcards.dataset)
-    ) if wildcards.dataset.startswith(config.output["datadir"]) else wildcards.dataset
+    dataset_path = (
+        os.path.join(
+            config.input["datadir"],
+            construct_input_fastq.regex_remover.sub("", wildcards.dataset),
+        )
+        if wildcards.dataset.startswith(config.output["datadir"])
+        else wildcards.dataset
+    )
 
     indir = os.path.join(dataset_path, "raw_data")
     aux = glob_wildcards(
@@ -568,4 +567,6 @@ def construct_input_fastq(wildcards):
     return list_output
 
 
-construct_input_fastq.regex_remover = re.compile(r"^{}/*".format(config.output["datadir"]))
+construct_input_fastq.regex_remover = re.compile(
+    r"^{}/*".format(config.output["datadir"])
+)

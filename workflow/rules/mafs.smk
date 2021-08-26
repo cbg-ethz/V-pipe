@@ -45,7 +45,13 @@ rule coverage_list:
     input:
         expand("{dataset}/alignments/coverage.tsv.gz", dataset=datasets),
     output:
-        temp(os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage.tmp.list")),
+        temp(
+            os.path.join(
+                config.output["datadir"],
+                config.output["cohortdir"],
+                "coverage.tmp.list",
+            )
+        ),
     run:
         with open(output[0], "w") as out:
             out.write("\n".join(input))
@@ -55,19 +61,37 @@ rule coverage_list:
 rule coverage:
     input:
         SAMPLECOVS=expand("{dataset}/alignments/coverage.tsv.gz", dataset=datasets),
-        COVLIST=ancient(os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage.tmp.list")),
+        COVLIST=ancient(
+            os.path.join(
+                config.output["datadir"],
+                config.output["cohortdir"],
+                "coverage.tmp.list",
+            )
+        ),
     output:
-        COVERAGE=os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage.tsv"),
-        COVSTATS=os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage_stats.tsv"),
+        COVERAGE=os.path.join(
+            config.output["datadir"], config.output["cohortdir"], "coverage.tsv"
+        ),
+        COVSTATS=os.path.join(
+            config.output["datadir"], config.output["cohortdir"], "coverage_stats.tsv"
+        ),
     params:
         GATHER_COVERAGE=config.applications["gather_coverage"],
     log:
-        outfile=os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage.out.log"),
-        errfile=os.path.join(config.output["datadir"], config.output["cohortdir"], "coverage.out.log"),
+        outfile=os.path.join(
+            config.output["datadir"], config.output["cohortdir"], "coverage.out.log"
+        ),
+        errfile=os.path.join(
+            config.output["datadir"], config.output["cohortdir"], "coverage.out.log"
+        ),
     conda:
         config.coverage["conda"]
     benchmark:
-        os.path.join(config.output["datadir"], config.output["cohortdir"], "minority_variants.benchmark"),
+        os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "minority_variants.benchmark",
+        )
     resources:
         disk_mb=1250,
         mem_mb=config.coverage["mem"],
@@ -87,8 +111,16 @@ rule minor_variants:
         BASECNT=expand("{dataset}/alignments/basecnt.tsv.gz", dataset=datasets),
         BAM=expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
     output:
-        VARIANTS=os.path.join(config.output["datadir"], config.output["cohortdir"], "minority_variants.tsv"),
-        CONSENSUS=os.path.join(config.output["datadir"], config.output["cohortdir"], "cohort_consensus.fasta"),
+        VARIANTS=os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "minority_variants.tsv",
+        ),
+        CONSENSUS=os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "cohort_consensus.fasta",
+        ),
     params:
         OUTDIR=os.path.join(config.output["datadir"], config.output["cohortdir"]),
         NAMES=IDs,
@@ -96,12 +128,24 @@ rule minor_variants:
         FREQUENCIES="--freqs" if config.minor_variants["frequencies"] else "",
         MINORITY_CALLER=config.applications["minority_freq"],
     log:
-        outfile=os.path.join(config.output["datadir"], config.output["cohortdir"], "minority_variants.out.log"),
-        errfile=os.path.join(config.output["datadir"], config.output["cohortdir"], "minority_variants.out.log"),
+        outfile=os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "minority_variants.out.log",
+        ),
+        errfile=os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "minority_variants.out.log",
+        ),
     conda:
         config.minor_variants["conda"]
     benchmark:
-        os.path.join(config.output["datadir"], config.output["cohortdir"], "minority_variants.benchmark"),
+        os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "minority_variants.benchmark",
+        )
     resources:
         disk_mb=1250,
         mem_mb=config.minor_variants["mem"],
