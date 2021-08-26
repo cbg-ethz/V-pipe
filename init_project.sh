@@ -48,6 +48,11 @@ PROJECT_DIR=$(pwd)
 VPIPE_DIR=$(dirname "$0")
 
 cp -iv "$VPIPE_DIR/config/config.yaml" "$PROJECT_DIR/"
+cat <<CONFIG >> "$PROJECT_DIR/config.yaml"
+
+input:
+    samples_file: samples.tsv
+CONFIG
 
 # guess activation command
 ACTIVATE=
