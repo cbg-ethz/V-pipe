@@ -71,5 +71,5 @@ def create_schema():
 
 schema = create_schema()
 
-with open("rules/config_schema.json", "w") as fh:
+with open("schemas/config_schema.json", "w") as fh:
     json.dump(schema, fh, indent=4)

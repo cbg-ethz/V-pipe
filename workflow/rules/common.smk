@@ -110,7 +110,7 @@ def process_config(config):
     - validate with schema
     """
 
-    schema = srcdir("config_schema.json")
+    schema = srcdir("../schemas/config_schema.json")
 
     # merging of legacy INI-style
     if os.path.exists("vpipe.config"):
@@ -162,7 +162,7 @@ def process_config(config):
         LOGGER.info("No virus base configuration, using defaults")
 
     # validates, but also fills up default values:
-    validate(config, srcdir("config_schema.json"), set_default=True)
+    validate(config, schema, set_default=True)
     # use general.threads entry as default for all affected sections
     # if not specified:
     for (name, section) in config.items():
