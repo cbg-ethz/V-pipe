@@ -14,7 +14,11 @@ rule generate_web_visualization:
         ),
         # NOTE  shorah and lofreq each have their independent option "consensus"
         global_ref=(
-            os.path.join(config.output["datadir"], config.output["cohortdir"], "cohort_consensus.fasta")
+            os.path.join(
+                config.output["datadir"],
+                config.output["cohortdir"],
+                "cohort_consensus.fasta",
+            )
             if config["lofreq" if config.general["snv_caller"] == "lofreq" else "snv"][
                 "consensus"
             ]
