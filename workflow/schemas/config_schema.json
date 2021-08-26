@@ -40,7 +40,7 @@
                 },
                 "samples_file": {
                     "type": "string",
-                    "default": "samples.tsv"
+                    "default": "config/samples.tsv"
                 },
                 "paired": {
                     "type": "boolean",
