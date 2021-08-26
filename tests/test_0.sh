@@ -47,6 +47,7 @@ function setup_project {
 function run_workflow {
 
     pushd ${PROJECT_DIR}
+    mkdir config
     cat > config/config.yaml <<CONFIG
 general:
     virus_base_config: "${VIRUS}"
