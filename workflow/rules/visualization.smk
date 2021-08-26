@@ -1,3 +1,5 @@
+# NOTE  shorah and lofreq each have their independent option "consensus"
+# see input.REF in rule snv
 rule generate_web_visualization:
     input:
         consensus_file="{dataset}/references/ref_majority.fasta",
@@ -12,7 +14,6 @@ rule generate_web_visualization:
         metainfo_file=(
             config.input["metainfo_file"] if config.input["metainfo_file"] else []
         ),
-        # NOTE  shorah and lofreq each have their independent option "consensus"
         global_ref=(
             os.path.join(
                 config.output["datadir"],
@@ -24,7 +25,6 @@ rule generate_web_visualization:
             ]
             else reference_file
         ),
-        # see input.REF in rule snv
     output:
         html_file="{dataset}/visualization/index.html",
     log:
