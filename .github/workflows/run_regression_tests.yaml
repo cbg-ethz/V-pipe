@@ -27,6 +27,8 @@ jobs:
           mamba-version: "*"
           channels: conda-forge,bioconda,defaults
           channel-priority: true
+          auto-activate-base: true
+          activate-environment: ""
 
       - name: Install dependencies
         run: mamba install --yes snakemake-minimal snakefmt
