@@ -5,8 +5,49 @@ on:
   pull_request:
 
 jobs:
-  run_regression_tests:
-    runs-on: ${{ matrix.os }}
+  static_tests:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.9"
+          mamba-version: "*"
+          channels: conda-forge,bioconda,defaults
+          channel-priority: true
+          activate-environment: V-pipe
+          auto-update-conda: true
+
+      - name: Install dependencies
+        run: mamba install --yes snakemake-minimal snakefmt
+
+      - name: Code formatting
+        run: snakefmt --check .
+
+      - name: Setup project
+        run: |
+          mkdir -p /tmp/project/hiv/  # virus does not matter
+          cd /tmp/project/hiv/
+          $GITHUB_WORKSPACE/init_project.sh -n
+
+      - name: Linting
+        env:
+          PYTHONUNBUFFERED: 1
+        uses: snakemake/snakemake-github-action@v1.19.0
+        with:
+          directory: /tmp/project/hiv/
+          snakefile: 'workflow/Snakefile'
+          args: '--lint'
+        continue-on-error: true  # TODO: fix missing cohort consensus
+
+  runtime_tests:
+    needs: static_tests
 
     strategy:
       max-parallel: 5
@@ -15,6 +56,8 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.8", "3.9"]
         virus: ["hiv", "sars-cov-2"]
+
+    runs-on: ${{ matrix.os }}
 
     defaults:
       run:
@@ -33,25 +76,13 @@ jobs:
           auto-update-conda: true
 
       - name: Install dependencies
-        run: mamba install --yes snakemake-minimal snakefmt
-
-      - name: Check if code is properly formatted
-        run: snakefmt --check .
+        run: mamba install --yes snakemake-minimal
 
       - name: Setup project
         run: |
           mkdir -p /tmp/project/${{ matrix.virus }}/
           cd /tmp/project/${{ matrix.virus }}/
           $GITHUB_WORKSPACE/init_project.sh -n
-
-      - name: Run Linter
-        working-directory: /tmp/project/${{ matrix.virus }}/
-        env:
-          PYTHONUNBUFFERED: 1
-        run: |
-          mkdir -p /tmp/v-pipe_tests/
-          snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/v-pipe_tests/lint_result_${{ matrix.virus }}.txt
-        continue-on-error: true
 
       - name: Run tests
         working-directory: ./tests
