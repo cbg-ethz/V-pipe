@@ -56,8 +56,8 @@ rule coverage_intervals:
     threads: config.coverage_intervals["threads"]
     shell:
         """
-        TMPTSV=$(mktemp --tmpdir XXXXXXXX_cov.tsv)
-        TMPINT=$(mktemp --tmpdir XXXXXXXX_int.tsv)
+        TMPTSV=$(mktemp -t XXXXXXXX_cov.tsv)
+        TMPINT=$(mktemp -t XXXXXXXX_int.tsv)
         {params.GUNZIP} -c {input.TSV} | cut -f'2-' > $TMPTSV
         mkdir -p "$(dirname "{output}")"
         {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
