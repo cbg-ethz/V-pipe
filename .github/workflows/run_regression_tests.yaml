@@ -42,11 +42,11 @@ jobs:
           mkdir -p /tmp/project/hiv/samples
           cd /tmp/project/hiv
           $GITHUB_WORKSPACE/init_project.sh -n
-          cp -R --force $GITHUB_WORKSPACE/tests/data/hiv/* samples/
+          cp -r $GITHUB_WORKSPACE/tests/data/hiv/* samples/
           mkdir -p /tmp/project/sars-cov-2/samples
           cd /tmp/project/sars-cov-2
           $GITHUB_WORKSPACE/init_project.sh -n
-          cp -R --force $GITHUB_WORKSPACE/tests/data/sars-cov-2/* samples/
+          cp -r $GITHUB_WORKSPACE/tests/data/sars-cov-2/* samples/
           mv samples/samples.tsv ./
 
       - name: Run Linter (hiv)
