@@ -14,6 +14,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.8", "3.9"]
+        virus: ["hiv", "sars-cov-2"]
 
     defaults:
       run:
@@ -39,29 +40,22 @@ jobs:
 
       - name: Setup project
         run: |
-          mkdir -p /tmp/project/hiv/
-          cd /tmp/project/hiv
-          $GITHUB_WORKSPACE/init_project.sh -n
-          mkdir -p /tmp/project/sars-cov-2/
-          cd /tmp/project/sars-cov-2
+          mkdir -p /tmp/project/${{ matrix.virus }}/
+          cd /tmp/project/${{ matrix.virus }}/
           $GITHUB_WORKSPACE/init_project.sh -n
 
-      - name: Run Linter (hiv)
-        working-directory: /tmp/project/hiv
+      - name: Run Linter
+        working-directory: /tmp/project/${{ matrix.virus }}/
         env:
           PYTHONUNBUFFERED: 1
         run: |
           mkdir -p /tmp/v-pipe_tests/
-          snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/v-pipe_tests/lint_result.txt
+          snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/v-pipe_tests/lint_result_${{ matrix.virus }}.txt
         continue-on-error: true
 
-      - name: run test_0 on hiv
+      - name: Run tests
         working-directory: ./tests
-        run: ./run_tests.sh hiv
-
-      - name: run test_0 on sars-cov-2
-        working-directory: ./tests
-        run: ./run_tests.sh sars-cov-2
+        run: ./run_tests.sh ${{ matrix.virus }}
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
