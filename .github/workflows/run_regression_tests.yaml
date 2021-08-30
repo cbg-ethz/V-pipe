@@ -57,11 +57,11 @@ jobs:
 
       - name: run test_0 on hiv
         working-directory: ./tests
-        run: ./test_0.sh hiv
+        run: ./run_tests.sh hiv
 
       - name: run test_0 on sars-cov-2
         working-directory: ./tests
-        run: ./test_0.sh sars-cov-2
+        run: ./run_tests.sh sars-cov-2
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
