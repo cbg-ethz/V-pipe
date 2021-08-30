@@ -39,6 +39,7 @@ rule coverage_intervals:
         OVERLAP="" if config.coverage_intervals["overlap"] else "-cf $TMPTSV",
         LIBERAL="-e" if config.coverage_intervals["liberal"] else "",
         EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
+        GUNZIP=config.applications["gunzip"],
     log:
         outfile="{dataset}/variants/coverage_intervals.out.log",
         errfile="{dataset}/variants/coverage_intervals.out.log",
@@ -57,7 +58,7 @@ rule coverage_intervals:
         """
         TMPTSV=$(mktemp --tmpdir XXXXXXXX_cov.tsv)
         TMPINT=$(mktemp --tmpdir XXXXXXXX_int.tsv)
-        zcat {input.TSV} | cut -f'2-' > $TMPTSV
+        {params.GUNZIP} -c {input.TSV} | cut -f'2-' > $TMPTSV
         mkdir -p "$(dirname "{output}")"
         {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
         cat $TMPINT >> "{log.outfile}"
