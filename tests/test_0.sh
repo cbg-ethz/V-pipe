@@ -100,8 +100,8 @@ function check_logs {
     grep -E 'failed|for error' ${PROJECT_DIR}/.snakemake/log/*.snakemake.log && EXIT_CODE=1 || echo "snakemake execution successful"
 }
 
-DIFF_FILE=/tmp/diffs_${TEST_NAME}.txt
-LOG_FILE=/tmp/log_${TEST_NAME}.txt
+DIFF_FILE=/tmp/v-pipe_tests/diffs_${TEST_NAME}.txt
+LOG_FILE=/tmp/v-pipe_tests/log_${TEST_NAME}.txt
 rm -f ${DIFF_FILE}
 rm -f ${LOG_FILE}
 
