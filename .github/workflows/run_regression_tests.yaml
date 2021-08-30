@@ -29,6 +29,7 @@ jobs:
           channels: conda-forge,bioconda,defaults
           channel-priority: true
           activate-environment: V-pipe
+          auto-update-conda: true
 
       - name: Install dependencies
         run: mamba install --yes snakemake-minimal snakefmt
