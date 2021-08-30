@@ -13,6 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
+        python-version: ["3.8", "3.9"]
 
     defaults:
       run:
@@ -23,7 +24,7 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
           mamba-version: "*"
           channels: conda-forge,bioconda,defaults
           channel-priority: true
