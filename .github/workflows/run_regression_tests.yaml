@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./tests
-        run: ./run_tests.sh ${{ matrix.virus }}
+        run: ./regression_tests.sh ${{ matrix.virus }}
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
