@@ -50,7 +50,9 @@ jobs:
         working-directory: /tmp/project/hiv
         env:
           PYTHONUNBUFFERED: 1
-        run: snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/v-pipe_tests/lint_result.txt
+        run: |
+          mkdir -p /tmp/v-pipe_tests/
+          snakemake --lint -s $GITHUB_WORKSPACE/workflow/Snakefile | tee /tmp/v-pipe_tests/lint_result.txt
         continue-on-error: true
 
       - name: run test_0 on hiv
