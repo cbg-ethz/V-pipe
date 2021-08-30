@@ -39,15 +39,12 @@ jobs:
 
       - name: Setup project
         run: |
-          mkdir -p /tmp/project/hiv/samples
+          mkdir -p /tmp/project/hiv/
           cd /tmp/project/hiv
           $GITHUB_WORKSPACE/init_project.sh -n
-          cp -r $GITHUB_WORKSPACE/tests/data/hiv/* samples/
-          mkdir -p /tmp/project/sars-cov-2/samples
+          mkdir -p /tmp/project/sars-cov-2/
           cd /tmp/project/sars-cov-2
           $GITHUB_WORKSPACE/init_project.sh -n
-          cp -r $GITHUB_WORKSPACE/tests/data/sars-cov-2/* samples/
-          mv samples/samples.tsv ./
 
       - name: Run Linter (hiv)
         working-directory: /tmp/project/hiv
