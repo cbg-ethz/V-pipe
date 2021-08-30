@@ -20,6 +20,7 @@ rule consensus_bcftools:
             "ambiguous_base_coverage_threshold"
         ],
         script_dir=os.path.join(VPIPE_BASEDIR, "scripts"),
+        gunzip=config.applications["gunzip"],
     log:
         outfile="{dataset}/references/consensus.bcftools.out.log",
         errfile="{dataset}/references/consensus.bcftools.err.log",
@@ -57,7 +58,7 @@ rule consensus_bcftools:
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
         # TODO: homogene use of 0-base vs 1-base
-        zcat {input.fname_cov} | tail -n +2 \
+        {params.gunzip} -c {input.fname_cov} | tail -n +2 \
         | awk -v base=0 \
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
         > {output.fname_mask_lowcoverage}
