@@ -14,25 +14,22 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
 
+    defaults:
+      run:
+        shell: bash -l {0}
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.8
-
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+          mamba-version: "*"
+          channels: conda-forge,bioconda,defaults
+          channel-priority: true
 
       - name: Install dependencies
-        run: |
-          conda config --add channels defaults
-          conda config --add channels bioconda
-          conda config --add channels conda-forge
-          conda install --yes --quiet snakemake-minimal snakefmt mamba
+        run: mamba install --yes snakemake-minimal snakefmt
 
       - name: Check if code is properly formatted
         run: snakefmt --check .
@@ -63,18 +60,6 @@ jobs:
       - name: run test_0 on sars-cov-2
         working-directory: ./tests
         run: ./test_0.sh sars-cov-2
-
-      #- name: same with snakemake action
-        #uses: snakemake/snakemake-github-action@v1.19.0
-        #with:
-          #directory: /tmp/project/hiv
-          #snakefile: $GITHUB_WORKSPACE/workflow/Snakefile
-          #args: '--use-conda -p -j 5'
-          #stagein: |
-            #conda config --add channels defaults
-            #conda config --add channels bioconda
-            #conda config --add channels conda-forge
-
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
