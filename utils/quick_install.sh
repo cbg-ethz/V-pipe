@@ -152,8 +152,8 @@ title 'installing Miniconda3'
 check_directory "${MINICONDAPATH}" 'Miniconda3 installation path'
 
 # Check OS for OS-Spefic Miniconda3 installer
-if [[ "$OSTYPE" == linux* ]]; then 
-	MINICONDA=Miniconda3-latest-Linux-x86_64.sh 
+if [[ "$OSTYPE" == linux* ]]; then
+	MINICONDA=Miniconda3-latest-Linux-x86_64.sh
 elif [[ "$OSTYPE" == darwin* ]]; then
 	MINICONDA=Miniconda3-latest-MacOSX-x86_64.sh
 else
@@ -176,7 +176,7 @@ sh ${MINICONDA} -b -p miniconda3
 # set the channel precedence (lowest to highest)
 conda config --add channels defaults
 conda config --add channels bioconda
-conda config --add channels conda-forge 
+conda config --add channels conda-forge
 # NOTE conda-forge *HAS TO* be higher than bioconda
 
 VPIPEENV=
@@ -209,7 +209,7 @@ if [[ -z "${RELEASE}" ]]; then
 	message 'Using branch:' ${BRANCH}
 
 	check_directory 'V-pipe' 'V-pipe installation directory'
-	git clone --branch ${BRANCH} https://github.com/cbg-ethz/V-pipe.git || fail "I cannot install branch ${BRANCH}."
+	git clone --depth 1 --branch ${BRANCH} https://github.com/cbg-ethz/V-pipe.git || fail "I cannot install branch ${BRANCH}."
 else
 	message 'Using release:' "${RELEASE}"
 	check_directory "V-pipe-${RELEASE}" 'V-pipe installation directory'
