@@ -13,7 +13,7 @@ V-pipe is a workflow designed for the analysis of next generation sequencing (NG
 ## Usage
 
 We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`.
-Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
+Further details can be found on the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages and [website](https://cbg-ethz.github.io/V-pipe/usage/).
 
 To setup V-pipe, you have the following options.
 
