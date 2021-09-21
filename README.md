@@ -147,8 +147,8 @@ _Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/
 - [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
 - [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
 - [Monica Dragan ![orcid]](https://orcid.org/X), [![github]](https://github.com/monicadragan)
-- [Susana Posada Céspedes](https://orcid.org/0000-0002-7459-8186)
-- [David Seifert](https://orcid.org/0000-0003-4739-5110)
+- [Susana Posada Céspedes ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
+- [David Seifert ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
 - Tobias Marschall
 - [Niko Beerenwinkel** ![orcid]](https://orcid.org/0000-0002-0573-6119)
 
