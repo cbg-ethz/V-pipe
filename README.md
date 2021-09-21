@@ -1,59 +1,40 @@
 ![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
 
-V-pipe is a workflow designed for analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format.
+V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (consensus sequences, SNV calls, local/global haplotypes).
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-blue.svg?style=flat-square)](https://snakemake.bitbucket.io)
-[![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg?style=flat-square)](https://bio.tools/V-Pipe)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 
-## Quick start
+[![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥6.5.1-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
+[![Deploy Docker image](https://github.com/cbg-ethz/V-pipe/actions/workflows/deploy-docker.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
+[![Tests](https://github.com/kpj/rwrap/actions/workflows/main.yml/badge.svg)](https://github.com/kpj/rwrap/actions/workflows/main.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Instructions to type in a shell
 
-1. [Install](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html) miniconda3
+## Usage
 
-### Linux
+We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`.
+Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
 
-  To obtain the installer for linux use the following:
-```
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-```
+To setup V-pipe, you have the following options.
 
-  Then, install miniconda,
+### Using quick install script
 
-```
-sh Miniconda3-latest-Linux-x86_64.sh
-```
+To deploy V-pipe, you can use the installation script with the following parameters:
 
-### MacOS
-
-  To obtain the installer for MacOS, you can [download](https://docs.conda.io/en/latest/miniconda.html) it manually or use wget:
-```
-curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+```bash
+curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+./quick_install.sh -w work
 ```
 
-  Then, install miniconda,
+This script will download and install miniconda, checkout the V-pipe repository (use `-b` to specify which branch/tag) and setup a work directory (use `-w`) with an executable script:
 
-```
-sh Miniconda3-latest-MacOSX-x86_64.sh
-```
-
-2. Create conda virtual environment
-
-```
-conda create -n V-pipe -c conda-forge -c bioconda python=3.8 snakemake-minimal=5.14.0
-conda activate V-pipe
+```bash
+cd work
+# edit config.yaml and provide samples directory
+./vpipe -j 4 -n
 ```
 
-Make sure to use `source activate V-pipe` everytime you want to run V-pipe
-
-3. Get V-pipe
-
-```
-git clone https://github.com/cbg-ethz/V-pipe.git /path/to/V-pipe
-```
-
-### Docker
+### Using Docker
 
 Note: the docker image is only setup with components to run the workflow for HIV and SARS-CoV-2 virus base configurations.
 Using V-pipe with other viruses or configurations might require internet connectivity for additional software components.
@@ -75,23 +56,26 @@ output:
 Then execute:
 
 ```bash
-docker run --rm -ti -v $PWD:/work ghcr.io/cbg-ethz/v-pipe:master -j 4
+docker run --rm -it -v $PWD:/work ghcr.io/cbg-ethz/v-pipe:master -j 4 -n
 ```
 
-## Running V-pipe
+### Using snakedeploy
 
-First, open a terminal and change into the **working directory** where input files are stored (i.e., the reference and the sequencing reads). We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`. To initialize a project,
+You first need to install [mamba](https://github.com/conda-forge/miniforge#mambaforge). You can then create and activate an environment with Snakemake and Snakedeploy:
 
-```
-/path/to/V-pipe/init_project.sh
-```
-
-Before actually running the pipeline, we advise to check whether output files can be created from the inputs, using the `--dryrun` option.
-```
-./vpipe --dryrun
+```bash
+mamba create -c bioconda -c conda-forge --name snakemake snakemake snakedeploy
+conda activate snakemake
 ```
 
-Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages.
+Snakemake's official workflow installer Snakedeploy can then be used:
+
+```bash
+snakedeploy deploy-workflow https://github.com/cbg-ethz/V-pipe --tag master .
+# edit config/config.yaml and provide samples directory
+snakemake -j 4 -n
+```
+
 
 ## Dependencies
 
@@ -151,17 +135,28 @@ Other dependencies are managed by using isolated conda environments per rule, an
 
 If you use this software in your research, please cite:
 
-Posada-Céspedes S., Seifert D., Topolsky I., Jablonski K., Metzner K.J., and Beerenwinkel N. 2021.
+Posada-Céspedes S., Seifert D., Topolsky I., Jablonski K.P., Metzner K.J., and Beerenwinkel N. 2021.
 "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput sequencing data."
 _Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/10.1093/bioinformatics/btab015).
 
 
 ## Contributions
 
+- [Ivan Topolsky* ![orcid]](https://orcid.org/0000-0002-7561-0810), [![github]](https://github.com/dryak)
+- [Kim Philipp Jablonski ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
+- [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
+- [Monica Dragan ![orcid]](https://orcid.org/X), [![github]](https://github.com/monicadragan)
 - [Susana Posada Céspedes](https://orcid.org/0000-0002-7459-8186)
 - [David Seifert](https://orcid.org/0000-0003-4739-5110)
 - Tobias Marschall
-- [Niko Beerenwinkel](https://orcid.org/0000-0002-0573-6119)
+- [Niko Beerenwinkel** ![orcid]](https://orcid.org/0000-0002-0573-6119)
+
+\* software maintainer
+\** group leader
+
+[github]: https://cbg-ethz.github.io/V-pipe/img/mark-github.svg
+[orcid]: https://cbg-ethz.github.io/V-pipe/img/ORCIDiD_iconvector.svg
 
 ## Contact
 
