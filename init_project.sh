@@ -79,7 +79,7 @@ fi
 cat > "$PROJECT_DIR/vpipe" <<EOF
 #!/usr/bin/env bash
 ${ACTIVATE}
-exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipe.snake" ${EXTRA_VPIPE_OPTS} "\$@"
+exec -a "\$0" snakemake -s "$VPIPE_DIR/workflow/Snakefile" ${EXTRA_VPIPE_OPTS} "\$@"
 EOF
 chmod +x "$PROJECT_DIR/vpipe"
 
@@ -87,14 +87,14 @@ if [[ -n "$BENCHMARK" ]]; then
     cat > "$PROJECT_DIR/vpipeBench" <<EOF
     #!/usr/bin/env bash
     ${ACTIVATE}
-    exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipeBench.snake" ${EXTRA_VPIPE_OPTS} "\$@"
+    exec -a "\$0" snakemake -s "$VPIPE_DIR/resources/auxiliary_workflows/benchmark/vpipeBench.snake" ${EXTRA_VPIPE_OPTS} "\$@"
 EOF
     chmod +x "$PROJECT_DIR/vpipeBench"
 
     cat > "$PROJECT_DIR/vpipeBenchRunner" <<EOF
     #!/usr/bin/env bash
     ${ACTIVATE}
-    exec -a "\$0" snakemake -s "$VPIPE_DIR/vpipeBenchRunner.snake" ${EXTRA_VPIPE_OPTS} "\$@"
+    exec -a "\$0" snakemake -s "$VPIPE_DIR/resources/auxiliary_workflows/benchmark/vpipeBenchRunner.snake" ${EXTRA_VPIPE_OPTS} "\$@"
 EOF
     chmod +x "$PROJECT_DIR/vpipeBenchRunner"
 fi
