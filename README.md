@@ -1,25 +1,29 @@
 ![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
 
-V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (consensus sequences, SNV calls, local/global haplotypes).
-
-
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.5.1-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
 [![Deploy Docker image](https://github.com/cbg-ethz/V-pipe/actions/workflows/deploy-docker.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
 [![Tests](https://github.com/kpj/rwrap/actions/workflows/main.yml/badge.svg)](https://github.com/kpj/rwrap/actions/workflows/main.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (consensus sequences, SNV calls, local/global haplotypes).
+
 
 ## Usage
 
-We use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder name `raw_data`.
-Further details can be found on the [wiki](https://github.com/cbg-ethz/V-pipe/wiki) pages and [website](https://cbg-ethz.github.io/V-pipe/usage/).
+Different ways of initializing V-pipe are presented below.
 
-To setup V-pipe, you have the following options.
+To store samples we use a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy and we expect sequencing reads in a folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
+
+We provide virus-specific base configuration files which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
+```yaml
+general:
+  virus_base_config: hiv
+```
 
 ### Using quick install script
 
-To deploy V-pipe, you can use the installation script with the following parameters:
+To deploy V-pipe, use the installation script with the following parameters:
 
 ```bash
 curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
@@ -61,14 +65,14 @@ docker run --rm -it -v $PWD:/work ghcr.io/cbg-ethz/v-pipe:master -j 4 -n
 
 ### Using snakedeploy
 
-You first need to install [mamba](https://github.com/conda-forge/miniforge#mambaforge). You can then create and activate an environment with Snakemake and Snakedeploy:
+First install [mamba](https://github.com/conda-forge/miniforge#mambaforge), then create and activate an environment with Snakemake and Snakedeploy:
 
 ```bash
 mamba create -c bioconda -c conda-forge --name snakemake snakemake snakedeploy
 conda activate snakemake
 ```
 
-Snakemake's official workflow installer Snakedeploy can then be used:
+Snakemake's official workflow installer Snakedeploy can now be used:
 
 ```bash
 snakedeploy deploy-workflow https://github.com/cbg-ethz/V-pipe --tag master .
@@ -81,7 +85,7 @@ snakemake -j 4 -n
 
 - **conda**
 
-  Conda is a cross-platform package management system and an environment manager application.
+  Conda is a cross-platform package management system and an environment manager application. Snakemake uses mamba as a package manager.
 
 - **Snakemake**
 
