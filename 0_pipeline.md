@@ -17,16 +17,17 @@ permalink: /pipeline/
 
   See the [documentation](http://conda.io/docs/install/quick.html) of conda to install it.
 
-- **[Snakemake](https://snakemake.bitbucket.io)**
+- **[Snakemake](https://snakemake.github.io/)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/snakemake.svg?label=Bioconda)](https://bioconda.github.io/recipes/snakemake/README.html)
-  [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.bitbucket.io)
+  [![Snakemake](https://img.shields.io/badge/snakemake-≥4.8.0-brightgreen.svg?style=flat)](https://snakemake.github.io/)
 
   Snakemake is the central workflow and dependency manager of V-pipe. It determines the order in which individual tools are invoked and checks that programs do not exit unexpectedly.
 
   Once you have conda installed, you can in turn [use it to obtain Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda)
   (This is the recommended way to install it). Snakemake will subsequently obtain all the necessary components to V-pipe.
 
-- **FastQC**
+- **[FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)**
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/fastqc.svg?label=Bioconda)](https://bioconda.github.io/recipes/fastqc/README.html)
 
   FastQC gives an overview of the raw sequencing data. Flowcells that have been overloaded or otherwise fail during sequencing can easily be determined with FastQC.
 
@@ -50,7 +51,6 @@ permalink: /pipeline/
 
   ConsensusFixer is also used to polish up consensus. It computes a consensus sequence with wobbles, ambiguous bases, and in-frame insertions, from a NGS read alignment.
 
-
 - **[ngshmmalign](https://github.com/cbg-ethz/ngshmmalign)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/ngshmmalign.svg?label=Bioconda)](https://bioconda.github.io/recipes/ngshmmalign/README.html)
 
@@ -66,6 +66,12 @@ permalink: /pipeline/
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/mafft.svg?label=Bioconda)](https://bioconda.github.io/recipes/mafft/README.html)
 
   To standardise multiple samples to the same reference genome (say HXB2 for HIV-1), the multiple sequence aligner MAFFT is employed. The multiple sequence alignment helps in determining regions of low conservation and thus makes standardisation of alignments more robust.
+
+- **[Samtools and bcftools](https://www.htslib.org/)**
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/samtools.svg?label=Bioconda)](https://bioconda.github.io/recipes/samtools/README.html)
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/bcftools.svg?label=Bioconda)](https://bioconda.github.io/recipes/bcftools/README.html)
+
+  The Swiss Army knife of alignment postprocessing and diagnostics. bcftools is also used to generate consensus sequence with indels.
 
 - **[ShoRAH](https://github.com/cbg-ethz/shorah)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/shorah.svg?label=Bioconda)](https://bioconda.github.io/recipes/shorah/README.html)
@@ -95,7 +101,6 @@ permalink: /pipeline/
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/smallgenomeutilities.svg?label=Bioconda)](https://bioconda.github.io/recipes/smallgenomeutilities/README.html)
 
   We perform genomic liftovers to standardised reference genomes using our in-house developed python library of utilities for rewriting alignments.
-
 
 - **[Samtools](https://github.com/samtools/samtools)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/samtools.svg?label=Bioconda)](https://bioconda.github.io/recipes/samtools/README.html)
