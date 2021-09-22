@@ -7,7 +7,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (consensus sequences, SNV calls, local/global haplotypes).
-V-pipe is written using Snakemake workflow management system.
+V-pipe is written using the Snakemake workflow management system.
 
 
 ## Usage
