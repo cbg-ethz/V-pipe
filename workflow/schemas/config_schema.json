@@ -1,118 +1,175 @@
 {
     "type": "object",
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "V-pipe configuration",
+    "description": "The V-pipe workflow can be customized through the configuration file `config.yaml` or `config.json` or, for backward compatibility with the [legacy INI-style format used in V-pipe v1.x/2.x](https://github.com/cbg-ethz/V-pipe/wiki/options), `vpipe.config`. This configuration file is a text file written using a basic struture composed of sections, properties and values. When using [YAML](https://yaml.org/spec/1.0/#id2564813) or [JSON](https://www.json.org/json-en.html) format use these languages associative array/dictionnaries in two levels for sections and properties. When using the older [INI format](https://docs.python.org/3/library/configparser.html), sections are expected in squared brackets, and properties are followed by corresponding values.\n\nFurther more, it is possible to specify additional options on the command line using Snakemake's `--configfile` to pass additional YAML/JSON configuration files, and/or using Snakemake's `--config` to pass sections and properties in a [YAML Flow style](https://yaml.org/spec/1.2.0/#Flow)/JSON syntax.\n\nThe order of precedence is:\n_command line options (`--config`, `--configfile`)_ >> _default configuration file (`config/config.yaml` or `config.yaml`)_ >> _legacy configuration INI (`vpipe.config`)_ >> _Virus-specific base config (`virus_based_config`)_ >> _default values_\n\nExample: For instance, we suggest to provide as input a tabular file specifying sample unique identifiers (e.g., patient identifiers), and dates for different sequencing runs related to the same patient. The name of this file (here, `samples.tsv`) can be provided by specifying the section as `input` and the property as `samples_file`, as follows in the example below.\n\nIn this document, we provide a comprehensive list of all user-configurable options stratified by sections.",
+    "examples": [{"input":{"samples_file":"samples.tsv"}}],
     "properties": {
         "general": {
+            "description": "This section of the configuration provides general options that control the overall behaviour of the pipeline",
             "properties": {
-                "threads": {
-                    "type": "integer",
-                    "default": 1
+                "virus_base_config": {
+                    "type": "string",
+                    "default": "",
+                    "description": "We provide virus-specific base configuration files which contain handy defaults for, e.g., HIV and SARS-CoV-2. Check the git repository's [config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#virus_base_config) to learn about them.",
+                    "examples": ["hiv","sars-cov-2"]
                 },
                 "aligner": {
                     "type": "string",
-                    "default": "ngshmmalign"
+                    "enum": ["ngshmmalign","bwa","bowtie"],
+                    "default": "ngshmmalign",
+                    "description": "There are three options for mapping reads, either using [`ngshmmalign`](https://github.com/cbg-ethz/ngshmmalign), [BWA MEM (`bwa`)](https://github.com/lh3/bwa) [^1], or [Bowtie 2 (`bowtie`)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [^2]. To use a different aligner than the default, indicate which aligner you want to use by setting the property aligner.\n\n[^1]: Li, H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. 2013.\n[^2]: Langmead, B. and Salzberg, S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012.\n\n**Note**: Some virus-specific base configuration specified in `virus_base_config` might change this option's default to a more appropriate aligner for that virus, e.g, depending on its usual diversity and mutation rate.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": ["bowtie"]
                 },
                 "snv_caller": {
                     "type": "string",
-                    "default": "shorah"
+                    "default": "shorah",
+                    "enum": ["shorah","lofreq"],
+                    "description": "There are two options available for calling single nucleotide variants, either using [ShoRAH (`shorah`)](https://github.com/cbg-ethz/shorah) or [LoFreq (`lofreq`)](https://csb5.github.io/lofreq/) [^4]. ShoRAH is used by default. If you prefer to use LoFreq, then indicate so in the configuration file as in the example\n\n[^3]: Zagordi, O. et al. ShoRAH: estimating the genetic diversity of a mixed sample from next-generation sequencing data. BMC Bioinformatics. 2011.\n[^4]: Wilm, A. et al. LoFreq: A sequence-quality aware, ultra-sensitive variant caller for uncovering cell-population heterogeneity from high-throughput sequencing datasets. Nucleic Acids Res. 2012.",
+                    "examples": ["lofreq"]
                 },
                 "haplotype_reconstruction": {
                     "type": "string",
-                    "default": "savage"
+                    "default": "savage",
+                    "enum": ["savage", "haploclique", "predicthaplo"],
+                    "description": "There are thre options available for haplotype reconstruction, namely [SAVAGE](https://github.com/HaploConduct/HaploConduct/tree/master/savage) [^5], [HaploClique](https://github.com/cbg-ethz/haploclique) [^6] or [PredictHaplo](https://github.com/cbg-ethz/predicthaplo/) [^7]. SAVAGE is used by default. If you wish to use HaploClique, then indicate it in the configuration file as in the example.\n\n[^5]: Baaijens, J. A. et al., De novo assembly of viral quasispecies using overlap graphs. Genome Res. 2017.\n[^6]: Töpfer, A. et al. Viral quasispecies assembly via maximal clique finding. PLOS Computational Biology. 2014.\n[^7]: Prabhakaran, S. et al. HIV haplotype inference using a propagating dirichlet process mixture model. IEEE/ACM transactions on computational biology and bioinformatics 11.1. 2013.",
+                    "examples": ["haploclique"]
                 },
-                "virus_base_config": {
-                    "type": "string",
-                    "default": ""
+                "threads": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "This option should be used to specify the default number of threads for all multi-threaded rules. That is, unless the number of threads is specified for each rule, this value is set as default.",
+                    "examples": [4]
                 },
                 "temp_prefix": {
                     "type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "Some step of V-pipe produce temporary files such as, e.g., decompressed intermediate - i.e. files which aren't kept long-term but are delete after all steps that needed them have finished. By default these files are written in the output data directory. This option, makes it is possible to write them in a different directory instead. Use this option to, e.g., leverage a faster storage, avoid wasting backup space on a snapshotted storage. You might want to consult the documention provided by your HPC.",
+                    "examples": ["temp", "/cluster/scratch"]
                 }
             },
             "default": {},
             "type": "object"
         },
         "input": {
+            "description": "Properties in this section of the configuration control the input of the pipeline",
             "properties": {
                 "datadir": {
                     "type": "string",
-                    "default": "samples/"
-                },
-                "samples_file": {
-                    "type": "string",
-                    "default": "config/samples.tsv"
+                    "default": "samples/",
+                    "description": "The input file for the workflow will be searched in this directory.\n\nV-pipe expects the input samples to be organized in a two-level directory hierarchy.\n\n - The first level can be, e.g. , patient samples or biological replicates of an experiment.\n - The second level can be, e.g., different sampling dates or different sequencing runs of the same sample.\n - Inside that directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).\n\nFor example:\n```console\nsamples\n├── patient1\n│   ├── 20100113\n│   │   └──raw_data\n│   │      ├──patient1_20100113_R1.fastq\n│   │      └──patient1_20100113_R2.fastq\n│   └── 20110202\n│       └──raw_data\n│          ├──patient1_20100202_R1.fastq\n│          └──patient1_20100202_R2.fastq\n└── patient2\n    └── 20081130\n        └──raw_data\n           ├──patient2_20081130_R1.fastq.gz\n           └──patient2_20081130_R2.fastq.gz\n```\n\n",
+                    "examples": [ "tests/data/hiv/", "tests/data/sars-cov-2/" ]
                 },
                 "paired": {
                     "type": "boolean",
-                    "default": true
-                },
-                "read_length": {
-                    "type": "integer",
-                    "default": 250
+                    "default": true,
+                    "description": "Indicate whether the input sequencing reads correspond to paired-end reads.\n\nPaired-ended reads need to be in split files with `_R1` and `_R2` suffixes:\n```console\nraw_data\n├──patient2_20081130_R1.fastq.gz\n└──patient2_20081130_R2.fastq.gz\n```\n\n",
+                    "examples": [ false ]
                 },
                 "fastq_suffix": {
                     "type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "V-pipe expects paried-end reads to be in files that end in  `_R1` and `_R2` exactly right before the file extension, e.g., `_R1.fastq.gz`, because this is how the workflow finds and recognizes them.\n\nBut Illumina's bcl2fastq demultiplexer might introduce additional strings, e.g., `_R2_001.fast.gz` ordepending on its _mismatches_ settings, e.g., `_R2_001_MM_1.fast.gz`. Use this options to specify anything which should go between the  `_R1` and `_R2` endings and the file extension.",
+                    "examples": [ "_001", "_001_MM_1"]
+                },
+                "samples_file": {
+                    "type": "string",
+                    "default": "config/samples.tsv",
+                    "description": "File containg sample unique identifiers and dates as tab-separated values, e.g.,\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\n\nHere, we have two samples from patient 1 and one sample from patient 2. By default, V-pipe searches for a file named samples.tsv, if this file does not exist, a list of samples is built by globbing datadir directory contents.\n\nOptionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.\n\nStandardized Snakemake workflows place their tables inside the `config/` subdirectory, but using this options you can specify alternate locations, e.g., the current directory (as done in legacy V-pipe v1.x/2.x)\n",
+                    "examples": [ "samples.tsv" ]
+                },
+                "read_length": {
+                    "type": "integer",
+                    "default": 250,
+                    "description": "Default for those samples whose read lenght isn't specified exactly in the optional third column of the `samples.tsv` table.",
+                    "examples": [ "100" ]
                 },
                 "trim_percent_cutoff": {
                     "type": "number",
-                    "default": 0.8
+                    "default": 0.8,
+                    "description": "Using this parameter, the user can specify the read-length threshold that should be apply during the quality trimming as a percentage (0 < `trim_percent_cutoff` < 1).",
+                    "examples": [ 0.9 ]
                 },
                 "reference": {
                     "type": "string",
-                    "default": "results/cohort_consensus.fasta"
+                    "default": "results/cohort_consensus.fasta",
+                    "description": "Reference sequence to use for the alignement step\n\n**Note**: The virus-specific base configuration specified in `general` => `virus_base_config` will most likely change this option's default to a reference for that virus.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/hiv/HXB2.fasta", "resources/sars-cov-2/NC_045512.2.fasta" ]
                 },
                 "gff_directory": {
                     "type": "string",
-                    "default": ""
-                },
-                "primers_file": {
-                    "type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "A directory containing gff files that can be optionally used to anotate the reference genome in the visualization\n\n**Note**: The virus-specific base configuration specified in `general` => `virus_base_config` will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/hiv/gffs/", "resources/sars-cov-2/gffs/" ]
                 },
                 "metainfo_file": {
                     "type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "An associative array providing user friendly name to display for each anotation .gff file in the `gff_directory`\n\n**Note**: The virus-specific base configuration specified in `general` => `virus_base_config` will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/hiv/metainfo.yaml", "resources/sars-cov-2/metainfo.yaml" ]
+                },
+                "primers_file": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A table with primers to display on the virualisation\n\n**Note**: The virus-specific base configuration specified in `general` => `virus_base_config` will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/sars-cov-2/primers/nCoV-2019.tsv" ]
                 }
             },
             "default": {},
             "type": "object"
         },
         "output": {
+            "description": "Properties in this section of the configuration control the output of the pipeline",
             "properties": {
                 "datadir": {
                     "type": "string",
-                    "default": "results"
+                    "default": "results",
+                    "description": "The workflow will writes its output files into this directory. This will following the same structure as for the input.\n\nFor each sample, V-pipe produces several output files that are located in the corresponding sample-specific directory. First, the alignment file and consensus sequences are located in the `alignments` and `references` subdirectories, respectively. Second, output files containing SNVs and viral haplotypes are located in the `variants` subdirectories.\n\nUsing the sample example as in the `input` section, the output files for the two patient samples will be located in the following subdirectories:\n```console\nresults\n├──patient1\n│  ├──20100113\n│  │  ├──alignments\n│  │  |  └──REF_aln.bam\n│  │  ├──references\n|  |  |  ├──consensus.bcftools.fasta\n|  |  |  ├──ref_ambig.fasta\n|  |  |  └──ref_majority.fasta\n|  |  └──variants\n|  |     ├──SNVs\n|  |     |  └──snvs.vcf\n|  |     └──global\n|  |        └──contigs_stage_c.fasta\n│  └──20110202\n│     ├──alignments\n│     |  └──REF_aln.bam\n│     ├──references\n|     |  ├──consensus.bcftools.fasta\n|     |  ├──ref_ambig.fasta\n|     |  └──ref_majority.fasta\n|     └──variants\n|        ├──SNVs\n|        |  └──snvs.vcf\n|        └──global\n|           └──contigs_stage_c.fasta\n└─patient2\n  ├──alignments\n  |  └──REF_aln.bam\n  ├──references\n  |  ├──consensus.bcftools.fasta\n  |  ├──ref_ambig.fasta\n  |  └──ref_majority.fasta\n  └──variants\n     ├──SNVs\n     |  └──snvs.vcf\n     └──global\n        └──contigs_stage_c.fasta\n```\n\n - Standardized Snakemake workflows place their output in a `results` subdirectory\n - If your prefer the output written, e.g., to the same `samples/` subdirectory as the input (as used to be done in legacy V-pipe v1.x/2.x), you can use this options you can specify alternate target locations.",
+                    "examples": ["samples"]
                 },
                 "cohortdir": {
                     "type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "In addition, V-pipe can optionnally generates a few cohort-wide results, such as a current cohort conesus fasta file, or a TSV file containg the frequencies of all minor alleles that differ from the consensus among analysed samples.\nBy default these ouput files are located at the base of the `output` `datadir`, outside of the two-level per sample structure:\n```console\nresults\n├──minority_variants.tsv\n├──cohort_consensus.fasta\n├──patient1\n│  ├──20100113\n│  │  ├──alignments\n…\n```\n\nIf you perefer instead, e.g., such cohort-wide results behind written in a subdirectory of the working directory at the same level as the `datadir`s, you  can use this options you can specify alternate subdirectory.",
+                    "examples": ["../variants"]
                 },
                 "QA": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "V-pipe can produce several output to assess the quality of the output of its steps, e.g., checking whether a sample's consensus sequence generated by bctfools does result in framshifting indels and wrinting a report in sample's `/references/frameshift_deletions_check.tsv`. Such reports can be useful when submitting sequences to GISAID.\n\nThis option turns on such QA features",
+                    "examples": [true]
                 },
                 "snv": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "This options selects whether the SNV caller step should be executed and its output written to each sample's `/variants/SNVs/snvs.csv`",
+                    "examples": [true]
                 },
                 "local": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "This options activates local haplotype reconstruction (only available when using ShoRAH)",
+                    "examples": [true]
                 },
                 "global": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "This options turns on global haplotype reconstruction",
+                    "examples": [true]
                 },
                 "visualization": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "This options selects whether to generate HTML visualization of the SNVs in each sample's `/visualization/index.html`",
+                    "examples": [true]
                 }
             },
             "default": {},
             "type": "object"
         },
         "applications": {
+            "description": "The path to the different software packages can be specified using this section.\n\nIt is especially useful when dependencies are not obtained via conda such as VICUNA, and when the software packages are not in the `PATH`.\n\n**Note** we strongly recommend to use conda environments, by adding the `--use-conda` flag to the V-pipe execution command, e.g. `./vpipe --use-conda`. If you prefer to use your own installations, this section allows you to specify the location of the executables",
+            "examples":[{"bwa":"/path/to/bwa","haploclique":"/path/to/haploclique"}],
             "properties": {
                 "gunzip": {
                     "type": "string",
@@ -128,7 +185,8 @@
                 },
                 "vicuna": {
                     "type": "string",
-                    "default": "vicuna"
+                    "default": "vicuna",
+                    "description":"Due to a special license, VICUNA is **not** available from bioconda and must be installed from [its original website](https://www.broadinstitute.org/viral-genomics/vicuna).\nUse this option to specify where you have installed its executable"
                 },
                 "indelfixer": {
                     "type": "string",
