@@ -1,0 +1,14 @@
+# Parameters for the automatic generation of documentation from JSON schema
+expand_buttons: true 
+copy_css: false
+copy_js: false
+description_is_markdown: true
+collapse_long_descriptions: false
+template_name: js
+examples_as_yaml: true
+markdown_options:
+ fenced-code-blocks: {"break-on-newline": true, "cssclass": "highlight jumbotron", "tables": null}
+ tables: null
+ footnotes: null
+ cuddled-lists: null
+ smarty-pants: null

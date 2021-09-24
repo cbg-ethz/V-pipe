@@ -1,0 +1,39 @@
+#!/bin/bash
+
+scriptdir="$(dirname $(which $0))"
+
+vpipe_basdir="${scriptdir}/.."
+
+usage() { echo -e "Usage: $0 [-b <basedir>] [ -s ]" 1>&2; (( $1 == 0 )) && echo $'\n\tThis utility generates the configuration documentation from the JSON schema.\n'; exit $1; }
+
+while getopts "b:sh" o; do
+	case "${o}" in
+		b)	vpipe_basdir=${OPTARG}
+			if [[ ! -d ${vpipe_basdir} ]]; then
+				echo "Cannot find ${vpipe_basdir}" 1>&2
+				usage 1
+			fi
+			;;
+		s)	validate=1	;;
+		h)	usage 0	;;
+		*)	usage 1	;;
+	esac
+done
+
+: ${validate:=0}
+
+config_dir="${vpipe_basdir}/config"
+schema_dir="${vpipe_basdir}/workflow/schemas"
+
+generate-schema-doc --config-file "${schema_dir}/jsfh-conf.yaml" "${schema_dir}/config_schema.json" "${config_dir}/config.html"
+
+# href=schema_doc.css>
+# src=schema_doc.min.js>
+#sed -Ei 's@((href|src)=)[\"]?(schema_doc\.(css|min\.js))[\"]?@\1"https://cbg-ethz.github.io/V-pipe/assets/\3"@g' "${config_dir}/config.html"
+sed -Ei 's@((href|src)=)[\"]?(schema_doc\.(css|min\.js))[\"]?@\1\"doc_assets/\3\"@g' "${config_dir}/config.html"
+
+if (( validate )); then
+	curl http://json-schema.org/draft-07/schema > /tmp/schema.json
+	anyconfig_cli --validate --schema "/tmp/schema.json" --itype json "${schema_dir}/config_schema.json"
+fi
+
