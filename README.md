@@ -45,10 +45,10 @@ cd work
 
 ### Using Docker
 
-Note: the docker image is only setup with components to run the workflow for HIV and SARS-CoV-2 virus base configurations.
+Note: the [docker image](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe) is only setup with components to run the workflow for HIV and SARS-CoV-2 virus base configurations.
 Using V-pipe with other viruses or configurations might require internet connectivity for additional software components.
 
-Populate the `samples` directory and create `config.yaml` or `vpipe.config`.
+Populate the `samples/` directory and create `config.yaml` or `vpipe.config`.
 For example, the following config file could be used:
 ```yaml
 general:
@@ -77,11 +77,11 @@ mamba create -c bioconda -c conda-forge --name snakemake snakemake snakedeploy
 conda activate snakemake
 ```
 
-Snakemake's official workflow installer Snakedeploy can now be used:
+Snakemake's [official workflow installer Snakedeploy](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe) can now be used:
 
 ```bash
 snakedeploy deploy-workflow https://github.com/cbg-ethz/V-pipe --tag master .
-# edit config/config.yaml and provide samples directory
+# edit config/config.yaml and provide samples/ directory
 snakemake --use-conda --jobs 4 --printshellcmds --dry-run
 ```
 
