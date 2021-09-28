@@ -27,6 +27,11 @@ rule generate_web_visualization:
         ),
     output:
         html_file="{dataset}/visualization/index.html",
+    params:
+        assemble_visualization_webpage=srcdir(
+            "../scripts/assemble_visualization_webpage.py"
+        ),
+        visualization_template=srcdir("../scripts/visualization.html"),
     log:
         outfile="{dataset}/visualization/stdout.log",
         errfile="{dataset}/visualization/stderr.log",
@@ -46,14 +51,14 @@ rule generate_web_visualization:
         # 1) script directive crashes with `VpipeConfig`
         # 2) run directive does not allow conda envs
 
-        python "{workflow.basedir}/scripts/assemble_visualization_webpage.py" \
+        python "{params.assemble_visualization_webpage}" \
             --consensus    "{input.consensus_file}" \
             --coverage    "{input.coverage_file}" \
             --vcf    "{input.vcf_file}" \
             --gff    "{input.gff_directory}" \
             --primers    "{input.primers_file}" \
             --metainfo    "{input.metainfo_file}" \
-            --template    "{workflow.basedir}/scripts/visualization.html" \
+            --template    "{params.visualization_template}" \
             --output    "{output.html_file}" \
             --wildcards    "{wildcards.dataset}" \
             --reference    "{input.global_ref}" \
