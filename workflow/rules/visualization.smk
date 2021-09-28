@@ -28,10 +28,10 @@ rule generate_web_visualization:
     output:
         html_file="{dataset}/visualization/index.html",
     params:
-        assemble_visualization_webpage=srcdir(
-            "../scripts/assemble_visualization_webpage.py"
+        assemble_visualization_webpage=cachepath(
+            srcdir("../scripts/assemble_visualization_webpage.py"), executable=True
         ),
-        visualization_template=srcdir("../scripts/visualization.html"),
+        visualization_template=cachepath(srcdir("../scripts/visualization.html")),
     log:
         outfile="{dataset}/visualization/stdout.log",
         errfile="{dataset}/visualization/stderr.log",

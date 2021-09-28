@@ -195,7 +195,7 @@ localrules:
 
 rule create_simple_initial:
     input:
-        config.input["reference"],
+        reference_file,
     output:
         "{dataset}/references/initial_consensus.fasta",
     shell:

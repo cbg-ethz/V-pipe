@@ -16,7 +16,9 @@ import json  # NOTE jsonschema  is only part of the full snakemake, not snakemak
 from collections import UserDict
 
 from snakemake.io import load_configfile
-from snakemake.utils import update_config, validate
+from snakemake.utils import update_config, validate, min_version
+from snakemake.sourcecache import infer_source_file
+from snakemake.common import is_local_file, parse_uri
 
 import logging
 
@@ -38,6 +40,40 @@ elif os.path.exists("config.yaml"):
     configfile: "config.yaml"
 
 
+# NOTE the remote URL relies on snakemake sourcecache features (e.g.: infer_source_file) introduced in 6.8.1
+min_version("6.8.1")
+
+
+def cacheopen(fname, mode="r"):
+    """
+    get a file handle of the fname.
+    snakemake.sourcecache will automatically cache it on-the-fly
+    """
+    return workflow.sourcecache.open(infer_source_file(fname), mode)
+
+
+def cachepath(fname, executable=False):
+    """
+    get the local filename for a given file
+     - local files: well it's just the filename it-self
+     - remote URLs: they get cached by snakemake.sourcecache
+           and we use the cache's filename
+    """
+    if is_local_file(fname):
+        # local files as-is
+        return fname
+
+    # remote: cache (if not present yet)
+    cached = workflow.sourcecache.get_path(infer_source_file(fname))
+    if executable:
+        # r to x (e.g.: u+rw,g+r,o-rwx 0o640 => 0o750 u+rwx,g+rx,o-rwx)
+        mode = os.stat(cached).st_mode
+        mode |= (mode & 0o444) >> 2
+        os.chmod(cached, mode)
+
+    return cached
+
+
 def load_legacy_ini(ininame, schemaname):
     """
     Load a legacy INI-style config file with Python configparser
@@ -57,7 +93,7 @@ def load_legacy_ini(ininame, schemaname):
     cp = configparser.ConfigParser()
     cp.read(ininame)
 
-    with open(schemaname) as sf:
+    with cacheopen(schemaname, "rt") as sf:
         sch = json.load(sf)
 
     ini = {}
@@ -127,21 +163,35 @@ def process_config(config):
         # search for file location
         if config["general"]["virus_base_config"]:
             # shorthand - e.g.: hiv
-            vf = srcdir(
-                "../../config/{VIRUS}.yaml".format(
-                    VIRUS=config["general"]["virus_base_config"],
-                ),
-            )
-            if not os.path.exists(vf):
-                # normal search (with normal macro expansion, like the default values)
-                vf = config["general"]["virus_base_config"].format(
-                    VPIPE_BASEDIR=VPIPE_BASEDIR
+            try:
+                vf = cacheopen(
+                    srcdir(
+                        "../../config/{VIRUS}.yaml".format(
+                            VIRUS=config["general"]["virus_base_config"],
+                        ),
+                    ),
+                    "rt",
                 )
-                if not os.path.exists(vf):
-                    raise ValueError(
-                        "Cannot find virus base config",
-                        config["general"]["virus_base_config"],
+            except FileNotFoundError:
+                vf = None
+
+            # normal search (with normal macro expansion, like the default values)
+            if not vf:
+                try:
+                    vf = cacheopen(
+                        config["general"]["virus_base_config"].format(
+                            VPIPE_BASEDIR=VPIPE_BASEDIR
+                        ),
+                        "rt",
                     )
+                except FileNotFoundError:
+                    vf = None
+
+            if not vf:
+                raise ValueError(
+                    "Cannot find virus base config",
+                    config["general"]["virus_base_config"],
+                )
     # (empty entry)
     except TypeError:
         vf = None
@@ -152,6 +202,7 @@ def process_config(config):
         # current configuration overwrites virus base config
         cur_config = config
         config = load_configfile(vf)
+        vf.close()
         if "name" in config:
             LOGGER.info("Using base configuration virus %s" % config.pop("name"))
         else:
@@ -370,7 +421,16 @@ def get_reference_name(reference_file):
 
 if not VPIPE_BENCH:
     reference_file = config["input"]["reference"]
-    if not os.path.isfile(reference_file):
+    if not reference_file:
+        raise ValueError(
+            f"ERROR: No input reference in configuration. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config"
+        )
+    elif not is_local_file(reference_file):
+        reference_file_alt = cachepath(reference_file)
+        LOGGER.info(f"Caching {reference_file} into {reference_file_alt}")
+        reference_file = reference_file_alt
+        reference_name = get_reference_name(reference_file_alt)
+    elif not os.path.isfile(reference_file):
         reference_file_alt = os.path.join("references", reference_file)
         LOGGER.warning(
             f"WARNING: Reference file {reference_file} not found. Trying {reference_file_alt}."
@@ -378,8 +438,9 @@ if not VPIPE_BENCH:
         reference_file = reference_file_alt
         if not os.path.isfile(reference_file):
             raise ValueError(f"ERROR: Reference file {reference_file} not found.")
-
-    reference_name = get_reference_name(reference_file)
+        reference_name = get_reference_name(reference_file)
+    else:
+        reference_name = get_reference_name(reference_file)
 
 
 # Auxiliary functions
