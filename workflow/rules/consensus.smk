@@ -19,7 +19,9 @@ rule consensus_bcftools:
         ambiguous_base_coverage_threshold=config.consensus_bcftools[
             "ambiguous_base_coverage_threshold"
         ],
-        enhance_bcf=cachepath(srcdir("../scripts/enhance_bcf.py"), executable=True),
+        enhance_bcf=cachepath(
+            "../scripts/enhance_bcf.py", executable=True, localsource=True
+        ),
         gunzip=config.applications["gunzip"],
         bcftools=config.applications["bcftools"],
     log:

@@ -3,7 +3,7 @@ import logging
 LOGGER = logging.getLogger("snakemake.logging")
 
 if not "VPIPE_BASEDIR" in dir():
-    # NOTE when used from a module workflow.basedir (and main_snakefile) always point to most-outer wrapping layer, workflow.current_basedir (and snakefile )to the current module
+    # NOTE when used from a module workflow.basedir (and main_snakefile) always point to most-outer wrapping layer, workflow.current_basedir (and snakefile) to the current module
     VPIPE_BASEDIR = workflow.current_basedir
 LOGGER.info("VPIPE_BASEDIR = %s", VPIPE_BASEDIR)
 

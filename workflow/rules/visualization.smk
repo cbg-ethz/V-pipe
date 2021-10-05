@@ -29,9 +29,13 @@ rule generate_web_visualization:
         html_file="{dataset}/visualization/index.html",
     params:
         assemble_visualization_webpage=cachepath(
-            srcdir("../scripts/assemble_visualization_webpage.py"), executable=True
+            "../scripts/assemble_visualization_webpage.py",
+            executable=True,
+            localsource=True,
         ),
-        visualization_template=cachepath(srcdir("../scripts/visualization.html")),
+        visualization_template=cachepath(
+            "../scripts/visualization.html", localsource=True
+        ),
     log:
         outfile="{dataset}/visualization/stdout.log",
         errfile="{dataset}/visualization/stderr.log",

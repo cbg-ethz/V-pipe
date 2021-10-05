@@ -17,8 +17,9 @@ from collections import UserDict
 
 from snakemake.io import load_configfile
 from snakemake.utils import update_config, validate, min_version
+
 from snakemake.sourcecache import infer_source_file
-from snakemake.common import is_local_file, parse_uri
+from snakemake.common import is_local_file
 
 import logging
 
@@ -44,34 +45,46 @@ elif os.path.exists("config.yaml"):
 min_version("6.8.1")
 
 
-def cacheopen(fname, mode="r"):
+def cacheopen(fname, mode="r", localsource=False):
     """
     get a file handle of the fname.
     snakemake.sourcecache will automatically cache it on-the-fly
     """
-    return workflow.sourcecache.open(infer_source_file(fname), mode)
+
+    return open(cachepath(fname, executable=False, localsource=localsource), mode)
 
 
-def cachepath(fname, executable=False):
+def cachepath(fname, executable=False, localsource=False):
     """
     get the local filename for a given file
      - local files: well it's just the filename it-self
      - remote URLs: they get cached by snakemake.sourcecache
            and we use the cache's filename
     """
-    if is_local_file(fname):
+
+    # TODO revisit official snakemake documented way to access remote source files when it maturees.
+
+    # yes, srcdir duplicates work done later by workflow.source_path, but it makes is_local_file run on the full prefixed path.
+    fullpath = srcdir(fname) if localsource else fname
+    if is_local_file(fullpath):
         # local files as-is
-        return fname
+        return fullpath
 
     # remote: cache (if not present yet)
-    cached = workflow.sourcecache.get_path(infer_source_file(fname))
+    cached = (
+        workflow.source_path(fname)
+        if localsource
+        else workflow.sourcecache.get_path(infer_source_file(fullpath))
+    )
+
     if executable:
         # r to x (e.g.: u+rw,g+r,o-rwx 0o640 => 0o750 u+rwx,g+rx,o-rwx)
         mode = os.stat(cached).st_mode
         mode |= (mode & 0o444) >> 2
         os.chmod(cached, mode)
 
-    return cached
+    # HACK currently, sourcecache doesn't handle dates and cached file often are from "today". This trick avoid constantly re-running rules with http-fetched dependencies
+    return ancient(cached)
 
 
 def load_legacy_ini(ininame, schemaname):
@@ -93,7 +106,7 @@ def load_legacy_ini(ininame, schemaname):
     cp = configparser.ConfigParser()
     cp.read(ininame)
 
-    with cacheopen(schemaname, "rt") as sf:
+    with cacheopen(schemaname, mode="rt") as sf:
         sch = json.load(sf)
 
     ini = {}
@@ -165,29 +178,28 @@ def process_config(config):
             # shorthand - e.g.: hiv
             try:
                 vf = cacheopen(
-                    srcdir(
-                        "../../config/{VIRUS}.yaml".format(
-                            VIRUS=config["general"]["virus_base_config"],
-                        ),
+                    "../../config/{VIRUS}.yaml".format(
+                        VIRUS=config["general"]["virus_base_config"],
                     ),
-                    "rt",
+                    mode="rt",
+                    localsource=True,
                 )
             except FileNotFoundError:
                 vf = None
 
             # normal search (with normal macro expansion, like the default values)
-            if not vf:
+            if vf is None:
                 try:
                     vf = cacheopen(
                         config["general"]["virus_base_config"].format(
                             VPIPE_BASEDIR=VPIPE_BASEDIR
                         ),
-                        "rt",
+                        mode="rt",
                     )
                 except FileNotFoundError:
                     vf = None
 
-            if not vf:
+            if vf is None:
                 raise ValueError(
                     "Cannot find virus base config",
                     config["general"]["virus_base_config"],
@@ -198,7 +210,7 @@ def process_config(config):
     except KeyError:
         vf = None
 
-    if vf:
+    if vf is not None:
         # current configuration overwrites virus base config
         cur_config = config
         config = load_configfile(vf)
@@ -422,9 +434,7 @@ def get_reference_name(reference_file):
 if not VPIPE_BENCH:
     reference_file = config["input"]["reference"]
     if not reference_file:
-        raise ValueError(
-            f"ERROR: No input reference in configuration. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config"
-        )
+        raise ValueError(f"ERROR: No input reference in configuration.")
     elif not is_local_file(reference_file):
         reference_file_alt = cachepath(reference_file)
         LOGGER.info(f"Caching {reference_file} into {reference_file_alt}")
@@ -481,7 +491,7 @@ def get_maxins(wildcards):
         return 4 * read_len
 
 
-# WARNING needs to hand gracefully trailing slashes and re-use the exact two-levels of the directory structure (patient / date)
+# WARNING needs to handle trailing slashes gracefully and re-use the exact two-levels of the directory structure (patient / date)
 def rebase_datadir(base, dataset):
     return os.path.join(base, *os.path.normpath(dataset).split(os.path.sep)[-2:])
 
