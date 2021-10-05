@@ -12,11 +12,12 @@ ARG vpipe_path=${install_path}/V-pipe
 ARG envs_path=${install_path}/conda_envs
 ARG test_data=/test-data
 ARG virus_download_list
+ARG snaketag=stable
 
 ###
 ### Stage 0: download conda environments
 ###
-FROM snakemake/snakemake:latest AS create-envs
+FROM snakemake/snakemake:${snaketag} AS create-envs
 
 ARG install_path
 ARG vpipe_path
@@ -57,7 +58,7 @@ RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do echo "\n\n\e[36
 ###
 ### Stage 1: base layer with V-pipe and environments
 ###
-FROM snakemake/snakemake:latest AS vpipe-tests-base
+FROM snakemake/snakemake:${snaketag} AS vpipe-tests-base
 ARG install_path
 
 # NOTE rsync only used with local scratch
@@ -139,7 +140,7 @@ COPY --from=test_sars-cov-2	${install_path}/sars-cov-2.teststamp	${install_path}
 #ARG envs_path
 # ---------------------------------------------
 # HACK this will *force* tests on GitHub actions
-FROM snakemake/snakemake:latest
+FROM snakemake/snakemake:${snaketag}
 ARG install_path
 ARG vpipe_path
 ARG envs_path
