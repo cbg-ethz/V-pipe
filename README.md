@@ -1,9 +1,9 @@
 ![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
-[![Snakemake](https://img.shields.io/badge/snakemake-≥6.5.2-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥6.8.1-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
 [![Deploy Docker image](https://github.com/cbg-ethz/V-pipe/actions/workflows/deploy-docker.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
-[![Tests](https://github.com/kpj/rwrap/actions/workflows/main.yml/badge.svg)](https://github.com/kpj/rwrap/actions/workflows/main.yml)
+[![Tests](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (consensus sequences, SNV calls, local/global haplotypes).
@@ -12,12 +12,12 @@ V-pipe is written using the Snakemake workflow management system.
 
 ## Usage
 
-Different ways of initializing V-pipe are presented below.
+Different ways of initializing V-pipe are presented below. We strongly encourage you to deploy it [using the quick install script](#using-quick-install-script), as this our prefered method.
 
 V-pipe expects the input samples to be organized in a [two-level](config/#samples) directory hierarchy,
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
 
-We provide [virus-specific base configuration files](config/#virus_base_config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
+We provide [virus-specific base configuration files](config/#virus-base-config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
 ```yaml
 general:
   virus_base_config: hiv
@@ -101,6 +101,7 @@ snakemake --use-conda --jobs 4 --printshellcmds --dry-run
   VICUNA is a *de novo* assembly software designed for populations with high mutation rates. It is used to build an initial reference for mapping reads with ngshmmalign aligner when a `references/cohort_consensus.fasta` file is not provided. Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) pages.
 
 ### Computational tools
+
 Other dependencies are managed by using isolated conda environments per rule, and below we list some of the computational tools integrated in V-pipe:
 
 - **[FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)**
@@ -110,10 +111,6 @@ Other dependencies are managed by using isolated conda environments per rule, an
 - **[PRINSEQ](http://prinseq.sourceforge.net/)**
 
   Trimming and clipping of reads is performed by PRINSEQ. It is currently the most versatile raw read processor with many customization options.
-
-- **[Vicuna](https://www.broadinstitute.org/viral-genomics/vicuna)**
-
-  Vicuna is a de novo assembler designed for generating rough reference contigs of viral NGS data. It can deal with the inherent heterogeneity such as high single-base heterogeneity and structural variants.
 
 - **[ngshmmalign](https://github.com/cbg-ethz/ngshmmalign)**
 
