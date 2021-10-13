@@ -12,7 +12,7 @@ V-pipe is written using the Snakemake workflow management system.
 
 ## Usage
 
-Different ways of initializing V-pipe are presented below. We strongly encourage you to deploy it [using the quick install script](#using-quick-install-script), as this our prefered method.
+Different ways of initializing V-pipe are presented below. We strongly encourage you to deploy it [using the quick install script](#using-quick-install-script), as this is our preferred method.
 
 V-pipe expects the input samples to be organized in a [two-level](config/#samples) directory hierarchy,
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
@@ -40,7 +40,7 @@ This script will download and install miniconda, checkout the V-pipe git reposit
 ```bash
 cd work
 # edit config.yaml and provide samples/ directory
-./vpipe --jobs 4  --printshellcmds --dry-run
+./vpipe --jobs 4 --printshellcmds --dry-run
 ```
 
 ### Using Docker
