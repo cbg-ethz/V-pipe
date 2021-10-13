@@ -434,7 +434,9 @@ def get_reference_name(reference_file):
 if not VPIPE_BENCH:
     reference_file = config["input"]["reference"]
     if not reference_file:
-        raise ValueError(f"ERROR: No input reference in configuration.")
+        raise ValueError(
+            f"ERROR: No input reference in configuration. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config"
+        )
     elif not is_local_file(reference_file):
         reference_file_alt = cachepath(reference_file)
         LOGGER.info(f"Caching {reference_file} into {reference_file_alt}")

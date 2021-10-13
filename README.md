@@ -14,10 +14,10 @@ V-pipe is written using the Snakemake workflow management system.
 
 Different ways of initializing V-pipe are presented below.
 
-V-pipe expects the input samples to be organized in a [two-level](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) directory hierarchy,
+V-pipe expects the input samples to be organized in a [two-level](config/#samples) directory hierarchy,
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
 
-We provide virus-specific base configuration files which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
+We provide [virus-specific base configuration files](config/#virus_base_config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
 ```yaml
 general:
   virus_base_config: hiv
