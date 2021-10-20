@@ -334,7 +334,15 @@ else:
                 # Extract read length from input.samples_file. Samples may have
                 # different read lengths. Reads will be filtered out if read length
                 # after trimming is less than trim_cutoff * read_length.
-                patient_dict[patient_tuple] = int(row[2])
+                try:
+                    patient_dict[patient_tuple] = int(row[2])
+                except ValueError as e:
+                    raise ValueError(
+                        "ERROR: Wrong read-length value given for sample '{}-{}'. If present, third column in a TSV file MUST be a number. Not <{}>. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            row[0], row[1], row[2]
+                        )
+                    ) from e
+
 
 # 4. generate list of target files
 all_files = []
