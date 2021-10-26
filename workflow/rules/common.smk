@@ -6,8 +6,11 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 import csv
 import os
+import pathlib
 import re
 import typing
+
+from datetime import datetime, timezone
 
 # for legacy
 import configparser
@@ -365,6 +368,7 @@ for p in patient_list:
     references.append(os.path.join(sdir, "references/ref_"))
 
     consensus.append(os.path.join(sdir, "references/ref_ambig.fasta"))
+    consensus.append(os.path.join(sdir, "references/ref_ambig_dels.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_majority.fasta"))
 
     consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))

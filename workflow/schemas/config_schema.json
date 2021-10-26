@@ -1081,6 +1081,16 @@
             },
             "default": {},
             "type": "object"
+        },
+        "report_sequences": {
+            "properties": {
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/report_sequences.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
         }
     }
 }
