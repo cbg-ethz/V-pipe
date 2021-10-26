@@ -1,8 +1,8 @@
 rule write_summary_json:
     input:
-        lambda wildcard: [f for f in all_files if f.endswith("ref_ambig_dels.fasta")]
+        lambda wildcard: [f for f in all_files if f.endswith("ref_ambig_dels.fasta")],
     output:
-        "summary.json"
+        "summary.json",
     conda:
         config.report_sequences["conda"]
     shell:

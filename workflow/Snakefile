@@ -19,7 +19,7 @@ functions = srcdir("scripts/functions.sh")
 rule all:
     input:
         all_files,
-        "summary.json"
+        "summary.json",
 
 
 rule alltrimmed:

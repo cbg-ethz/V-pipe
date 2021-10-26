@@ -252,6 +252,7 @@ def process_config(config):
     e.g.  config.input instead of config["input"] so we don't have to change
     all existing rules.
     """
+
     def wrap(dd):
         if isinstance(dd, dict):
             dd = UserDict(dd)
