@@ -21,7 +21,6 @@ rule all:
         all_files,
         "summary.zip",
 
-
 rule alltrimmed:
     input:
         trimmed_files,
