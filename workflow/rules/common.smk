@@ -245,15 +245,19 @@ def process_config(config):
                 section[entry] = value.format(VPIPE_BASEDIR=VPIPE_BASEDIR)
 
     """
-    The following hack supports `.` access to dictionary entries, e.g.
-    config.input instead of config["input"] so we don't have to change all
-    existing rules.
-    This works only on the upper-level of config and not for the nested
-    dictionaries.
+    The following hack supports `.` access to recursive dictionary entries,
+    e.g.  config.input instead of config["input"] so we don't have to change
+    all existing rules.
     """
-    config = UserDict(config)
-    config.__dict__.update(config)
-    return config
+    def wrap(dd):
+        if isinstance(dd, dict):
+            dd = UserDict(dd)
+            for k, v in dd.items():
+                dd[k] = wrap(v)
+            dd.__dict__.update(dd)
+        return dd
+
+    return wrap(config)
 
 
 config = process_config(config)
