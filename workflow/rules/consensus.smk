@@ -132,6 +132,8 @@ rule consensus_sequences:
         """
 
 
+
+
 # QA checks performed on consensus_sequences
 # - do pairwise alignement
 rule consseq_QA:
