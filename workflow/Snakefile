@@ -19,6 +19,7 @@ functions = srcdir("scripts/functions.sh")
 rule all:
     input:
         all_files,
+        "summary.json"
 
 
 rule alltrimmed:
@@ -37,6 +38,7 @@ include: "rules/align.smk"
 include: "rules/consensus.smk"
 include: "rules/mafs.smk"
 include: "rules/stats.smk"
+include: "rules/publish.smk"
 
 
 if config.output["snv"] or config.output["local"]:
