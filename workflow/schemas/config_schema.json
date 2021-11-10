@@ -168,6 +168,12 @@
                     "default": false,
                     "description": "This option selects whether to generate HTML visualization of the SNVs in each sample's `…/visualization/index.html`",
                     "examples": [true]
+                },
+                "dehumanized_raw_reads": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "This option turns on dehumanization of the raw reads",
+                    "examples": [true]
                 }
             },
             "default": {},
@@ -1205,6 +1211,24 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/report_sequences.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "dehuman": {
+            "properties": {
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/dehuman.yaml"
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 16
+                },
+                "ref_human": {
+                    "type": "string",
+                    "default": "references/human.fa"
                 }
             },
             "default": {},

@@ -364,6 +364,8 @@ results = []
 visualizations = []
 datasets = []
 IDs = []
+dehumanized_raw_reads = []
+
 for p in patient_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
     sdir = os.path.join(config.output["datadir"], p.patient_id, p.date)
@@ -435,8 +437,12 @@ for p in patient_list:
         visualizations.append(os.path.join(sdir, "visualization/snv_calling.html"))
         visualizations.append(os.path.join(sdir, "visualization/alignment.html"))
 
+    if config.output["dehumanized_raw_reads"]:
+        dehumanized_raw_reads.append(os.path.join(sdir, "raw_data", "dehuman.cram"))
+
     # merge lists containing expected output
-    all_files = alignments + consensus + results + visualizations
+    all_files = (alignments + consensus + results + visualizations
+                 + dehumanized_raw_reads)
 
 IDs = ",".join(IDs)
 
@@ -517,6 +523,7 @@ def rebase_datadir(base, dataset):
 
 
 def construct_input_fastq(wildcards):
+
     indir = os.path.join(
         rebase_datadir(config.input["datadir"], wildcards.dataset), "raw_data"
     )

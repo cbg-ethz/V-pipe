@@ -101,6 +101,7 @@ rule consensus_sequences:
         REF=reference_file,
     output:
         REF_amb="{dataset}/references/ref_ambig.fasta",
+        REF_amb_dels="{dataset}/references/ref_ambig_dels.fasta",
         REF_majority="{dataset}/references/ref_majority.fasta",
         REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
     params:
