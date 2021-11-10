@@ -15,8 +15,6 @@ rule write_summary_json:
         ${{CONDA_PREFIX}}/bin/python {VPIPE_BASEDIR}/scripts/report_sequences.py {input.consensus}
         """
 
-
-
 rule dehuman:
     input:
         global_ref=reference_file,
@@ -50,6 +48,8 @@ rule dehuman:
         config.dehuman["conda"]
     shell:
         """
+        # create index if not exists:
+        test -f {params.HUMAN_GENOME}.bwt || {params.BWA} index {params.HUMAN_GENOME}
 
         echo Filter out SARS-CoV-2 reads  -------------------------------------
         echo
@@ -69,6 +69,7 @@ rule dehuman:
 
         echo
         echo Checking rejects against Homo Sapiens ---------------------------
+
 
         {params.BWA} mem -t {threads} \
                          -o {params.h38_aln}\
