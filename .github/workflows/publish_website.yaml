@@ -33,6 +33,10 @@ jobs:
         working-directory: ./docs
         run: ./convert.sh
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: JupyterNotebooks
+          path: ./docs/*.ipynb
       # - name: Publish
       #   uses: peaceiris/actions-gh-pages@v3
       #   with:
