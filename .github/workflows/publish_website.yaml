@@ -25,7 +25,9 @@ jobs:
           auto-update-conda: true
 
       - name: Install dependencies
-        run: mamba install --yes snakemake-minimal jupytext sra-tools
+        run: |
+          mamba install --yes snakemake-minimal jupytext sra-tools nbconvert ipykernel
+          python -m ipykernel install --user
 
       - name: Build website
         working-directory: ./docs
