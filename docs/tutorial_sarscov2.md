@@ -140,7 +140,7 @@ As it is your first run of V-pipe, this will also generate the sample collection
 
 Note that the demo files you downloaded have reads of length 150 only. V-pipe’s default parameters are optimized for reads of length 250; add the third column in the tab-separated file:
 
-```
+```bash
 cat <<EOT >> ./testing/work/samples.tsv
 SRR10903401	20200102	150
 SRR10903402	20200102	150
