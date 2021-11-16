@@ -1,0 +1,15 @@
+---
+
+PLUGINS:
+  - https://raw.githubusercontent.com/kpj/jupyfmt/master/mega-linter-plugin-jupyfmt/jupyfmt.megalinter-descriptor.yml
+
+ENABLE_LINTERS:
+  - PYTHON_BLACK
+  - BASH_SHELLCHECK
+  - SNAKEMAKE_SNAKEFMT
+  - MARKDOWN_MARKDOWNLINT
+  - JUPYTER_JUPYFMT
+
+FORMATTERS_DISABLE_ERRORS: false
+PRINT_ALPACA: false
+SHOW_ELAPSED_TIME: true
