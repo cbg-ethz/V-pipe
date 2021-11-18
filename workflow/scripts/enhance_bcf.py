@@ -16,7 +16,7 @@ def main(fname_in, fname_out, ambiguous_base_coverage_threshold):
 
     for variant in vcf_reader:
         base_list = [variant.REF] + variant.ALT
-        coverage_list = variant.INFO.get("AD")
+        coverage_list = variant.INFO.get('AD')
 
         total_coverage = sum(coverage_list)
         assert len(base_list) == len(coverage_list)
@@ -36,5 +36,5 @@ def main(fname_in, fname_out, ambiguous_base_coverage_threshold):
     vcf_reader.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2], float(sys.argv[3]))
