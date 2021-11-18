@@ -24,7 +24,7 @@ VIRUS=$1
 
 CWD=$(pwd)
 function restore_wd {
-    cd ${CWD}
+    cd "${CWD}"
 }
 trap restore_wd EXIT
 
@@ -32,18 +32,18 @@ PROJECT_DIR=/tmp/project/${VIRUS}
 
 function setup_project {
     PROJECT_DIR=$(mktemp -d)
-    pushd ${PROJECT_DIR}
-    ${VPIPEROOT}/init_project.sh
+    pushd "${PROJECT_DIR}"
+    "${VPIPEROOT}/init_project.sh"
     popd
 }
 
 # setup project files when not run on via github actions
-[ x$CI == x ] && setup_project
+[ -z "$CI" ] && setup_project
 
 
 function run_workflow {
 
-    pushd ${PROJECT_DIR}
+    pushd "${PROJECT_DIR}"
     mkdir config
     cat > config/config.yaml <<CONFIG
 general:
@@ -68,7 +68,7 @@ CONFIG
     fi
 
     PYTHONUNBUFFERED=1 snakemake \
-        -s ${VPIPEROOT}/workflow/Snakefile \
+        -s "${VPIPEROOT}/workflow/Snakefile" \
         --configfile config/config.yaml \
         --config "input={datadir: ${data_root}${config_addendum}}" \
         --use-conda \
@@ -83,7 +83,7 @@ CONFIG
     fi
     echo
     PYTHONUNBUFFERED=1 snakemake \
-        -s ${VPIPEROOT}/workflow/Snakefile \
+        -s "${VPIPEROOT}/workflow/Snakefile" \
         --configfile config/config.yaml \
         --config "input={datadir: ${data_root}${config_addendum}}" \
         --use-conda \
@@ -94,39 +94,39 @@ CONFIG
 }
 
 
-TEST_NAME=$(basename ${0%.*})_${VIRUS}
+TEST_NAME=$(basename "${0%.*}")_${VIRUS}
 EXIT_CODE=0
 
 function check_logs {
-    grep -E 'failed|for error' ${PROJECT_DIR}/.snakemake/log/*.snakemake.log && EXIT_CODE=1 || echo "snakemake execution successful"
+    grep -E 'failed|for error' "${PROJECT_DIR}/.snakemake/log/*.snakemake.log" && EXIT_CODE=1 || echo "snakemake execution successful"
 }
 
 mkdir -p /tmp/v-pipe_tests/
-DIFF_FILE=/tmp/v-pipe_tests/diffs_${TEST_NAME}.txt
-LOG_FILE=/tmp/v-pipe_tests/log_${TEST_NAME}.txt
-rm -f ${DIFF_FILE}
-rm -f ${LOG_FILE}
+DIFF_FILE="/tmp/v-pipe_tests/diffs_${TEST_NAME}.txt"
+LOG_FILE="/tmp/v-pipe_tests/log_${TEST_NAME}.txt"
+rm -f "${DIFF_FILE}"
+rm -f "${LOG_FILE}"
 
 function compare_to_recorded_results {
 
-    cd ${CWD}/expected_outputs/${TEST_NAME}
+    cd "${CWD}/expected_outputs/${TEST_NAME}"
 
-    for RECORDED_OUTPUT in $(find . -type f); do
+    while IFS= read -r -d '' RECORDED_OUTPUT; do
         CURRENT_OUTPUT=${PROJECT_DIR}/${RECORDED_OUTPUT}
-        echo COMPARE ${RECORDED_OUTPUT} AND ${CURRENT_OUTPUT}
-        if diff -I '^#' ${RECORDED_OUTPUT} ${CURRENT_OUTPUT} >> ${DIFF_FILE}; then
+        echo "COMPARE ${RECORDED_OUTPUT} AND ${CURRENT_OUTPUT}"
+        if diff -I '^#' "${RECORDED_OUTPUT}" "${CURRENT_OUTPUT}" >> "${DIFF_FILE}"; then
             :
         else
             echo
-            echo RESULTS ${RECORDED_OUTPUT} AND ${CURRENT_OUTPUT} DIFFER
+            echo "RESULTS ${RECORDED_OUTPUT} AND ${CURRENT_OUTPUT} DIFFER"
             echo
             EXIT_CODE=1;
         fi
-    done
+    done < <(find . -type f -print0)
 }
 
 # setup_project
-run_workflow 2>&1 | tee ${LOG_FILE}
+run_workflow 2>&1 | tee "${LOG_FILE}"
 echo
 echo
 check_logs
@@ -137,7 +137,7 @@ compare_to_recorded_results
 echo
 
 if [ ${EXIT_CODE} = 1 ]; then
-    echo TESTS FAILED, CHECK ${DIFF_FILE} and ${LOG_FILE} FOR FUTHER INFORMATION
+    echo "TESTS FAILED, CHECK ${DIFF_FILE} and ${LOG_FILE} FOR FUTHER INFORMATION"
 else
     echo TESTS SUCEEDED
 fi

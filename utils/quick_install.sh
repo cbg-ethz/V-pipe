@@ -122,7 +122,7 @@ fi;
 # CHECK having environment modifiers (such as conda or modules) is a *horrendously bad idea* that can cause hard to understand errors much later
 ENVIRONMENTWARNING=
 for PROFILE in $HOME/.bash_profile $HOME/.bashrc $HOME/.profile; do
-	if [[ -e $PROFILE ]] &&  grep -H 'conda initialize\|CONDA\|module \(add\|load\)' $PROFILE; then
+	if [[ -e $PROFILE ]] &&  grep -H 'conda initialize\|CONDA\|module \(add\|load\)' "$PROFILE"; then
 		ENVIRONMENTWARNING=1
 	fi
 done
@@ -163,14 +163,15 @@ fi
 message 'Using installer:' ${MINICONDA}
 
 # Get and install Miniconda3
-mkdir -p ${PREFIX}
-cd ${PREFIX}
+mkdir -p "${PREFIX}"
+cd "${PREFIX}" || exit
 [[ -f ${MINICONDA} ]] && rm ${MINICONDA}
 ${DOWNLOAD} https://repo.anaconda.com/miniconda/${MINICONDA}
 sh ${MINICONDA} -b -p miniconda3
 # -b for batch (no question asked)
 
 
+# shellcheck source=/dev/null
 . miniconda3/bin/activate
 
 # set the channel precedence (lowest to highest)
@@ -206,10 +207,10 @@ echo $'\n'
 title 'installing V-pipe'
 
 if [[ -z "${RELEASE}" ]]; then
-	message 'Using branch:' ${BRANCH}
+	message 'Using branch:' "${BRANCH}"
 
 	check_directory 'V-pipe' 'V-pipe installation directory'
-	git clone --depth 1 --branch ${BRANCH} https://github.com/cbg-ethz/V-pipe.git || fail "I cannot install branch ${BRANCH}."
+	git clone --depth 1 --branch "${BRANCH}" https://github.com/cbg-ethz/V-pipe.git || fail "I cannot install branch ${BRANCH}."
 else
 	message 'Using release:' "${RELEASE}"
 	check_directory "V-pipe-${RELEASE}" 'V-pipe installation directory'
@@ -241,11 +242,11 @@ To setup working directory:
 fi
 
 title 'Working directory'
-message 'Working directory:' ${WORKDIR}
+message 'Working directory:' "${WORKDIR}"
 
 check_directory "${WORKDIR}" 'Working directory'
 mkdir -p "${WORKDIR}" || fail "I cannot create directory"
-cd "${WORKDIR}"
+cd "${WORKDIR}" || exit
 "${INIT}" ${MINIMAL} || fail "Populating working directory failed"
 
 echo $'\n'
