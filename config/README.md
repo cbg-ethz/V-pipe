@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 -->
+
 # Configuring V-pipe
 
 In order to start using V-pipe, you need to provide three things:
@@ -7,14 +9,14 @@ In order to start using V-pipe, you need to provide three things:
  3. Configuration file
 
 ## Configuration file
- 
+
 The V-pipe workflow is customized using a structured configuration file called `config.yaml`, `config.json` or, for backward compatibility, `vpipe.config` (INI-like format).
 
 This configuration file is a text file written using a basic structure composed of sections, properties and values. When using [YAML](https://yaml.org/spec/1.0/#id2564813) or [JSON](https://www.json.org/json-en.html) format use these languages associative array/dictionaries in two levels for sections and properties. When using the older [INI format](https://docs.python.org/3/library/configparser.html), sections are expected in squared brackets, and properties are followed by corresponding values.
 
 Further more, it is possible to specify additional options on the command line using Snakemake's `--configfile` to pass additional YAML/JSON configuration files, and/or using Snakemake's `--config` to pass sections and properties in a [YAML Flow style](https://yaml.org/spec/1.2.0/#Flow)/JSON syntax.
 
-Here is an **example** of `config.yaml`: 
+Here is an **example** of `config.yaml`:
 
 ```yaml
 general:
@@ -35,29 +37,26 @@ output:
 
 At minimum, a valid configuration **MUST** provide a reference sequence against which to align the short reads from the raw data. This can be done in several ways:
 
- - by using a [_virus base config_ ](#virus-base-config) that will provide default presets for specific viruses
- - by directly passing a reference .fasta file in the section _input_ -> property _reference_ that will override the default
-
+- by using a [_virus base config_](#virus-base-config) that will provide default presets for specific viruses
+- by directly passing a reference .fasta file in the section _input_ -> property _reference_ that will override the default
 
 ### virus base config
 
-We provide virus-specific base configuration files which contain handy defaults for some viruses. 
+We provide virus-specific base configuration files which contain handy defaults for some viruses.
 
 Currently, the following _virus base config_ are available:
 
- - [hiv](hiv.yaml): provides HXB2 as a reference sequence for HIV, and sets the default aligner to _ngshmmalign_.
- - [sars-cov-2](sars-cov-2.yaml): provides NC_045512.2 as a reference sequence for SARS-CoV-2, sets the default aligner to _bwa_ and sets the variant calling to be done against the reference instead of the cohort's consensus.
-
+- [hiv](hiv.yaml): provides HXB2 as a reference sequence for HIV, and sets the default aligner to _ngshmmalign_.
+- [sars-cov-2](sars-cov-2.yaml): provides NC\_045512.2 as a reference sequence for SARS-CoV-2, sets the default aligner to _bwa_ and sets the variant calling to be done against the reference instead of the cohort's consensus.
 
 ### configuration manual
 
 More information about all the available configuration options and an exhaustive list can be found in [config.html](config.html)
 or [online](https://htmlpreview.github.io/?https://github.com/cbg-ethz/V-pipe/blob/master/config/config.html).
 
-
 ### legacy V-pipe 1.xx/2.xx users
 
-If you want to re-use your old configuration 
+If you want to re-use your old configuration
 from a [legacy V-pipe v1.x/2.x installation](https://github.com/cbg-ethz/V-pipe/wiki/options)
 or [sars-cov2 branch](https://cbg-ethz.github.io/V-pipe/tutorial/sars-cov2/#running-v-pipe)
 it is possible, if you keep in mind the following caveats:
@@ -65,8 +64,8 @@ it is possible, if you keep in mind the following caveats:
 - The older INI-like syntax is still supported for a `vpipe.config` configuration file.
   - This configuration will be overridden by `config.yaml` or `config.json`,
     you might want to delete those files from your working directory if you are not using them.
-- V-pipe starting from version 2.99.1 follows the [Standardized usage](https://snakemake.github.io/snakemake-workflow-catalog/?rules=true) rules of the 
-  [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe) 
+- V-pipe starting from version 2.99.1 follows the [Standardized usage](https://snakemake.github.io/snakemake-workflow-catalog/?rules=true) rules of the
+  [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
   - This defines a newer [directory structure](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#distribution-and-reproducibility)
     - samples TSV table is now expected to be in `config/samples.tsv`
       (use the section _input_ ->  property _samples_file_ to override).
@@ -75,6 +74,7 @@ it is possible, if you keep in mind the following caveats:
     - the cohort-wide output isn't written in a different `variants/` directory anymore, but at at the base of the _output datadir_ - i.e by default in `results/`
       (use the section _output_ -> property _cohortdir_ to specify a different path **relative to the output datadir**).
   - Add the following sections and properties to your `vpipe.config` configuration file to **bring back the legacy behaviour**:
+
 ```ini
 [input]
 datadir=samples
@@ -84,7 +84,7 @@ samples_file=samples.tsv
 datadir=samples
 cohortdir=../variants
 ```
-  
+
 As of version 2.99.1, only the analysis of viral sequencing data has been
 [extensively tested](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml)
 and is guaranteed stable.
@@ -110,13 +110,13 @@ Optionally, the samples file can contain a third column specifying the read leng
 
 V-pipe expects the input samples to be organized in a two-level directory hierarchy.
 
- - The first level can be, e.g., patient samples or biological replicates of an experiment.
- - The second level can be, e.g., different sampling dates or different sequencing runs of the same sample.
- - Inside that directory, the sub-directory `raw_data/` holds the sequencing data in FASTQ format (optionally compressed with GZip).
+- The first level can be, e.g., patient samples or biological replicates of an experiment.
+- The second level can be, e.g., different sampling dates or different sequencing runs of the same sample.
+- Inside that directory, the sub-directory `raw_data/` holds the sequencing data in FASTQ format (optionally compressed with GZip).
 
 **For example:**
 
-```
+```lang-none
 samples
 ├── patient1
 │   ├── 20100113
