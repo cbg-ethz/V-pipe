@@ -9,8 +9,7 @@ usage: $0 [options]
 -h           print this help message and exit
 "
 
-args=$(getopt 'mnbh' "$*")
-if [ "$?" != 0 ]; then
+if ! args=$(getopt 'mnbh' "$*"); then
     printf "%s\\n" "$USAGE"
     exit 2
 fi
