@@ -27,9 +27,11 @@ def main(fname_info, accession, restart_times, threads, logfiles):
             os.rmdir(tmpdir)
 
             # TODO: maybe check all files for >SE reads
-            read_len = int(shell.check_output(
-                f"bioawk -c fastx '{{{{ bases += length($seq); count++ }}}} END{{{{print int(bases/count)}}}}' {available_files[0]}"
-            ).rstrip())
+            read_len = int(
+                shell.check_output(
+                    f"bioawk -c fastx '{{{{ bases += length($seq); count++ }}}} END{{{{print int(bases/count)}}}}' {available_files[0]}"
+                ).rstrip()
+            )
 
             # TODO: how to get date
             with open(fname_info, "w") as fd:
@@ -37,15 +39,18 @@ def main(fname_info, accession, restart_times, threads, logfiles):
 
             # rename files to make V-pipe recognize them (_R3 is not used)
             for entry in available_files:
-                fname_new = (str(entry).replace('_1.fastq', '_R1.fastq')
-                                       .replace('_2.fastq', '_R2.fastq')
-                                       .replace('_3.fastq', '_R3.fastq'))
+                fname_new = (
+                    str(entry)
+                    .replace("_1.fastq", "_R1.fastq")
+                    .replace("_2.fastq", "_R2.fastq")
+                    .replace("_3.fastq", "_R3.fastq")
+                )
                 entry.rename(fname_new)
 
             break
 
         # no files were downloaded, retry...
-        shell("echo \"Download failed, restarting\" >> {logfiles.errfile}")
+        shell('echo "Download failed, restarting" >> {logfiles.errfile}')
         counter += 1
 
         if counter > restart_times:
@@ -58,5 +63,5 @@ if __name__ == "__main__":
         snakemake.wildcards.accession,
         snakemake.params.restart_times,
         snakemake.threads,
-        snakemake.log
+        snakemake.log,
     )
