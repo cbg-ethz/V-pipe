@@ -162,9 +162,9 @@ if config.input["paired"]:
                     config.output["datadir"],
                     config.output["cohortdir"],
                     "cohort_consensus.fasta",
-            )
-            if config[
-            "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
+                )
+                if config[
+                    "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
                 ]["consensus"]
                 else reference_file
             ),
