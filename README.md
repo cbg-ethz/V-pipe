@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 MD041 -->
+
 ![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
@@ -9,7 +11,6 @@
 V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (e.g., consensus sequences, SNV calls, local/global haplotypes).
 V-pipe is written using the Snakemake workflow management system.
 
-
 ## Usage
 
 Different ways of initializing V-pipe are presented below. We strongly encourage you to deploy it [using the quick install script](#using-quick-install-script), as this is our preferred method.
@@ -18,13 +19,13 @@ V-pipe expects the input samples to be organized in a [two-level](config/#sample
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
 
 We provide [virus-specific base configuration files](config/#virus-base-config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
+
 ```yaml
 general:
   virus_base_config: hiv
 ```
 
 Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html) to learn more about the command-line options available when executing the workflow.
-
 
 ### Using quick install script
 
@@ -50,6 +51,7 @@ Using V-pipe with other viruses or configurations might require internet connect
 
 Populate the `samples/` directory and create `config.yaml` or `vpipe.config`.
 For example, the following config file could be used:
+
 ```yaml
 general:
   virus_base_config: hiv
@@ -84,7 +86,6 @@ snakedeploy deploy-workflow https://github.com/cbg-ethz/V-pipe --tag master .
 # edit config/config.yaml and provide samples/ directory
 snakemake --use-conda --jobs 4 --printshellcmds --dry-run
 ```
-
 
 ## Dependencies
 
@@ -145,7 +146,6 @@ Other dependencies are managed by using isolated conda environments per rule, an
 
   We use HaploClique or SAVAGE to perform global haplotype reconstruction for heterogeneous viral populations by using an overlap graph.
 
-
 ## Citation
 
 If you use this software in your research, please cite:
@@ -153,7 +153,6 @@ If you use this software in your research, please cite:
 Posada-Céspedes S., Seifert D., Topolsky I., Jablonski K.P., Metzner K.J., and Beerenwinkel N. 2021.
 "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput sequencing data."
 _Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/10.1093/bioinformatics/btab015).
-
 
 ## Contributions
 
