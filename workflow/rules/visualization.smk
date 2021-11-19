@@ -47,7 +47,6 @@ rule generate_web_visualization:
         alignment_visualization_template=cachepath(
             "../scripts/alignment_visualization.html", localsource=True
         ),
-        plot_phylogenetic_tree=config.input["phylogeny_data"],
         alignment_file=("{dataset}/visualization/alignment.fasta" if config.input["phylogeny_data"] else []),
         nwk_file=("{dataset}/visualization/tree.nwk" if config.input["phylogeny_data"] else []),
     log:
@@ -69,7 +68,7 @@ rule generate_web_visualization:
         # 1) script directive crashes with `VpipeConfig`
         # 2) run directive does not allow conda envs
 
-        if [ ! -z "{params.plot_phylogenetic_tree}" ]
+        if [ ! -z "{params.nwk_file}" ]
         then
           # generate phylogenetic tree
           augur align --sequences {input.phylogeny_data} {input.consensus_file} --output {params.alignment_file}
