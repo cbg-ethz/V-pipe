@@ -113,6 +113,12 @@
                     "default": "",
                     "description": "A table with primers to display on the visualization\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
                     "examples": [ "resources/sars-cov-2/primers/nCoV-2019.tsv" ]
+                },
+                "phylogeny_data": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A FASTQ file with sequences of interest\n\n**Note**: These sequences are used, together with the consensus sequence, to build a phylogenetic tree.",
+                    "examples": [ "resources/sars-cov-2/phylogeny/selected_covid_sequences.fasta" ]
                 }
             },
             "default": {},

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+
+<html>
+<head>
+<title>V-Pipe Visualization</title>
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css">
+
+<style>
+
+.axisCoverage line{
+  stroke: steelblue;
+  opacity: 0.4;    
+}
+
+.axisCoverage path{
+  stroke: steelblue;
+  opacity: 0.4;  
+}
+
+.axisCoverage text{
+  fill: steelblue;
+  opacity: 0.4;    
+} 
+
+div.tooltip_plot {
+    position: absolute;
+    text-align: left;
+    padding: .3rem;
+    background: #FFFFFF;
+    color: #313639;
+    border: 1px solid #313639;
+    border-radius: 8px;
+    pointer-events: none;
+    font-size: small;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 300px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -160px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: small;
+}
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+#table_summary {
+    overflow: auto;
+    max-height: 530px;
+}
+#table_summary_table {
+    border: 1px solid black;
+}
+#table_summary_table thead, tr:nth-child(even){
+    background-color: lightgrey;
+}
+
+#block_container > div {
+    float: left;
+    margin-right: 40px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.annotation_rects {
+  cursor: pointer;
+}
+
+.fa-compress-arrows-alt, .fa-dna, .fa-sort {
+    color: gray;
+}
+.fa-compress-arrows-alt:hover, .fa-dna:hover, .fa-sort:hover {
+    color: black;
+}
+</style>
+
+<script>
+// We expect the following variables:
+// `sample_name`: string
+// `consensus`: string
+// `coverage`: array of integers
+// `vcfData`: array of tuples, e.g., {"position": 12972, "reference":"T", "variant": ["G"],
+//            "frequency":0.8, "posterior":0.9}
+// `gffData`: map where the key is a string describing the annotations and the value is an
+//            array of tuples with the following format: {'id': string, 'type': string,
+//            'name': string, 'start': int, 'end': int, 'row_cnt': int}
+// `primerData`: map where the key is a string describing the provenance of the primers and
+//               the value is an array of tuples with the following format: {'name':string, 
+//               'seq':string, 'start':int, 'end':int, 'row_cnt':int}
+{EXTERNAL_SNAKEMAKE_CODE_MARKER}
+</script>
+
+</head>
+<body>
+
+    <br/>
+    <b><p id="sample_name"></p></b>
+    <hr style="border: 2px solidgray;" />
+    <p id="snv_section"></p>
+    <div id="block_container">
+        <div id="plot"></div>
+        <div>
+            <div id="controls">
+                Color legend for SNV posterior probability 
+                <div class="tooltip"><i class="fa fa-question-circle"></i>
+                  <span class="tooltiptext">Color legend for the lollipop circles that appear on the plot. Blue color indicates a posterior probability of 1, while red indicates probability 0.</span>
+                </div>
+                <br/>
+                <div id="color_legend"></div>
+                <label for="posteriorThresholdField"><b>SNV posterior probability threshold:</b></label>
+                <input type="text" id="posteriorThresholdField" value="0.8", size=4>
+                <button type="button" onClick="redrawPlots()">Apply</button>
+                <div class="tooltip"><i class="fa fa-question-circle"></i>
+                  <span class="tooltiptext">Show on the plot only the SNVs with posterior probability greater than the threshold.</span>
+                </div>
+            </div><br/>
+            <b>SNV details:</b> <br/>
+            <div id="table_summary"></div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script>
+var coverageData = []
+for (i = 0; i < coverage.length; i++) {
+    coverageData.push({
+        "offset": i,
+        "value": coverage[i],
+    })
+}
+
+var global_selected_subsequence = consensus
+var global_x_start = 0
+var global_x_end = coverageData.length - 1
+var global_has_zoom = false
+
+function resetSelectedSequence() {
+    global_selected_subsequence = consensus
+    global_x_start = 0
+    global_x_end = coverageData.length - 1
+    global_has_zoom = false
+}
+
+// set the dimensions and margins of the graph
+var margin = {
+        top: 20,
+        right: 70,
+        bottom: 500,
+        left: 60
+    },
+    width = 750 - margin.left - margin.right,
+    height = 800 - margin.top - margin.bottom;
+
+var x = d3.scaleLinear()
+    .domain([0, coverageData.length - 1])
+    .range([0, width])
+
+// Returns an array with start, end and `num_values-1` intermediate values.
+function getValuesFromRange(start, end, num_values) {
+    arr = []
+    var step = Math.round((end-start)/num_values)
+    for(let i = start; i <= end; i += step){
+      arr.push(i);
+    }
+    if(arr.length == num_values) {
+        arr.push(end)
+    }
+    else {
+        arr[arr.length - 1] = end
+    }
+    return arr
+}
+
+xTickValues = getValuesFromRange(global_x_start, global_x_end, 5)
+
+var yCoverage = d3.scaleLinear()
+    .domain([0, Math.max.apply(Math, coverageData.map(function(item) {
+        return item.value;
+    }))])
+    .range([height, 0]);
+
+var yFrequency = d3.scaleLinear()
+    .domain([0, 1])
+    .range([height, 0])
+
+var yLollipop = d3.scaleLinear()
+    .domain([0, 1])
+    .range([height, 0])
+
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip_plot")
+    .style("opacity", 0)
+var tooltipOffset = {x: 5, y: -28}
+
+// Append the svg object to the body of the page
+var svg = d3.select("#plot")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+var lollipopColorInterpolator = d3.interpolateRdBu;
+
+document.getElementById('sample_name').innerHTML = sample_name;
+document.getElementById('snv_section').innerHTML = "SNVs w.r.t. " + reference_name + " reference genome:";
+var [updateChartGlobal, areaGlobal] = setupPlot(svg)
+displayGffData(gffData, svg)
+displayPrimerData(primerData, svg, 300)
+createSummaryTable("table_summary")
+addColorLegend("#color_legend")
+
+function redrawPlots() {
+    d3.selectAll(".lollipops").remove();
+    d3.selectAll(".circles").remove();
+    d3.selectAll(".annotation_rects").remove();
+    d3.selectAll(".snv_marker").remove();
+    addLollipops(areaGlobal)
+    displayGffData(gffData, svg)
+    displayPrimerData(primerData, svg, 300)
+    createSummaryTable("table_summary")
+}
+
+function addColorLegend(div_id) {
+    var width = 300
+    var margin = 5
+    var svg = d3.select(div_id)
+        .append("svg")
+        .attr("width", width + margin)
+        .attr("height", 50)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin + "," + margin + ")");
+
+    var legendscale = d3.scaleLinear()
+        .range([1, width])
+        .domain([0, 1]);
+    svg.append("g")
+        .attr("transform", "translate(0, 10)")
+        .call(d3.axisBottom(legendscale));
+
+    var steps = 10;
+    var colors = d3.range(0, (1 + 1 / steps), 1 / (steps - 1)).map(function(d) {
+      return lollipopColorInterpolator(d)
+    });
+    var grad = svg.append('defs')
+        .append('linearGradient')
+        .attr('id', 'linear-gradient')
+        .attr('x1', '0%')
+        .attr('x2', '100%')
+        .attr('y1', '0%')
+        .attr('y2', '0%');
+    grad.selectAll('stop')
+        .data(colors)
+        .enter()
+        .append('stop')
+        .style('stop-color', function(d){ return d; })
+        .attr('offset', function(d,i){
+            return 100 * (i / (colors.length - 1)) + '%';
+        })
+    rect = svg.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("height", 10)
+        .attr("width", width)
+        .style("fill", "url(#linear-gradient)")
+}
+
+function setupPlot(svg) {
+    // Add X axis
+    xAxis = svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickValues(xTickValues))
+    resetSelectedSequence()
+
+    svg.append("text")
+        .attr("transform",
+            "translate(" + (width / 2) + " ," +
+            (height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text("Position");
+
+    // Add left Y axis for frequency 
+    svg.append("g")
+        .call(d3.axisLeft(yFrequency));
+        
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 5)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        
+        .style("text-anchor", "middle")
+        .text("SNV frequency");
+        
+    // Add right Y axis for coverage 
+    svg.append("g")
+        .attr("transform", "translate(" + width + ",0)")
+        .attr("class", "axisCoverage")        
+        .call(d3.axisRight(yCoverage));
+        
+    svg.append("text")
+        .attr("transform", "rotate(90)")
+        .attr("y", -width - 55)
+        .attr("x", (height / 2))
+        .attr("dy", "1em")
+        .attr("fill", "steelblue")      
+        .attr("fill-opacity", .4)  
+        .style("text-anchor", "middle")
+        .text("Coverage");   
+
+    // Add a clipPath: everything out of this area won't be drawn.
+    var clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("x", 0)
+        .attr("y", 0);
+
+    // Add brushing that triggers updateChart()
+    var brush = d3.brushX()
+        .extent([
+            [0, 0],
+            [width, height]
+        ]) // select the whole graph area
+        .on("end", updateChart)
+
+    // Create the area variable: where both the area and the brush take place
+    var area = svg.append('g')
+        .attr("clip-path", "url(#clip)")
+
+    // Create an area generator
+    var areaGenerator = d3.area()
+        .x(function(d) {
+            return x(d.offset)
+        })
+        .y0(yCoverage(0))
+        .y1(function(d) {
+            return yCoverage(d.value)
+        })
+        .curve(d3.curveMonotoneX)
+
+    // Add the area
+    area.append("path")
+        .datum(coverageData)
+        .attr("class", "plot_area")
+        .attr("fill", "steelblue")
+        .attr("fill-opacity", .2)
+        .attr("stroke", "black")
+        .attr("stroke-width", 0)
+        .attr("d", areaGenerator)
+
+    // Add the brushing
+    area.append("g")
+        .attr("class", "brush")
+        .call(brush)
+
+    // A function that set idleTimeOut to null
+    var idleTimeout
+
+    function idled() {
+        idleTimeout = null;
+    }
+
+    addLollipops(area)
+
+    // If user double click, reinitialize the chart
+    function resetZoom() {
+        x.domain([0, coverageData.length - 1])
+        xAxis.transition().call(d3.axisBottom(x).tickValues(xTickValues))
+        resetSelectedSequence()
+        area
+            .select('.plot_area')
+            .transition()
+            .attr("d", areaGenerator)
+        d3.selectAll(".lollipops").remove();
+        d3.selectAll(".circles").remove();
+        d3.selectAll(".annotation_rects").remove();
+        d3.selectAll(".snv_marker").remove();
+        addLollipops(area)
+        displayGffData(gffData, svg)
+        displayPrimerData(primerData, svg, 300)
+    }
+
+    function appendIcon(svg, x, y, action, icon_html, tooltip_text) {
+        icon = svg.append('svg:foreignObject')
+            .attr("class", "reset_zoom")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", 25)
+            .attr("height", 100)
+            .append("xhtml:body")
+            .html(icon_html)
+            .on("click", function(d) {
+                action()
+            })
+            .on("mouseover", function(d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9)
+                tooltip.html(tooltip_text)
+                    .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                    .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+            })
+            .on("mousemove", function(d) {
+                tooltip
+                    .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                    .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 0)
+            })      
+    }
+
+    function copyToClipboard() {
+      var temp = document.createElement("INPUT");
+      temp.value = global_selected_subsequence;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      temp.remove();
+      alert("The consensus sub-sequence between offsets " + global_x_start + " and " + global_x_end + " was copied to clipboard (first index starts at 0).");
+    }
+
+    svg.on("dblclick", resetZoom);
+
+    // Add reset zoom button
+    appendIcon(svg, width - 35, -10, resetZoom, '<i class="fas fa-compress-arrows-alt"></i>', "Reset zoom")
+    // Add copy dna sub-sequence button
+    appendIcon(svg, width - 60, -10, copyToClipboard, '<i class="fas fa-dna"></i>', "Copy selected consesus sub-sequence")    
+
+    // A function that update the chart for given boundaries
+    function updateChart(customExtent, customExtentInDataCoordinates = false) {
+
+        // Get the selected boundaries.
+        if (customExtent === undefined) {
+            extent = d3.event.selection
+        } else {
+            extent = customExtent
+        }
+
+        // If no selection, back to initial coordinate. Otherwise, update X axis domain
+        if (!extent) {
+            if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
+            xAxis.transition().call(d3.axisBottom(x).tickValues(xTickValues))
+            resetSelectedSequence()
+        } else {
+            if (customExtentInDataCoordinates) {
+                lower_bound = extent[0]
+                upper_bound = extent[1]
+            } else {
+                lower_bound = x.invert(extent[0])
+                upper_bound = x.invert(extent[1])
+            }
+
+            if (upper_bound - lower_bound < 10) {
+                middle = (upper_bound + lower_bound) / 2
+                lower_bound = middle - 5
+                upper_bound = middle + 5
+            }
+            x.domain([Math.round(lower_bound), Math.round(upper_bound)])
+            area.select(".brush").call(brush.move, null) // remove the grey brush area as soon as the selection has been done
+        }
+
+        // Update axis and area position
+        global_x_start = Math.round(lower_bound) 
+        global_x_end = Math.round(upper_bound)
+        global_selected_subsequence = consensus.substring(global_x_start, global_x_end + 1)
+        global_has_zoom = true
+        xAxis.transition().duration(1000).call(d3.axisBottom(x).tickValues(getValuesFromRange(global_x_start, global_x_end, 5)))
+        area.select('.plot_area')
+            .transition()
+            .duration(1000)
+            .attr("d", areaGenerator)
+
+        // Update the lollipops
+        d3.selectAll(".lollipops").remove();
+        d3.selectAll(".circles").remove();
+        d3.selectAll(".annotation_rects").remove();
+        d3.selectAll(".snv_marker").remove();
+        addLollipops(area)
+        displayGffData(gffData, svg)
+        displayPrimerData(primerData, svg, 300)
+    }
+
+    // making this function globally available to other plots
+    // (in a less hacky way) probably requires a refactoring
+    return [updateChart, area]
+}
+
+// Add lollipops
+function addLollipops(canvas) {
+    canvas.selectAll("lines")
+        .data(vcfData)
+        .enter()
+        .append("line")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
+        .attr("x1", function(d) {
+            return x(d.position)
+        })
+        .attr("x2", function(d) {
+            return x(d.position)
+        })
+        .attr("y1", function(d) {
+            return yLollipop(d.frequency)
+        })
+        .attr("y2", yCoverage(0))
+        .attr("stroke", "darkgrey")
+        .attr("class", "lollipops")
+
+    var colorRange = d3.scaleSequential().domain([0, 1])
+        .interpolator(d3.interpolateRdBu);
+
+    var colorRange = d3.scaleSequential().domain([0, 1])
+        .interpolator(lollipopColorInterpolator);
+
+    lollipop_ray = 4
+    canvas.selectAll("circles")
+        .data(vcfData)
+        .enter()
+        .append("circle")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
+        .attr("cx", function(d) {
+            return x(d.position)
+        })
+        .attr("cy", function(d) {
+            return Math.max(lollipop_ray, yLollipop(d.frequency))
+        })
+        .attr("r", lollipop_ray)
+        .style("fill", function(d){
+            return colorRange(d.posterior)
+        })
+        .attr("stroke", "darkgray")
+        .attr("stroke-width", 1)
+        .attr("class", "circles")
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+            tooltip.html(
+                    "variant: " + d.variant + "<br>" +
+                    "reference: " + d.reference + "<br>" +
+                    "position: " + d.position + "<br>" +
+                    "frequency: " + d.frequency + "<br>" +
+                    "posterior: " + d.posterior
+                )
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0)
+        })
+}
+
+function displayGffData(gffData, canvas) {
+    if (jQuery.isEmptyObject(gffData)) return;
+
+    canvas.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 5)
+        .attr("x", 0 - margin.bottom + 80)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Genome annotations");
+
+    var type_set = new Set()
+    for (key in gffData) {
+        var this_set = new Set(
+            gffData[key].map(function(x) {
+                return x.type
+            })
+        )
+        type_set = new Set([...type_set, ...this_set])
+    }
+
+    type_list = Array.from(type_set)
+    var annotations_color_scale = d3.scaleOrdinal()
+        .domain(type_list)
+        .range(d3.schemeSet3)
+
+    var num_rows_above = 0
+    var rectHeight = 15
+    var padding = 5    
+    var titleHeight = 10
+    var num_gff_data = 0
+    for (key in gffData) {
+        createGffPlot(canvas, height + 60 + (num_gff_data + num_rows_above) * (rectHeight + padding),
+                      rectHeight,  titleHeight, padding, gffData[key], key, annotations_color_scale)
+        var num_rows = new Set(
+            gffData[key].map(function(x) {
+                return x.row_cnt
+            })
+        ).size
+        num_rows_above += num_rows
+        num_gff_data++
+    }
+    
+
+    expandLollipopLines(canvas, height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
+}
+
+function displayPrimerData(primerData, canvas, height_offset) {
+    if (jQuery.isEmptyObject(primerData)) return;
+
+    canvas.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 5)
+        .attr("x", 0 - margin.bottom - 150)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Primers");
+
+    var num_rows_above = 0
+    var rectHeight = 15
+    var padding = 5
+    var titleHeight = 10
+    var num_gff_data = 0
+    for (key in primerData) {
+        addPrimersToPlot(canvas, height_offset + height + 60 + (num_gff_data + num_rows_above) * (rectHeight + padding),
+                      rectHeight,  titleHeight, padding, primerData[key], key)
+        var num_rows = new Set(
+             primerData[key].map(function(x) {
+                return x.row_cnt
+            })
+        ).size
+        num_rows_above += num_rows
+        num_gff_data++
+    }
+   
+    expandLollipopLines(canvas, height_offset + height,  60 + (num_gff_data + num_rows_above) * (rectHeight + padding))
+
+}
+
+function createSummaryTable(div_id) {
+
+  var probability_threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+
+  var container = document.getElementById(div_id)
+  container.innerHTML = ''
+
+  // create table
+  var tbl = document.createElement("table")
+  tbl.setAttribute("id", "table_summary_table")
+  tbl.setAttribute("class", "tablesorter")
+
+  // add header
+  var header = tbl.createTHead()
+  var tr = header.insertRow()
+  for(var key in vcfData[0]) {
+    // assumes all entries have same keys
+    var td = tr.insertCell()
+    td.innerHTML = "<strong>" + key + "</strong>&nbsp;<i class='fas fa-sort'></i>&nbsp;"
+  }
+  var td = tr.insertCell()
+   td.innerHTML = "<strong> coverage </strong>&nbsp;<i class='fas fa-sort'></i>"  
+
+  // add content
+  vcfData.sort((r1, r2) => r1.position - r2.position);
+
+  var tbody = tbl.createTBody()
+  for(var entry of vcfData) {
+    var tr = tbody.insertRow()
+    if(entry["posterior"] < probability_threshold) {
+      tr.setAttribute("style", "color: darkgray")
+    }
+    else {
+      tr.setAttribute("style", "color: black")
+    }
+    for(var key in entry) {
+      var value = entry[key]
+      var td = tr.insertCell()
+      td.appendChild(document.createTextNode(value))
+    }
+    var td = tr.insertCell().appendChild(document.createTextNode(coverage[entry["position"]]))
+  }
+
+  // add table to container
+  container.appendChild(tbl)
+
+
+  $('table').tablesorter();
+}
+
+function createGffPlot(canvas, offset_y, rectHeight,  titleHeight, padding, features, title, colorScale, type_list) {
+
+    // Keep only the annotations in the strat-end interval.
+    canvas.append("text")
+        .attr("transform",
+            "translate(" + 0 + " ," +
+            (offset_y) + ")")
+        //.style("text-anchor", "middle")
+        .text(title + ":");
+
+    canvas.selectAll("rects")
+        .data(features)
+        .enter()
+        .append("rect")
+        .attr("x", function(d) {
+            return Math.max(0, x(d.start))
+        })
+        .attr("y", function(d) {
+            return offset_y + titleHeight + (rectHeight + padding) * d.row_cnt
+        })
+        .attr("width", function(d) {
+            if (x(d.start) > width || x(d.end) < 0) {
+                return 0
+            }
+            x_start = Math.max(0, x(d.start))
+            rect_width = x(d.end) - x_start
+            if (x(d.end) < width) {
+                return rect_width
+            } else {
+                return width - x_start
+            }
+        })
+        .attr("height", rectHeight)
+        .attr("fill", function(d) {
+            return colorScale(d.type)
+        })
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("class", "annotation_rects")
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+            tooltip.html(
+                "name: " + d.name + "<br>" +
+                "type: " + d.type
+            )
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+            .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0)
+        })
+        .on("click", function(d) {
+            updateChartGlobal([d.start, d.end], true)
+        })
+}        
+
+function addPrimersToPlot(canvas, offset_y, rectHeight,  titleHeight, padding, features, title) {
+
+    // Keep only the annotations in the strat-end interval.
+    canvas.append("text")
+        .attr("transform",
+            "translate(" + 0 + " ," +
+            (offset_y) + ")")
+        //.style("text-anchor", "middle")
+        .text(title + ":");
+
+    canvas.selectAll("rects")
+        .data(features)
+        .enter()
+        .append("rect")
+        .attr("x", function(d) {
+            return Math.max(0, x(d.start))
+        })
+        .attr("y", function(d) {
+            return offset_y + titleHeight + (rectHeight + padding) * d.row_cnt
+        })
+        .attr("width", function(d) {
+            if (x(d.start) > width || x(d.end) < 0) {
+                return 0
+            }
+            x_start = Math.max(0, x(d.start))
+            rect_width = x(d.end) - x_start
+            if (x(d.end) < width) {
+                return rect_width
+            } else {
+                return width - x_start
+            }
+        })
+        .attr("height", rectHeight)
+        .attr("fill", "darkgray")
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("class", "annotation_rects")
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+            tooltip.html(
+                "name: " + d.name + "<br>" +
+                "seq: " + d.seq
+            )
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+            .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })       
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", (d3.event.pageX + tooltipOffset.x) + "px")
+                .style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0)
+        })
+        .on("click", function(d) {
+            updateChartGlobal([d.start, d.end], true)
+        })
+}
+
+function expandLollipopLines(canvas, offset_y, line_heigth) {        
+    canvas.selectAll("lines")
+        .data(vcfData)
+        .enter()
+        .append("line")
+        .filter(function (d) {
+            var threshold = parseFloat(document.getElementById("posteriorThresholdField").value)
+            return isNaN(threshold) ? false : d.posterior >= threshold
+        })
+        .attr("x1", function(d) {
+            return x(d.position)
+        })
+        .attr("x2", function(d) {
+            return x(d.position)
+        })
+        .attr("y1", function(d) {
+            return offset_y
+        })
+        .attr("y2", offset_y + line_heigth)
+        .attr("stroke", "darkgrey")
+        .style("stroke-dasharray","5,5")
+         .style("opacity", .6)
+        .attr("class", "snv_marker")
+}
+
+</script>

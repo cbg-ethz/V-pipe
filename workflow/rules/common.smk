@@ -423,7 +423,8 @@ for p in patient_list:
         )
 
     if config.output["snv"] and config.output["visualization"]:
-        visualizations.append(os.path.join(sdir, "visualization/index.html"))
+        visualizations.append(os.path.join(sdir, "visualization/snv_calling.html"))
+        visualizations.append(os.path.join(sdir, "visualization/alignment.html"))
 
     # merge lists containing expected output
     all_files = alignments + consensus + results + visualizations
