@@ -196,8 +196,25 @@ def convert_coverage(fname, sample_name=None):
         col=csv[sample_name]
     return col.values.tolist()
 
+def assemble_html_page(
+    html_file_in,
+    html_file_out, 
+    placeholder_replacement_map):
 
-def assemble_visualization_webpage(
+    # assemble webpage
+    with open(html_file_in) as fd:
+        raw_html = fd.read()
+
+    # TODO: make this more robust
+    mod_html = raw_html
+    for key, value in placeholder_replacement_map.items():
+      mod_html = mod_html.replace(key, value)
+
+    with open(html_file_out, "w") as fd:
+        fd.write(mod_html)
+
+def assemble_snv_calling_visualization_webpage(
+    sample_name,
     consensus_file,
     coverage_file,
     vcf_file,
@@ -205,13 +222,8 @@ def assemble_visualization_webpage(
     primers_file,
     html_file_in,
     html_file_out,
-    wildcards_dataset,
     reference_file,
-    metainfo_yaml,
-):
-    # parse the sample name
-    path_components = os.path.normpath(wildcards_dataset).split(os.path.sep)
-    sample_name = '/'.join(path_components[-2:])
+    metainfo_yaml,):
 
     # parse the consensus sequence
     print(f'Parsing consensus: "{consensus_file}"')
@@ -246,15 +258,39 @@ def assemble_visualization_webpage(
         var reference_name = \"{reference_name}\"
     """
 
-    # assemble webpage
-    with open(html_file_in) as fd:
-        raw_html = fd.read()
+    assemble_html_page(html_file_in, html_file_out, {"{EXTERNAL_SNAKEMAKE_CODE_MARKER}": embed_code})
 
-    # TODO: make this more robust
-    mod_html = raw_html.replace("{EXTERNAL_SNAKEMAKE_CODE_MARKER}", embed_code)
 
-    with open(html_file_out, "w") as fd:
-        fd.write(mod_html)
+def assemble_alignment_visualization_webpage(
+    sample_name,
+    nwk_file,
+    reference_uri_file, 
+    bam_uri_file,
+    html_file_in,
+    html_file_out):
+
+    nwk_tree = ""
+    if nwk_file:
+      with open(nwk_file) as fd:
+          nwk_tree = fd.read().rstrip('\n')
+
+    embed_code = f"""
+        var sample_name = \"{sample_name}\"
+        var phylogenyData = \"{nwk_tree}\"
+    """
+
+    # read the reference uri file
+    with open(reference_uri_file) as fd:
+        reference_uri = fd.read().rstrip('\n')
+
+     # read the BAM uri file
+    with open(bam_uri_file) as fd:
+        bam_uri = fd.read().rstrip('\n')
+
+    assemble_html_page(html_file_in, html_file_out, 
+        {"{EXTERNAL_SNAKEMAKE_CODE_MARKER}": embed_code,
+        "{EXTERNAL_FASTA_URI}": reference_uri,
+        "{EXTERNAL_BAM_URI}": bam_uri})
 
 
 def main():
@@ -275,16 +311,27 @@ def main():
                         type=str, dest='primers_file', help="table with primers")
     parser.add_argument('-m', '--metainfo', metavar='YAML', required=False,
                         type=str, dest='metainfo_yaml', help="metainformation for the GFF and primers")
-    parser.add_argument('-t', '--template', metavar='HTML', required=False,
-                        default=f'{os.path.dirname(__file__)}/visualization.html',
-                        type=str, dest='html_file_in', help="HTML template used to generate visual report")
-    parser.add_argument('-o', '--output', metavar='HTML', required=False,
-                        type=str, dest='html_file_out', help="produced HTML report")
+    parser.add_argument('-x', '--snv_calling_template', metavar='HTML', required=False,
+                        default=f'{os.path.dirname(__file__)}/snv_calling_visualization.html',
+                        type=str, dest='html_template_snv', help="HTML template used to generate visual report for snv calling")
+    parser.add_argument('-y', '--alignment_template', metavar='HTML', required=False,
+                        default=f'{os.path.dirname(__file__)}/alignment_visualization.html',
+                        type=str, dest='html_template_alignment', help="HTML template used to generate visual report for alignments")
+    parser.add_argument('-s', '--html_out_snv_calling', metavar='HTML', required=False,
+                        type=str, dest='html_out_snv_calling', help="produced HTML report for SNV calling")
+    parser.add_argument('-a', '--html_out_alignment', metavar='HTML', required=False,
+                        type=str, dest='html_out_alignment', help="produced HTML report for phylogeny and read alignment")
     parser.add_argument('-w', '--wildcards', metavar='SAMPLE/DATE', required=False,
                         type=str, dest='wildcards_dataset', help="sample's two-level directory hierarchy prefix")
     parser.add_argument('-r', '--reference', metavar='FASTA', required=False,
                         default='variants/cohort_consensus.fasta',
                         type=str, dest='reference_file', help="reference against which SNVs were called (e.g.: cohort's consensus)")
+    parser.add_argument('-n', '--nwk', metavar='NWK', required=False,
+                        type=str, dest='nwk_file', help="phylogenetic tree in NWK format")
+    parser.add_argument('-u', '--reference_uri_file', metavar='FILE', required=False,
+                        type=str, dest='reference_uri_file', help="reference file uri")
+    parser.add_argument('-b', '--bam_uri_file', metavar='FILE', required=False,
+                        type=str, dest='bam_uri_file', help="bam file uri")
 
     args = parser.parse_args()
 
@@ -308,15 +355,20 @@ def main():
         assert try1 == try2, f'cannot deduce wildcards automatically from <{args.vcf_file}> and <{args.consensus_file}>, please specify explicitly using `--wirdcards`'
         args.wildcards_dataset = try1
 
-    if args.html_file_out == None:
-        args.html_file_out = os.path.join(
-            args.wildcards_dataset, 'visualization', 'index.html')
+    if args.html_out_snv_calling == None:
+        args.html_out_snv_calling = os.path.join(
+            args.wildcards_dataset, 'visualization', 'snv_calling.html')
+
+    if args.html_out_alignment == None:
+        args.html_out_alignment = os.path.join(
+            args.wildcards_dataset, 'visualization', 'alignment.html')
 
     # check mandatory files exist
     for n, f in {'vcf': args.vcf_file,
                  'consensus': args.consensus_file,
                  'coverage': args.coverage_file,
-                 'template': args.html_file_in,
+                 'snv_calling_template': args.html_template_snv,
+                 'alignment_template': args.html_template_alignment,
                  }.items():
         if not os.path.exists(f):
             parser.error(f"{n} file <{f}> does not exist!")
@@ -329,9 +381,43 @@ def main():
         if f and not os.path.exists(f):
             parser.error(f"{n} file <{f}> does not exist!")
 
-    # run the visual report generator
-    assemble_visualization_webpage(**vars(args))
+    if args.reference_uri_file == None: # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/reference_uri_file
+        assert args.wildcards_dataset != None, 'cannot automatically find reference_uri_file without wildcards'
+        args.reference_uri_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'reference_uri_file')
 
+    if args.bam_uri_file == None:  # e.g.: samples/140074_395_D02/20200615_J6NRK/visualization/bam_uri_file
+        assert args.wildcards_dataset != None, 'cannot automatically find bam_uri_file without wildcards'
+        args.bam_uri_file = os.path.join(
+            args.wildcards_dataset, 'visualization', 'bam_uri_file')
+
+    # parse the sample name
+    path_components = os.path.normpath(args.wildcards_dataset).split(os.path.sep)
+    sample_name = '/'.join(path_components[-2:])
+
+    # run the visual report generator for SNV calling
+    assemble_snv_calling_visualization_webpage( 
+        sample_name,   
+        consensus_file = args.consensus_file,
+        coverage_file = args.coverage_file,
+        vcf_file = args.vcf_file,
+        gff_directory = args.gff_directory,
+        primers_file = args.primers_file,
+        html_file_in = args.html_template_snv,
+        html_file_out = args.html_out_snv_calling,
+        reference_file = args.reference_file,
+        metainfo_yaml = args.metainfo_yaml)
+
+    # run the visual report generator for read alignment and phylogeny
+    
+    assemble_alignment_visualization_webpage(
+        sample_name,
+        nwk_file = args.nwk_file,
+        reference_uri_file = args.reference_uri_file,
+        bam_uri_file = args.bam_uri_file,
+        html_file_in = args.html_template_alignment,
+        html_file_out = args.html_out_alignment)
+     
 
 if __name__ == "__main__":
     main()
