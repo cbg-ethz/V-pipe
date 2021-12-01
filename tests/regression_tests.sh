@@ -98,7 +98,7 @@ TEST_NAME=$(basename "${0%.*}")_${VIRUS}
 EXIT_CODE=0
 
 function check_logs {
-    grep -E 'failed|for error' "${PROJECT_DIR}/.snakemake/log/*.snakemake.log" && EXIT_CODE=1 || echo "snakemake execution successful"
+    grep -E 'failed|for error' "${PROJECT_DIR}/.snakemake/log/"*".snakemake.log" && EXIT_CODE=1 || echo "snakemake execution successful"
 }
 
 mkdir -p /tmp/v-pipe_tests/
