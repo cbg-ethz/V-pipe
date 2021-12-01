@@ -14,10 +14,12 @@ V-pipe is written using the Snakemake workflow management system.
 
 Different ways of initializing V-pipe are presented below. We strongly encourage you to deploy it [using the quick install script](#using-quick-install-script), as this is our preferred method.
 
-V-pipe expects the input samples to be organized in a [two-level](config/#samples) directory hierarchy,
+To configure V-pipe refer to the documentation present in [config/README.md](config/README.md).
+
+V-pipe expects the input samples to be organized in a [two-level](config/README.md#samples) directory hierarchy,
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
 
-We provide [virus-specific base configuration files](config/#virus-base-config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
+We provide [virus-specific base configuration files](config/README.md#virus-base-config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
 ```yaml
 general:
   virus_base_config: hiv
@@ -48,7 +50,7 @@ cd work
 Note: the [docker image](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe) is only setup with components to run the workflow for HIV and SARS-CoV-2 virus base configurations.
 Using V-pipe with other viruses or configurations might require internet connectivity for additional software components.
 
-Populate the `samples/` directory and create `config.yaml` or `vpipe.config`.
+Create `config.yaml` or `vpipe.config` and then populate the `samples/` directory.
 For example, the following config file could be used:
 ```yaml
 general:
