@@ -98,8 +98,7 @@ bash quick_install.sh -p testing -w work
 
 Tip: To create and populate other new working directories, you can call init_project.sh from within the new directory:
 
-<!-- markdownlint-disable-next-line MD040 -->
-```
+```console
 mkdir -p working_2
 cd working_2
 ../V-pipe/init_project.sh
