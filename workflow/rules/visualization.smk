@@ -3,7 +3,7 @@
 rule generate_web_visualization:
     input:
         consensus_file="{dataset}/references/ref_majority.fasta",
-        reference_file = config["input"]["reference"],
+        reference_file=config["input"]["reference"],
         coverage_file="{dataset}/alignments/coverage.tsv.gz",
         vcf_file="{dataset}/variants/SNVs/snvs.vcf",
         bam_file="{dataset}/alignments/REF_aln.bam",
@@ -47,8 +47,16 @@ rule generate_web_visualization:
         alignment_visualization_template=cachepath(
             "../scripts/alignment_visualization.html", localsource=True
         ),
-        alignment_file=("{dataset}/visualization/alignment.fasta" if config.input["phylogeny_data"] else []),
-        nwk_file=("{dataset}/visualization/tree.nwk" if config.input["phylogeny_data"] else []),
+        alignment_file=(
+            "{dataset}/visualization/alignment.fasta"
+            if config.input["phylogeny_data"]
+            else []
+        ),
+        nwk_file=(
+            "{dataset}/visualization/tree.nwk"
+            if config.input["phylogeny_data"]
+            else []
+        ),
     log:
         outfile="{dataset}/visualization/stdout.log",
         errfile="{dataset}/visualization/stderr.log",
@@ -97,5 +105,5 @@ rule generate_web_visualization:
             --bam_uri_file "{output.bam_uri_file}" \
             --nwk "{params.nwk_file}" \
             > {log.outfile} 2> {log.errfile}
-       
+
         """
