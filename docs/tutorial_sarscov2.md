@@ -180,9 +180,9 @@ The default configuration uses ShoRAH to call the SNVs and to reconstruct the lo
 
 Components can be swapped simply by changing the `config.yaml` file. For example to call SNVs using lofreq:
 
-```
-[general]
-snv_caller = lofreq
+```yaml
+general:
+  snv_caller: lofreq
 ```
 
 
