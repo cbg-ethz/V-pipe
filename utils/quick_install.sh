@@ -92,7 +92,7 @@ while getopts ":fp:b:r:w:mh" opt; do
 done
 shift $((OPTIND -1))
 
-[[ -z "${BRANCH}" && -z "${RELEASE}" ]] && fail "Please specify either a branch or a release package"
+[[ -z "${BRANCH}" && -z "${RELEASE}" ]] && fail "Please specify either a branch or a release package, e.g.: '-b master'"
 
 
 ###################
@@ -105,7 +105,7 @@ DOWNLOAD=
 if [[ -x $(which wget) ]] || wget --version; then # most Linux distros (Gentoo)
 	DOWNLOAD='wget'
 elif [[ -x $(which curl) ]] || curl --version; then # a few Linux distros (CentOS, Archlinux) and Mac OS X
-	DOWNLOAD='curl -O'
+	DOWNLOAD='curl -LO'
 else
 	fail 'Please install either wget or curl'
 fi;
@@ -157,7 +157,7 @@ if [[ "$OSTYPE" == linux* ]]; then
 elif [[ "$OSTYPE" == darwin* ]]; then
 	MINICONDA=Miniconda3-latest-MacOSX-x86_64.sh
 else
-	fail 'I cannot detect OS. Only Linux and Mac OS X are supported' 'manually override OSTYPE environment variable if needed'
+	fail 'I cannot detect OS. Only Linux and Mac OS X are supported' "manually override OSTYPE environment variable if needed, e.g.: OSTYPE=linux or OSTYPE=darwin"
 fi
 
 message 'Using installer:' ${MINICONDA}
@@ -213,7 +213,7 @@ if [[ -z "${RELEASE}" ]]; then
 else
 	message 'Using release:' "${RELEASE}"
 	check_directory "V-pipe-${RELEASE}" 'V-pipe installation directory'
-	${DOWNLOAD} "https://github.com/cbg-ethz/V-pipe/archive/${RELEASE}.tar.gz" || fail "I cannot download package ${BRANCH}."
+	${DOWNLOAD} "https://github.com/cbg-ethz/V-pipe/archive/refs/tags/${RELEASE}.tar.gz" || fail "I cannot download package {RELEASE}."
 	tar xvzf "${RELEASE}.tar.gz" || fail "I cannot install package ${RELEASE}."
 fi
 
