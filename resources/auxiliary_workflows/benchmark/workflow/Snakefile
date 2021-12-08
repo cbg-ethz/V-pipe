@@ -14,7 +14,7 @@ print(method_list)
 # rule definitions
 rule all:
     input:
-        expand("results/method_runs/{method}/snvs.vcf", method=method_list),
+        "results/performance_measures/",
 
 
 rule simulate_reads:
@@ -43,3 +43,12 @@ rule run_method:
         "envs/run_method.yaml"
     script:
         "{params.script_name}"
+
+
+rule performance_measures:
+    input:
+        vcf_list=expand("results/method_runs/{method}/snvs.vcf", method=method_list),
+    output:
+        dname_out=directory("results/performance_measures/"),
+    script:
+        "scripts/performance_measures.py"
