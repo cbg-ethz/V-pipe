@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - art = 2016.06.05
+  - numpy = 1.21.2
