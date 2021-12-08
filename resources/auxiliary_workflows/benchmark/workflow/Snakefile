@@ -5,7 +5,9 @@ rule all:
 
 rule simulate_reads:
     output:
-        fname_reads="results/simulated_reads/reads.fastq",
+        fname_fastq="results/simulated_reads/reads.fastq",
+        fname_bam="results/simulated_reads/reads.bam",
+        fname_reference="results/simulated_reads/reference.fasta",
         dname_work=directory("results/simulated_reads/work/"),
     conda:
         "envs/simulate_reads.yaml"

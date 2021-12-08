@@ -41,7 +41,7 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     return "".join(seq_haplotype)
 
 
-def main(fname_reads, dname_work):
+def main(fname_fastq, fname_bam, fname_reference, dname_work):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     np.random.seed(42)
@@ -49,9 +49,7 @@ def main(fname_reads, dname_work):
 
     # generate random master sequence
     seq_master = "".join(np.random.choice(BASE_LIST, size=1000))
-    (dname_work / "master_sequence.fasta").write_text(
-        f">MasterSequence\n{seq_master}\n"
-    )
+    fname_reference.write_text(f">MasterSequence\n{seq_master}\n")
 
     # infer haplotype sequences
     haplotype_count = 10
@@ -76,6 +74,7 @@ def main(fname_reads, dname_work):
     subprocess.run(
         [
             "art_illumina",
+            "-sam",
             "-i",
             fname_haplotypes,
             "-c",
@@ -88,8 +87,16 @@ def main(fname_reads, dname_work):
     )
 
     # save result
-    art_prefix.with_suffix(".fq").rename(fname_reads)
+    art_prefix.with_suffix(".fq").rename(fname_fastq)
+    subprocess.run(
+        ["samtools", "view", "-b", "-o", fname_bam, art_prefix.with_suffix(".sam")]
+    )
 
 
 if __name__ == "__main__":
-    main(Path(snakemake.output.fname_reads), Path(snakemake.output.dname_work))
+    main(
+        Path(snakemake.output.fname_fastq),
+        Path(snakemake.output.fname_bam),
+        Path(snakemake.output.fname_reference),
+        Path(snakemake.output.dname_work),
+    )
