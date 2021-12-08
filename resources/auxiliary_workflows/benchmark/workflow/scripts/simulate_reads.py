@@ -1,0 +1,87 @@
+import subprocess
+from pathlib import Path
+
+import numpy as np
+
+
+BASE_LIST = list("TCGA")
+
+
+def main(fname_reads, dname_work):
+    # initial setup
+    np.random.seed(42)
+    dname_work.mkdir(parents=True, exist_ok=True)
+
+    # generate random master sequence
+    seq_master = "".join(np.random.choice(BASE_LIST, size=1000))
+    (dname_work / "master_sequence.fasta").write_text(
+        f">MasterSequence\n{seq_master}\n"
+    )
+
+    # infer haplotype sequences
+    haplotype_count = 10
+    mutation_rate = 0.2
+    insertion_rate = 0.1
+    deletion_rate = 0.05
+
+    haplotype_dict = {}
+    for i in range(haplotype_count):
+        seq_haplotype = np.asarray(list(seq_master))
+
+        # deletions
+        deletion_count = int(len(seq_haplotype) * deletion_rate)
+        position_list = np.random.choice(
+            np.arange(len(seq_haplotype)), size=deletion_count, replace=False
+        )
+        seq_haplotype = np.delete(seq_haplotype, position_list)
+
+        # mutations
+        mutation_count = int(len(seq_haplotype) * mutation_rate)
+        position_list = np.random.choice(
+            np.arange(len(seq_haplotype)), size=mutation_count, replace=False
+        )
+        seq_haplotype[position_list] = np.random.choice(
+            BASE_LIST, size=len(position_list)
+        )  # TODO: ensure that mutated base is not the same as original base
+
+        # insertions
+        insertion_count = int(len(seq_haplotype) * insertion_rate)
+        position_list = np.random.choice(
+            np.arange(len(seq_haplotype)), size=insertion_count, replace=False
+        )
+        seq_haplotype = np.insert(
+            seq_haplotype,
+            position_list,
+            np.random.choice(BASE_LIST, size=insertion_count),
+        )
+
+        # store result
+        haplotype_dict[f"Haplotype_{i:04}"] = "".join(seq_haplotype)
+
+    fname_haplotypes = dname_work / "haplotypes.fasta"
+    fname_haplotypes.write_text(
+        "\n".join(f">{k}\n{v}" for k, v in haplotype_dict.items())
+    )
+
+    # simulate reads for each haplotype
+    art_prefix = dname_work / "art_output"
+    subprocess.run(
+        [
+            "art_illumina",
+            "-i",
+            fname_haplotypes,
+            "-c",
+            "100",
+            "-l",
+            "250",
+            "-o",
+            art_prefix,
+        ]
+    )
+
+    # save result
+    art_prefix.with_suffix(".fq").rename(fname_reads)
+
+
+if __name__ == "__main__":
+    main(Path(snakemake.output.fname_reads), Path(snakemake.output.dname_work))
