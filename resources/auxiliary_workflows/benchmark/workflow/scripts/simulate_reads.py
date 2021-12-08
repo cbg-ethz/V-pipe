@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -43,54 +44,75 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
 
 def main(fname_fastq, fname_bam, fname_reference, dname_work):
     """Create master sequence, infer haplotypes and simulate reads."""
+    genome_size = 1000
+    coverage = 100
+    read_length = 250
+    haplotype_pattern = "0.5;0.2;0.3"
+    mutation_rate = 0.2
+    insertion_rate = 0.1
+    deletion_rate = 0.05
+
     # initial setup
     np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # generate random master sequence
-    seq_master = "".join(np.random.choice(BASE_LIST, size=1000))
+    seq_master = "".join(np.random.choice(BASE_LIST, size=genome_size))
     fname_reference.write_text(f">MasterSequence\n{seq_master}\n")
 
     # infer haplotype sequences
-    haplotype_count = 10
-    mutation_rate = 0.2
-    insertion_rate = 0.1
-    deletion_rate = 0.05
+    freq_list = [float(freq) for freq in haplotype_pattern.split(";")]
+    assert sum(freq_list) == 1, f"Invalid haplotype pattern: {haplotype_pattern}"
 
-    haplotype_dict = {}
-    for i in range(haplotype_count):
+    filelist_sam = []
+    filelist_fastq = []
+    for i, freq in enumerate(freq_list):
+        # generate haplotype
+        haplotype_name = f"haplotype_{i:04}"
         seq_haplotype = generate_haplotype(
             seq_master, mutation_rate, insertion_rate, deletion_rate
         )
-        haplotype_dict[f"Haplotype_{i:04}"] = seq_haplotype
 
-    fname_haplotypes = dname_work / "haplotypes.fasta"
-    fname_haplotypes.write_text(
-        "\n".join(f">{k}\n{v}" for k, v in haplotype_dict.items())
-    )
+        coverage_haplotype = int(coverage * freq)
 
-    # simulate reads for each haplotype
-    art_prefix = dname_work / "art_output"
-    subprocess.run(
-        [
-            "art_illumina",
-            "-sam",
-            "-i",
-            fname_haplotypes,
-            "-c",
-            "100",
-            "-l",
-            "250",
-            "-o",
-            art_prefix,
-        ]
-    )
+        # save haplotype in FASTA
+        fname_haplotype = dname_work / f"{haplotype_name}.fasta"
+        fname_haplotype.write_text(f">{haplotype_name}\n{seq_haplotype}\n")
+
+        # simulate haplotype reads
+        art_prefix = dname_work / f"art_output/haplo_{haplotype_name}"
+        art_prefix.parent.mkdir(parents=True, exist_ok=True)
+
+        subprocess.run(
+            [
+                "art_illumina",
+                "-sam",
+                "-i",
+                fname_haplotype,
+                "-c",
+                str(coverage_haplotype),
+                "-l",
+                str(read_length),
+                "-o",
+                art_prefix,
+            ]
+        )
+
+        # gather files
+        filelist_sam.append(art_prefix.with_suffix(".sam"))
+        filelist_fastq.append(art_prefix.with_suffix(".fq"))
+
+    # merge sam files
+    fname_merged_sam = dname_work / "haplotype_reads.sam"
+    subprocess.run(["samtools", "merge", "-o", fname_merged_sam, *filelist_sam])
 
     # save result
-    art_prefix.with_suffix(".fq").rename(fname_fastq)
-    subprocess.run(
-        ["samtools", "view", "-b", "-o", fname_bam, art_prefix.with_suffix(".sam")]
-    )
+    with open(fname_fastq, "wb") as fd_write:
+        for fname in filelist_fastq:
+            with open(fname, "rb") as fd_read:
+                shutil.copyfileobj(fd_read, fd_write)
+
+    subprocess.run(["samtools", "view", "-b", "-o", fname_bam, fname_merged_sam])
 
 
 if __name__ == "__main__":
