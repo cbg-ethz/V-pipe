@@ -1,6 +1,15 @@
-# setup
+import pandas as pd
+
+from snakemake.utils import Paramspace
+
+
+# setup config
 configfile: "config/config.yaml"
 
+
+# setup paramspace
+df_params = pd.read_csv("config/params.csv")
+paramspace = Paramspace(df_params, filename_params="*")
 
 # method selection
 if config["method_list"] is None:
@@ -19,10 +28,14 @@ rule all:
 
 rule simulate_reads:
     output:
-        fname_fastq="results/simulated_reads/reads.fastq",
-        fname_bam="results/simulated_reads/reads.bam",
-        fname_reference="results/simulated_reads/reference.fasta",
-        dname_work=directory("results/simulated_reads/work/"),
+        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/reference.fasta",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/work/"
+        ),
+    params:
+        params=paramspace.instance,
     conda:
         "envs/simulate_reads.yaml"
     script:
@@ -32,11 +45,13 @@ rule simulate_reads:
 rule run_method:
     input:
         script="resources/method_definitions/{method}.py",
-        fname_bam="results/simulated_reads/reads.bam",
-        fname_reference="results/simulated_reads/reference.fasta",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/reference.fasta",
     output:
-        fname_results="results/method_runs/{method}/snvs.vcf",
-        dname_work=directory("results/method_runs/{method}/work/"),
+        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/snvs.vcf",
+        dname_work=directory(
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/work/"
+        ),
     params:
         script_name=lambda wildcards, input: "../" + input.script,
     conda:
@@ -47,7 +62,11 @@ rule run_method:
 
 rule performance_measures:
     input:
-        vcf_list=expand("results/method_runs/{method}/snvs.vcf", method=method_list),
+        vcf_list=expand(
+            "results/method_runs/{params}/{method}/snvs.vcf",
+            params=paramspace.instance_patterns,
+            method=method_list,
+        ),
     output:
         dname_out=directory("results/performance_measures/"),
     script:

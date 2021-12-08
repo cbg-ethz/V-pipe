@@ -42,27 +42,21 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     return "".join(seq_haplotype)
 
 
-def main(fname_fastq, fname_bam, fname_reference, dname_work):
+def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
     """Create master sequence, infer haplotypes and simulate reads."""
-    genome_size = 1000
-    coverage = 100
-    read_length = 250
-    haplotype_pattern = "0.5;0.2;0.3"
-    mutation_rate = 0.2
-    insertion_rate = 0.1
-    deletion_rate = 0.05
-
     # initial setup
     np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # generate random master sequence
-    seq_master = "".join(np.random.choice(BASE_LIST, size=genome_size))
+    seq_master = "".join(np.random.choice(BASE_LIST, size=params["genome_size"]))
     fname_reference.write_text(f">MasterSequence\n{seq_master}\n")
 
     # infer haplotype sequences
-    freq_list = [float(freq) for freq in haplotype_pattern.split(";")]
-    assert sum(freq_list) == 1, f"Invalid haplotype pattern: {haplotype_pattern}"
+    freq_list = [float(freq) for freq in params["haplotype_pattern"].split(";")]
+    assert (
+        sum(freq_list) == 1
+    ), f"Invalid haplotype pattern: {params['haplotype_pattern']}"
 
     filelist_sam = []
     filelist_fastq = []
@@ -70,10 +64,13 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work):
         # generate haplotype
         haplotype_name = f"haplotype_{i:04}"
         seq_haplotype = generate_haplotype(
-            seq_master, mutation_rate, insertion_rate, deletion_rate
+            seq_master,
+            params["mutation_rate"],
+            params["insertion_rate"],
+            params["deletion_rate"],
         )
 
-        coverage_haplotype = int(coverage * freq)
+        coverage_haplotype = int(params["coverage"] * freq)
 
         # save haplotype in FASTA
         fname_haplotype = dname_work / f"{haplotype_name}.fasta"
@@ -92,7 +89,7 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work):
                 "-c",
                 str(coverage_haplotype),
                 "-l",
-                str(read_length),
+                str(params["read_length"]),
                 "-o",
                 art_prefix,
             ]
@@ -121,4 +118,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_bam),
         Path(snakemake.output.fname_reference),
         Path(snakemake.output.dname_work),
+        snakemake.params.params,
     )

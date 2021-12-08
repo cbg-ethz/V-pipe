@@ -1,0 +1,4 @@
+read_length,genome_size,coverage,mutation_rate,insertion_rate,deletion_rate,haplotype_pattern
+250,10000,1000,0.1,0,0,1
+250,10000,1000,0.1,0,0,0.5;0.5
+250,10000,1000,0.1,0,0,0.7;0.2;0.05;0.04;0.005;0.005
