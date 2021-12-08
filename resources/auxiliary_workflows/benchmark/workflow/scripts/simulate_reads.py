@@ -7,7 +7,42 @@ import numpy as np
 BASE_LIST = list("TCGA")
 
 
+def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_rate=0):
+    """Generate haplotype from master sequence."""
+    seq_haplotype = np.asarray(list(seq_master))
+
+    # deletions
+    deletion_count = int(len(seq_haplotype) * deletion_rate)
+    position_list = np.random.choice(
+        np.arange(len(seq_haplotype)), size=deletion_count, replace=False
+    )
+    seq_haplotype = np.delete(seq_haplotype, position_list)
+
+    # mutations
+    mutation_count = int(len(seq_haplotype) * mutation_rate)
+    position_list = np.random.choice(
+        np.arange(len(seq_haplotype)), size=mutation_count, replace=False
+    )
+    seq_haplotype[position_list] = np.random.choice(
+        BASE_LIST, size=len(position_list)
+    )  # TODO: ensure that mutated base is not the same as original base
+
+    # insertions
+    insertion_count = int(len(seq_haplotype) * insertion_rate)
+    position_list = np.random.choice(
+        np.arange(len(seq_haplotype)), size=insertion_count, replace=False
+    )
+    seq_haplotype = np.insert(
+        seq_haplotype,
+        position_list,
+        np.random.choice(BASE_LIST, size=insertion_count),
+    )
+
+    return "".join(seq_haplotype)
+
+
 def main(fname_reads, dname_work):
+    """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
@@ -26,37 +61,10 @@ def main(fname_reads, dname_work):
 
     haplotype_dict = {}
     for i in range(haplotype_count):
-        seq_haplotype = np.asarray(list(seq_master))
-
-        # deletions
-        deletion_count = int(len(seq_haplotype) * deletion_rate)
-        position_list = np.random.choice(
-            np.arange(len(seq_haplotype)), size=deletion_count, replace=False
+        seq_haplotype = generate_haplotype(
+            seq_master, mutation_rate, insertion_rate, deletion_rate
         )
-        seq_haplotype = np.delete(seq_haplotype, position_list)
-
-        # mutations
-        mutation_count = int(len(seq_haplotype) * mutation_rate)
-        position_list = np.random.choice(
-            np.arange(len(seq_haplotype)), size=mutation_count, replace=False
-        )
-        seq_haplotype[position_list] = np.random.choice(
-            BASE_LIST, size=len(position_list)
-        )  # TODO: ensure that mutated base is not the same as original base
-
-        # insertions
-        insertion_count = int(len(seq_haplotype) * insertion_rate)
-        position_list = np.random.choice(
-            np.arange(len(seq_haplotype)), size=insertion_count, replace=False
-        )
-        seq_haplotype = np.insert(
-            seq_haplotype,
-            position_list,
-            np.random.choice(BASE_LIST, size=insertion_count),
-        )
-
-        # store result
-        haplotype_dict[f"Haplotype_{i:04}"] = "".join(seq_haplotype)
+        haplotype_dict[f"Haplotype_{i:04}"] = seq_haplotype
 
     fname_haplotypes = dname_work / "haplotypes.fasta"
     fname_haplotypes.write_text(
