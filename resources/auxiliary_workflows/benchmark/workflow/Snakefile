@@ -1,7 +1,17 @@
-(method_list,) = glob_wildcards("resources/method_definitions/{method}.py")
+# setup
+configfile: "config/config.yaml"
+
+
+# method selection
+if config["method_list"] is None:
+    (method_list,) = glob_wildcards("resources/method_definitions/{method}.py")
+else:
+    method_list = config["method_list"]
+
 print(method_list)
 
 
+# rule definitions
 rule all:
     input:
         expand("results/method_runs/{method}/snvs.vcf", method=method_list),
