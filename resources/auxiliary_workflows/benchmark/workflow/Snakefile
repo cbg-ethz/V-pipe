@@ -1,6 +1,10 @@
+(method_list,) = glob_wildcards("resources/method_definitions/{method}.py")
+print(method_list)
+
+
 rule all:
     input:
-        "results/simulated_reads/reads.fastq",
+        expand("results/method_runs/{method}/snvs.vcf", method=method_list),
 
 
 rule simulate_reads:
@@ -13,3 +17,19 @@ rule simulate_reads:
         "envs/simulate_reads.yaml"
     script:
         "scripts/simulate_reads.py"
+
+
+rule run_method:
+    input:
+        script="resources/method_definitions/{method}.py",
+        fname_bam="results/simulated_reads/reads.bam",
+        fname_reference="results/simulated_reads/reference.fasta",
+    output:
+        fname_results="results/method_runs/{method}/snvs.vcf",
+        dname_work=directory("results/method_runs/{method}/work/"),
+    params:
+        script_name=lambda wildcards, input: "../" + input.script,
+    conda:
+        "envs/run_method.yaml"
+    script:
+        "{params.script_name}"
