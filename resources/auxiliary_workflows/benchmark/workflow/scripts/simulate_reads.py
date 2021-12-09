@@ -53,7 +53,7 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
     fname_reference.write_text(f">MasterSequence\n{seq_master}\n")
 
     # infer haplotype sequences
-    freq_list = [float(freq) for freq in params["haplotype_pattern"].split(";")]
+    freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
     assert (
         sum(freq_list) == 1
     ), f"Invalid haplotype pattern: {params['haplotype_pattern']}"
@@ -62,7 +62,7 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
     filelist_fastq = []
     for i, freq in enumerate(freq_list):
         # generate haplotype
-        haplotype_name = f"haplotype_{i:04}"
+        haplotype_name = f"haplotype{i:04}"
         seq_haplotype = generate_haplotype(
             seq_master,
             params["mutation_rate"],
