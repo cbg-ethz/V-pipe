@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+import fileinput
 import subprocess
 from pathlib import Path
 
@@ -50,8 +51,9 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # generate random master sequence
+    master_name = "MasterSequence"
     seq_master = "".join(np.random.choice(BASE_LIST, size=params["genome_size"]))
-    fname_reference.write_text(f">MasterSequence\n{seq_master}\n")
+    fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
     # infer haplotype sequences
     freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
@@ -96,8 +98,17 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
             ]
         )
 
+        # we assume that generated SAM file represent reads being mapped
+        # to a reference (or de-novo consensus sequence).
+        # We must thus change the reference name accordingly
+        # TODO: there is probably/hopefully a better way of doing this
+        fname_sam = art_prefix.with_suffix(".sam")
+        with fileinput.FileInput(fname_sam, inplace=True, backup=".bak") as fd:
+            for line in fd:
+                print(line.replace(haplotype_name, master_name), end="")
+
         # gather files
-        filelist_sam.append(art_prefix.with_suffix(".sam"))
+        filelist_sam.append(fname_sam)
         filelist_fastq.append(art_prefix.with_suffix(".fq"))
 
     # merge sam files
