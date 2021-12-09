@@ -1,4 +1,5 @@
 import shutil
+import tempfile
 import subprocess
 from pathlib import Path
 
@@ -109,7 +110,9 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
             with open(fname, "rb") as fd_read:
                 shutil.copyfileobj(fd_read, fd_write)
 
-    subprocess.run(["samtools", "view", "-b", "-o", fname_bam, fname_merged_sam])
+    with tempfile.NamedTemporaryFile() as fd_tmp:
+        subprocess.run(["samtools", "view", "-b", "-o", fd_tmp.name, fname_merged_sam])
+        subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
 
 
 if __name__ == "__main__":
