@@ -3,13 +3,13 @@ from pathlib import Path
 
 
 def main(fname_bam, fname_reference, fname_results, dname_work):
-    # TODO: implement shorah
-    # subprocess.run(
-    #     ["shorah", "snv", "-b", fname_bam, "-f", fname_reference, "--out_format=vcf"]
-    # )
-
     dname_work.mkdir(parents=True, exist_ok=True)
-    fname_results.touch()
+    subprocess.run(
+        ["shorah", "shotgun", "-b", fname_bam.resolve(), "-f", fname_reference.resolve()],
+        cwd=dname_work
+    )
+
+    (dname_work / 'snv' / 'SNVs_0.010000_final.vcf').rename(fname_results)
 
 
 if __name__ == "__main__":
