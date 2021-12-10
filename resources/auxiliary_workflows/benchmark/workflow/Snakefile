@@ -31,6 +31,7 @@ rule simulate_reads:
         fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/ground_truth.csv",
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/work/"
         ),
@@ -62,11 +63,17 @@ rule run_method:
 
 rule performance_measures:
     input:
-        vcf_list=expand(
-            "results/method_runs/{params}/{method}/snvs.vcf",
-            params=paramspace.instance_patterns,
-            method=method_list,
-        ),
+        vcf_list=[
+            f"results/method_runs/{params}/{method}/snvs.vcf"
+            for params in paramspace.instance_patterns
+            for method in method_list
+        ],
+        # we also include `method_list` to align with `vcf_list`
+        groundtruth_list=[
+            f"results/simulated_reads/{params}/ground_truth.csv"
+            for params in paramspace.instance_patterns
+            for method in method_list
+        ],
     output:
         dname_out=directory("results/performance_measures/"),
     script:

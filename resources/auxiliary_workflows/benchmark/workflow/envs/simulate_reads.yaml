@@ -4,5 +4,6 @@ channels:
   - defaults
 dependencies:
   - numpy = 1.21.2
+  - pandas = 1.3.4
   - art = 2016.06.05
   - samtools = 1.14

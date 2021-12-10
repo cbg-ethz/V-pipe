@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 
 BASE_LIST = list("TCGA")
@@ -12,7 +13,10 @@ BASE_LIST = list("TCGA")
 
 def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_rate=0):
     """Generate haplotype from master sequence."""
+    # TODO: allow indels of length >1
+
     seq_haplotype = np.asarray(list(seq_master))
+    ground_truth = {"type": [], "position": [], "variant": []}
 
     # deletions
     deletion_count = int(len(seq_haplotype) * deletion_rate)
@@ -21,30 +25,47 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     )
     seq_haplotype = np.delete(seq_haplotype, position_list)
 
+    ground_truth["type"].extend(["deletion"] * position_list.shape[0])
+    ground_truth["position"].extend(position_list)
+    ground_truth["variant"].extend(["-"] * position_list.shape[0])
+
     # mutations
     mutation_count = int(len(seq_haplotype) * mutation_rate)
     position_list = np.random.choice(
         np.arange(len(seq_haplotype)), size=mutation_count, replace=False
     )
+
     seq_haplotype[position_list] = np.random.choice(
         BASE_LIST, size=len(position_list)
     )  # TODO: ensure that mutated base is not the same as original base
+
+    ground_truth["type"].extend(["mutation"] * position_list.shape[0])
+    ground_truth["position"].extend(position_list)
+    ground_truth["variant"].extend(seq_haplotype[position_list])
 
     # insertions
     insertion_count = int(len(seq_haplotype) * insertion_rate)
     position_list = np.random.choice(
         np.arange(len(seq_haplotype)), size=insertion_count, replace=False
     )
+
+    insertion_list = np.random.choice(BASE_LIST, size=insertion_count)
     seq_haplotype = np.insert(
         seq_haplotype,
         position_list,
-        np.random.choice(BASE_LIST, size=insertion_count),
+        insertion_list,
     )
 
-    return "".join(seq_haplotype)
+    ground_truth["type"].extend(["insertion"] * position_list.shape[0])
+    ground_truth["position"].extend(position_list)
+    ground_truth["variant"].extend(insertion_list)
+
+    return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
 
-def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
+def main(
+    fname_fastq, fname_bam, fname_reference, fname_groundtruth, dname_work, params
+):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     np.random.seed(42)
@@ -63,15 +84,18 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
 
     filelist_sam = []
     filelist_fastq = []
+    ground_truth_list = []
     for i, freq in enumerate(freq_list):
         # generate haplotype
         haplotype_name = f"haplotype{i:04}"
-        seq_haplotype = generate_haplotype(
+        seq_haplotype, ground_truth = generate_haplotype(
             seq_master,
             params["mutation_rate"],
             params["insertion_rate"],
             params["deletion_rate"],
         )
+
+        ground_truth["haplotype"] = haplotype_name
 
         coverage_haplotype = int(params["coverage"] * freq)
 
@@ -110,6 +134,7 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
         # gather files
         filelist_sam.append(fname_sam)
         filelist_fastq.append(art_prefix.with_suffix(".fq"))
+        ground_truth_list.append(ground_truth)
 
     # merge sam files
     fname_merged_sam = dname_work / "haplotype_reads.sam"
@@ -125,12 +150,15 @@ def main(fname_fastq, fname_bam, fname_reference, dname_work, params):
         subprocess.run(["samtools", "view", "-b", "-o", fd_tmp.name, fname_merged_sam])
         subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
 
+    pd.concat(ground_truth_list).to_csv(fname_groundtruth)
+
 
 if __name__ == "__main__":
     main(
         Path(snakemake.output.fname_fastq),
         Path(snakemake.output.fname_bam),
         Path(snakemake.output.fname_reference),
+        Path(snakemake.output.fname_groundtruth),
         Path(snakemake.output.dname_work),
         snakemake.params.params,
     )
