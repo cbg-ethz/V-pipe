@@ -76,5 +76,7 @@ rule performance_measures:
         ],
     output:
         dname_out=directory("results/performance_measures/"),
+    conda:
+        "envs/performance_measures.yaml"
     script:
         "scripts/performance_measures.py"

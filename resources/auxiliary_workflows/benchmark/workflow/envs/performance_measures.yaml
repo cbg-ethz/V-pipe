@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pandas = 1.3.4
+  - cyvcf2 = 0.30.14
+  - seaborn = 0.11.2
