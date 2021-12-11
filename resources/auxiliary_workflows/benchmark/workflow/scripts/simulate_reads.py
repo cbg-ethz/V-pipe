@@ -35,9 +35,11 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
         np.arange(len(seq_haplotype)), size=mutation_count, replace=False
     )
 
-    seq_haplotype[position_list] = np.random.choice(
-        BASE_LIST, size=len(position_list)
-    )  # TODO: ensure that mutated base is not the same as original base
+    base_set = set(BASE_LIST)
+    for pos in position_list:
+        # make sure we mutate to base different from reference
+        cur_base_list = list(base_set - {seq_haplotype[pos]})
+        seq_haplotype[pos] = np.random.choice(cur_base_list)
 
     ground_truth["type"].extend(["mutation"] * position_list.shape[0])
     ground_truth["position"].extend(position_list)
