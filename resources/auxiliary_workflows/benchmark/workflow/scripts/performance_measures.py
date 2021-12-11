@@ -51,7 +51,7 @@ def main(vcf_list, groundtruth_list, dname_out):
     # compute performance
     tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
-        _, _, params, method, _ = str(fname_vcf).split("/")
+        _, _, params, method, _, replicate, _ = str(fname_vcf).split("/")
 
         true_variants = convert_groundtruth(fname_groundtruth)
         predicted_variants = convert_vcf(fname_vcf)
@@ -62,6 +62,7 @@ def main(vcf_list, groundtruth_list, dname_out):
             {
                 "method": method,
                 "params": params,
+                "replicate": replicate,
                 "precision": precision,
                 "recall": recall,
                 "f1": f1,
@@ -70,7 +71,7 @@ def main(vcf_list, groundtruth_list, dname_out):
     df_perf = pd.DataFrame(tmp)
 
     # plot overview
-    df_long = pd.melt(df_perf, id_vars=["method", "params"]).assign(
+    df_long = pd.melt(df_perf, id_vars=["method", "params", "replicate"]).assign(
         params=lambda x: x["params"].str.replace("_", "\n")
     )
 

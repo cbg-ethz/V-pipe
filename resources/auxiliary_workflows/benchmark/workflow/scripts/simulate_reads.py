@@ -68,7 +68,7 @@ def main(
 ):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
-    np.random.seed(42)
+    # np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # generate random master sequence

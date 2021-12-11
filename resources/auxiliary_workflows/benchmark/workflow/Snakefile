@@ -28,12 +28,12 @@ rule all:
 
 rule simulate_reads:
     output:
-        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.fastq",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.bam",
-        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/reference.fasta",
-        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/ground_truth.csv",
+        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
         dname_work=directory(
-            f"results/simulated_reads/{paramspace.wildcard_pattern}/work/"
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
     params:
         params=paramspace.instance,
@@ -46,12 +46,12 @@ rule simulate_reads:
 rule run_method:
     input:
         script="resources/method_definitions/{method}.py",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/reads.bam",
-        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/reference.fasta",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
     output:
-        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/snvs.vcf",
+        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         dname_work=directory(
-            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/work/"
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
     params:
         script_name=lambda wildcards, input: "../" + input.script,
@@ -64,15 +64,17 @@ rule run_method:
 rule performance_measures:
     input:
         vcf_list=[
-            f"results/method_runs/{params}/{method}/snvs.vcf"
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.vcf"
             for params in paramspace.instance_patterns
             for method in method_list
+            for replicate in range(config["replicate_count"])
         ],
         # we also include `method_list` to align with `vcf_list`
         groundtruth_list=[
-            f"results/simulated_reads/{params}/ground_truth.csv"
+            f"results/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
             for params in paramspace.instance_patterns
             for method in method_list
+            for replicate in range(config["replicate_count"])
         ],
     output:
         dname_out=directory("results/performance_measures/"),
