@@ -80,7 +80,7 @@ def main(vcf_list, groundtruth_list, dname_out):
         x="params",
         y="value",
         hue="method",
-        row="variable",
+        col="variable",
         kind="box",
     )
     g.set(ylim=(0, 1))
