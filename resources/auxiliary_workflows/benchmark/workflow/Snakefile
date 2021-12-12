@@ -53,6 +53,8 @@ rule run_method:
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
+    benchmark:
+        f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_name=lambda wildcards, input: "../" + input.script,
     conda:
@@ -72,6 +74,12 @@ rule performance_measures:
         # we also include `method_list` to align with `vcf_list`
         groundtruth_list=[
             f"results/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in paramspace.instance_patterns
+            for method in method_list
+            for replicate in range(config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
             for params in paramspace.instance_patterns
             for method in method_list
             for replicate in range(config["replicate_count"])

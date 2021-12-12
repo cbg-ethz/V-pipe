@@ -1,9 +1,16 @@
 from pathlib import Path
 
+import humanize
 import pandas as pd
 from cyvcf2 import VCF
 
 import seaborn as sns
+from matplotlib.ticker import FuncFormatter
+
+
+@FuncFormatter
+def duration_fmt(x, pos):
+    return humanize.naturaldelta(x)
 
 
 def convert_vcf(fname):
@@ -45,9 +52,7 @@ def compute_performance(true_variants, predicted_variants):
     return precision, recall, f1
 
 
-def main(vcf_list, groundtruth_list, dname_out):
-    dname_out.mkdir(parents=True)
-
+def performance_plots(vcf_list, groundtruth_list, dname_out):
     # compute performance
     tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
@@ -84,12 +89,56 @@ def main(vcf_list, groundtruth_list, dname_out):
         kind="box",
     )
     g.set(ylim=(0, 1))
-    g.savefig(dname_out / "overview.pdf")
+    g.savefig(dname_out / "performance_boxplot.pdf")
+
+
+def runtime_plots(benchmark_list, dname_out):
+    # gather benchmark information
+    tmp = []
+    for fname in benchmark_list:
+        _, _, params, method, _, replicate, _ = str(fname).split("/")
+
+        df_tmp = pd.read_csv(fname, sep="\t")
+        df_tmp["method"] = method
+        df_tmp["params"] = params
+        df_tmp["replicate"] = replicate
+
+        tmp.append(df_tmp)
+    df_bench = pd.concat(tmp).replace("-", pd.NA)
+
+    # plot
+    df_long = (
+        pd.melt(df_bench, id_vars=["method", "params", "replicate"])
+        .assign(params=lambda x: x["params"].str.replace("_", "\n"))
+        .query("variable == 's'")
+    )
+
+    g = sns.catplot(
+        data=df_long,
+        x="params",
+        y="value",
+        hue="method",
+        col="variable",
+        kind="box",
+    )
+
+    for ax in g.axes.flat:
+        ax.yaxis.set_major_formatter(duration_fmt)
+
+    g.savefig(dname_out / "runtime_boxplot.pdf")
+
+
+def main(vcf_list, groundtruth_list, benchmark_list, dname_out):
+    dname_out.mkdir(parents=True)
+
+    performance_plots(vcf_list, groundtruth_list, dname_out)
+    runtime_plots(benchmark_list, dname_out)
 
 
 if __name__ == "__main__":
     main(
         [Path(e) for e in snakemake.input.vcf_list],
         [Path(e) for e in snakemake.input.groundtruth_list],
+        [Path(e) for e in snakemake.input.benchmark_list],
         Path(snakemake.output.dname_out),
     )
