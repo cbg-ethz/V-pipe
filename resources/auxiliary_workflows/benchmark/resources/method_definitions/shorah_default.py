@@ -1,3 +1,5 @@
+# CONDA: shorah = 1.99.2
+
 import subprocess
 from pathlib import Path
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from snakemake.utils import Paramspace
@@ -43,6 +45,39 @@ rule simulate_reads:
         "scripts/simulate_reads.py"
 
 
+def get_generated_conda_env(wildcards, input):
+    # retrieve conda dependencies from script
+    conda_dep_prefix = "# CONDA:"
+
+    conda_dep_list = []
+    with open(input.script) as fd:
+        for line in fd.readlines():
+            if not line.startswith(conda_dep_prefix):
+                continue
+
+            conda_dep_list.extend(
+                e.strip() for e in line[len(conda_dep_prefix):].split(",")
+            )
+
+    # format conda env file
+    conda_env = f"""
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies: {conda_dep_list}
+    """
+
+    # save conda env
+    conda_prefix = Path("results/envs/")
+    conda_prefix.mkdir(parents=True, exist_ok=True)
+
+    conda_env_path = conda_prefix / f"{Path(input.script).name}.yaml"
+    conda_env_path.write_text(conda_env)
+
+    return Path("..") / conda_env_path
+
+
 rule run_method:
     input:
         script="resources/method_definitions/{method}.py",
@@ -56,11 +91,12 @@ rule run_method:
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/benchmark.tsv"
     params:
-        script_name=lambda wildcards, input: "../" + input.script,
+        script_path=lambda wildcards, input: "../" + input.script,
+        env_path=get_generated_conda_env,
     conda:
-        "envs/run_method.yaml"
+        "{params.env_path}"
     script:
-        "{params.script_name}"
+        "{params.script_path}"
 
 
 rule performance_measures:
