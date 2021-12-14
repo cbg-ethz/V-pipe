@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 from snakemake.utils import Paramspace
+from snakemake.io import Namedlist
 
 
 # setup config
@@ -56,6 +57,14 @@ dependencies: {conda_dep_list}
     return Path("..") / conda_env_path
 
 
+# generate conda envs
+for method in method_list:
+    get_generated_conda_env(
+        None,
+        Namedlist(fromdict={"script": f"resources/method_definitions/{method}.py"}),
+    )
+
+
 # rule definitions
 rule all:
     input:
@@ -93,9 +102,10 @@ rule run_method:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_path=lambda wildcards, input: "../" + input.script,
-        env_path=get_generated_conda_env,
+        # env_path=get_generated_conda_env,
     conda:
-        "{params.env_path}"
+        # "{params.env_path}"
+        "../results/envs/{method}.py.yaml"
     script:
         "{params.script_path}"
 
