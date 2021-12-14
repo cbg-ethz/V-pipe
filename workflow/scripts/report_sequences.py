@@ -39,11 +39,16 @@ for f in sys.argv[1:]:
                 seguid=seguid(sequence),
                 crc64=crc64(sequence),
                 sequence=str(sequence),
-                raw_data=raw_data,
             )
         )
     results.append(
-        dict(sample=sample, batch=batch, created=str(timestamp), sequences=sequences)
+        dict(
+            sample=sample,
+            batch=batch,
+            created=str(timestamp),
+            sequences=sequences,
+            raw_data=raw_data,
+        )
     )
 
 
