@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -34,18 +35,38 @@ def get_generated_conda_env(wildcards, input):
             if not line.startswith(conda_dep_prefix):
                 continue
 
-            conda_dep_list.extend(
-                e.strip() for e in line[len(conda_dep_prefix):].split(",")
-            )
+            conda_dep_list.append(line[len(conda_dep_prefix) :].strip())
+
+    # retrieve pip dependencies from script
+    pip_dep_prefix = "# PIP:"
+
+    pip_dep_list = []
+    with open(input.script) as fd:
+        for line in fd.readlines():
+            if not line.startswith(pip_dep_prefix):
+                continue
+
+            pip_dep_list.append(line[len(pip_dep_prefix) :].strip())
 
     # format conda env file
-    conda_env = f"""
-channels:
+    conda_env = """channels:
   - conda-forge
   - bioconda
   - defaults
-dependencies: {conda_dep_list}
-    """
+dependencies:"""
+
+    if len(conda_dep_list) == 0 and len(pip_dep_list) == 0:
+        conda_env += " []"
+    else:
+        if len(conda_dep_list) > 0:
+            conda_env += "\n  - " + "\n  - ".join(conda_dep_list)
+
+        if len(pip_dep_list) > 0:
+            conda_env += "\n  - pip\n"
+            conda_env += "  - pip:\n    - " + "\n    - ".join(pip_dep_list)
+
+    print(f'Generated conda env for "{input.script}":', file=sys.stderr)
+    print(conda_env, file=sys.stderr)
 
     # save conda env
     conda_prefix = Path("results/envs/")
