@@ -22,29 +22,7 @@ else:
 print(method_list)
 
 
-# rule definitions
-rule all:
-    input:
-        "results/performance_measures/",
-
-
-rule simulate_reads:
-    output:
-        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.fastq",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
-        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
-        dname_work=directory(
-            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
-        ),
-    params:
-        params=paramspace.instance,
-    conda:
-        "envs/simulate_reads.yaml"
-    script:
-        "scripts/simulate_reads.py"
-
-
+# helper functions
 def get_generated_conda_env(wildcards, input):
     # retrieve conda dependencies from script
     conda_dep_prefix = "# CONDA:"
@@ -76,6 +54,29 @@ dependencies: {conda_dep_list}
     conda_env_path.write_text(conda_env)
 
     return Path("..") / conda_env_path
+
+
+# rule definitions
+rule all:
+    input:
+        "results/performance_measures/",
+
+
+rule simulate_reads:
+    output:
+        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
+        ),
+    params:
+        params=paramspace.instance,
+    conda:
+        "envs/simulate_reads.yaml"
+    script:
+        "scripts/simulate_reads.py"
 
 
 rule run_method:
