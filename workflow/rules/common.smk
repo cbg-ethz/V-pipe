@@ -382,6 +382,7 @@ for p in patient_list:
     consensus.append(os.path.join(sdir, "references/ref_ambig.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_ambig_dels.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_majority.fasta"))
+    consensus.append(os.path.join(sdir, "references/ref_majority_dels.fasta"))
 
     consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
 

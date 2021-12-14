@@ -1,9 +1,8 @@
 rule write_summary_json:
     input:
-        consensus = lambda wildcard: [f for f in all_files if f.endswith("ref_ambig_dels.fasta")],
+        consensus = lambda wildcard: [f for f in all_files if f.endswith("ref_majority_dels.fasta")],
         dehumanized = lambda wildcard: [f for f in all_files if f.endswith("dehuman.cram")],
-        #consensus=expand("{dataset}/references/ref_ambig_dels.fasta", dataset=datasets),
-        #raw_reads=expand("{dataset}/raw_data/dehuman.cram", dataset=datasets),
+        all_files = all_files
     output:
         "summary.zip",
     conda:
@@ -11,7 +10,6 @@ rule write_summary_json:
     shell:
         # needed {CONDA_PREFIX} on my dev setup on Mac + pyenv:
         """
-        set -x
         ${{CONDA_PREFIX}}/bin/python {VPIPE_BASEDIR}/scripts/report_sequences.py {input.consensus}
         """
 
@@ -29,7 +27,7 @@ rule dehuman:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
         HUMAN_GENOME=config.dehuman["ref_human"],
-        remove_reads=cachepath(
+        remove_reads_script=cachepath(
             "../scripts/remove_reads_list.pl", executable=True, localsource=True
         ),
         ref_aln="{dataset}/ref_aln.sam",
@@ -60,6 +58,7 @@ rule dehuman:
 
         echo
         echo Keep reject  -----------------------------------------------------
+        echo
 
         {params.SAMTOOLS} bam2fq -@ {threads} \
                                  -F 2 \
@@ -77,12 +76,14 @@ rule dehuman:
 
         echo
         echo Count aligned reads ---------------------------------------------
+        echo
 
         count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} {params.h38_aln})
 
         if (( count > 0 )); then
+            echo
             echo -----------------------------------------------------------------
-            echo "Needs special care: $count potential human reads found"
+            echo "Needs special care: ${{count}} potential human reads found"
             echo -----------------------------------------------------------------
             echo
             echo Removing identified human reads from raw reads ------------------
@@ -94,21 +95,26 @@ rule dehuman:
                                    {params.h38_aln} \
                                    | cut -f 1 > {params.filter}
 
+            # using zcat FILENAME.gz causes issues on Mac, see
+            # https://serverfault.com/questions/570024/
+            # redirection fixes this:
             zcat < {wildcards.dataset}/raw_data/*_R1.fastq.gz \
-                   | {params.remove_reads} {params.filter} \
+                   | {params.remove_reads_script} {params.filter} \
                    | gzip \
                    > {params.filtered_1} &
 
             zcat < {wildcards.dataset}/raw_data/*_R2.fastq.gz \
-                   | {params.remove_reads} {params.filter} \
+                   | {params.remove_reads_script} {params.filter} \
                    | gzip \
                    > {params.filtered_2} &
 
             wait
 
             # keep the rejects for further analysis
+
             echo
             echo Keeping Human-aligned SARS-CoV-2 rejects -------------------------
+            echo
 
             # (we compress reference-less, because the reference size is larger
             # than the contaminant reads)
@@ -121,6 +127,7 @@ rule dehuman:
 
             echo
             echo Compressing human-depleted raw reads -----------------------------
+            echo
 
             {params.SAMTOOLS} index -@ {threads} {params.h38_aln_cram}
             {params.SAMTOOLS} stats -@ {threads} {params.h38_aln_cram} > {params.stats}
@@ -137,6 +144,7 @@ rule dehuman:
 
         echo
         echo Compress filtered sequences --------------------------------------
+        echo
 
         {params.BWA} mem -t {threads} \
                          -C \
