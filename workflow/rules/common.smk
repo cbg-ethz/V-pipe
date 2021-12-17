@@ -364,7 +364,7 @@ for p in patient_list:
     consensus.append(os.path.join(sdir, "references/ref_ambig.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_majority.fasta"))
 
-    # consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
+    consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
 
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
