@@ -57,3 +57,7 @@ if config.output["QA"]:
 if config.output["visualization"]:
 
     include: "rules/visualization.smk"
+
+if config.output["diversity"]:
+
+    include: "rules/diversity_measures.smk"
