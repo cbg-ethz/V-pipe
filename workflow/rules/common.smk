@@ -418,19 +418,8 @@ for p in patient_list:
     if config.output["snv"] and config.output["visualization"]:
         visualizations.append(os.path.join(sdir, "visualization/index.html"))
 
-    # diversity measures
-    if not config.output["snv"] and config.output["diversity"]:
-        raise RuntimeError(
-            "Cannot generate diversity without calling variants (make sure to set `snv = True`) in config."
-        )
-
-    if config.output["snv"] and config.output["diversity"]:
-        diversity_measures.append(
-            os.path.join(sdir, "variants/SNVs/diversity_measures.csv")
-        )
-
     # merge lists containing expected output
-    all_files = alignments + consensus + results + visualizations + diversity_measures
+    all_files = alignments + consensus + results + visualizations
 
 # diversity measures
 if not config.output["snv"] and config.output["diversity"]:
