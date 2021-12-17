@@ -162,6 +162,12 @@
                     "default": false,
                     "description": "This option selects whether to generate HTML visualization of the SNVs in each sample's `…/visualization/index.html`",
                     "examples": [true]
+                },
+                "diversity": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "This option turns on the computation of diversity measures in each sample.",
+                    "examples": [true]
                 }
             },
             "default": {},
@@ -1193,6 +1199,24 @@
             },
             "default": {},
             "type": "object"
-        }
+        },
+        "diversity": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 2000
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/diversity_measures.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
     }
 }

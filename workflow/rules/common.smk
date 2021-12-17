@@ -346,6 +346,7 @@ trimmed_files = []
 fastqc_files = []
 results = []
 visualizations = []
+diversity_measures = []
 datasets = []
 IDs = []
 for p in patient_list:
@@ -363,7 +364,7 @@ for p in patient_list:
     consensus.append(os.path.join(sdir, "references/ref_ambig.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_majority.fasta"))
 
-    consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
+    #consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
 
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
@@ -417,8 +418,27 @@ for p in patient_list:
     if config.output["snv"] and config.output["visualization"]:
         visualizations.append(os.path.join(sdir, "visualization/index.html"))
 
+    # diversity measures
+    if not config.output["snv"] and config.output["diversity"]:
+        raise RuntimeError(
+            "Cannot generate diversity without calling variants (make sure to set `snv = True`) in config."
+        )
+
+    if config.output["snv"] and config.output["diversity"]:
+        diversity_measures.append(os.path.join(sdir, "variants/SNVs/diversity_measures.csv"))
+
     # merge lists containing expected output
-    all_files = alignments + consensus + results + visualizations
+    all_files = alignments + consensus + results + visualizations + diversity_measures
+
+# diversity measures
+if not config.output["snv"] and config.output["diversity"]:
+    raise RuntimeError(
+        "Cannot generate diversity without calling variants (make sure to set `snv = True`) in config."
+    )
+
+if config.output["snv"] and config.output["diversity"]:
+    all_files.append(os.path.join(config.output["datadir"], "aggregated_diversity.csv"))
+
 
 IDs = ",".join(IDs)
 

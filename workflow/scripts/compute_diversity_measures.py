@@ -3,7 +3,6 @@
 Computation of various diversity indices for the underlying sample following the
 review: https://doi.org/10.1016/j.coviro.2021.06.002
 
-TODO: Option to only include positions with coverage>1000
 """
 import sys
 import os
@@ -26,7 +25,18 @@ def list_polymorphic_sites(df_mutations, minor_allele_frequency=0):
 
 def number_of_mutations(df_mutations, minimum_frequency=0):
     df_temp = df_mutations[df_mutations['frequency']>=minimum_frequency]
-    return df_temp.shape[0]
+    n_reads_with_mut = df_temp['frequency']*df_temp['coverage']
+    n_reads_with_mut = df_temp['rvar']+df_temp['fvar']
+    return n_reads_with_mut.sum()
+
+def mutation_spectrum(df_mutations, bins):
+    counts=np.zeros(len(bins))
+    for i in range(len(bins)-1):
+        df_temp = df_mutations[df_mutations['frequency']>bins[i]]
+        df_temp = df_temp[df_temp['frequency']<=bins[i+1]]
+        n_reads_with_mut = df_temp['frequency']*df_temp['coverage']
+        counts[i+1]= n_reads_with_mut.sum()
+    return list(counts)
 
 def population_nucleotide_diversity(df_mutations, length):
     # only the positions with mutations are needed
@@ -35,24 +45,25 @@ def population_nucleotide_diversity(df_mutations, length):
         df_temp = df_mutations[df_mutations['position']== position_temp]
         N = df_temp['coverage'].unique()[0]
         position_pnd =0
-        df_temp['pi']= df_temp['tvar']*(df_temp['tvar']-1)
-        postion_pi = (N*(N-1)-df_temp['pi'].sum())/(N*(N-1))
+        pi= df_temp['tvar']*(df_temp['tvar']-1)
+        postion_pi = (N*(N-1)-pi.sum())/(N*(N-1))
 
         pi+=postion_pi
 
-    return pi/length
+    return float(pi/length)
 
 def position_Shannon_entropy(df_mutations,position):
     df_temp= df_mutations[df_mutations['position']==position]
     position_shannon = 0
     sum_fraction = 0
-    df_temp['var_shannon']= df_temp['frequency'].apply(lambda x: x*np.log(x))
+    var_shannon= df_temp['frequency'].apply(lambda x: x*np.log(x) if x>0 else 0)
 
     sum_fraction = df_temp['frequency'].sum()
-    position_shannon = df_temp['var_shannon'].sum()
+    position_shannon = var_shannon.sum()
 
     # add the reference base summand
-    position_shannon+=(1-sum_fraction)*np.log(1-sum_fraction)
+    if 1-sum_fraction>0:
+        position_shannon+=(1-sum_fraction)*np.log(1-sum_fraction)
 
     return - position_shannon
 
@@ -129,7 +140,8 @@ def load_reference_seq(reference_file):
     for seq in skbio.io.read(reference_file, format='fasta'):
          return seq
 
-def main(fname_snv_in, fname_reference ,output_dir):
+
+def main(fname_snv_in, fname_reference ,output_diversity_csv, output_shannon_csv):
     """
     Compute various diversity indices for underlying sample.
     Writes a csv-file with computations.
@@ -140,8 +152,10 @@ def main(fname_snv_in, fname_reference ,output_dir):
         Absolute path to snv.vcf created by lofreq or ShoRAH.
     ref_seq_length:
         Length of the reference sequence.
-    output_dir:
-        Path to output directory.
+    output_diversity_csv:
+        Absolute path to diversity-csv.
+    output_shannon_csv:
+        Absolute path to position-wise Shannon-entropy csv.
 
     Output
     ------
@@ -155,6 +169,11 @@ def main(fname_snv_in, fname_reference ,output_dir):
 
     # Parse snv.vcf
     df_snv, id = convert_vcf(fname_snv_in)
+
+    # Sample, patient, date information
+    general_info = {'sample': fname_snv_in.split('/variants')[0].split('/')[-3],
+                    'patient': fname_snv_in.split('/variants')[0].split('/')[-2],
+                    'date': fname_snv_in.split('/variants')[0].split('/')[-1]}
 
     # prepare dict collecting all the diversity measures
     out_dict = {"id": id, "length": ref_seq_length}
@@ -174,20 +193,32 @@ def main(fname_snv_in, fname_reference ,output_dir):
     out_dict.update({'sem_mutation_frq': sem(df_snv['frequency'].to_numpy())})
 
     # population nucleotide diversity
-    out_dict.update({'n_population_nucleotide_diverstiy': population_nucleotide_diversity(df_snv, ref_seq_length)})
+    out_dict.update({'population_nucleotide_diverstiy': population_nucleotide_diversity(df_snv, ref_seq_length)})
 
     # mean position-wise Shannon entropy
     out_dict.update({'mean_position_shannon': mean_pos_Shannon_entropy(df_snv,ref_seq_length)})
-    df_diveristy = pd.DataFrame(list(out_dict.items()))
-    df_diveristy.to_csv(output_dir + 'diversity_measures.csv', index=False, header=False)
+
+    # mutation spectrum
+    bins = np.arange(0,1,0.05)
+    out_dict.update({'mutation_spectrum_bins': list(bins)})
+    out_dict.update({'mutation_spectrum': mutation_spectrum(df_snv, bins)})
+
+    out_dict.update(general_info)
+
+    #save to dataframe
+    df_diveristy = pd.DataFrame(columns=list(out_dict.keys()))
+    df_diveristy = df_diveristy.append(out_dict, ignore_index=True)
+    df_diveristy.to_csv(output_diversity_csv, index=False)
 
     # position-wise Shannon entropy
-    pos_shannon_dict={}
+    pos_shannon_dict=general_info
     for i in range(ref_seq_length):
         if position_Shannon_entropy(df_snv,i)!= 0:
             pos_shannon_dict.update({i: position_Shannon_entropy(df_snv,i)})
-    df_pos_shannon = pd.DataFrame(list(pos_shannon_dict.items()), columns=['position', 'Shannon_entropy'])
-    df_pos_shannon.to_csv(output_dir + 'position_shannon_entropy.csv', index=False, header=False)
+    df_pos_shannon = pd.DataFrame(columns=list(pos_shannon_dict.keys()))
+    df_pos_shannon = df_pos_shannon.append(pos_shannon_dict,ignore_index=True)
+    df_pos_shannon.to_csv(output_shannon_csv, index=False)
+
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(snakemake.input.fnames_samples_snvs_vcf, snakemake.input.fname_ref, snakemake.output.diversity_csv, snakemake.output.shannon_csv)
