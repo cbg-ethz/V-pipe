@@ -364,7 +364,7 @@ for p in patient_list:
     consensus.append(os.path.join(sdir, "references/ref_ambig.fasta"))
     consensus.append(os.path.join(sdir, "references/ref_majority.fasta"))
 
-    #consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
+    # consensus.append(os.path.join(sdir, "references/consensus.bcftools.fasta"))
 
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
@@ -425,7 +425,9 @@ for p in patient_list:
         )
 
     if config.output["snv"] and config.output["diversity"]:
-        diversity_measures.append(os.path.join(sdir, "variants/SNVs/diversity_measures.csv"))
+        diversity_measures.append(
+            os.path.join(sdir, "variants/SNVs/diversity_measures.csv")
+        )
 
     # merge lists containing expected output
     all_files = alignments + consensus + results + visualizations + diversity_measures
