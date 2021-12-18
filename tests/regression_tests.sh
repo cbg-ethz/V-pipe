@@ -54,6 +54,7 @@ output:
     local: true
     global: false
     visualization: true
+    diversity: true
     QA: true
 
 snv:
