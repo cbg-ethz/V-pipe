@@ -7,4 +7,5 @@ output:
     local: false
     global: false
     visualization: false
+    diversity: false
     QA: false
