@@ -32,7 +32,7 @@ usage() { echo "Usage: $0 -f <DIR> -b <BATCH> [-l <LEN>] [-L {''|--link|--symbol
 	-p : prefix to prepend to fastq files (e.g.: for fusing runs)
 	-s : suffix to append to fastq files (e.g.: for fusing runs)
 	-o : output directory
-	-m : POSIX mode parameter to pass to mkdir (e.g.: 0770)" 1>&2; exit $1; }
+	-m : POSIX mode parameter to pass to mkdir (e.g.: 0770)" 1>&2; exit "$1"; }
 # TODO support FastQC files
 
 link=--link
@@ -46,8 +46,9 @@ mode=
 while getopts "f:b:Dl:L:p:s:o:m:t:Tqh" o; do
 	case "${o}" in
 		f)	fastq_dir="${OPTARG}"
-			l=( ${fastq_dir} )
-			[[ -d ${l[0]} ]]	|| fail "Cannot access input directory ${fastq_dir}"
+			# shellcheck disable=SC2206
+			l=( ${fastq_dir} )	# HACK: no quotes -> expand glob.
+			[[ -d "${l[0]}" ]]	|| fail "Cannot access input directory ${fastq_dir}"
 			;;
 		b)	batch_name="${OPTARG}"
 			[[ $batch_name =~ ^[[:alnum:]_]+$ ]]	|| fail "Invalid characters <${batch_name//[[:alnum:]_]/}> in <${batch_name}>" 'Please only use alphanumeric and <_> for batch name'
@@ -63,7 +64,7 @@ while getopts "f:b:Dl:L:p:s:o:m:t:Tqh" o; do
 		s)	suffix="${OPTARG}"	;;
 		o)	out_dir="${OPTARG}"	;;
 		m)	mode="${OPTARG}"
-			[[ $mode =~ ^[0-7]{,4}$ ]]	|| fail "Invalid characters <${mode//[0-7]/}> in <${mode}>" 'mode should be an octal chmod value, see `mkdir --help` for informations'
+			[[ $mode =~ ^[0-7]{,4}$ ]]	|| fail "Invalid characters <${mode//[0-7]/}> in <${mode}>" 'mode should be an octal chmod value, see <mkdir --help> for informations'
 			;;
 		t)	tsv="${OPTARG}"	;;
 		T)	truncate=0	;;
@@ -73,11 +74,11 @@ while getopts "f:b:Dl:L:p:s:o:m:t:Tqh" o; do
 	esac
 done
 
-: ${fastq_dir:?missing mandatory input directory for fastq files, use option -f}
-: ${batch_name:?missing mandatory batch name, use option -b}
-: ${out_dir:?missing mandatory output dir use option -o}
+: "${fastq_dir:?missing mandatory input directory for fastq files, use option -f}"
+: "${batch_name:?missing mandatory batch name, use option -b}"
+: "${out_dir:?missing mandatory output dir use option -o}"
 
-: ${tsv:=${out_dir}/samples.${batch_name}.tsv}
+: "${tsv:=${out_dir}/samples.${batch_name}.tsv}"
 
 
 # RegEx
@@ -98,7 +99,7 @@ else
 	gnuextregex='-regextype posix-extended'
 fi
 if declare -A reads; then
-	# newer bash 4.x and above on most GNr/Linux
+	# newer bash 4.x and above on most GNU/Linux
 	addread() {
 		reads[${1}]="${reads[${1}]}:$2"
 	}
@@ -115,10 +116,10 @@ if declare -A reads; then
 	}
 else
 	# older bash 3.x on Mac OS X and 11
-	declare -a reads
+	declare -a reads1
 	declare -a reads2
 	addread() {
-		reads+=( "$1" )
+		reads1+=( "$1" )
 		reads2+=( "$1:$2" )
 	}
 	testnumreads() {
@@ -127,12 +128,12 @@ else
 				return 1
 			fi;
 		done
-		reads+=( "$1" )
+		reads1+=( "$1" )
 		reads2+=( "$1:$2" )
 		retrun 0
 	}
 	seen() {
-		for e in "${reads[@]}"; do [[ "$e" == "$1" ]] && return 0; done
+		for e in "${reads1[@]}"; do [[ "$e" == "$1" ]] && return 0; done
 		return 1
 	}
 fi
@@ -147,7 +148,7 @@ fi
 paired=0
 numsam=0
 numdup=0
-while read -d $'\0' f; do
+while read -r -d $'\0' f; do
 	# sanity check
 	if [[ ! -s "${f}" ]]; then
 		warn "Cannot access <${f}>"
@@ -164,18 +165,18 @@ while read -d $'\0' f; do
 		continue
 	fi
 
-	samname=${BASH_REMATCH[1]}
-	rawname=${samname}
-	[[ "${samname}" =~ ^(.*)${rxlane}$ ]] && samname=${BASH_REMATCH[1]}
-	[[ "${samname}" =~ ^(.*)${rxsnum}$ ]] && samname=${BASH_REMATCH[1]}
-	[[ "${f##*/}" =~ ${rxpairsuffix} ]] && read=${BASH_REMATCH[1]}
-	[[ "${f##*/}" =~ ${rxextentsion} ]] && ext=${BASH_REMATCH[1]}
+	samname="${BASH_REMATCH[1]}"
+	rawname="${samname}"
+	[[ "${samname}" =~ ^(.*)${rxlane}$ ]] && samname="${BASH_REMATCH[1]}"
+	[[ "${samname}" =~ ^(.*)${rxsnum}$ ]] && samname="${BASH_REMATCH[1]}"
+	[[ "${f##*/}" =~ ${rxpairsuffix} ]] && read="${BASH_REMATCH[1]}"
+	[[ "${f##*/}" =~ ${rxextentsion} ]] && ext="${BASH_REMATCH[1]}"
 	(( quiet )) || echo -ne "$samname\t$read\t"
 
 	# check seen
 	if seen "${samname}"; then
 		# check number of reads
-		if testnumreads "${samname}" $read; then
+		if testnumreads "${samname}" "$read"; then
 			(( quiet )) || echo "pair"
 			(( paired ++ ))
 		elif (( duplicates )); then
@@ -185,10 +186,10 @@ while read -d $'\0' f; do
 			warn "sample ${samname} already has a read $read"
 		fi
 	else
-		addread "${samname}" $read
+		addread "${samname}" "$read"
 		if [[ -z ${read_len} ]]; then
 			# autodetect lenght
-			rlen=$(([[ $ext =~ z$ ]] && gunzip -c "${f}" || cat  "${f}") |	\
+			rlen=$( ( ([[ $ext =~ z$ ]] && gunzip -c "${f}") || cat  "${f}") |	\
 				awk 'NR%4==2{l=length($0);if(m<l){m=l}else{++n}};n==100{exit(0)};END{print m}')
 		else
 			rlen=${read_len}
@@ -199,9 +200,12 @@ while read -d $'\0' f; do
 	fi
 
 	mkdir -p ${mode:+-m ${mode}} "${out_dir}/"{,"${samname}/"{,"${batch_name}/"{,raw_data,extracted_data}}}
+	# shellcheck disable=SC2086
 	cp ${link} "${f}" "${out_dir}/${samname}/${batch_name}/raw_data/${prefix}${rawname}${suffix}_${read}.${ext}"
 # scanning with find
-done < <(find ${bsdextregex} ${fastq_dir} -type f ${gnuextregex} -iregex ".*${rxextentsion}" -print0)
+done < <(
+	# shellcheck disable=SC2086
+	find ${bsdextregex} ${fastq_dir} -type f ${gnuextregex} -iregex ".*${rxextentsion}" -print0 )
 
 # final words
 if (( paired )); then
@@ -217,7 +221,7 @@ if (( numdup )); then
 	if (( 0 == (numdup % ( paired + numsam )) )); then
 		info "${numdup} duplicates ( $((numdup /  ( paired + numsam ) + 1))x )"
 	else
-		warn "$(( paired + numsam )) samples, but only ${numdup} duplicates" "(missing: $((numdup % ( paired + numsam ))) )"
+		warn "$(( paired + numsam )) samples, but only ${numdup} duplicates" "(missing: $((numdup % ( paired + numsam ) )) )"
 	fi
 fi
 if (( ALLOK )); then
