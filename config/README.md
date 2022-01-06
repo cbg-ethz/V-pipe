@@ -8,6 +8,9 @@ In order to start using V-pipe, you need to provide three things:
  2. _(optional)_ TSV file listing the samples
  3. Configuration file
 
+The utils subdirectory provides [tools](../utils/README.md#samples-mass-importers) that can assist in importing samples files and structuring them.
+
+
 ## Configuration file
 
 The V-pipe workflow is customized using a structured configuration file called `config.yaml`, `config.json` or, for backward compatibility, `vpipe.config` (INI-like format).
@@ -133,3 +136,5 @@ samples
            ├──patient2_20081130_R1.fastq.gz
            └──patient2_20081130_R2.fastq.gz
 ```
+
+The utils subdirectory contain [mass-importers tools](../utils/README.md#samples-mass-importers) to assist you in generating this hierarchy.

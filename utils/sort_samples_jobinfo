@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+
+import io
+import sys
+import os
+import re
+import csv
+import xml.etree.ElementTree as ET
+import yaml
+
+import argparse
+
+
+# parse command line
+argparser = argparse.ArgumentParser(description="Uses CompletedJobInfo.xml and SampleSheetUsed.csv from Illumina Analysis Software")
+argparser.add_argument('-S', '--sourcedir', metavar='DIR', required=True,
+	type=str, dest='statsdir', help="directory containing CompletedJobInfo.xml and SampleSheetUsed.csv")
+argparser.add_argument('-f', '--fastqdir', metavar='DIR', required=False, default=None,
+	type=str, dest='fastqdir', help="directory containing .fastq.gz files if not in 'Fastq' subdirectory")
+argparser.add_argument('-o', '--outdir', metavar='DIR', required=False, default='sampleset',
+	type=str, dest='outdir', help="output directory")
+argparser.add_argument('-m', '--mode', metavar='MODE', required=False,
+	type=str, dest='mode', help="POSIX file access mode to be passed to mkdir")
+argparser.add_argument('-L', '--linking', metavar='CPLINK', required=False, default='--link',
+	type=str, dest='link', choices=['','--link','--symbolic-link','--reflink'],
+	help="parameter to pass to `cp` for linking files instead of copying their data")
+argparser.add_argument('-b', '--batch', metavar='LAB', required=False, default=None,
+	type=str, dest='batch', help="generate batch descrition")
+argparser.add_argument('-s', '--summary', required=False,
+	action='store_true', dest='summary', help="Only display a summary of datasets, not an exhaustive list of all samples")
+argparser.add_argument('-a', '--append', required=False,
+	action='store_true', dest='append', help="Append to the end of movedatafiles.sh, instead of overwritting\n(use when calling from an external combiner wrapper)")
+argparser.add_argument('-l', '--forcelanes', required=False,
+	action='store_true', dest='forcelanes', help="Explicitely look for sample in each lane (for replicates accross lanes)")
+argparser.add_argument('-p', '--patchmap', metavar='TSV', required=False, default=None,
+	type=str, dest='patchtsv', help="patchmap file to rename samples")
+args = argparser.parse_args()
+
+statsdir=args.statsdir
+fastqdir=args.fastqdir if args.fastqdir else os.path.join(statsdir, 'Fastq')
+sampleset=args.outdir
+link=args.link
+append=args.append
+lab = args.batch
+
+# parse the chmod parameter
+try:
+	mkdirmode=int(args.mode, base=8) if args.mode else None
+except:
+	print(f"cannot parse <{args.mode}> as an octal chmod value. see `mkdir --help` for informations")
+	sys.exit(2)
+
+# regex for parsing and/or validating strings
+rxrun=re.compile('^(?P<century>20)?(?P<date>\d{6})_(?P<instr>\w+)_(?P<num>\d+)_(?P<prefix>(?:0+-)|[AB])?(?P<cell>\w+(?(prefix)|-\d+))$') # e.g.: 200430_M01761_0414_000000000-J3JCT or 201023_A00730_0259_BHTVCCDRXX or 20210709_FS10001154_41_BPA73113-1417
+rxcell=re.compile('(?:0+-)?(?P<cell>\w+(?:-\d+)?)$') # e.g.: '000000000-CTT3D' or 'HTVCCDRXX' or 'BPA73113-1417'
+rxsection=re.compile('\[(?P<section>\w+)\]') # Ini-style headers in the middle of the samplesheet
+
+# patch file exist ?
+patchmap = { }
+if args.patchtsv:
+	with open(args.patchtsv,'rt',encoding='utf-8', newline='') as pf:
+		patchmap = { old:new for (old,new,*r) in csv.reader(pf, delimiter="\t") }
+
+
+# fetch XML
+try:
+	runinfo = ET.parse(os.path.join(statsdir, 'CompletedJobInfo.xml')).find('.//RTARunInfo')
+except:
+	sys.exit(f"Cannot find a valid CompletedJobInfo.xml with a RTARunInfo in {statsdir}")
+
+# get infos
+runfolder = runinfo.find('./RunID').text
+date = runinfo.find('./Date').text
+instr = runinfo.find('./Instrument').text
+runnum = int(runinfo.find('./Number').text)
+
+# parse flowcell
+fullcell = runinfo.find('./Flowcell').text
+try:
+	m=rxcell.search(fullcell).groupdict()
+	flowcell=m['cell']
+except:
+	sys.exit(f"cannot parse: {fullcell}")
+
+# compare individual elements to runfolder
+try:
+	m=rxrun.search(runfolder).groupdict()
+	if date != m['date']:
+		print(f"Warning: cell missmatch: {flowcell} vs {m['date']}")
+	if instr != m['instr']:
+		print(f"Warning: cell missmatch: {flowcell} vs {m['instr']}")
+	if runnum != int(m['num']):
+		print(f"Warning: cell missmatch: {flowcell} vs {m['instr']}")
+	if flowcell != m['cell']:
+		print(f"Warning: cell missmatch: {flowcell} vs {m['cell']}")
+except:
+	sys.exit(f"cannot parse: {runfolder}")
+
+date=f"20{date}" # NOTE runfolders are yymmdd, not yyyymmdd
+
+# number of lanes
+lanes = int(runinfo.find('./LaneCount').text)
+
+ends=rlen=0
+
+# parse reads format
+for r in runinfo.findall('./Reads/RunInfoRead'): # read phases (indexes, reads)
+	if r.find('IsIndex').text == 'true': continue
+
+	# sanity check
+	cycles=int(r.find('CycleCount').text)
+	if rlen and rlen != cycles:
+		print(f"Warning: read lenght changes from {rlen} to {cycles} we currently only support symetric read lenghts")
+
+	# gather info
+	ends+=1
+	if rlen < cycles: rlen=cycles
+
+# sanity check
+if ends < 1 or ends > 2:
+	print(f"Error: we currently only support single or paired ends, but found {ends} reads")
+
+# print summary informations
+print(runfolder, flowcell, date, sep='\t')
+
+
+# create sampleset directory if missing
+if not os.path.isdir(sampleset):
+	try:
+		kwmkdir={ 'mode': mkdirmode } if mkdirmode else { }
+		os.mkdir(sampleset,**kwmkdir)
+	except FileExistsError:
+		pass
+
+# output files
+batch=f"{date}_{flowcell}"
+tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv'), 'wt')
+# shell script file with all moving instructions inside
+sh=open(os.path.join(sampleset,'movedatafiles.sh'), 'at' if append else 'wt')
+
+# generic header: only for stand-alone files.
+if not append: print(r'''
+link='%(link)s'
+mode='%(mode)s' # e.g.: --mode=0770
+
+# Helper
+fail() {
+	printf '\e[31;1mArgh: %%s\e[0m\n'	"$1"	1>&2
+	[[ -n "$2" ]] && echo "$2" 1>&2
+	exit 1
+}
+
+warn() {
+	printf '\e[33;1mArgh: %%s\e[0m\n'	"$1"	1>&2
+	[[ -n "$2" ]] && echo "$2" 1>&2
+}
+
+ALLOK=1
+X() {
+	ALLOK=0
+}
+
+# sanity checks
+[[ -d '%(sampleset)s' ]] || fail 'No sampleset directory:' '%(sampleset)s'
+''' % {'link':link,'mode':(f"--mode={mkdirmode:04o}" if mkdirmode else ''),'sampleset':sampleset}, file=sh)
+
+# per batch directory checks
+print(r"[[ -d '%(download)s' ]] || fail 'No download directory:' '%(download)s'" % {'download':fastqdir}, file=sh)
+
+
+# sample sheet
+library=None
+with open(os.path.join(statsdir, 'SampleSheetUsed.csv'),'rt',encoding='utf-8', newline='') as ssf:
+	isin = None
+	for r in csv.reader(ssf, delimiter=','):
+		if len(r) == 0: # skip empty lines
+			continue
+		elif (m := rxsection.match(r[0])) != None: # Ini style section
+			isin = m.groupdict()['section']
+			hline = None
+			#DEBUG print(f"section {isin}")
+			continue
+		elif isin=='Header':
+			if r[0] == 'Library Prep Kit':
+				library=r[1]
+				if not args.summary:
+					print(f"Library {library}")
+		elif isin=='Reads':
+			if int(r[0]) != rlen:
+				print(f"Warning, readlen {r[0]}")
+		elif isin=='Data':
+			if hline == None:
+				hline = r
+				continue
+
+			s = dict(zip(hline, r))
+			samname=s['Sample_Name']
+			fixedname=patchmap[samname] if samname in patchmap else samname
+
+			# info
+			if not args.summary:
+				print(fixedname, f"{'paired' if ends > 1 else 'single'}-end", rlen, sep='\t')
+			# output files
+			if tsv:
+				print(fixedname, batch, rlen, sep='\t', file=tsv)
+			if sh:
+				subst={'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'lglob': ('_L{001..%03u}' % lanes if args.forcelanes else '_L[0-9][0-9][0-9]'),'ends':ends,'batch':batch,'suffix':''}
+				# 'midfix': _S*_L%(lane)03u
+				# 'suffix': _001_MM_1 mm
+				print(r'''
+fastq=( %(download)s/%(sname)s*%(lglob)s_R[1-2]*%(suffix)s.fastq.gz )
+[[ "${fastq[*]}" =~ [\*\[] ]] && fail 'Cannot list fastq files:' '%(sname)s'
+(( ( ${#fastq[@]} %% %(ends)u ) != 0 )) && fail 'Number of fastq files not multiple of %(ends)u' "${#fastq[@]} : ${fastq[*]}"
+mkdir ${mode} -p "%(sampleset)s/"{,"%(fname)s/"{,"%(batch)s/"{,raw_data}}}
+for file in "${fastq[@]}"; do
+	filename="${file##*/}"
+	[[ $file =~ _(R[[:digit:]])((_.*)?[.]fastq[.]gz)$ ]] && destname="${filename//${BASH_REMATCH[2]}/.fastq.gz}"
+	cp -v ${link} "${file}" "%(sampleset)s/%(fname)s/%(batch)s/raw_data/${destname}"||X
+done
+''' % subst, file=sh)
+
+# YAML file describing batch
+if args.batch:
+	(rem,folder)=os.path.split(statsdir)
+	if folder == '':
+		(rem,folder)=os.path.split(rem)
+
+	with open(os.path.join(sampleset,f'batch.{batch}.yaml'), 'wt') as byml:
+		print(yaml.dump({'type':'jobinfo','lab':lab,'runfolder':runfolder,'date':date,'instrument':instr,'runnum':runnum,'flowcell':flowcell,'lanes':lanes,'library':library,'folder':folder}, sort_keys=False), file=byml)
+
+# coda: return status
+if not append: print(f"""
+if (( ALLOK )); then
+	echo All Ok
+	exit 0
+else
+	echo Some errors
+	exit 1
+fi;
+""", file=sh)
+
+sys.exit(0)

@@ -20,6 +20,7 @@ To configure V-pipe refer to the documentation present in [config/README.md](con
 
 V-pipe expects the input samples to be organized in a [two-level](config/README.md#samples) directory hierarchy,
 and the sequencing reads must be provided in a sub-folder named `raw_data`. Further details can be found on the [website](https://cbg-ethz.github.io/V-pipe/usage/).
+Check the utils subdirectory for [mass-importers tools](utils/README.md#samples-mass-importers) that can assist you in generating this hierarchy.
 
 We provide [virus-specific base configuration files](config/README.md#virus-base-config) which contain handy defaults for, e.g., HIV and SARS-CoV-2. Set the virus in the general section of the configuration file:
 
@@ -32,7 +33,7 @@ Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/
 
 ### Using quick install script
 
-To deploy V-pipe, use the installation script with the following parameters:
+To deploy V-pipe, use the [installation script](utils/README.md#quick-installer) with the following parameters:
 
 ```bash
 curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
