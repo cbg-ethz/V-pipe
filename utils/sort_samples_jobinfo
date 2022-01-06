@@ -25,13 +25,13 @@ argparser.add_argument('-L', '--linking', metavar='CPLINK', required=False, defa
 	type=str, dest='link', choices=['','--link','--symbolic-link','--reflink'],
 	help="parameter to pass to `cp` for linking files instead of copying their data")
 argparser.add_argument('-b', '--batch', metavar='LAB', required=False, default=None,
-	type=str, dest='batch', help="generate batch descrition")
+	type=str, dest='batch', help="generate batch description")
 argparser.add_argument('-s', '--summary', required=False,
 	action='store_true', dest='summary', help="Only display a summary of datasets, not an exhaustive list of all samples")
 argparser.add_argument('-a', '--append', required=False,
 	action='store_true', dest='append', help="Append to the end of movedatafiles.sh, instead of overwritting\n(use when calling from an external combiner wrapper)")
 argparser.add_argument('-l', '--forcelanes', required=False,
-	action='store_true', dest='forcelanes', help="Explicitely look for sample in each lane (for replicates accross lanes)")
+	action='store_true', dest='forcelanes', help="Explicitly look for sample in each lane (for replicates across lanes)")
 argparser.add_argument('-p', '--patchmap', metavar='TSV', required=False, default=None,
 	type=str, dest='patchtsv', help="patchmap file to rename samples")
 args = argparser.parse_args()

@@ -2,7 +2,7 @@
 
 # Utils
 
-This directory contains several command-line utilities that can help in some ancillary task to get V-pipe running.
+This directory contains several command-line utilities that can help in some ancillary tasks to get V-pipe running.
 
 ## Quick installer
 
@@ -65,8 +65,9 @@ They will search for `.fastq.gz` files, put them in the [two-level hierarchy tha
 Whichever of these tools is most suitable for you depends on how you receive the files from the sequencing lab.
 
 - [`sort_samples_dumb`](#sort_samples_dumb) is for loose collection of FASTQ files
-- [`sort_samples_jobinfo`](#sort_samples_jobinfo) and [`sort_samples_demultiplexstats`](#sort_samples_demultiplexstats) are better suited when additional information has been provided by the basecalling and demultiplexing software.
-  - these two also support _patch maps_ TSV files, helping to rename the samples from the name used in the original sample sheet in the LIMS (laboratory's information manageement system) to something more flexible.
+- [`sort_samples_demultiplexstats`](#sort_samples_demultiplexstats) and [`sort_samples_jobinfo`](#sort_samples_jobinfo) are better suited when additional information has been provided by the base calling and demultiplexing software.
+  - these two also support _patch maps_ TSV files, helping to rename the samples from the name used in the original sample sheet in the LIMS (laboratory's information management system) to something more flexible.
+    For example, to remap simple sequential numbers to longer names, use the following patch map TSV:
 
 ```tsv
 1	05_2021_02_01
@@ -86,7 +87,7 @@ Whichever of these tools is most suitable for you depends on how you receive the
 
 ## sort_samples_dumb
 
-`sort_samples_dumb` is useful labs are providing the sequencing data simply as a loose collection of FASTQ files.
+`sort_samples_dumb` is useful when labs are providing the sequencing data simply as a loose collection of FASTQ files.
 
 Example of usage:
 
@@ -157,7 +158,7 @@ This command is the **first step** (analysing `Stats.json`):
   ```console
   bash working/samples/movedata.sh
   ```
-  and that file will in trum perform the **second step**: hard-linking all the files from `download/RawReads` into `working/samples/`_{sample name}_`/`_{some date}_.
+  and that file will in turn perform the **second step**: hard-linking all the files from `download/RawReads` into `working/samples/`_{sample name}_`/`_{some date}_.
 - once the second step has been performed, you should be able to run V-pipe.
 
 Available options:
@@ -213,7 +214,7 @@ This command is the **first step** (analyzing `CompletedJobInfo.xml` and `Sample
   ```
   and that file will in turn perform the **second step**: hard-linking all the files from `downloads/20210528_061936/Fastq` into `working/samples/`_{sample name}_`/`_{some date}_.
 - once the second step has been performed, you should be able to run V-pipe.
-- if the option `--batch` is provided, it will also generate an additional file `working/samples/batch.`_{some date}_`.yaml` including extra information gathered from the files (e.g. the _Library preparation kit_ listed in the input CSV). The paramter of `--batch` is used to provide the name of the lab for the `lab:` field in this file.
+- if the option `--batch` is provided, it will also generate an additional file `working/samples/batch.`_{some date}_`.yaml` including extra information gathered from the files (e.g. the _Library preparation kit_ listed in the input CSV). The parameter of `--batch` is used to provide the name of the lab for the `lab:` field in this file.
 
 Available options:
 
@@ -233,10 +234,10 @@ optional arguments:
   -m MODE, --mode MODE  POSIX file access mode to be passed to mkdir
   -L CPLINK, --linking CPLINK
                         parameter to pass to `cp` for linking files instead of copying their data
-  -b LAB, --batch LAB   generate batch descrition
+  -b LAB, --batch LAB   generate batch description
   -s, --summary         Only display a summary of datasets, not an exhaustive list of all samples
   -a, --append          Append to the end of movedatafiles.sh, instead of overwritting (use when calling from an external combiner wrapper)
-  -l, --forcelanes      Explicitely look for sample in each lane (for replicates accross lanes)
+  -l, --forcelanes      Explicitly look for sample in each lane (for replicates across lanes)
   -p TSV, --patchmap TSV
                         patchmap file to rename samples
 ```
