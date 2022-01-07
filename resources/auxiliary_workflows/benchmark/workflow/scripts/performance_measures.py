@@ -79,6 +79,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
     df_long = pd.melt(df_perf, id_vars=["method", "params", "replicate"]).assign(
         params=lambda x: x["params"].str.replace("_", "\n")
     )
+    df_long.to_csv(dname_out / "performance.csv")
 
     g = sns.catplot(
         data=df_long,
@@ -112,6 +113,7 @@ def runtime_plots(benchmark_list, dname_out):
         .assign(params=lambda x: x["params"].str.replace("_", "\n"))
         .query("variable == 's'")
     )
+    df_long.to_csv(dname_out / "runtime.csv")
 
     g = sns.catplot(
         data=df_long,
