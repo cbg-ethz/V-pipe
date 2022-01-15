@@ -24,6 +24,8 @@ argparser.add_argument('-m', '--mode', metavar='MODE', required=False,
 argparser.add_argument('-L', '--linking', metavar='CPLINK', required=False, default='--link',
 	type=str, dest='link', choices=['','--link','--symbolic-link','--reflink'],
 	help="parameter to pass to `cp` for linking files instead of copying their data")
+argparser.add_argument('--force', required=False,
+	action='store_true', dest='force', help="Force overwriting any existing file when moving")
 argparser.add_argument('-b', '--batch', metavar='LAB', required=False, default=None,
 	type=str, dest='batch', help="generate batch description")
 argparser.add_argument('-s', '--summary', required=False,
@@ -204,7 +206,7 @@ with open(os.path.join(statsdir, 'SampleSheetUsed.csv'),'rt',encoding='utf-8', n
 			if tsv:
 				print(fixedname, batch, rlen, sep='\t', file=tsv)
 			if sh:
-				subst={'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'lglob': ('_L{001..%03u}' % lanes if args.forcelanes else '_L[0-9][0-9][0-9]'),'ends':ends,'batch':batch,'suffix':''}
+				subst={'force':('f' if args.force else ''),'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'lglob': ('_L{001..%03u}' % lanes if args.forcelanes else '_L[0-9][0-9][0-9]'),'ends':ends,'batch':batch,'suffix':''}
 				# 'midfix': _S*_L%(lane)03u
 				# 'suffix': _001_MM_1 mm
 				print(r'''
@@ -215,7 +217,7 @@ mkdir ${mode} -p "%(sampleset)s/"{,"%(fname)s/"{,"%(batch)s/"{,raw_data}}}
 for file in "${fastq[@]}"; do
 	filename="${file##*/}"
 	[[ $file =~ _(R[[:digit:]])((_.*)?[.]fastq[.]gz)$ ]] && destname="${filename//${BASH_REMATCH[2]}/.fastq.gz}"
-	cp -v ${link} "${file}" "%(sampleset)s/%(fname)s/%(batch)s/raw_data/${destname}"||X
+	cp -v%(force)s ${link} "${file}" "%(sampleset)s/%(fname)s/%(batch)s/raw_data/${destname}"||X
 done
 ''' % subst, file=sh)
 

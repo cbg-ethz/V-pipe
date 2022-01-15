@@ -23,6 +23,8 @@ argparser.add_argument('-m', '--mode', metavar='MODE', required=False,
 argparser.add_argument('-L', '--linking', metavar='CPLINK', required=False, default='--link',
 	type=str, dest='link', choices=['','--link','--symbolic-link','--reflink'],
 	help="parameter to pass to `cp` for linking files instead of copying their data")
+argparser.add_argument('--force', required=False,
+	action='store_true', dest='force', help="Force overwriting any existing file when moving")
 argparser.add_argument('-s', '--summary', required=False,
 	action='store_true', dest='summary', help="Only display a summary of datasets, not an exhaustive list of all samples")
 argparser.add_argument('-a', '--append', required=False,
@@ -173,7 +175,7 @@ for l in stats['ConversionResults']: # lane
 		if tsv:
 			print(fixedname, batch, rlen, sep='\t', file=tsv)
 		if sh:
-			subst={'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'ends':ends,'batch':batch,'suffix':''}
+			subst={'force':('f' if args.force else ''),'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'ends':ends,'batch':batch,'suffix':''}
 			# 'midfix': _S*_L%(lane)03u
 			# 'suffix': _001_MM_1 mm
 			print(r'''
@@ -184,13 +186,13 @@ mkdir ${mode} -p "%(sampleset)s/"{,"%(fname)s/"{,"%(batch)s/"{,raw_data,extracte
 for file in "${fastq[@]}"; do
 	filename="${file##*/}"
 	[[ $file =~ _(R[[:digit:]])((_.*)?[.]fastq[.]gz)$ ]] && destname="${filename//${BASH_REMATCH[2]}/.fastq.gz}"
-	cp -v ${link} "${file}" "%(sampleset)s/%(fname)s/%(batch)s/raw_data/${destname}"||X
+	cp -v%(force)s ${link} "${file}" "%(sampleset)s/%(fname)s/%(batch)s/raw_data/${destname}"||X
 ''' % subst, file=sh)
 			if qcdir:
 				subst['fastqc']=qcdir
 				print(r'''
 	fqcname="${filename//%(suffix)s.fastq.gz/_fastqc.html}"
-	cp -v ${link} "%(fastqc)s/${fqcname}" "%(sampleset)s/%(fname)s/%(batch)s/extracted_data/${BASH_REMATCH[1]}_fastqc.html"||X
+	cp -v%(force)s ${link} "%(fastqc)s/${fqcname}" "%(sampleset)s/%(fname)s/%(batch)s/extracted_data/${BASH_REMATCH[1]}_fastqc.html"||X
 ''' % subst, file=sh)
 			print('done', file=sh)
 

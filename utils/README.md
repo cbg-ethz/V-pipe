@@ -180,6 +180,7 @@ optional arguments:
   -m MODE, --mode MODE  POSIX file access mode to be passed to mkdir
   -L CPLINK, --linking CPLINK
                         parameter to pass to `cp` for linking files instead of copying their data
+  --force               Force overwriting any existing file when moving
   -s, --summary         Only display a summary of datasets, not an exhaustive list of all samples
   -a, --append          Append to the end of movedatafiles.sh, instead of overwritting (use when calling from an external combiner wrapper)
   -n, --noempty         skip fastq.gz files with bad yield (0 reads)
@@ -234,6 +235,7 @@ optional arguments:
   -m MODE, --mode MODE  POSIX file access mode to be passed to mkdir
   -L CPLINK, --linking CPLINK
                         parameter to pass to `cp` for linking files instead of copying their data
+  --force               Force overwriting any existing file when moving
   -b LAB, --batch LAB   generate batch description
   -s, --summary         Only display a summary of datasets, not an exhaustive list of all samples
   -a, --append          Append to the end of movedatafiles.sh, instead of overwritting (use when calling from an external combiner wrapper)
