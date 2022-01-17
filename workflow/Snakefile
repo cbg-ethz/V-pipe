@@ -38,6 +38,7 @@ include: "rules/consensus.smk"
 include: "rules/mafs.smk"
 include: "rules/stats.smk"
 include: "rules/publish.smk"
+include: "rules/dehuman.smk"
 
 
 if config.output["snv"] or config.output["local"]:
