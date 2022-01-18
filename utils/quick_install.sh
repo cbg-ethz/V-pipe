@@ -163,7 +163,8 @@ fi
 message 'Using installer:' ${MINICONDA}
 
 # Get and install Miniconda3
-(mkdir -p "${PREFIX}" && cd "${PREFIX}") || fail "Could not create directory: ${PREFIX}"
+# shellcheck disable=SC2015
+mkdir -p "${PREFIX}" && cd "${PREFIX}" || fail "Could not create directory: ${PREFIX}"
 [[ -f ${MINICONDA} ]] && rm ${MINICONDA}
 ${DOWNLOAD} https://repo.anaconda.com/miniconda/${MINICONDA}
 sh ${MINICONDA} -b -p miniconda3
@@ -244,7 +245,8 @@ title 'Working directory'
 message 'Working directory:' "${WORKDIR}"
 
 check_directory "${WORKDIR}" 'Working directory'
-(mkdir -p "${WORKDIR}" && cd "${WORKDIR}") || fail "Could not create directory: ${WORKDIR}"
+# shellcheck disable=SC2015
+mkdir -p "${WORKDIR}" && cd "${WORKDIR}" || fail "Could not create directory: ${WORKDIR}"
 "${INIT}" ${MINIMAL} || fail "Populating working directory failed"
 
 echo $'\n'
