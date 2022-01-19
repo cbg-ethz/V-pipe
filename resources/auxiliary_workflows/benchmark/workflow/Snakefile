@@ -62,7 +62,8 @@ dependencies:"""
             conda_env += "\n  - " + "\n  - ".join(conda_dep_list)
 
         if len(pip_dep_list) > 0:
-            conda_env += "\n  - pip\n"
+            conda_env += "\n  - python=3.9\n"
+            conda_env += "  - pip\n"
             conda_env += "  - pip:\n    - " + "\n    - ".join(pip_dep_list)
 
     print(f'Generated conda env for "{input.script}":', file=sys.stderr)
