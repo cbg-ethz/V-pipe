@@ -6,7 +6,7 @@
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.8.1-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
 [![Deploy Docker image](https://github.com/cbg-ethz/V-pipe/actions/workflows/deploy-docker.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
 [![Tests](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml)
-[![MegaLinter](https://github.com/cbg-ethz/V-pipe/workflows/MegaLinter/badge.svg?branch=master)](https://github.com/cbg-ethz/V-pipe/actions?query=workflow%3AMegaLinter+branch%3Amaster)
+[![Mega-Linter](https://github.com/cbg-ethz/V-pipe/actions/workflows/mega-linter.yml/badge.svg)](https://github.com/cbg-ethz/V-pipe/actions/workflows/mega-linter.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (e.g., consensus sequences, SNV calls, local/global haplotypes).
