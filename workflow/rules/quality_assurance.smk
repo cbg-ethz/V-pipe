@@ -32,6 +32,7 @@ rule gunzip:
 rule extract:
     input:
         construct_input_fastq,
+        # TODO replace with raw_data_file
     output:
         temp(
             os.path.join(
@@ -54,6 +55,7 @@ rule extract:
         """
         cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
+        # TODO replace with better dedicated software
 
 
 # 2. clipping

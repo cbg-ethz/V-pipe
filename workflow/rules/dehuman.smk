@@ -2,16 +2,8 @@ from functools import partial
 from glob import glob
 
 
-def raw_data_file(wildcards, pair):
-    for p in os.listdir('{dataset}/raw_data'.format(dataset=wildcards.dataset)):
-        if re.search(r".*R{pair}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(pair=pair), p):
-            return os.path.join(wildcards.dataset, "raw_data", p)
-
-
-def temp_with_prefix(p):
-    return os.path.join(config.general["temp_prefix"], p)
-
-        
+# TODO split into multiple sub-rules
+# TODO move cram compression into align.smk
 
 rule dehuman:
     input:
@@ -137,7 +129,7 @@ rule dehuman:
             cp {wildcards.dataset}/raw_data/*_R1.fastq.gz {output.filtered_1} &
             cp {wildcards.dataset}/raw_data/*_R2.fastq.gz {output.filtered_2} &
             wait
-            touch {output.filter} 
+            touch {output.filter}
             touch {output.h38_aln_cram}
         fi
 

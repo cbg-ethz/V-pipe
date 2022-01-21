@@ -267,12 +267,7 @@ if config.general["aligner"] == "ngshmmalign":
         input:
             "{dataset}/preprocessed_data/{file}.fastq.gz",
         output:
-            temp(
-                os.path.join(
-                    config.general["temp_prefix"],
-                    "{dataset}/preprocessed_data/{file}.fastq",
-                )
-            ),
+            temp_with_prefix("{dataset}/preprocessed_data/{file}.fastq"),
         params:
             GUNZIP=config.applications["gunzip"],
         log:
@@ -295,16 +290,8 @@ if config.general["aligner"] == "ngshmmalign":
             initial_ref="{dataset}/references/initial_consensus.fasta",
             FASTQ=input_align,
         output:
-            good_aln=temp(
-                os.path.join(
-                    config.general["temp_prefix"], "{dataset}/alignments/full_aln.sam"
-                )
-            ),
-            reject_aln=temp(
-                os.path.join(
-                    config.general["temp_prefix"], "{dataset}/alignments/rejects.sam"
-                )
-            ),
+            good_aln=temp_with_prefix("{dataset}/alignments/full_aln.sam"),
+            reject_aln=temp_with_prefix("{dataset}/alignments/rejects.sam"),
             REF_ambig="{dataset}/references/ref_ambig.fasta",
             REF_majority="{dataset}/references/ref_majority.fasta",
         params:
@@ -426,7 +413,7 @@ if config.general["aligner"] == "ngshmmalign":
 
 rule sam2bam:
     input:
-        os.path.join(config.general["temp_prefix"], "{file}.sam"),
+        temp_prefix("{file}.sam"),
     output:
         # TODO support cram here
         BAM="{file}.bam",
@@ -502,16 +489,8 @@ if config.general["aligner"] == "bwa":
             REF=reference_file,
             INDEX="{}.bwt".format(reference_file),
         output:
-            REF=temp(
-                os.path.join(
-                    config.general["temp_prefix"], "{dataset}/alignments/REF_aln.sam"
-                )
-            ),
-            TMP_SAM=temp(
-                os.path.join(
-                    config.general["temp_prefix"], "{dataset}/alignments/tmp_aln.sam"
-                )
-            ),
+            REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
+            TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
         params:
             EXTRA=config.bwa_align["extra"],
             FILTER="-f 2" if config.input["paired"] else "-F 4",
@@ -588,18 +567,8 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5="{}.rev.1.bt2".format(reference_file),
                 INDEX6="{}.rev.2.bt2".format(reference_file),
             output:
-                REF=temp(
-                    os.path.join(
-                        config.general["temp_prefix"],
-                        "{dataset}/alignments/REF_aln.sam",
-                    )
-                ),
-                TMP_SAM=temp(
-                    os.path.join(
-                        config.general["temp_prefix"],
-                        "{dataset}/alignments/tmp_aln.sam",
-                    )
-                ),
+                REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
+                TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
             params:
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
@@ -643,18 +612,8 @@ elif config.general["aligner"] == "bowtie":
                 INDEX5="{}.rev.1.bt2".format(reference_file),
                 INDEX6="{}.rev.2.bt2".format(reference_file),
             output:
-                REF=temp(
-                    os.path.join(
-                        config.general["temp_prefix"],
-                        "{dataset}/alignments/REF_aln.sam",
-                    )
-                ),
-                TMP_SAM=temp(
-                    os.path.join(
-                        config.general["temp_prefix"],
-                        "{dataset}/alignments/tmp_aln.sam",
-                    )
-                ),
+                REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
+                TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
             params:
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],

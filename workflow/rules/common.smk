@@ -533,7 +533,12 @@ def get_maxins(wildcards):
 def rebase_datadir(base, dataset):
     return os.path.join(base, *os.path.normpath(dataset).split(os.path.sep)[-2:])
 
+def raw_data_file(wildcards, pair):
+    for p in os.listdir('{dataset}/raw_data'.format(dataset=wildcards.dataset)):
+        if re.search(r".*R{pair}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(pair=pair), p):
+            return os.path.join(wildcards.dataset, "raw_data", p)
 
+# TODO replace with raw_data_file
 def construct_input_fastq(wildcards):
 
     indir = os.path.join(
@@ -581,3 +586,9 @@ def construct_input_fastq(wildcards):
         )
 
     return list_output
+
+def temp_prefix(p):
+    return temp(os.path.join(config.general["temp_prefix"], p))
+
+def temp_with_prefix(p):
+    return temp(temp_prefix(p))
