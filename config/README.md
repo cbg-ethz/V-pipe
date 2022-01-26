@@ -100,14 +100,32 @@ File containing sample unique identifiers and dates as tab-separated values.
 **Example:** here, we have two samples from patient 1 and one sample from patient 2:
 
 ```tsv
-patient1    20100113
-patient1    20110202
-patient2    20081130
+patient1	20100113
+patient1	20110202
+patient2	20081130
 ```
 
 By default, V-pipe searches for a file named `config/samples.tsv`, if this file does not exist, a list of samples is built by searching the contents of the input datadir.
 
-Optionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.
+### read-lenght
+
+The samples' read-length is used for critical steps of the pipeline (e.g.: quality filtering). Different possibilities are available to set its value:
+
+- by default, V-pipe expects a read-length of 250bp
+- this default can be globally overridden in the configuration file in section _input_ -> property _read_length_
+  ```yaml
+  input:
+    read_length: 150
+  ```
+- the samples TSV file can contain an optional third column specifying the read length.
+  This is particularly useful when samples are sequenced using protocols with different read lengths.
+  ```tsv
+  patient1	20100113	150
+  patient1	20110202	200
+  patient2	20081130	150
+  ```
+
+  The utils subdirectory contain [mass-importers tools](../utils/README.md#samples-mass-importers) that can generate this third column while importing samples.
 
 ## samples
 
