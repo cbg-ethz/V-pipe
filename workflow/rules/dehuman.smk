@@ -1,17 +1,9 @@
 from functools import partial
-from glob import glob
-
-
-def raw_data_file(wildcards, pair):
-    for p in os.listdir('{dataset}/raw_data'.format(dataset=wildcards.dataset)):
-        if re.search(r".*R{pair}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(pair=pair), p):
-            return os.path.join(wildcards.dataset, "raw_data", p)
 
 
 def temp_with_prefix(p):
     return os.path.join(config.general["temp_prefix"], p)
 
-        
 
 rule dehuman:
     input:

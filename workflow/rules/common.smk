@@ -365,7 +365,7 @@ visualizations = []
 diversity_measures = []
 datasets = []
 IDs = []
-dehumanized_raw_reads = []
+upload_markers = []
 
 for p in patient_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
@@ -439,12 +439,10 @@ for p in patient_list:
         visualizations.append(os.path.join(sdir, "visualization/snv_calling.html"))
         visualizations.append(os.path.join(sdir, "visualization/alignment.html"))
 
-    if config.output["dehumanized_raw_reads"]:
-        dehumanized_raw_reads.append(os.path.join(sdir, "raw_data", "dehuman.cram"))
+    upload_markers.append(os.path.join(sdir, "upload_prepared.touch"))
 
     # merge lists containing expected output
-    all_files = (alignments + consensus + results + visualizations
-                 + dehumanized_raw_reads)
+    all_files = (alignments + consensus + results + visualizations + upload_markers)
 
 # diversity measures
 if not config.output["snv"] and config.output["diversity"]:
@@ -581,3 +579,10 @@ def construct_input_fastq(wildcards):
         )
 
     return list_output
+
+
+def raw_data_file(wildcards, pair):
+    for p in os.listdir('{dataset}/raw_data'.format(dataset=wildcards.dataset)):
+        if re.search(r".*R{pair}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(pair=pair), p):
+            return os.path.join(wildcards.dataset, "raw_data", p)
+
