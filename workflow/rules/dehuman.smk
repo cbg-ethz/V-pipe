@@ -1,5 +1,4 @@
 from functools import partial
-from glob import glob
 
 
 # TODO split into multiple sub-rules
