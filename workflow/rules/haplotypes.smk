@@ -20,6 +20,7 @@ rule haploclique:
         NO_PROB0="--no_prob0" if config.haploclique["no_prob0"] else "",
         CLIQUE_SIZE_LIMIT=config.haploclique["clique_size_limit"],
         MAX_NUM_CLIQUES=config.haploclique["max_num_cliques"],
+        EXTRA_PARAMETERS=config.haploclique["extra_parameters"],
         OUTPREFIX="{dataset}/variants/global/quasispecies",
         HAPLOCLIQUE=config.applications["haploclique"],
     log:
@@ -36,7 +37,7 @@ rule haploclique:
     threads: 1
     shell:
         """
-        {params.HAPLOCLIQUE} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --log={log.outfile} --bam {input} {params.OUTPREFIX} 2> >(tee {log.errfile} >&2)
+        {params.HAPLOCLIQUE} {params.EXTRA_PARAMETERS} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --log={log.outfile} --bam {input} {params.OUTPREFIX} 2> >(tee {log.errfile} >&2)
         """
 
 
