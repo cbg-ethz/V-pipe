@@ -34,16 +34,19 @@ def compute_performance(true_variants, predicted_variants):
         tp, fp, fn = 0, 0, 0
         precision = 1
         recall = 1
+        f1 = 2 * (precision * recall) / (precision + recall)
     elif len(true_variants) == 0 and len(predicted_variants) > 0:
         tp, fn = 0, 0
         fp = len(predicted_variants)
         precision = tp / (tp + fp)
         recall = 0  # 0 / 0
+        f1 = 0
     elif len(true_variants) > 0 and len(predicted_variants) == 0:
         tp, fp = 0, 0
         fn = len(true_variants)
         precision = 0  # 0 / 0
         recall = tp / (tp + fn)
+        f1 = 0
     else:
         # count true/false positives/negatives
         tp, fp, fn = 0, 0, 0
@@ -63,8 +66,7 @@ def compute_performance(true_variants, predicted_variants):
         # compute performances
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
-
-    f1 = 2 * (precision * recall) / (precision + recall)
+        f1 = 2 * (precision * recall) / (precision + recall)
 
     return precision, recall, f1
 
