@@ -29,24 +29,41 @@ def convert_groundtruth(fname):
 
 
 def compute_performance(true_variants, predicted_variants):
-    # count true/false positives/negatives
-    tp, fp, fn = 0, 0, 0
-    for variant in true_variants | predicted_variants:
-        if variant in true_variants and variant in predicted_variants:
-            tp += 1
-        elif variant in true_variants and variant not in predicted_variants:
-            fn += 1
-        elif variant not in true_variants and variant in predicted_variants:
-            fp += 1
-        elif variant not in true_variants and variant not in predicted_variants:
-            # tn += 1
-            pass
-        else:
-            raise RuntimeError("Woopsie")
+    # no true variants and also no predicted variants
+    if len(true_variants) == 0 and len(predicted_variants) == 0:
+        tp, fp, fn = 0, 0, 0
+        precision = 1
+        recall = 1
+    elif len(true_variants) == 0 and len(predicted_variants) > 0:
+        tp, fn = 0, 0
+        fp = len(predicted_variants)
+        precision = tp / (tp + fp)
+        recall = 0  # 0 / 0
+    elif len(true_variants) > 0 and len(predicted_variants) == 0:
+        tp, fp = 0, 0
+        fn = len(true_variants)
+        precision = 0  # 0 / 0
+        recall = tp / (tp + fn)
+    else:
+        # count true/false positives/negatives
+        tp, fp, fn = 0, 0, 0
+        for variant in true_variants | predicted_variants:
+            if variant in true_variants and variant in predicted_variants:
+                tp += 1
+            elif variant in true_variants and variant not in predicted_variants:
+                fn += 1
+            elif variant not in true_variants and variant in predicted_variants:
+                fp += 1
+            elif variant not in true_variants and variant not in predicted_variants:
+                # tn += 1
+                pass
+            else:
+                raise RuntimeError("Woopsie")
 
-    # compute performances
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
+        # compute performances
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+
     f1 = 2 * (precision * recall) / (precision + recall)
 
     return precision, recall, f1
