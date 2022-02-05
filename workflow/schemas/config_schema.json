@@ -1128,7 +1128,7 @@
                 "extra_parameters": {
                     "type": "string",
                     "default": "",
-                    "description": "additional parameters to be passed to haploclique. Warning: this won't overwrite the other options (e.g. 'clique_size_limit' should still be set via its own config parameter)."
+                    "description": "additional parameters to be passed to haploclique.\n\nWarning: this won't overwrite the other options (e.g. `clique_size_limi` and `max_num_cliques` should still be set via their [own](#haploclique_clique_size_limit) [respective](#haploclique_max_num_cliques) properties, do not pass parameters `--limit_clique_size=` nor `--max_cliques=` via this `extra` property)."
                 }
             },
             "default": {},
