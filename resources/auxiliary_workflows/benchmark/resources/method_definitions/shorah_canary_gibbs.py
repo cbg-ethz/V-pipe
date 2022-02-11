@@ -5,12 +5,13 @@
 import subprocess
 from pathlib import Path
 
+
 def main(fname_bam, fname_reference, fname_results, dname_work):
 
     # TODO: it seems like the region input does not have any effect on the
     # windows that are created.
     # Compared to original shorah we need the argument -r for this version.
-    region='MasterSequence:210-9000'
+    region = "MasterSequence:210-9000"
 
     dname_work.mkdir(parents=True, exist_ok=True)
     subprocess.run(
@@ -24,7 +25,7 @@ def main(fname_bam, fname_reference, fname_results, dname_work):
             "-r",
             region,
             "--inference",
-            "gibbs"
+            "gibbs",
         ],
         cwd=dname_work,
     )
