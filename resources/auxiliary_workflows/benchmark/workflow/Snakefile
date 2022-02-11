@@ -21,7 +21,7 @@ if config["method_list"] is None:
 else:
     method_list = config["method_list"]
 
-print(method_list)
+print(method_list, file=sys.stderr)
 
 
 # helper functions
