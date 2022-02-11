@@ -1,3 +1,5 @@
+# CONDA: boost = 1.77.0
+# CONDA: htslib = 1.14
 # PIP: git+https://github.com/LaraFuhrmann/shorah@switch-to-poetry
 
 import subprocess
