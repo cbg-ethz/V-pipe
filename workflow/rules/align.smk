@@ -443,6 +443,32 @@ rule sam2bam:
         """
 
 
+rule ref_bwa_index:
+    input:
+        reference_file,
+    output:
+        "{}.bwt".format(reference_file),
+    params:
+        BWA=config.applications["bwa"],
+    log:
+        outfile="references/bwa_index.out.log",
+        errfile="references/bwa_index.err.log",
+    conda:
+        config.ref_bwa_index["conda"]
+    benchmark:
+        "references/ref_bwa_index.benchmark"
+    group:
+        "align"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.ref_bwa_index["mem"],
+        time_min=config.ref_bwa_index["time"],
+    threads: 1
+    shell:
+        """
+        {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
+        """
+
 if config.general["aligner"] == "bwa":
 
     def input_align_gz(wildcards):
@@ -455,32 +481,6 @@ if config.general["aligner"] == "bwa":
                 os.path.join(wildcards.dataset, "preprocessed_data/R2.fastq.gz")
             )
         return list_output
-
-    rule ref_bwa_index:
-        input:
-            reference_file,
-        output:
-            "{}.bwt".format(reference_file),
-        params:
-            BWA=config.applications["bwa"],
-        log:
-            outfile="references/bwa_index.out.log",
-            errfile="references/bwa_index.err.log",
-        conda:
-            config.ref_bwa_index["conda"]
-        benchmark:
-            "references/ref_bwa_index.benchmark"
-        group:
-            "align"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.ref_bwa_index["mem"],
-            time_min=config.ref_bwa_index["time"],
-        threads: 1
-        shell:
-            """
-            {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
-            """
 
     rule bwa_align:
         # all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa

@@ -41,6 +41,13 @@
                     "description": "This option should be used to specify the default number of threads for all multi-threaded rules. That is, unless the number of threads is specified for each rule, this value is set as default.",
                     "examples": [4]
                 },
+                "checksum": {
+                    "type": "string",
+                    "default": "md5",
+                    "enum": ["md5", "sha1", "sha256", "sha224", "sha384", "sha512", "xxh64", "xxh32", "xxh128"],
+                    "description": "Sets the algorithm to be used when computing checksums for uploadable data.",
+                    "examples": ["sha256"]
+                },
                 "temp_prefix": {
                     "type": "string",
                     "default": "",
@@ -178,7 +185,13 @@
                 "dehumanized_raw_reads": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option turns on dehumanization of the raw reads",
+                    "description": "This option turns on dehumanization of the raw reads (i.e. removal of host's reads). This is useful to prepare raw reads for upload on public databases such as, e.g. ENA (European Nucleotide Archive)",
+                    "examples": [true]
+                },
+                "upload": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "This option can be used for assistance in incremental upload of data",
                     "examples": [true]
                 }
             },
@@ -1255,9 +1268,17 @@
                     "type": "integer",
                     "default": 16
                 },
-                "ref_human": {
+                "ref_host": {
                     "type": "string",
-                    "default": "references/human.fa"
+                    "default": "references/human.fa",
+                    "description": "Host's genome used to remove reads (e.g. human genome)",
+                    "examples": ["/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa"]
+                },
+                "keep_host": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Indicate whether to store the host-aligned reads in a CRAM file `…/alignments/host_aln.cram`.",
+                    "examples": [ true ]
                 }
             },
             "default": {},

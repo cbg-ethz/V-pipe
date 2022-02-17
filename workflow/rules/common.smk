@@ -365,6 +365,7 @@ visualizations = []
 diversity_measures = []
 datasets = []
 IDs = []
+dehumanized_raw_reads = []
 upload_markers = []
 
 for p in patient_list:
@@ -439,10 +440,15 @@ for p in patient_list:
         visualizations.append(os.path.join(sdir, "visualization/snv_calling.html"))
         visualizations.append(os.path.join(sdir, "visualization/alignment.html"))
 
-    upload_markers.append(os.path.join(sdir, "upload_prepared.touch"))
+    if config.output["dehumanized_raw_reads"]:
+        dehumanized_raw_reads.append(os.path.join(sdir, "raw_uploads", "dehuman.cram"))
+
+    if config.output["upload"]:
+        upload_markers.append(os.path.join(sdir, "upload_prepared.touch"))
 
     # merge lists containing expected output
-    all_files = (alignments + consensus + results + visualizations + upload_markers)
+    all_files = (alignments + consensus + results + visualizations
+                 + dehumanized_raw_reads + upload_markers)
 
 # diversity measures
 if not config.output["snv"] and config.output["diversity"]:
@@ -586,7 +592,7 @@ def construct_input_fastq(wildcards):
     return list_output
 
 def temp_prefix(p):
-    return temp(os.path.join(config.general["temp_prefix"], p))
+    return os.path.join(config.general["temp_prefix"], p)
 
 def temp_with_prefix(p):
     return temp(temp_prefix(p))
