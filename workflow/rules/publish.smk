@@ -18,7 +18,9 @@ rule prepare_upload:
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch"
     params:
-        sample_id=ID
+        sample_id=ID,
+        script=cachepath(config.upload["script"], executable=True),
+        options=config.upload["options"],
     conda:
         # NOTE realpath is a gnu coreutils executable and not available out of the box. We need a conda environment anyway
         config.upload["conda"]
@@ -30,27 +32,7 @@ rule prepare_upload:
         config.upload["threads"]
     shell:
         """
-        to_upload=( {input} )
-
-        mkdir -p "{wildcards.dataset}/uploads/"
-        for p in "${{to_upload[@]}}"; do
-            test -e "$p" || continue
-            fixed_p=$(realpath --relative-to "{wildcards.dataset}/uploads/" "$p")
-            ( set -x; ln -f -s "$fixed_p" "{wildcards.dataset}/uploads/" )
-        done
-
-        mkdir -p uploads/
-
-        sample_id={params.sample_id}
-        fixed_uploads=$(realpath --relative-to "uploads" "{wildcards.dataset}/uploads/")
-
-        # make unique symbolic link:
-        read random o < <(dd if=/dev/urandom bs=30 count=1 2>/dev/null | sha1sum -b)
-        unique_id="${{sample_id}}__${{random}}"
-
-        ( set -x; ln -s "$fixed_uploads" "uploads/$unique_id" )
-
-        touch {output.upload_prepared_touch}
+        {params.script} {params.options} "{output.upload_prepared_touch}" "{params.sample_id}" "{wildcards.dataset}" {input}
         """
 
 
