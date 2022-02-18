@@ -18,7 +18,8 @@ functions = srcdir("scripts/functions.sh")
 # DUMMY RULES
 rule all:
     input:
-        all_files
+        all_files,
+
 
 rule alltrimmed:
     input:

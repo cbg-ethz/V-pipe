@@ -31,8 +31,8 @@ rule gunzip:
 
 rule extract:
     input:
-        construct_input_fastq,
         # TODO replace with raw_data_file
+        construct_input_fastq,
     output:
         temp(
             os.path.join(
@@ -52,10 +52,10 @@ rule extract:
         time_min=config.extract["time"],
     threads: 1
     shell:
+        # TODO replace with better dedicated software
         """
         cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
-        # TODO replace with better dedicated software
 
 
 # 2. clipping
@@ -95,7 +95,8 @@ if config.input["paired"]:
             "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        # group: 'preprocessing'
+        #group:
+            #'preprocessing'
         resources:
             disk_mb=20000,
             mem_mb=config.preprocessing["mem"],
@@ -147,7 +148,8 @@ else:
             "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
-        # group: 'preprocessing'
+        #group:
+            #'preprocessing'
         resources:
             disk_mb=10000,
             mem_mb=config.preprocessing["mem"],
@@ -172,9 +174,10 @@ else:
 
             gzip {wildcards.dataset}/preprocessed_data/R1.fastq
             """
-
-
 # 3. QC reports
+
+
+
 rule fastqc:
     input:
         os.path.join(

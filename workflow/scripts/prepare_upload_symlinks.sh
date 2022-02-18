@@ -76,7 +76,7 @@ fixed_uploads="$(realpath --relative-to "uploads" "${sample_dir}/uploads/")"
 
 # make unique symbolic link:
 if (( do_random_nonce )); then
-	read random o < <(dd if=/dev/urandom bs=30 count=1 2>/dev/null | sha1sum -b)
+	read -r random o < <(dd if=/dev/urandom bs=30 count=1 2>/dev/null | sha1sum -b)
 	unique_id="${sample_id}__${random}"
 	force=""
 else

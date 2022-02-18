@@ -19,13 +19,13 @@ rule dh_redo_alignreject:
     conda:
         config.dehuman["conda"]
     group:
-        "dehuman"
         #"align"
+        "dehuman"
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"] # config.dehuman["threads"]
+    threads: config.bwa_align["threads"]  # config.dehuman["threads"]
     shell:
         """
         echo "Filter out virus' reads  -----------------------------------------"
@@ -48,7 +48,6 @@ rule dh_redo_alignreject:
         """
 
 
-
 rule dh_hostalign:
     input:
         host_ref=config.dehuman["ref_host"],
@@ -65,12 +64,11 @@ rule dh_hostalign:
         config.dehuman["conda"]
     group:
         "dehuman"
-        #"align"
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"] # config.dehuman["threads"]
+    threads: config.bwa_align["threads"]  # config.dehuman["threads"]
     shell:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
@@ -83,7 +81,6 @@ rule dh_hostalign:
 
         echo
         """
-
 
 
 rule dh_filter:
@@ -101,12 +98,13 @@ rule dh_filter:
         SAMTOOLS=config.applications["samtools"],
         remove_reads_script=cachepath(
             "../scripts/remove_reads_list.pl", executable=True, localsource=True
-        ), # TODO shoo out the cats
+        ),
+        # TODO shoo out the cats
         keep_host=int(config.dehuman["keep_host"]),
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         stats="{dataset}/alignments/dehuman.stats",
         # set to 1 to trigger matches with human genome (used for testing):
-        F=2
+        F=2,
     conda:
         config.dehuman["conda"]
     group:
@@ -201,8 +199,8 @@ rule dh_filter:
         """
 
 
-
 # TODO move cram compression into align.smk
+
 
 rule dehuman:
     input:

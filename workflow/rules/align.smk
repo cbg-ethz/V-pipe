@@ -331,9 +331,10 @@ if config.general["aligner"] == "ngshmmalign":
             mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
             mv {wildcards.dataset}/{{alignments,references}}/ref_majority.fasta
             """
-
-
 # 3. construct MSA from all patient files
+
+
+
 def construct_msa_input_files(wildcards):
     output_list = ["{}{}.fasta".format(s, wildcards.kind) for s in references]
     output_list.append(reference_file)
@@ -406,9 +407,8 @@ if config.general["aligner"] == "ngshmmalign":
             """
             {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
             """
-
-
 # 2-4. Alternative: align reads using bwa or bowtie
+
 
 
 rule sam2bam:
@@ -447,7 +447,7 @@ rule ref_bwa_index:
     input:
         reference_file,
     output:
-        "{}.bwt".format(reference_file),
+        "{}.bwt".format(reference_file),  #all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa
     params:
         BWA=config.applications["bwa"],
     log:
@@ -469,6 +469,7 @@ rule ref_bwa_index:
         {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
         """
 
+
 if config.general["aligner"] == "bwa":
 
     def input_align_gz(wildcards):
@@ -483,7 +484,6 @@ if config.general["aligner"] == "bwa":
         return list_output
 
     rule bwa_align:
-        # all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa
         input:
             FASTQ=input_align_gz,
             REF=reference_file,
@@ -501,7 +501,7 @@ if config.general["aligner"] == "bwa":
             errfile="{dataset}/alignments/bwa_align.err.log",
         conda:
             config.bwa_align["conda"]
-        # shadow: "minimal" # HACK way too many indexing files, using explicit OUT instead
+        #shadow: "minimal" # HACK way too many indexing files, using explicit OUT instead
         benchmark:
             "{dataset}/alignments/bwa_align.benchmark"
         group:
@@ -641,9 +641,10 @@ elif config.general["aligner"] == "bowtie":
                 {params.SAMTOOLS} view -h -F 4 -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
                 rm {params.TMP_SAM}
                 """
-
-
 # NOTE ngshmmalignb also generate consensus so check there too.
+
+
+
 # if config.general["aligner"] == "ngshmmalign":
 #
 #    ruleorder: convert_to_ref > sam2bam
