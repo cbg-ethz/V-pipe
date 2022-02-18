@@ -191,7 +191,7 @@
                 "upload": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option can be used for assistance in incremental upload of data",
+                    "description": "This option can be used for assistance in incremental upload of data. See section `upload` for an example.",
                     "examples": [true]
                 }
             },
@@ -1248,16 +1248,6 @@
             "default": {},
             "type": "object"
         },
-        "report_sequences": {
-            "properties": {
-                "conda": {
-                    "type": "string",
-                    "default": "{VPIPE_BASEDIR}/envs/report_sequences.yaml"
-                }
-            },
-            "default": {},
-            "type": "object"
-        },
         "dehuman": {
             "properties": {
                 "conda": {
@@ -1278,6 +1268,67 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Indicate whether to store the host-aligned reads in a CRAM file `…/alignments/host_aln.cram`.",
+                    "examples": [ true ]
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "checksum": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 256
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/upload.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "upload": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 256
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/upload.yaml",
+                    "description": "The default environment only provides hashing functions (`xxhash`, linux coreutils' `sha`_{nnn}_`sum` collection, etc.) but depending on your needs you would want to provide a custom environment with additional tools (e.g. `sftp`, `rsync`, `curl`, `lftp`, custom specialized cloud uploaders, etc.)",
+                    "example": ["custom_envs/ftp.yaml"]
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Don't dispatch the rule to the cluster for execution, run locally.",
+                    "examples": [ false ]
+                },
+                "consensus": {
+                    "type": "string",
+                    "default": "ambig",
+                    "enum": ["ambig", "majority"],
+                    "description": "When preparing data for upload, specifies which consensus sequence should be uploaded",
+                    "examples": ["majority"]
+                },
+                "checksum": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether to whether the new file has changed content or is virtually the same as the previous)",
                     "examples": [ true ]
                 }
             },
