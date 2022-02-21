@@ -483,6 +483,7 @@ if config.general["aligner"] == "bwa":
             )
         return list_output
 
+    # HACK way too many indexing files (see ref_bwa_index), not using shadow: minimal
     rule bwa_align:
         input:
             FASTQ=input_align_gz,
@@ -501,7 +502,6 @@ if config.general["aligner"] == "bwa":
             errfile="{dataset}/alignments/bwa_align.err.log",
         conda:
             config.bwa_align["conda"]
-        #shadow: "minimal" # HACK way too many indexing files, using explicit OUT instead
         benchmark:
             "{dataset}/alignments/bwa_align.benchmark"
         group:
