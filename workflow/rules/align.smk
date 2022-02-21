@@ -470,18 +470,17 @@ rule ref_bwa_index:
         """
 
 
-if config.general["aligner"] == "bwa":
-
-    def input_align_gz(wildcards):
-        list_output = []
+def input_align_gz(wildcards):
+    list_output = []
+    list_output.append(os.path.join(wildcards.dataset, "preprocessed_data/R1.fastq.gz"))
+    if config.input["paired"]:
         list_output.append(
-            os.path.join(wildcards.dataset, "preprocessed_data/R1.fastq.gz")
+            os.path.join(wildcards.dataset, "preprocessed_data/R2.fastq.gz")
         )
-        if config.input["paired"]:
-            list_output.append(
-                os.path.join(wildcards.dataset, "preprocessed_data/R2.fastq.gz")
-            )
-        return list_output
+    return list_output
+
+
+if config.general["aligner"] == "bwa":
 
     # HACK way too many indexing files (see ref_bwa_index), not using shadow: minimal
     rule bwa_align:
