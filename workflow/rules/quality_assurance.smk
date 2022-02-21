@@ -34,11 +34,7 @@ rule extract:
         # TODO replace with raw_data_file
         construct_input_fastq,
     output:
-        temp(
-            os.path.join(
-                config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq"
-            )
-        ),
+        temp_with_prefix("{dataset}/extracted_data/R{pair}.fastq"),
     log:
         outfile="{dataset}/extracted_data/extract_R{pair}.out.log",
         errfile="{dataset}/extracted_data/extract_R{pair}.err.log",
@@ -73,12 +69,8 @@ if config.input["paired"]:
 
     rule preprocessing:
         input:
-            R1=os.path.join(
-                config.general["temp_prefix"], "{dataset}/extracted_data/R1.fastq"
-            ),
-            R2=os.path.join(
-                config.general["temp_prefix"], "{dataset}/extracted_data/R2.fastq"
-            ),
+            R1=temp_prefix("{dataset}/extracted_data/R1.fastq"),
+            R2=temp_prefix("{dataset}/extracted_data/R2.fastq"),
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
             R2gz="{dataset}/preprocessed_data/R2.fastq.gz",
@@ -128,9 +120,7 @@ else:
 
     rule preprocessing_se:
         input:
-            R1=os.path.join(
-                config.general["temp_prefix"], "{dataset}/extracted_data/R1.fastq"
-            ),
+            R1=temp_prefix("{dataset}/extracted_data/R1.fastq"),
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
         params:
@@ -176,9 +166,7 @@ else:
 
 rule fastqc:
     input:
-        os.path.join(
-            config.general["temp_prefix"], "{dataset}/extracted_data/R{pair}.fastq"
-        ),
+        temp_prefix("{dataset}/extracted_data/R{pair}.fastq"),
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
     params:
