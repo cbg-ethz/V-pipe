@@ -56,6 +56,7 @@ output:
     visualization: true
     diversity: true
     QA: true
+    upload: true
 
 snv:
     threads: ${THREADS}

@@ -6,7 +6,9 @@ rule dh_reuse_alignreject:
     # this rule re-use the rejected reads in align.smk (e.g. ngshmmalign's /alignments/rejects.sam)
     # (useful when in parallel with the main processing)
     input:
-        reject_aln=rules.hmm_align.output.reject_aln if config["general"]["aligner"] == "ngshmmalign" else temp_prefix("{dataset}/alignments/tmp_aln.sam")
+        reject_aln=rules.hmm_align.output.reject_aln
+        if config["general"]["aligner"] == "ngshmmalign"
+        else temp_prefix("{dataset}/alignments/tmp_aln.sam"),
     output:
         reject_1=temp_with_prefix("{dataset}/alignments/reject_R1.fastq.gz"),
         reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
@@ -85,8 +87,12 @@ rule dh_hostalign:
     input:
         host_ref=config.dehuman["ref_host"],
         ref_index="{}.bwt".format(config.dehuman["ref_host"]),
-        reject_1=rules.dh_redo_alignreject.output.reject_1 if config["dehuman"]["catchup"] else rules.dh_reuse_alignreject.output.reject_1,
-        reject_2=rules.dh_redo_alignreject.output.reject_2 if config["dehuman"]["catchup"] else rules.dh_reuse_alignreject.output.reject_2,
+        reject_1=rules.dh_redo_alignreject.output.reject_1
+        if config["dehuman"]["catchup"]
+        else rules.dh_reuse_alignreject.output.reject_1,
+        reject_2=rules.dh_redo_alignreject.output.reject_2
+        if config["dehuman"]["catchup"]
+        else rules.dh_reuse_alignreject.output.reject_2,
     output:
         host_aln=temp_with_prefix("{dataset}/alignments/host_aln.sam"),
     params:
