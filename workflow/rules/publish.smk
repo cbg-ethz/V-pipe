@@ -26,7 +26,8 @@ rule prepare_upload:
         % bcft_suffix(),
         consensus_indels_chain="{dataset}/references/consensus%s.bcftools.chain"
         % bcft_suffix(),
-        consensus_aligned="{dataset}/references/ref_majority_dels.fasta",  # % config.upload["consensus"],
+        consensus_aligned="{dataset}/references/ref_%s_dels.fasta"
+        % config.upload["consensus"],
         csum=[
             "{dataset}/references/consensus%(suf)s.bcftools.fasta.%(csum)s"
             % {"suf": bcft_suffix(), "csum": config.general["checksum"]},

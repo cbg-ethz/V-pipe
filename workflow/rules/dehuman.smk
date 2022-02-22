@@ -274,7 +274,7 @@ rule dehuman:
         #  - 'bwa mem' which keep comments in the SAM file verbatim as in the FASTQ file
         #  - 'samtools' which expects comment to be properly marked as 'BC:Z:'
         #    as per SAM format specs
-        REGEXP=\'s{{(?<=\\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:[ATCGN]+(\+[ATCGN]+))$}}{{BC:Z:\\1}}\'
+        REGEXP=\'s{{(?<=\\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}}{{BC:Z:\\1}}\'
         FMT=cram,embed_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
 
         perl -p -e ${{REGEXP}} {output.cram_sam} \
