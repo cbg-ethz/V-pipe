@@ -545,9 +545,27 @@ def rebase_datadir(base, dataset):
 
 
 def raw_data_file(wildcards, pair):
-    for p in os.listdir("{dataset}/raw_data".format(dataset=wildcards.dataset)):
-        if re.search(r".*R{pair}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(pair=pair), p):
-            return os.path.join(wildcards.dataset, "raw_data", p)
+    indir = os.path.join(
+        rebase_datadir(config.input["datadir"], wildcards.dataset), "raw_data"
+    )
+    list_output = []
+    rx_fq = re.compile(
+        r"[^/]*{}\.(fastq\.gz|fastq|fq|fq\.gz)$".format(
+            ("R%u%s" % (pair, config.input["fastq_suffix"])) if pair else ""
+        )
+    )
+    for p in os.listdir(indir):
+        if rx_fq.search(p):
+            list_output.append(os.path.join(indir, p))
+
+    if len(list_output) == 0:
+        raise ValueError(
+            "Missing input files for sample in: {} - Unexpected file name?".format(
+                indir
+            )
+        )
+
+    return list_output
 
 
 # TODO replace with raw_data_file

@@ -1,4 +1,4 @@
-if config.upload["conda"]:
+if config.upload["local"]:
 
     localrules:
         prepare_upload,
