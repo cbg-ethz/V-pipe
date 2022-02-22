@@ -531,7 +531,7 @@ def shifts(wildcards):
 
 
 def get_maxins(wildcards):
-    if config.bowtie_align["maxins"]:
+    if "maxins" in config["bowtie_align"]:
         return config.bowtie_align["maxins"]
     else:
         patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]

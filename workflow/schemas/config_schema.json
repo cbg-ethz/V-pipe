@@ -1254,9 +1254,17 @@
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/dehuman.yaml"
                 },
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
                 "threads": {
                     "type": "integer",
-                    "default": 16
+                    "default": 4
                 },
                 "ref_host": {
                     "type": "string",
@@ -1268,6 +1276,12 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Indicate whether to store the host-aligned reads in a CRAM file `…/alignments/host_aln.cram`.",
+                    "examples": [ true ]
+                },
+                "catchup": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use this option when generating dehumanized raw reads (`dehuman.cram`) on old samples _**that have already**_ been processed in the past - a catch up.\n\nNormally, removing host-mapping reads requires analyzing reads which where rejected by main processing's mapping to the reference (as specified in section `general`, property `aligner`). But this output is considered temporary and will get deleted by Snakemake once the processing of sample has finished. To generate `dehuman.cram` V-pipe would need to run the aligner again, which will both regenerate the data necessary for output this but also generate a new alignment which will trigger again processing every other step that depends on that alignment.\nUse this property `catchup` to only generate the input necessary for `dehuman.cram`, leaving untouched the alignment and everything else that has been already been processed.",
                     "examples": [ true ]
                 }
             },

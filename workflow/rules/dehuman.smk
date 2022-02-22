@@ -1,16 +1,50 @@
 from functools import partial
 
 
+rule dh_reuse_alignreject:
+    # "rely on aligner's output".
+    # this rule re-use the rejected reads in align.smk (e.g. ngshmmalign's /alignments/rejects.sam)
+    # (useful when in parallel with the main processing)
+    input:
+        reject_aln=rules.hmm_align.output.reject_aln if config["general"]["aligner"] == "ngshmmalign" else temp_prefix("{dataset}/alignments/tmp_aln.sam")
+    output:
+        reject_1=temp_with_prefix("{dataset}/alignments/reject_R1.fastq.gz"),
+        reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
+    params:
+        SAMTOOLS=config.applications["samtools"],
+    conda:
+        config.dehuman["conda"]
+    group:
+        "align"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.bwa_align["mem"],
+        time_min=config.bwa_align["time"],
+    threads: config.bwa_align["threads"]
+    shell:
+        """
+        echo "Keep reject  -----------------------------------------------------"
+        echo
+
+        {params.SAMTOOLS} bam2fq -@ {threads} \
+                                 -F 2 \
+                                 -1 {output.reject_1} \
+                                 -2 {output.reject_2} \
+                                 {input.reject_aln}
+        echo
+        """
+
+
 rule dh_redo_alignreject:
-    # this rule re-does an alignment to get the reject (useful if aligner's (temp) rejects have been deleted by now)
-    # TODO add support for rejected reads in align.smk (e.g. ngshmmalign already does /alignments/rejects.sam)
+    # "redo rejects"
+    # this rule re-does an alignment to get the reject
+    # (useful if aligner's (temp) rejects have been deleted by now)
     input:
         global_ref=reference_file,
         ref_index="{}.bwt".format(reference_file),
         fastq=input_align_gz,
     output:
-        tmp_aln=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
-        # TODO add option to switch between "redo rejects" and "rely on aligner's output".
+        tmp_aln=temp_with_prefix("{dataset}/alignments/dh_aln.sam"),
         reject_1=temp_with_prefix("{dataset}/alignments/reject_R1.fastq.gz"),
         reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
     params:
@@ -19,13 +53,12 @@ rule dh_redo_alignreject:
     conda:
         config.dehuman["conda"]
     group:
-        #"align"
         "dehuman"
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]  # config.dehuman["threads"]
+    threads: config.bwa_align["threads"]
     shell:
         """
         echo "Filter out virus' reads  -----------------------------------------"
@@ -52,12 +85,10 @@ rule dh_hostalign:
     input:
         host_ref=config.dehuman["ref_host"],
         ref_index="{}.bwt".format(config.dehuman["ref_host"]),
-        # TODO add option to switch between "redo rejects" and "rely on aligner's output".
-        reject_1=rules.dh_redo_alignreject.output.reject_1,
-        reject_2=rules.dh_redo_alignreject.output.reject_2,
+        reject_1=rules.dh_redo_alignreject.output.reject_1 if config["dehuman"]["catchup"] else rules.dh_reuse_alignreject.output.reject_1,
+        reject_2=rules.dh_redo_alignreject.output.reject_2 if config["dehuman"]["catchup"] else rules.dh_reuse_alignreject.output.reject_2,
     output:
         host_aln=temp_with_prefix("{dataset}/alignments/host_aln.sam"),
-    threads: config.dehuman["threads"]
     params:
         BWA=config.applications["bwa"],
     conda:
@@ -68,7 +99,7 @@ rule dh_hostalign:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]  # config.dehuman["threads"]
+    threads: config.bwa_align["threads"]
     shell:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
@@ -102,7 +133,6 @@ rule dh_filter:
         # TODO shoo out the cats
         keep_host=int(config.dehuman["keep_host"]),
         host_aln_cram="{dataset}/alignments/host_aln.cram",
-        stats="{dataset}/alignments/dehuman.stats",
         # set to 1 to trigger matches with human genome (used for testing):
         F=2,
     conda:
@@ -111,8 +141,8 @@ rule dh_filter:
         "dehuman"
     resources:
         disk_mb=1250,
-        mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
+        mem_mb=config.dehuman["mem"],
+        time_min=config.dehuman["time"],
     threads: config.dehuman["threads"]
     shell:
         """
@@ -180,7 +210,6 @@ rule dh_filter:
                 echo
 
                 {params.SAMTOOLS} index -@ {threads} {params.host_aln_cram}
-                {params.SAMTOOLS} stats -@ {threads} {params.host_aln_cram} > {params.stats}
             fi
         else
             echo
@@ -223,7 +252,7 @@ rule dehuman:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         time_min=config.bwa_align["time"],
-    threads: config.dehuman["threads"]
+    threads: config.bwa_align["threads"]
     shell:
         """
         echo "Compress filtered sequences --------------------------------------"
