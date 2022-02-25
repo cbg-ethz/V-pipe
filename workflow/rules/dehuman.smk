@@ -139,7 +139,6 @@ rule dh_filter:
         ),
         # TODO shoo out the cats
         keep_host=int(config.dehuman["keep_host"]),
-        host_only_sam=temp_with_prefix("{dataset}/alignments/host_only.sam"),
         sort_tmp=temp_prefix("{dataset}/alignments/host_sort.tmp"),
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         # set to 1 to trigger matches with human genome (used for testing):
@@ -168,8 +167,7 @@ rule dh_filter:
         echo "Count aligned reads ---------------------------------------------"
         echo
 
-        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} {input.host_aln})
-        echo "${{count}}" > {output.filter_count}
+        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} {input.host_aln} | tee {output.filter_count})
 
         if (( count > 0 )); then
             echo
@@ -205,20 +203,17 @@ rule dh_filter:
                 echo "Keeping Human-aligned virus' rejects -----------------------------"
                 echo
 
-               {params.SAMTOOLS} view -@ {threads} \
-                                      -h -f 2 \
-                                      -o {params.host_only_sam} \
-                                      {input.host_aln}
 
                 # (we compress reference-less, because the reference size is larger
                 # than the contaminant reads)
                 FMT=cram,no_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
-                {params.SAMTOOLS} sort -@ {threads} \
+                {params.SAMTOOLS} view -@ {threads} \
+                                      -h -f 2 \
+                                      {input.host_aln} \
+                    | {params.SAMTOOLS} sort -@ {threads} \
                                     -T {params.sort_tmp} \
                                     --output-fmt ${{FMT}} \
-                                    -o {params.host_aln_cram} \
-                                    {params.host_only_sam} &&
-                rm {params.host_only_sam}
+                                    -o {params.host_aln_cram}
 
                 echo
                 echo "Compressing human-depleted raw reads -----------------------------"
