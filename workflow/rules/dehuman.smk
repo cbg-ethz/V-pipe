@@ -139,6 +139,8 @@ rule dh_filter:
         ),
         # TODO shoo out the cats
         keep_host=int(config.dehuman["keep_host"]),
+        host_only_sam=temp_with_prefix("{dataset}/alignments/host_only.sam"),
+        sort_tmp=temp_prefix("{dataset}/alignments/host_sort.tmp"),
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         # set to 1 to trigger matches with human genome (used for testing):
         F=2,
@@ -203,14 +205,20 @@ rule dh_filter:
                 echo "Keeping Human-aligned virus' rejects -----------------------------"
                 echo
 
+               {params.SAMTOOLS} view -@ {threads} \
+                                      -h -f 2 \
+                                      -o {params.host_only_sam} \
+                                      {input.host_aln}
+
                 # (we compress reference-less, because the reference size is larger
                 # than the contaminant reads)
                 FMT=cram,no_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
                 {params.SAMTOOLS} sort -@ {threads} \
-                                    -M \
+                                    -T {params.sort_tmp} \
                                     --output-fmt ${{FMT}} \
                                     -o {params.host_aln_cram} \
-                                    {input.host_aln}
+                                    {params.host_only_sam} &&
+                rm {params.host_only_sam}
 
                 echo
                 echo "Compressing human-depleted raw reads -----------------------------"
@@ -252,6 +260,7 @@ rule dehuman:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
         checksum_type=config.general["checksum"],
+        sort_tmp=temp_prefix("{dataset}/raw_uploads/dehuman.tmp"),
     conda:
         config.dehuman["conda"]
     group:
@@ -281,6 +290,7 @@ rule dehuman:
 
         perl -p -e ${{REGEXP}} {output.cram_sam} \
               | {params.SAMTOOLS} sort -@ {threads} \
+                                       -T {params.sort_tmp} \
                                        -M \
                                        --reference {input.global_ref} \
                                        --output-fmt ${{FMT}} \

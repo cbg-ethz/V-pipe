@@ -421,6 +421,7 @@ rule sam2bam:
     params:
         SAMTOOLS=config.applications["samtools"],
         FUNCTIONS=functions,
+        sort_tmp=temp_prefix("{file}.tmp"),
     log:
         outfile="{file}_sam2bam.out.log",
         errfile="{file}_sam2bam.err.log",
@@ -438,7 +439,7 @@ rule sam2bam:
     shell:
         """
         echo "Writing BAM file"
-        {params.SAMTOOLS} sort -o "{output.BAM}" "{input}"
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}"
         {params.SAMTOOLS} index "{output.BAM}"
         """
 

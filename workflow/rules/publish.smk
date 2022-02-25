@@ -77,6 +77,7 @@ rule unfiltered_cram:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
         checksum_type=config.general["checksum"],
+        sort_tmp=temp_prefix("{dataset}/raw_uploads/raw_reads.tmp"),
     conda:
         config.dehuman["conda"]
     resources:
@@ -115,6 +116,7 @@ rule unfiltered_cram:
 
         perl -p -e ${{REGEXP}} {output.cram_sam} \
               | {params.SAMTOOLS} sort -@ {threads} \
+                                       -T {params.sort_tmp} \
                                        -M \
                                        --reference {input.global_ref} \
                                        --output-fmt ${{FMT}} \
