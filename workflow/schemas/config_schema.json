@@ -1256,7 +1256,7 @@
                 },
                 "mem": {
                     "type": "integer",
-                    "default": 1250
+                    "default": 4096
                 },
                 "time": {
                     "type": "integer",
@@ -1344,6 +1344,18 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether to whether the new file has changed content or is virtually the same as the previous)",
+                    "examples": [ true ]
+                },
+                "orig_fastq": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Also include the original `.fastq.gz` sequencing reads files from `raw_data/` in the list of files to be uploaded. See propery `orig_cramfs` below for a compressed verion and see output `dehumanized_raw_reads` and section `dehuman` for depleting reads from the host.",
+                    "examples": [ true ]
+                },
+                "orig_cram": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Also include the original sequencing raw reads files from `raw_data/` compressed. Similar to property `orig_fastq` above, but with reference-based compression.",
                     "examples": [ true ]
                 },
                 "script": {

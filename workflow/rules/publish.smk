@@ -14,8 +14,14 @@ def bcft_suffix():
 
 rule prepare_upload:
     input:
-        R1=partial(raw_data_file, pair=1),
-        R2=partial(raw_data_file, pair=2),
+        R1=partial(raw_data_file, pair=1) if config.upload["orig_fastq"] else [],
+        R2=partial(raw_data_file, pair=2) if config.upload["orig_fastq"] else [],
+        orig_cram=[
+            "{dataset}/raw_uploads/raw_reads.cram",
+            "{dataset}/raw_uploads/raw_reads.cram.%s" % config.general["checksum"],
+        ]
+        if config.upload["orig_cram"]
+        else [],
         dehuman=[
             "{dataset}/raw_uploads/dehuman.cram",
             "{dataset}/raw_uploads/dehuman.cram.%s" % config.general["checksum"],
@@ -56,6 +62,72 @@ rule prepare_upload:
         """
 
 
+rule unfiltered_cram:
+    input:
+        global_ref=reference_file,
+        ref_index="{}.bwt".format(reference_file),
+        # TODO switch to output of rule rule extract
+        R1=partial(raw_data_file, pair=1),
+        R2=partial(raw_data_file, pair=2),
+    output:
+        cram_sam=temp_with_prefix("{dataset}/raw_uploads/raw_reads.sam"),
+        final_cram="{dataset}/raw_uploads/raw_reads.cram",
+        checksum="{dataset}/raw_uploads/raw_reads.cram.%s" % config.general["checksum"],
+    params:
+        BWA=config.applications["bwa"],
+        SAMTOOLS=config.applications["samtools"],
+        checksum_type=config.general["checksum"],
+    conda:
+        config.dehuman["conda"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.bwa_align["mem"],
+        time_min=config.bwa_align["time"],
+    threads: config.bwa_align["threads"]
+    shell:
+        """
+        # using zcat FILENAME.gz causes issues on Mac, see
+        # https://serverfault.com/questions/570024/
+        # redirection fixes this:
+        unpack_rawreads() {{
+            for fq in "${{@}}"; do
+                zcat -f < "${{fq}}"
+            done
+        }}
+
+        echo "Compress un-filtered sequences -----------------------------------"
+        echo
+
+        {params.BWA} mem -t {threads} \
+                         -C \
+                         -o {output.cram_sam} \
+                         {input.global_ref} \
+                         <(unpack_rawreads {input.R1}) \
+                         <(unpack_rawreads {input.R2})
+
+        # HACK handle incompatibilities between:
+        #  - Illumina's 'bcl2fastq', which write arbitrary strings
+        #  - 'bwa mem' which keep comments in the SAM file verbatim as in the FASTQ file
+        #  - 'samtools' which expects comment to be properly marked as 'BC:Z:'
+        #    as per SAM format specs
+        REGEXP=\'s{{(?<=\\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}}{{BC:Z:\\1}}\'
+        FMT=cram,embed_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
+
+        perl -p -e ${{REGEXP}} {output.cram_sam} \
+              | {params.SAMTOOLS} sort -@ {threads} \
+                                       -M \
+                                       --reference {input.global_ref} \
+                                       --output-fmt ${{FMT}} \
+                                       -o {output.final_cram}
+
+        {params.checksum_type}sum {output.final_cram} > {output.checksum}
+
+        echo
+        echo DONE -------------------------------------------------------------
+        echo
+        """
+
+
 rule checksum:
     input:
         "{file}",
@@ -76,4 +148,5 @@ rule checksum:
         """
 
 
+ruleorder: unfiltered_cram > checksum
 ruleorder: dehuman > checksum

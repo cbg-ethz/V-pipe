@@ -58,6 +58,9 @@ output:
     QA: true
     upload: true
 
+upload:
+    orig_cram: true
+
 snv:
     threads: ${THREADS}
 CONFIG

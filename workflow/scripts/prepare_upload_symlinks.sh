@@ -16,11 +16,13 @@
 #    - it can optionally be used by the script to store arbitrary data (e.g. json)
 #
 
-usage() { echo "Usage: $0 [ -h ] [ -n ] [ -- ] <OUTPUT> <SAMPLE_ID> <SAMPLE_DIR> [ <UPLOAD_FILES> ... ]
+usage() { echo "Usage: $0 [ -h ] [ -n ] [ -e <CMD> ] [ -- ] <OUTPUT> <SAMPLE_ID> <SAMPLE_DIR> [ <UPLOAD_FILES> ... ]
 
 options:
 	-n : no random nonce at the end of the global symlinks,
 	     they will be not unique
+	-e : run <CMD> at the end of this script with the same positionals;
+	     it becomes that script's job to create the output file.
 	-- : end of options, start of positional parameters
 
 positional parameters:
@@ -35,9 +37,11 @@ for upload. Serves also as a demo for the upload parameters of V-pipe." 1>&2; ex
 
 # NOTE it is possible to have named options (e.g. with getops) before the named options begin
 do_random_nonce=1
-while getopts "nh" o; do
+exec_cmd=
+while getopts "ne:h" o; do
 	case "${o}" in
 		n)	do_random_nonce=0	;;
+		e)	exec_cmd="${OPTARG}"	;;
 		h)	usage 0	;;
 		*)	usage 1	;;
 	esac
@@ -86,6 +90,14 @@ fi
 
 ( set -x; ln "-s${force}" "$fixed_uploads" "uploads/$unique_id" )
 
+
+# run command if asked to
+
+if [[ -n "${exec_cmd}" ]]; then
+	exec ${exec_cmd} "${output}" "${sample_id}" "${sample_dir}" "${to_upload[@]}"
+	echo "Failed to exec ${exec_cmd}" > /dev/stderr
+	exit 2
+fi
 
 # create the mandatory output file
 touch "${output}"

@@ -103,9 +103,9 @@ rule dh_hostalign:
         "dehuman"
     resources:
         disk_mb=1250,
-        mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]
+        mem_mb=config.dehuman["mem"],
+        time_min=config.dehuman["time"],
+    threads: config.dehuman["threads"]
     shell:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
@@ -123,14 +123,15 @@ rule dh_hostalign:
 rule dh_filter:
     input:
         host_aln=temp_prefix("{dataset}/alignments/host_aln.sam"),
+        # TODO switch to output of rule rule extract
         R1=partial(raw_data_file, pair=1),
         R2=partial(raw_data_file, pair=2),
     output:
         filter_count="{dataset}/alignments/dehuman.count",
         filter_list=temp_with_prefix("{dataset}/alignments/dehuman.filter"),
         # TODO shift to pipe
-        filtered_1=temp_with_prefix("{dataset}/raw_uploads/filtered_1.fasta.gz"),
-        filtered_2=temp_with_prefix("{dataset}/raw_uploads/filtered_2.fasta.gz"),
+        filtered_1=temp_with_prefix("{dataset}/raw_uploads/filtered_1.fastq.gz"),
+        filtered_2=temp_with_prefix("{dataset}/raw_uploads/filtered_2.fastq.gz"),
     params:
         SAMTOOLS=config.applications["samtools"],
         remove_reads_script=cachepath(
@@ -240,8 +241,9 @@ rule dh_filter:
 rule dehuman:
     input:
         global_ref=reference_file,
-        filtered_1=rules.dh_filter.output.filtered_1,  # =temp_prefix("{dataset}/raw_uploads/filtered_1.fasta.gz"),
-        filtered_2=rules.dh_filter.output.filtered_2,  # =temp_prefix("{dataset}/raw_uploads/filtered_2.fasta.gz"),
+        ref_index="{}.bwt".format(reference_file),
+        filtered_1=rules.dh_filter.output.filtered_1,  # =temp_prefix("{dataset}/raw_uploads/filtered_1.fastq.gz"),
+        filtered_2=rules.dh_filter.output.filtered_2,  # =temp_prefix("{dataset}/raw_uploads/filtered_2.fastq.gz"),
     output:
         cram_sam=temp_with_prefix("{dataset}/raw_uploads/dehuman.sam"),
         final_cram="{dataset}/raw_uploads/dehuman.cram",
@@ -256,9 +258,9 @@ rule dehuman:
         "dehuman"
     resources:
         disk_mb=1250,
-        mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]
+        mem_mb=config.dehuman["mem"],
+        time_min=config.dehuman["time"],
+    threads: config.dehuman["threads"]
     shell:
         """
         echo "Compress filtered sequences --------------------------------------"

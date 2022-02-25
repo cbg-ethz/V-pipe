@@ -44,7 +44,7 @@ WORKDIR /work
 
 # configuration: activate all steps
 RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true' > config/config.yaml
+ && printf 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
 
 # TODO harmonize list with CI tests and Docker tests
 RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do printf '\n\n\e[36;1mvirus: %s\e[0m\n' "${virus}" \
@@ -86,7 +86,7 @@ ENV virus=hiv
 
 WORKDIR /work
 RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true' > config/config.yaml
+ && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
@@ -108,7 +108,7 @@ ENV virus=sars-cov-2
 
 WORKDIR /work
 RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true' > config/config.yaml
+ && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
