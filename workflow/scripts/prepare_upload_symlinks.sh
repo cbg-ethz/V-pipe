@@ -16,13 +16,25 @@
 #    - it can optionally be used by the script to store arbitrary data (e.g. json)
 #
 
+do_random_nonce=0
+exec_cmd=
+
 usage() { echo "Usage: $0 [ -h ] [ -n ] [ -e <CMD> ] [ -- ] <OUTPUT> <SAMPLE_ID> <SAMPLE_DIR> [ <UPLOAD_FILES> ... ]
 
 options:
-	-n : no random nonce at the end of the global symlinks,
-	     they will be not unique
+	-r : append a random none at the end of the global symlinks,
+	     multiples update of the same sample and date will generate
+	     multiple unique symlinks, one for each update.
+	-R : no random nonce at the end of the global symlinks,
+	     they will be not unique, a sample and date will always have
+	     a single symlink, no matter how many time it was updated.
+	[ Default: random nonce are $( if (( do_random_nonce )); then echo "enabled"; else echo "disabled"; fi ) ]
+
 	-e : run <CMD> at the end of this script with the same positionals;
-	     it becomes that script's job to create the output file.
+	       <OUTPUT> <SAMPLE_ID> <SAMPLE_DIR> [ <UPLOAD_FILES> ... ]
+	     it becomes that script's job to create the output file,
+	     if successful.
+
 	-- : end of options, start of positional parameters
 
 positional parameters:
@@ -36,11 +48,10 @@ Generates symlinks that help tracking new and updated samples to consider
 for upload. Serves also as a demo for the upload parameters of V-pipe." 1>&2; exit "$1"; }
 
 # NOTE it is possible to have named options (e.g. with getops) before the named options begin
-do_random_nonce=1
-exec_cmd=
-while getopts "ne:h" o; do
+while getopts "rRe:h" o; do
 	case "${o}" in
-		n)	do_random_nonce=0	;;
+		r)	do_random_nonce=1	;;
+		R)	do_random_nonce=0	;;
 		e)	exec_cmd="${OPTARG}"	;;
 		h)	usage 0	;;
 		*)	usage 1	;;
