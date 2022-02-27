@@ -42,6 +42,9 @@ rule prepare_upload:
         ]
         if config.upload["checksum"]
         else [],
+        frameshift_deletions_check="{dataset}/references/frameshift_deletions_check.tsv"
+        if config.output["QA"]
+        else [],
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch",
     params:
