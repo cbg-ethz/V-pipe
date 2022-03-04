@@ -110,7 +110,7 @@ rule dh_hostalign:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
         """
-        echo "Checking rejects against Homo Sapiens ---------------------------"
+        echo "Checking rejects against host's genome  --------------------------"
 
         {params.BWA} mem -t {threads} \
                          -o {output.host_aln}\
@@ -123,9 +123,12 @@ rule dh_hostalign:
 rule dh_filter:
     input:
         host_aln=temp_prefix("{dataset}/alignments/host_aln.sam"),
-        # TODO switch to output of rule rule extract
-        R1=partial(raw_data_file, pair=1),
-        R2=partial(raw_data_file, pair=2),
+        R1=partial(raw_data_file, pair=1)
+        if config["dehuman"]["catchup"]
+        else temp_prefix("{dataset}/extracted_data/R1.fastq"),
+        R2=partial(raw_data_file, pair=2)
+        if config["dehuman"]["catchup"]
+        else temp_prefix("{dataset}/extracted_data/R2.fastq"),
     output:
         filter_count="{dataset}/alignments/dehuman.count",
         filter_list=temp_with_prefix("{dataset}/alignments/dehuman.filter"),
@@ -175,7 +178,7 @@ rule dh_filter:
             echo "Needs special care: ${{count}} potential human reads found"
             echo "-----------------------------------------------------------------"
             echo
-            echo "Removing identified human reads from raw reads ------------------"
+            echo "Removing identified host reads from raw reads -------------------"
             echo
 
             # get list
@@ -200,7 +203,7 @@ rule dh_filter:
                 # keep the rejects for further analysis
 
                 echo
-                echo "Keeping Human-aligned virus' rejects -----------------------------"
+                echo "Keeping host-aligned virus' rejects ------------------------------"
                 echo
 
 
@@ -216,7 +219,7 @@ rule dh_filter:
                                     -o {params.host_aln_cram}
 
                 echo
-                echo "Compressing human-depleted raw reads -----------------------------"
+                echo "Compressing host-depleted raw reads ------------------------------"
                 echo
 
                 {params.SAMTOOLS} index -@ {threads} {params.host_aln_cram}
@@ -226,11 +229,8 @@ rule dh_filter:
             echo "No potential human reads found -----------------------------------"
             echo "Copy raw reads file"
             echo
-            # HACK cheating as currently we only use gziped data
-            #unpack_rawreads {input.R1} | gzip > {output.filtered_1} &
-            #unpack_rawreads {input.R2} | gzip > {output.filtered_2} &
-            cat {input.R1} > {output.filtered_1} &
-            cat {input.R2} > {output.filtered_2} &
+            unpack_rawreads {input.R1} | gzip > {output.filtered_1} &
+            unpack_rawreads {input.R2} | gzip > {output.filtered_2} &
             wait
             touch {output.filter_list}
         fi
