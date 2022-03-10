@@ -185,7 +185,7 @@
                 "dehumanized_raw_reads": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option turns on dehumanization of the raw reads (i.e. removal of host's reads). This is useful to prepare raw reads for upload on public databases such as, e.g. ENA (European Nucleotide Archive)",
+                    "description": "This option turns on dehumanization of the raw reads (i.e. removal of host's reads) and generates the file `dehuman.cram`. This is useful to prepare raw reads for upload on public databases such as, e.g. ENA (European Nucleotide Archive).\n\nThis only applies to the upload and does not affect the main workflow.",
                     "examples": [true]
                 },
                 "upload": {
@@ -1268,21 +1268,21 @@
                 },
                 "ref_host": {
                     "type": "string",
-                    "default": "references/human.fa",
+                    "default": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz",
                     "description": "Host's genome used to remove reads (e.g. human genome)",
-                    "examples": ["/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa"]
+                    "examples": ["references/human.fa", "/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa"]
                 },
                 "keep_host": {
                     "type": "boolean",
                     "default": false,
                     "description": "Indicate whether to store the host-aligned reads in a CRAM file `…/alignments/host_aln.cram`.",
-                    "examples": [ true ]
+                    "examples": [true]
                 },
                 "catchup": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use this option when generating dehumanized raw reads (`dehuman.cram`) on old samples _**that have already**_ been processed in the past - a catch up.\n\nNormally, removing host-mapping reads requires analyzing reads which where rejected by main processing's mapping to the reference (as specified in section `general`, property `aligner`). But this output is considered temporary and will get deleted by Snakemake once the processing of sample has finished. To generate `dehuman.cram` V-pipe would need to run the aligner again, which will both regenerate the data necessary for output this but also generate a new alignment which will trigger again processing every other step that depends on that alignment.\nUse this property `catchup` to only generate the input necessary for `dehuman.cram`, leaving untouched the alignment and everything else that has been already been processed.",
-                    "examples": [ true ]
+                    "description": "Use this option when generating dehumanized raw reads (`dehuman.cram`) on old samples _**that have already**_ been processed in the past - a _catch up_.\n\nNormally, removing host-mapping reads requires analyzing reads which were rejected by V-pipe's main processing (as specified in section `general`, property `aligner`). But this output is considered temporary and will get deleted by Snakemake once the processing of a sample has finished. To generate `dehuman.cram` V-pipe would need to run the aligner again, which will both regenerate the data necessary for this output but also generate a new alignment which will trigger the whole workflow again.\nUse this property `catchup` to only generate the input necessary for `dehuman.cram`, leaving untouched the alignment and everything else that has already been processed.",
+                    "examples": [true]
                 }
             },
             "default": {},
@@ -1331,7 +1331,7 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Don't dispatch the rule to the cluster for execution, run locally.",
-                    "examples": [ false ]
+                    "examples": [false]
                 },
                 "consensus": {
                     "type": "string",
@@ -1343,20 +1343,20 @@
                 "checksum": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether to whether the new file has changed content or is virtually the same as the previous)",
-                    "examples": [ true ]
+                    "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether the new file has changed content or is virtually the same as the previous)",
+                    "examples": [true]
                 },
                 "orig_fastq": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Also include the original `.fastq.gz` sequencing reads files from `raw_data/` in the list of files to be uploaded. See propery `orig_cramfs` below for a compressed verion and see output `dehumanized_raw_reads` and section `dehuman` for depleting reads from the host.",
-                    "examples": [ true ]
+                    "description": "Also include the original `.fastq.gz` sequencing reads files from `raw_data/` in the list of files to be uploaded. See property `orig_cram` below for a compressed version and see output `dehumanized_raw_reads` and section `dehuman` for depleting reads from the host.",
+                    "examples": [true]
                 },
                 "orig_cram": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Also include the original sequencing raw reads files from `raw_data/` compressed. Similar to property `orig_fastq` above, but with reference-based compression.",
-                    "examples": [ true ]
+                    "description": "Also include a compressed version of the original sequencing raw reads files from `raw_data/`. Similar to property `orig_fastq` above, but with reference-based compression.",
+                    "examples": [true]
                 },
                 "script": {
                     "type": "string",
@@ -1367,7 +1367,7 @@
                 "options": {
                     "type": "string",
                     "default": "",
-                    "description": "named options to be passed to the script, before the positional parameters. E.g. for an extra configuration file with SFTP server informations.",
+                    "description": "Named options to be passed to the script, before the positional parameters. E.g. for an extra configuration file with SFTP server information.",
                     "example": ["--config custom_scripts/uploader.yaml --"]
                 }
             },

@@ -4,8 +4,8 @@
 # Example script to prepare and assist uploads.
 #  - it will get called whenever the consensus FASTA files or the CRAM-compressed raw-reads are updated by snakemake
 #  - it will create a per-sample directory '.../uploads/' with symlinks to all uploadable files
-#  - it will crate a global directory 'uploads' with symlinks to samples that were updated
-#    - these file aren't tracked by snakemake's DAG
+#  - it will create a global directory 'uploads' with symlinks to samples that were updated
+#    - these files aren't tracked by snakemake's DAG
 #    - thus they can be deleted without triggering a re-build by snakemake
 #    - but they will be re-created whenever an input file dependency changes
 #    - it is possible to iteratively scan this global directory between runs of V-pipe to determine
@@ -22,11 +22,11 @@ exec_cmd=
 usage() { echo "Usage: $0 [ -h ] [ -n ] [ -e <CMD> ] [ -- ] <OUTPUT> <SAMPLE_ID> <SAMPLE_DIR> [ <UPLOAD_FILES> ... ]
 
 options:
-	-r : append a random none at the end of the global symlinks,
-	     multiples update of the same sample and date will generate
+	-r : append a random nonce at the end of the global symlinks,
+	     multiple updates of the same sample and date will generate
 	     multiple unique symlinks, one for each update.
 	-R : no random nonce at the end of the global symlinks,
-	     they will be not unique, a sample and date will always have
+	     they will not be unique, a sample and date will always have
 	     a single symlink, no matter how many time it was updated.
 	[ Default: random nonce are $( if (( do_random_nonce )); then echo "enabled"; else echo "disabled"; fi ) ]
 

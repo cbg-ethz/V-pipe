@@ -24,7 +24,7 @@ for f in sys.argv[1:]:
     timestamp = datetime.fromtimestamp(f.stat().st_ctime, tz=LOCAL_TIMEZONE)
     sequences = []
 
-    dehuamized_raw_reads = f.parent.parent / "raw_data" / "dehuman.cram"
+    dehuamized_raw_reads = f.parent.parent / "raw_uploads" / "dehuman.cram"
     if dehuamized_raw_reads.exists():
         raw_data_files.append(dehuamized_raw_reads)
         raw_data = str(dehuamized_raw_reads)
