@@ -68,8 +68,8 @@ rule prepare_upload:
 rule unfiltered_cram:
     input:
         global_ref=reference_file,
-        ref_index="{}.bwt".format(reference_file),
-        # TODO switch to output of rule rule extract
+        ref_index=multiext(reference_file, *bwa_idx_ext),
+        # NOTE not relying on rule extract - if done as a catchup these might not exist
         R1=partial(raw_data_file, pair=1),
         R2=partial(raw_data_file, pair=2),
     output:

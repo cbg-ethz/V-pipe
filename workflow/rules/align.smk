@@ -444,20 +444,24 @@ rule sam2bam:
         """
 
 
+bwa_idx_ext = [".bwt", ".amb", ".ann", ".pac", ".sa"]
+bowtie_idx_ext = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
+
+
 rule ref_bwa_index:
     input:
-        reference_file,
+        "{file}",
     output:
-        "{}.bwt".format(reference_file),  #all indexing files: .amb  .ann  .bwt  .fai  .pac  .sa
+        multiext("{file}", *bwa_idx_ext),
     params:
         BWA=config.applications["bwa"],
     log:
-        outfile="references/bwa_index.out.log",
-        errfile="references/bwa_index.err.log",
+        outfile="{file}_bwa_index.out.log",
+        errfile="{file}_bwa_index.err.log",
     conda:
         config.ref_bwa_index["conda"]
     benchmark:
-        "references/ref_bwa_index.benchmark"
+        "{file}_bwa_index.benchmark"
     group:
         "align"
     resources:
@@ -488,7 +492,7 @@ if config.general["aligner"] == "bwa":
         input:
             FASTQ=input_align_gz,
             REF=reference_file,
-            INDEX="{}.bwt".format(reference_file),
+            INDEX=multiext(reference_file, *bwa_idx_ext),
         output:
             REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
             TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
@@ -525,12 +529,7 @@ elif config.general["aligner"] == "bowtie":
         input:
             reference_file,
         output:
-            INDEX1="{}.1.bt2".format(reference_file),
-            INDEX2="{}.2.bt2".format(reference_file),
-            INDEX3="{}.3.bt2".format(reference_file),
-            INDEX4="{}.4.bt2".format(reference_file),
-            INDEX5="{}.rev.1.bt2".format(reference_file),
-            INDEX6="{}.rev.2.bt2".format(reference_file),
+            multiext(reference_file, *bowtie_idx_ext),
         params:
             BOWTIE=config.applications["bowtie_idx"],
         log:
@@ -560,12 +559,7 @@ elif config.general["aligner"] == "bowtie":
                 R1="{dataset}/preprocessed_data/R1.fastq.gz",
                 R2="{dataset}/preprocessed_data/R2.fastq.gz",
                 REF=reference_file,
-                INDEX1="{}.1.bt2".format(reference_file),
-                INDEX2="{}.2.bt2".format(reference_file),
-                INDEX3="{}.3.bt2".format(reference_file),
-                INDEX4="{}.4.bt2".format(reference_file),
-                INDEX5="{}.rev.1.bt2".format(reference_file),
-                INDEX6="{}.rev.2.bt2".format(reference_file),
+                INDEX=multiext(reference_file, *bowtie_idx_ext),
             output:
                 REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
                 TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
@@ -604,12 +598,7 @@ elif config.general["aligner"] == "bowtie":
             input:
                 R1="{dataset}/preprocessed_data/R1.fastq.gz",
                 REF=reference_file,
-                INDEX1="{}.1.bt2".format(reference_file),
-                INDEX2="{}.2.bt2".format(reference_file),
-                INDEX3="{}.3.bt2".format(reference_file),
-                INDEX4="{}.4.bt2".format(reference_file),
-                INDEX5="{}.rev.1.bt2".format(reference_file),
-                INDEX6="{}.rev.2.bt2".format(reference_file),
+                INDEX=multiext(reference_file, *bowtie_idx_ext),
             output:
                 REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
                 TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),

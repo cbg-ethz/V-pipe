@@ -43,7 +43,7 @@ rule dh_redo_alignreject:
     # (useful if aligner's (temp) rejects have been deleted by now)
     input:
         global_ref=reference_file,
-        ref_index="{}.bwt".format(reference_file),
+        ref_index=multiext(reference_file, *bwa_idx_ext),
         fastq=input_align_gz,
     output:
         tmp_aln=temp_with_prefix("{dataset}/alignments/dh_aln.sam"),
@@ -85,8 +85,8 @@ rule dh_redo_alignreject:
 
 rule dh_hostalign:
     input:
-        host_ref=config.dehuman["ref_host"],
-        ref_index="{}.bwt".format(config.dehuman["ref_host"]),
+        host_ref=cachepath(config.dehuman["ref_host"]),
+        ref_index=multiext(cachepath(config.dehuman["ref_host"]), *bwa_idx_ext),
         reject_1=rules.dh_redo_alignreject.output.reject_1
         if config["dehuman"]["catchup"]
         else rules.dh_reuse_alignreject.output.reject_1,
@@ -244,7 +244,7 @@ rule dh_filter:
 rule dehuman:
     input:
         global_ref=reference_file,
-        ref_index="{}.bwt".format(reference_file),
+        ref_index=multiext(reference_file, *bwa_idx_ext),
         filtered_1=rules.dh_filter.output.filtered_1,  # =temp_prefix("{dataset}/raw_uploads/filtered_1.fastq.gz"),
         filtered_2=rules.dh_filter.output.filtered_2,  # =temp_prefix("{dataset}/raw_uploads/filtered_2.fastq.gz"),
     output:

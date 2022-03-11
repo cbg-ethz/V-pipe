@@ -1268,9 +1268,9 @@
                 },
                 "ref_host": {
                     "type": "string",
-                    "default": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz",
-                    "description": "Host's genome used to remove reads (e.g. human genome)",
-                    "examples": ["references/human.fa", "/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa"]
+                    "default": "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+                    "description": "Host's genome used to remove reads (e.g. human genome)\n\n**Note:** although directly fetching the reference from the network can work, we _strongly advise_ to use local files (e.g., download the reference locally or use one provided by your cluster).",
+                    "examples": ["references/human.fa", "/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa", "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"]
                 },
                 "keep_host": {
                     "type": "boolean",

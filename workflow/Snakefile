@@ -31,7 +31,6 @@ rule allfastqc:
         fastqc_files,
 
 
-include: "rules/clean.smk"
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
 include: "rules/consensus.smk"
@@ -39,6 +38,7 @@ include: "rules/mafs.smk"
 include: "rules/stats.smk"
 include: "rules/publish.smk"
 include: "rules/dehuman.smk"
+include: "rules/clean.smk"
 
 
 if config.output["snv"] or config.output["local"]:

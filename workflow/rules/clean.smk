@@ -60,7 +60,7 @@ rule alignclean:
 
 rule bwaclean:
     input:
-        "{}.bwt".format(reference_file),
+        INDEX=multiext(reference_file, *bwa_idx_ext),
     params:
         DIR=config.output["datadir"],
     shell:
@@ -74,12 +74,7 @@ rule bwaclean:
 
 rule bowtieclean:
     input:
-        INDEX1="{}.1.bt2".format(reference_file),
-        INDEX2="{}.2.bt2".format(reference_file),
-        INDEX3="{}.3.bt2".format(reference_file),
-        INDEX4="{}.4.bt2".format(reference_file),
-        INDEX5="{}.rev.1.bt2".format(reference_file),
-        INDEX6="{}.rev.2.bt2".format(reference_file),
+        INDEX=multiext(reference_file, *bowtie_idx_ext),
     params:
         DIR=config.output["datadir"],
     shell:
