@@ -1268,9 +1268,15 @@
                 },
                 "ref_host": {
                     "type": "string",
+                    "default": "references/human.fa.gz",
+                    "description": "Host's genome used to remove reads (e.g. human genome)\n\n**Note:** if this file is absent, it is possible to fetch it from a remote server, see property `ref_host_url` below.",
+                    "examples": ["/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa"]
+                },
+                "ref_host_url": {
+                    "type": "string",
                     "default": "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
-                    "description": "Host's genome used to remove reads (e.g. human genome)\n\n**Note:** although directly fetching the reference from the network can work, we _strongly advise_ to use local files (e.g., download the reference locally or use one provided by your cluster).",
-                    "examples": ["references/human.fa", "/cluster/project/igenomes/Homo_sapiens/NCBI/GRCh38/Sequence/BWAIndex/genome.fa", "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"]
+                    "description": "If the host's genome specified in property `ref_host` isn't present, fetch it from a remote server.\n\n**Note** remember to set aside enough memory for the indexing rule, see section `ref_bwa_index` property `mem`.",
+                    "examples": [ "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"]
                 },
                 "keep_host": {
                     "type": "boolean",

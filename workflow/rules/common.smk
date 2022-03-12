@@ -440,6 +440,7 @@ for p in patient_list:
         visualizations.append(os.path.join(sdir, "visualization/snv_calling.html"))
         visualizations.append(os.path.join(sdir, "visualization/alignment.html"))
 
+    # upload related stuff
     if config.output["dehumanized_raw_reads"]:
         dehumanized_raw_reads.append(os.path.join(sdir, "raw_uploads", "dehuman.cram"))
 
@@ -499,6 +500,13 @@ if not VPIPE_BENCH:
         reference_name = get_reference_name(reference_file)
     else:
         reference_name = get_reference_name(reference_file)
+
+    if config.output["dehumanized_raw_reads"] and not os.path.isfile(
+        config.dehuman["ref_host"]
+    ):
+        LOGGER.warning(
+            f"WARNING: Host organism reference file {config.dehuman['ref_host']} not found, it will be downloaded from {config.dehuman['ref_host_url']}."
+        )
 
 
 # Auxiliary functions

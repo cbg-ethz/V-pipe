@@ -1,6 +1,10 @@
 from functools import partial
 
 
+localrules:
+    download_host_ref,
+
+
 rule dh_reuse_alignreject:
     # "rely on aligner's output".
     # this rule re-use the rejected reads in align.smk (e.g. ngshmmalign's /alignments/rejects.sam)
@@ -83,10 +87,21 @@ rule dh_redo_alignreject:
         """
 
 
+rule download_host_ref:
+    output:
+        host_ref=config.dehuman["ref_host"],
+    params:
+        host_ref_url=config.dehuman["ref_host_url"],
+    shell:
+        """
+        curl --output "{output.host_ref}" "{params.host_ref_url}"
+        """
+
+
 rule dh_hostalign:
     input:
-        host_ref=cachepath(config.dehuman["ref_host"]),
-        ref_index=multiext(cachepath(config.dehuman["ref_host"]), *bwa_idx_ext),
+        host_ref=config.dehuman["ref_host"],
+        ref_index=multiext(config.dehuman["ref_host"], *bwa_idx_ext),
         reject_1=rules.dh_redo_alignreject.output.reject_1
         if config["dehuman"]["catchup"]
         else rules.dh_reuse_alignreject.output.reject_1,
