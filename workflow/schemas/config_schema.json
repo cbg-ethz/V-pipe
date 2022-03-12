@@ -6,7 +6,7 @@
     "examples": [{"input":{"samples_file":"samples.tsv"}}],
     "properties": {
         "general": {
-            "description": "This section of the configuration provides general options that control the overall behavior of the pipeline",
+            "description": "This section of the configuration provides general options that control the overall behavior of the pipeline.",
             "properties": {
                 "virus_base_config": {
                     "type": "string",
@@ -18,7 +18,7 @@
                     "type": "string",
                     "enum": ["ngshmmalign","bwa","bowtie"],
                     "default": "ngshmmalign",
-                    "description": "There are three options for mapping reads, either using [`ngshmmalign`](https://github.com/cbg-ethz/ngshmmalign), [BWA MEM (`bwa`)](https://github.com/lh3/bwa) [^1], or [Bowtie 2 (`bowtie`)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [^2]. To use a different aligner than the default, indicate which aligner you want to use by setting the property aligner.\n\n[^1]: Li, H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. 2013.\n[^2]: Langmead, B. and Salzberg, S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012.\n\n**Note**: Some virus-specific base configuration specified in `virus_base_config` might change this option's default to a more appropriate aligner for that virus, e.g, depending on its usual diversity and mutation rate.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "description": "There are three options for mapping reads, either using [`ngshmmalign`](https://github.com/cbg-ethz/ngshmmalign), [BWA MEM (`bwa`)](https://github.com/lh3/bwa) [^1], or [Bowtie 2 (`bowtie`)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [^2]. To use a different aligner than the default, indicate which aligner you want to use by setting the property aligner.\n\n[^1]: Li, H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. 2013.\n[^2]: Langmead, B. and Salzberg, S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012.\n\n**Note**: Some virus-specific base configuration specified in `virus_base_config` might change this option's default to a more appropriate aligner for that virus, e.g., depending on its usual diversity and mutation rate.\nYou are still free to override that default in your configuration shall the need arise.",
                     "examples": ["bowtie"]
                 },
                 "snv_caller": {
@@ -59,18 +59,18 @@
             "type": "object"
         },
         "input": {
-            "description": "Properties in this section of the configuration control the input of the pipeline",
+            "description": "Properties in this section of the configuration control the input of the pipeline.",
             "properties": {
                 "datadir": {
                     "type": "string",
                     "default": "samples/",
-                    "description": "The input file for the workflow will be searched in this directory.\n\nV-pipe expects the input samples to be organized in a two-level directory hierarchy.\n\n - The first level can be, e.g., patient samples or biological replicates of an experiment.\n - The second level can be, e.g., different sampling dates or different sequencing runs of the same sample.\n - Inside that directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).\n\nFor example:\n```console\nsamples\n├── patient1\n│   ├── 20100113\n│   │   └──raw_data\n│   │      ├──patient1_20100113_R1.fastq\n│   │      └──patient1_20100113_R2.fastq\n│   └── 20110202\n│       └──raw_data\n│          ├──patient1_20100202_R1.fastq\n│          └──patient1_20100202_R2.fastq\n└── patient2\n    └── 20081130\n        └──raw_data\n           ├──patient2_20081130_R1.fastq.gz\n           └──patient2_20081130_R2.fastq.gz\n```\n\n",
+                    "description": "The input file for the workflow will be searched in this directory.\n\nV-pipe expects the input samples to be organized in a two-level directory hierarchy.\n\n - The first level can be, e.g., patient samples or biological replicates of an experiment.\n - The second level can be, e.g., different sampling dates or different sequencing runs of the same sample.\n - Inside that directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).\n\nFor example:\n```console\nsamples\n├── patient1\n│   ├── 20100113\n│   │   └──raw_data\n│   │      ├──patient1_20100113_R1.fastq\n│   │      └──patient1_20100113_R2.fastq\n│   └── 20110202\n│       └──raw_data\n│          ├──patient1_20100202_R1.fastq\n│          └──patient1_20100202_R2.fastq\n└── patient2\n    └── 20081130\n        └──raw_data\n           ├──patient2_20081130_R1.fastq.gz\n           └──patient2_20081130_R2.fastq.gz\n```",
                     "examples": [ "tests/data/hiv/", "tests/data/sars-cov-2/" ]
                 },
                 "paired": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Indicate whether the input sequencing reads correspond to paired-end reads.\n\nPaired-ended reads need to be in split files with `_R1` and `_R2` suffixes:\n```console\nraw_data\n├──patient2_20081130_R1.fastq.gz\n└──patient2_20081130_R2.fastq.gz\n```\n\n",
+                    "description": "Indicate whether the input sequencing reads correspond to paired-end reads.\n\nPaired-ended reads need to be in split files with `_R1` and `_R2` suffixes:\n```console\nraw_data\n├──patient2_20081130_R1.fastq.gz\n└──patient2_20081130_R2.fastq.gz\n```",
                     "examples": [ false ]
                 },
                 "fastq_suffix": {
@@ -82,7 +82,7 @@
                 "samples_file": {
                     "type": "string",
                     "default": "config/samples.tsv",
-                    "description": "File containing sample unique identifiers and dates as tab-separated values, e.g.,\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\n\nHere, we have two samples from patient 1 and one sample from patient 2. By default, V-pipe searches for a file named samples.tsv, if this file does not exist, a list of samples is built by globbing datadir directory contents.\n\nOptionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.\n\nStandardized Snakemake workflows place their tables inside the `config/` subdirectory, but using this options you can specify alternate locations, e.g., the current working directory (as done in legacy V-pipe v1.x/2.x)\n",
+                    "description": "File containing sample unique identifiers and dates as tab-separated values, e.g.,\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\n\nHere, we have two samples from patient 1 and one sample from patient 2. By default, V-pipe searches for a file named samples.tsv, if this file does not exist, a list of samples is built by globbing datadir directory contents.\n\nOptionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.\n\nStandardized Snakemake workflows place their tables inside the `config/` subdirectory, but using this options you can specify alternate locations, e.g., the current working directory (as done in legacy V-pipe v1.x/2.x).",
                     "examples": [ "samples.tsv" ]
                 },
                 "read_length": {
@@ -132,7 +132,7 @@
             "type": "object"
         },
         "output": {
-            "description": "Properties in this section of the configuration control the output of the pipeline",
+            "description": "Properties in this section of the configuration control the output of the pipeline.",
             "properties": {
                 "datadir": {
                     "type": "string",
@@ -143,37 +143,37 @@
                 "cohortdir": {
                     "type": "string",
                     "default": "",
-                    "description": "In addition, V-pipe can optionally generate a few cohort-wide results, such as a current cohort consensus fasta file, or a TSV file containing the frequencies of all minor alleles that differ from the consensus among analyzed samples.\nBy default, these output files are located at the base of the [`output` `datadir`](#output_datadir), outside of the two-level per sample structure:\n```console\nresults\n├──minority_variants.tsv\n├──cohort_consensus.fasta\n├──patient1\n│  ├──20100113\n│  │  ├──alignments\n…\n```\n\nIf you prefer instead, e.g., such cohort-wide results behind written in a subdirectory of the working directory at the same level as the `datadir`s, you  can use this options you can specify alternate subdirectory relative to the `datadir` property. (Use `..` prefix if you want instead your cohort-wide results to be in a directory at the sample level as `samples/` and `results/`. See the example below to recreate the `variants/` directory used by legacy V-pipe v1.x/2.x)",
+                    "description": "In addition, V-pipe can optionally generate a few cohort-wide results, such as a current cohort consensus fasta file, or a TSV file containing the frequencies of all minor alleles that differ from the consensus among analyzed samples.\nBy default, these output files are located at the base of the [`output` `datadir`](#output_datadir), outside of the two-level per sample structure:\n```console\nresults\n├──minority_variants.tsv\n├──cohort_consensus.fasta\n├──patient1\n│  ├──20100113\n│  │  ├──alignments\n…\n```\n\nIf you prefer instead, e.g., such cohort-wide results behind written in a subdirectory of the working directory at the same level as the `datadir`s, you  can use this options you can specify alternate subdirectory relative to the `datadir` property. (Use `..` prefix if you want instead your cohort-wide results to be in a directory at the sample level as `samples/` and `results/`. See the example below to recreate the `variants/` directory used by legacy V-pipe v1.x/2.x).",
                     "examples": ["../variants"]
                 },
                 "QA": {
                     "type": "boolean",
                     "default": false,
-                    "description": "V-pipe can produce several outputs to assess the quality of the output of its steps, e.g., checking whether a sample's consensus sequence generated by bctfools does result in frameshifting indels and writing a report in sample's `…/references/frameshift_deletions_check.tsv`. Such reports can be useful when submitting sequences to GISAID.\n\nThis option turns on such QA features",
+                    "description": "V-pipe can produce several outputs to assess the quality of the output of its steps, e.g., checking whether a sample's consensus sequence generated by bctfools does result in frameshifting indels and writing a report in sample's `…/references/frameshift_deletions_check.tsv`. Such reports can be useful when submitting sequences to GISAID.\n\nThis option turns on such QA features.",
                     "examples": [true]
                 },
                 "snv": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option selects whether the SNV caller step should be executed and its output written to each sample's `…/variants/SNVs/snvs.csv`",
+                    "description": "This option selects whether the SNV caller step should be executed and its output written to each sample's `…/variants/SNVs/snvs.csv`.",
                     "examples": [true]
                 },
                 "local": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH)",
+                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH).",
                     "examples": [true]
                 },
                 "global": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option turns on global haplotype reconstruction",
+                    "description": "This option turns on global haplotype reconstruction.",
                     "examples": [true]
                 },
                 "visualization": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option selects whether to generate HTML visualization of the SNVs in each sample's `…/visualization/index.html`",
+                    "description": "This option selects whether to generate HTML visualization of the SNVs in each sample's `…/visualization/index.html`.",
                     "examples": [true]
                 },
                 "diversity": {
@@ -199,7 +199,7 @@
             "type": "object"
         },
         "applications": {
-            "description": "The path to the different software packages can be specified using this section.\n\nIt is especially useful when dependencies are not obtained via conda such as VICUNA, and when the software packages are not in the `PATH`.\n\n**Note** we strongly recommend to use conda environments, by adding the `--use-conda` flag to the V-pipe execution command, e.g. `./vpipe --use-conda`. If you prefer to use your own installations, this section allows you to specify the location of the executables",
+            "description": "The path to the different software packages can be specified using this section.\n\nIt is especially useful when dependencies are not obtained via conda such as VICUNA, and when the software packages are not in the `PATH`.\n\n**Note** we strongly recommend to use conda environments, by adding the `--use-conda` flag to the V-pipe execution command, e.g. `./vpipe --use-conda`. If you prefer to use your own installations, this section allows you to specify the location of the executables.",
             "examples":[{"bwa":"/path/to/bwa","haploclique":"/path/to/haploclique"}],
             "properties": {
                 "gunzip": {
@@ -217,7 +217,7 @@
                 "vicuna": {
                     "type": "string",
                     "default": "vicuna",
-                    "description":"Due to a special license, VICUNA is **not** available from bioconda and must be installed from [its original website](https://www.broadinstitute.org/viral-genomics/vicuna).\nUse this option to specify where you have installed its executable"
+                    "description":"Due to a special license, VICUNA is **not** available from bioconda and must be installed from [its original website](https://www.broadinstitute.org/viral-genomics/vicuna).\nUse this option to specify where you have installed its executable."
                 },
                 "indelfixer": {
                     "type": "string",
@@ -483,13 +483,13 @@
                 "leave_msa_temp": {
                     "type": "boolean",
                     "default": false,
-                    "description": "this option is useful for debugging purposes",
+                    "description": "This option is useful for debugging purposes.",
                     "examples": [true]
                 },
                 "extra": {
                     "type": "string",
                     "default": "",
-                    "description": "pass additional options to run ngshmmalign\n\nV-pipe uses option `-R <path/to/initial_reference>`, thus option `-r arg` is not allowed. Also, instead of passing `-l` via the property `extra`, set [`leave_msa_temp`](#hmm_align_leave_msa_temp) to `True`. Lastly, please do not modify options `-o arg`, `-w arg`, `-t arg`, and `-N arg`. These are already managed by V-pipe."
+                    "description": "Pass additional options to run ngshmmalign\n\nV-pipe uses option `-R <path/to/initial_reference>`, thus option `-r arg` is not allowed. Also, instead of passing `-l` via the property `extra`, set [`leave_msa_temp`](#hmm_align_leave_msa_temp) to `True`. Lastly, please do not modify options `-o arg`, `-w arg`, `-t arg`, and `-N arg`. These are already managed by V-pipe."
 
                 }
             },
@@ -641,7 +641,7 @@
                 "extra": {
                     "type": "string",
                     "default": "",
-                    "description": " With property `extra`, users can pass additional options to run BWA MEM. For more details on BWA MEM configurable options refer to the software [documentation](http://bio-bwa.sourceforge.net/bwa.shtml)."
+                    "description": "With property `extra`, users can pass additional options to run BWA MEM. For more details on BWA MEM configurable options refer to the software [documentation](http://bio-bwa.sourceforge.net/bwa.shtml)."
                 }
             },
             "default": {},
@@ -686,13 +686,13 @@
                     "type": "string",
                     "default": "--phred33",
                     "enum": ["--phred33","--phred64"],
-                    "description":"indicate if qualities are Phred+33 (default) or Phred+64 (`--phred64`)",
+                    "description":"Indicate if qualities are Phred+33 (default) or Phred+64 (`--phred64`).",
                     "examples": ["--phred64"]
                 },
                 "preset": {
                     "type": "string",
                     "default": "--local --sensitive-local",
-                    "description": "specify Bowtie 2 presets"
+                    "description": "Specify Bowtie 2 presets."
                 },
                 "maxins": {
                     "type": "integer"
@@ -700,7 +700,7 @@
                 "extra": {
                     "type": "string",
                     "default": "",
-                    "description": "pass additional options to run Bowtie 2. V-pipe handles the input and output files, as well as the reference sequence. Thus, do not modify these options\nFor more details on Bowtie 2 configurable options refer to the software [documentation](http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml)."
+                    "description": "Pass additional options to run Bowtie 2. V-pipe handles the input and output files, as well as the reference sequence. Thus, do not modify these options\nFor more details on Bowtie 2 configurable options refer to the software [documentation](http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml)."
                 }
             },
             "default": {},
@@ -723,22 +723,22 @@
                 "min_coverage": {
                     "type": "integer",
                     "default": 50,
-                    "description": "minimum read depth for reporting variants per locus"
+                    "description": "Minimum read depth for reporting variants per locus."
                 },
                 "n_coverage": {
                     "type": "integer",
                     "default": 5,
-                    "description": "read count below which ambiguous base 'n' is reported"
+                    "description": "Read count below which ambiguous base 'n' is reported."
                 },
                 "qual_thrd": {
                     "type": "integer",
                     "default": 15,
-                    "description": "minimum phred quality score for a base to be included"
+                    "description": "Minimum phred quality score for a base to be included."
                 },
                 "min_freq": {
                     "type": "number",
                     "default": 0.05,
-                    "description": "minimum frequency for an ambiguous nucleotide"
+                    "description": "Minimum frequency for an ambiguous nucleotide."
                 }
             },
             "default": {},
@@ -885,13 +885,13 @@
                 "min_coverage": {
                     "type": "integer",
                     "default": 100,
-                    "description": "minimum read depth for reporting variants per locus",
+                    "description": "Minimum read depth for reporting variants per locus.",
                     "examples": [50]
                 },
                 "frequencies": {
                     "type": "boolean",
                     "default": false,
-                    "description": "output a numpy array file containing frequencies of all bases, including gaps and also the most abundant base across samples",
+                    "description": "Output a numpy array file containing frequencies of all bases, including gaps and also the most abundant base across samples.",
                     "examples": [true]
                 }
             },
@@ -918,19 +918,19 @@
                 "overlap": {
                     "type": "boolean",
                     "default": false,
-                    "description": "construct intervals based on overlapping windows of the read alignment. By default, regions with high coverage are built based on the position-wise read depth",
+                    "description": "Construct intervals based on overlapping windows of the read alignment. By default, regions with high coverage are built based on the position-wise read depth.",
                     "examples": [true]
                 },
                 "coverage": {
                     "type": "integer",
                     "default": 50,
-                    "description": "minimum read depth. A region spanning the reference genome is returned if `coverage` is set to 0",
+                    "description": "Minimum read depth. A region spanning the reference genome is returned if `coverage` is set to 0.",
                     "examples": [ 0 ]
                 },
                 "liberal": {
                     "type": "boolean",
                     "default": true,
-                    "description": "indicate whether to apply a more liberal shifting on intervals' right-endpoint",
+                    "description": "Indicate whether to apply a more liberal shifting on intervals' right-endpoint.",
                     "examples": [false]
                 }
             },
@@ -957,18 +957,18 @@
                 "consensus": {
                     "type": "boolean",
                     "default": true,
-                    "description": "indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False",
+                    "description": "Indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False.",
                     "examples": [false]
                 },
                 "alpha": {
                     "type": "number",
                     "default": 0.1,
-                    "description": "hyperparameter used for instantiating a new cluster"
+                    "description": "Hyperparameter used for instantiating a new cluster."
                 },
                 "ignore_indels": {
                     "type": "boolean",
                     "default": false,
-                    "description": "ignore SNVs adjacent to indels"
+                    "description": "Ignore SNVs adjacent to indels."
                 },
                 "posterior_threshold": {
                     "type": "number",
@@ -977,18 +977,18 @@
                 "coverage": {
                     "type": "integer",
                     "default": 0,
-                    "description": "omit windows with coverage less than this value",
+                    "description": "Omit windows with coverage less than this value.",
                     "examples": [50]
                 },
                 "shift": {
                     "type": "integer",
                     "default": 3,
-                    "description": "ShoRAH performs local haplotype reconstruction on windows of the read alignment. The overlap between these windows is defined by the window shifts. By default, it is set to 3, i.e., apart from flanking regions each position is covered by 3 windows"
+                    "description": "ShoRAH performs local haplotype reconstruction on windows of the read alignment. The overlap between these windows is defined by the window shifts. By default, it is set to 3, i.e., apart from flanking regions each position is covered by 3 windows."
                 },
                 "keep_files": {
                     "type": "boolean",
                     "default": false,
-                    "description": "indicate whether to move files produced in previous/interrupted runs to subdirectory named `old`",
+                    "description": "Indicate whether to move files produced in previous/interrupted runs to subdirectory named `old`",
                     "examples": [true]
                 },
                 "localscratch": {
@@ -1034,13 +1034,13 @@
                 "consensus": {
                     "type": "boolean",
                     "default": true,
-                    "description": "indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False",
+                    "description": "Indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False.",
                     "examples": [false]
                 },
                 "extra": {
                     "type": "string",
                     "default": "",
-                    "description": "pass additional options to run `lofreq call`"
+                    "description": "Pass additional options to run `lofreq call`"
                 }
             },
             "default": {},
@@ -1099,7 +1099,7 @@
                 "split": {
                     "type": "integer",
                     "default": 20,
-                    "description": "size of the batches of reads to be processed by SAVAGE. It is recommended that 500 < coverage/`split` < 1000"
+                    "description": "Size of the batches of reads to be processed by SAVAGE. It is recommended that 500 < coverage/`split` < 1000."
                 }
             },
             "default": {},
@@ -1122,32 +1122,32 @@
                 "relax": {
                     "type": "boolean",
                     "default": true,
-                    "description": "if set to `True` (default) a predefined set of parameter values is used for drawing edges between reads in the read graph"
+                    "description": "If set to `True` (default) a predefined set of parameter values is used for drawing edges between reads in the read graph."
                 },
                 "no_singletons": {
                     "type": "boolean",
                     "default": true,
-                    "description": "singletons are defined as proposed haplotypes which are supported by a single read. If this property is set to `True`, singletons are discarded"
+                    "description": "Singletons are defined as proposed haplotypes which are supported by a single read. If this property is set to `True`, singletons are discarded."
                 },
                 "no_prob0": {
                     "type": "boolean",
                     "default": true,
-                    "description": "if set to `True` (default) probability of the overhangs is ignored"
+                    "description": "If set to `True` (default) probability of the overhangs is ignored."
                 },
                 "clique_size_limit": {
                     "type": "integer",
                     "default": 3,
-                    "description": "sets a threshold to limit the size of cliques"
+                    "description": "Sets a threshold to limit the size of cliques."
                 },
                 "max_num_cliques": {
                     "type": "integer",
                     "default": 10000,
-                    "description": "indicates the maximum number of clique to be considered in the next iteration"
+                    "description": "Indicates the maximum number of clique to be considered in the next iteration."
                 },
                 "extra_parameters": {
                     "type": "string",
                     "default": "",
-                    "description": "additional parameters to be passed to haploclique.\n\nWarning: this won't overwrite the other options (e.g. `clique_size_limi` and `max_num_cliques` should still be set via their [own](#haploclique_clique_size_limit) [respective](#haploclique_max_num_cliques) properties, do not pass parameters `--limit_clique_size=` nor `--max_cliques=` via this `extra` property)."
+                    "description": "Additional parameters to be passed to haploclique.\n\nWarning: this won't overwrite the other options (e.g. `clique_size_limi` and `max_num_cliques` should still be set via their [own](#haploclique_clique_size_limit) [respective](#haploclique_max_num_cliques) properties, do not pass parameters `--limit_clique_size=` nor `--max_cliques=` via this `extra` property)."
                 }
             },
             "default": {},
@@ -1170,18 +1170,18 @@
                 "region_start": {
                     "type": "integer",
                     "default": 0,
-                    "description": "use to specify a region of interest"
+                    "description": "Use to specify a region of interest."
                 },
                 "region_end": {
                     "type": "integer",
                     "default": -1,
-                    "description": "use to specify a region of interest",
+                    "description": "Use to specify a region of interest.",
                     "examples": [9719,29836]
                 },
                 "msa": {
                     "type": "string",
                     "default": "",
-                    "description": "when the ground truth is available (e.g., simulation studies), a multiple sequence alignment of types making up the population can be provided, and additional checks are performed"
+                    "description": "When the ground truth is available (e.g., simulation studies), a multiple sequence alignment of types making up the population can be provided, and additional checks are performed."
                 }
             },
             "default": {},
@@ -1343,13 +1343,13 @@
                     "type": "string",
                     "default": "ambig",
                     "enum": ["ambig", "majority"],
-                    "description": "When preparing data for upload, specifies which consensus sequence should be uploaded",
+                    "description": "When preparing data for upload, specifies which consensus sequence should be uploaded.",
                     "examples": ["majority"]
                 },
                 "checksum": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether the new file has changed content or is virtually the same as the previous)",
+                    "description": "Generate checksum for each individual consensus sequence (if a consensus is regenerated, it will help determine whether the new file has changed content or is virtually the same as the previous).",
                     "examples": [true]
                 },
                 "orig_fastq": {
