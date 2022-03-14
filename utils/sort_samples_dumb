@@ -78,7 +78,7 @@ done
 : "${batch_name:?missing mandatory batch name, use option -b}"
 : "${out_dir:?missing mandatory output dir use option -o}"
 
-: "${tsv:=${out_dir}/samples.${batch_name}.tsv}"
+: "${tsv:=${out_dir}/samples.${batch_name}.tsv.staging}"
 
 
 # RegEx
@@ -225,9 +225,11 @@ if (( numdup )); then
 	fi
 fi
 if (( ALLOK )); then
-	info All Ok
-	exit 0
+        mv -v ${tsv} ${tsv//\.staging/}
+        info All Ok
+        exit 0
 else
-	warn Some errors
-	exit 1
+        warn Some errors
+        exit 1
 fi
+
