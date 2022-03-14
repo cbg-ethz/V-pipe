@@ -136,7 +136,7 @@ if not os.path.isdir(sampleset):
 
 # output files
 batch=f"{date}_{flowcell}"
-tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv'), 'wt')
+tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv.staging'), 'wt')
 # shell script file with all moving instructions inside
 sh=open(os.path.join(sampleset,'movedatafiles.sh'), 'at' if append else 'wt')
 
@@ -232,13 +232,17 @@ if args.batch:
 
 # coda: return status
 if not append: print(f"""
-if (( ALLOK )); then
-	echo All Ok
-	exit 0
-else
-	echo Some errors
-	exit 1
+if (( !ALLOK )); then
+        echo Some errors
+        exit 1
 fi;
+
 """, file=sh)
 
-sys.exit(0)
+print(f"mv -v {sampleset}/sample.{batch}.tsv.staging samples {sampleset}/sample.{batch}.tsv", file=sh)
+
+print("""
+echo All Ok
+exit 0
+""", file=sh)
+
