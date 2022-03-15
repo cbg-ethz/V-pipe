@@ -1274,9 +1274,9 @@
                 },
                 "ref_host_url": {
                     "type": "string",
-                    "default": "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+                    "default": "http://ftp.ensembl.org/pub/current_fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
                     "description": "If the host's genome specified in property `ref_host` isn't present, fetch it from a remote server.\n\n**Note** remember to set aside enough memory for the indexing rule, see section `ref_bwa_index` property `mem`.",
-                    "examples": [ "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"]
+                    "examples": [ "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz", "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"]
                 },
                 "keep_host": {
                     "type": "boolean",
