@@ -202,12 +202,12 @@ rule dh_filter:
                                    {input.host_aln} \
                                    | cut -f 1 > {output.filter_list}
 
-            unpack_rawreads {input.R1} \
+            unpack_rawreads {input.R1:q} \
                    | {params.remove_reads_script} {output.filter_list} \
                    | gzip \
                    > {output.filtered_1} &
 
-            unpack_rawreads {input.R2} \
+            unpack_rawreads {input.R2:q} \
                    | {params.remove_reads_script} {output.filter_list} \
                    | gzip \
                    > {output.filtered_2} &

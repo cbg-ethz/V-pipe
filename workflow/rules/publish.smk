@@ -61,7 +61,7 @@ rule prepare_upload:
     threads: config.upload["threads"]
     shell:
         """
-        {params.script} {params.options} "{output.upload_prepared_touch}" "{params.sample_id}" "{wildcards.dataset}" {input}
+        {params.script} {params.options} "{output.upload_prepared_touch}" "{params.sample_id}" "{wildcards.dataset}" {input:q}
         """
 
 
@@ -106,8 +106,8 @@ rule unfiltered_cram:
                          -C \
                          -o {output.cram_sam} \
                          {input.global_ref} \
-                         <(unpack_rawreads {input.R1}) \
-                         <(unpack_rawreads {input.R2})
+                         <(unpack_rawreads {input.R1:q}) \
+                         <(unpack_rawreads {input.R2:q})
 
         # HACK handle incompatibilities between:
         #  - Illumina's 'bcl2fastq', which write arbitrary strings

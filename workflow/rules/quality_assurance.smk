@@ -50,7 +50,7 @@ rule extract:
     shell:
         # TODO replace with better dedicated software
         """
-        cat {input} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
+        cat {input:q} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
         """
 
 
