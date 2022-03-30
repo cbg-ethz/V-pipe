@@ -32,6 +32,8 @@ argparser.add_argument('-s', '--summary', required=False,
 	action='store_true', dest='summary', help="Only display a summary of datasets, not an exhaustive list of all samples")
 argparser.add_argument('-a', '--append', required=False,
 	action='store_true', dest='append', help="Append to the end of movedatafiles.sh, instead of overwritting\n(use when calling from an external combiner wrapper)")
+argparser.add_argument('-g', '--staging', required=False,
+	action='store_true', dest='staging', help="Write samples list in .tsv.staging and only rename them to the final .tsv at the end of movedatafiles.sh if there were no errors.")
 argparser.add_argument('-l', '--forcelanes', required=False,
 	action='store_true', dest='forcelanes', help="Explicitly look for sample in each lane (for replicates across lanes)")
 argparser.add_argument('-p', '--patchmap', metavar='TSV', required=False, default=None,
@@ -44,6 +46,8 @@ sampleset=args.outdir
 link=args.link
 append=args.append
 lab = args.batch
+staging_suffix='.staging' if args.staging else ''
+
 
 # parse the chmod parameter
 try:
@@ -136,7 +140,7 @@ if not os.path.isdir(sampleset):
 
 # output files
 batch=f"{date}_{flowcell}"
-tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv.staging'), 'wt')
+tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv{staging_suffix}'), 'wt')
 # shell script file with all moving instructions inside
 sh=open(os.path.join(sampleset,'movedatafiles.sh'), 'at' if append else 'wt')
 
@@ -230,19 +234,16 @@ if args.batch:
 	with open(os.path.join(sampleset,f'batch.{batch}.yaml'), 'wt') as byml:
 		print(yaml.dump({'type':'jobinfo','lab':lab,'runfolder':runfolder,'date':date,'instrument':instr,'runnum':runnum,'flowcell':flowcell,'lanes':lanes,'library':library,'folder':folder}, sort_keys=False), file=byml)
 
-# coda: return status
-if not append: print(f"""
-if (( !ALLOK )); then
-        echo Some errors
-        exit 1
+# coda: rename staging and return status
+if args.staging:
+	print(f"(( ALLOK )) && mv -v {sampleset}/samples.{batch}.tsv{staging_suffix} {sampleset}/samples.{batch}.tsv", file=sh)
+
+if not append: print("""
+if (( ! ALLOK )); then
+	echo Some errors
+	exit 1
 fi;
 
-""", file=sh)
-
-print(f"mv -v {sampleset}/sample.{batch}.tsv.staging samples {sampleset}/sample.{batch}.tsv", file=sh)
-
-print("""
 echo All Ok
 exit 0
 """, file=sh)
-

@@ -29,6 +29,8 @@ argparser.add_argument('-s', '--summary', required=False,
 	action='store_true', dest='summary', help="Only display a summary of datasets, not an exhaustive list of all samples")
 argparser.add_argument('-a', '--append', required=False,
 	action='store_true', dest='append', help="Append to the end of movedatafiles.sh, instead of overwritting\n(use when calling from an external combiner wrapper)")
+argparser.add_argument('-g', '--staging', required=False,
+	action='store_true', dest='staging', help="Write samples list in .tsv.staging and only rename them to the final .tsv at the end of movedatafiles.sh if there were no errors.")
 argparser.add_argument('-n', '--noempty', required=False,
 	action='store_true', dest='noempty', help="skip fastq.gz files with bad yield (0 reads)")
 argparser.add_argument('-p', '--patchmap', metavar='TSV', required=False, default=None,
@@ -42,6 +44,7 @@ sampleset=args.outdir
 link=args.link
 append=args.append
 noempty=args.noempty
+staging_suffix='.staging' if args.staging else ''
 
 statsjson=os.path.join(statsdir, 'Stats/Stats.json')
 
@@ -117,7 +120,7 @@ if not os.path.isdir(sampleset):
 
 # output files
 batch=f"{rundate}_{flowcell}"
-tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv'), 'wt')
+tsv=open(os.path.join(sampleset,f'samples.{batch}.tsv{staging_suffix}'), 'wt')
 # shell script file with all moving instructions inside
 sh=open(os.path.join(sampleset,'movedatafiles.sh'), 'at' if append else 'wt')
 
@@ -150,7 +153,7 @@ X() {
 # per batch directory checks
 print(r"[[ -d '%(download)s' ]] || fail 'No download directory:' '%(download)s'" % {'download':fastqdir}, file=sh)
 if qcdir:
-    print(r"[[ -d '%(qc)s' ]] || fail 'No download directory:' '%(qc)s'" % {'qc': qcdir}, file=sh)
+	print(r"[[ -d '%(qc)s' ]] || fail 'No download directory:' '%(qc)s'" % {'qc': qcdir}, file=sh)
 
 
 # parse info about samples
@@ -197,13 +200,16 @@ for file in "${fastq[@]}"; do
 			print('done', file=sh)
 
 
-# coda: return status
-if not append: print(f"""
-if (( ALLOK )); then
-	echo All Ok
-	exit 0
-else
+# coda: rename staging and return status
+if args.staging:
+	print(f"(( ALLOK )) && mv -v {sampleset}/samples.{batch}.tsv{staging_suffix} {sampleset}/samples.{batch}.tsv", file=sh)
+
+if not append: print("""
+if (( ! ALLOK )); then
 	echo Some errors
 	exit 1
 fi;
+
+echo All Ok
+exit 0
 """, file=sh)

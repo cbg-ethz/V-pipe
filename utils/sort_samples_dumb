@@ -28,6 +28,7 @@ usage() { echo "Usage: $0 -f <DIR> -b <BATCH> [-l <LEN>] [-L {''|--link|--symbol
 	-L : link parameter to pass to cp when copying (default: --link)
 	-t : tsv file (default: samples.<BATCH>.tsv)
 	-T : do not truncate (empty) the file before starting
+	-g : store list in .tsv.staging instead and only rename into final .tsv if successful
 	-D : sample have duplicates (e.g.: across lanes)
 	-p : prefix to prepend to fastq files (e.g.: for fusing runs)
 	-s : suffix to append to fastq files (e.g.: for fusing runs)
@@ -42,8 +43,9 @@ prefix=''
 suffix=''
 quiet=0
 duplicates=0
+staging=0
 mode=
-while getopts "f:b:Dl:L:p:s:o:m:t:Tqh" o; do
+while getopts "f:b:Dl:L:p:s:o:m:t:Tgqh" o; do
 	case "${o}" in
 		f)	fastq_dir="${OPTARG}"
 			# shellcheck disable=SC2206
@@ -67,6 +69,7 @@ while getopts "f:b:Dl:L:p:s:o:m:t:Tqh" o; do
 			[[ $mode =~ ^[0-7]{,4}$ ]]	|| fail "Invalid characters <${mode//[0-7]/}> in <${mode}>" 'mode should be an octal chmod value, see <mkdir --help> for informations'
 			;;
 		t)	tsv="${OPTARG}"	;;
+		g)	staging=1	;;
 		T)	truncate=0	;;
 		q)	quiet=1	;;
 		h)	usage 0	;;
@@ -78,8 +81,14 @@ done
 : "${batch_name:?missing mandatory batch name, use option -b}"
 : "${out_dir:?missing mandatory output dir use option -o}"
 
-: "${tsv:=${out_dir}/samples.${batch_name}.tsv.staging}"
+: "${tsv:=${out_dir}/samples.${batch_name}.tsv}"
 
+if (( staging )); then
+	staging_suffix=".staging"
+	tsv="${tsv}${staging_suffix}"
+else
+	staging_suffix=
+fi
 
 # RegEx
 
@@ -224,12 +233,11 @@ if (( numdup )); then
 		warn "$(( paired + numsam )) samples, but only ${numdup} duplicates" "(missing: $((numdup % ( paired + numsam ) )) )"
 	fi
 fi
-if (( ALLOK )); then
-        mv -v ${tsv} ${tsv//\.staging/}
-        info All Ok
-        exit 0
-else
-        warn Some errors
-        exit 1
+if (( ! ALLOK )); then
+	warn Some errors
+	exit 1
 fi
 
+(( staging )) && mv -v "${tsv}" "${tsv%%${staging_suffix}}"
+info All Ok
+exit 0

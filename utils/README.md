@@ -118,6 +118,7 @@ Usage: ./sort_samples_dumb -f <DIR> -b <BATCH> [-l <LEN>] [-L {''|--link|--symbo
 	-L : link parameter to pass to cp when copying (default: --link)
 	-t : tsv file (default: samples.<BATCH>.tsv)
 	-T : do not truncate (empty) the file before starting
+	-g : store list in .tsv.staging instead and only rename into final .tsv if successful
 	-D : sample have duplicates (e.g.: across lanes)
 	-p : prefix to prepend to fastq files (e.g.: for fusing runs)
 	-s : suffix to append to fastq files (e.g.: for fusing runs)
@@ -183,6 +184,7 @@ optional arguments:
   --force               Force overwriting any existing file when moving
   -s, --summary         Only display a summary of datasets, not an exhaustive list of all samples
   -a, --append          Append to the end of movedatafiles.sh, instead of overwritting (use when calling from an external combiner wrapper)
+  -g, --staging         Write samples list in .tsv.staging and only rename them to the final .tsv at the end of movedatafiles.sh if there were no errors.
   -n, --noempty         skip fastq.gz files with bad yield (0 reads)
   -p TSV, --patchmap TSV
                         patchmap file to rename samples
@@ -239,6 +241,7 @@ optional arguments:
   -b LAB, --batch LAB   generate batch description
   -s, --summary         Only display a summary of datasets, not an exhaustive list of all samples
   -a, --append          Append to the end of movedatafiles.sh, instead of overwritting (use when calling from an external combiner wrapper)
+  -g, --staging         Write samples list in .tsv.staging and only rename them to the final .tsv at the end of movedatafiles.sh if there were no errors.
   -l, --forcelanes      Explicitly look for sample in each lane (for replicates across lanes)
   -p TSV, --patchmap TSV
                         patchmap file to rename samples
