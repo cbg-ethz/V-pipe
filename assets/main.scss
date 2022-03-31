@@ -21,24 +21,32 @@
         text-justify: inter-word;
       }
 
+      .calltoaction {
+        margin-top: 20px;
+        margin-bottom: 40px;
+        width:100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+      .calltoaction div {
+      }
       .hrefbut {
-        margin: auto;
-        margin-bottom: 20px;
         min-height: 100px;
         height: 100px;
         width: 250px;
         font-size: 1.1em;
-        line-height: 100px;
+        line-height: 60px;
         background-color: rgba(0, 169, 157, 0.1);
         box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-        padding: 12px;
-
+        padding: 8px;
+        white-space: nowrap;
       }
-
       .hrefbut:hover {
         background-color: rgba(0, 169, 157, 0.2);
       }
-      .hrefbut img[alt=GitHub] {
+      .hrefbut img[alt=GitHub], .hrefbut img[alt=Docker], .hrefbut img[alt=Snakemake] {
         vertical-align: text-bottom;
         width: 2.4ex;
         height: 2.4ex;

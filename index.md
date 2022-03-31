@@ -7,7 +7,7 @@ image: img/workflow_cartoon2.png
 
 V-pipe: A bioinformatics pipeline for viral sequencing data
 
-{% include flashNews.html urgent="1" msg="Webinar about <a href='/V-pipe/sars-cov-2/'>V-pipe for SARS-CoV-2 data</a> now available on <a href='https://youtu.be/pIby1UooK94'>Youtube</a>" %}
+{% include flashNews.html urgent="0" msg="New version v2.99.2 of V-pipe <a href='https://github.com/cbg-ethz/V-pipe/releases'>has been released</a>" %}
 
 
 # Introduction
@@ -17,12 +17,14 @@ This genetic diversity is associated with viral pathogenesis, virulence, and dis
 
 ![Cartoon](img/workflow_cartoon2.svg)
 
-<div align="center" style="margin: 2%;">
-  <a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe" style="color:black;"><img src="img/mark-github.svg" alt="GitHub" /> Get it from GitHub!</a>
+<div class="calltoaction">
+  <div><a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe#using-quick-install-script" style="color:black;"><img src="img/mark-github.svg" alt="GitHub" /> Install from GitHub!</a></div>
+  <div><a class="hrefbut" href="https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe" style="color:black;"><img src="img/fa-brand_fa-docker.svg" alt="Docker" /> Get the Docker image!</a></div>
+  <div><a class="hrefbut" href="https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe" style="color:black;"><img src="img/logo-snake.svg" alt="Snakemake" /> Snakedeploy the workflow!</a></div>
 </div>
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-orange.svg?style=flat)](https://bio.tools/V-Pipe)
-[![ExPASy](https://img.shields.io/badge/expasy-resource-red.svg?style=flat)](https://www.expasy.org/resources/search/querytext:v-pipe)
+[![ExPASy](https://img.shields.io/badge/expasy-resource-red.svg?style=flat)](https://www.expasy.org/resources/v-pipe)
 [![SIB](https://img.shields.io/badge/sib-resource-red.svg?style=flat)](https://www.sib.swiss/research-infrastructure/database-software-tools/sib-resources#v-pipe)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
 
@@ -51,7 +53,8 @@ V-pipe has a modular and extensible architecture. Users can design their own ful
 ## How can I use V-pipe?
 
 V-pipe is freely available for download from [GitHub](https://github.com/cbg-ethz/V-pipe).
-Further details on how to run the pipeline, as well as a test dataset, can be found on the dedicated [Wiki pages of the repository](https://github.com/cbg-ethz/V-pipe/wiki),
+Further details on how to run the pipeline, as well as [test datasets](https://github.com/cbg-ethz/V-pipe/blob/master/tests/data/),
+can be found in the [readme](https://github.com/cbg-ethz/V-pipe/blob/master/README.md#usage),
 accessible through the V-pipe website's [Usage tab](usage/).
 
 Should you have any further question, please do not hesitate to [contact us](contact/).
