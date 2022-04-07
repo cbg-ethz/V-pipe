@@ -1,17 +1,12 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
-# PIP: git+https://github.com/spaceben/shorah@switch-to-poetry
+# PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
 import subprocess
 from pathlib import Path
 
 
 def main(fname_bam, fname_reference, fname_results, dname_work):
-
-    # TODO: it seems like the region input does not have any effect on the
-    # windows that are created.
-    # Compared to original shorah we need the argument -r for this version.
-    region = "MasterSequence:210-3500"
 
     dname_work.mkdir(parents=True, exist_ok=True)
     subprocess.run(
@@ -22,8 +17,6 @@ def main(fname_bam, fname_reference, fname_results, dname_work):
             fname_bam.resolve(),
             "-f",
             fname_reference.resolve(),
-            "-r",
-            region,
         ],
         cwd=dname_work,
     )
