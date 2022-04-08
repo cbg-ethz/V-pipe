@@ -23,6 +23,7 @@ else:
 
 print(method_list, file=sys.stderr)
 
+sequencing_mode = paramspace["sequencing_mode"][0] #TODO: Allow different sequencing_modes in parameter file
 
 # helper functions
 def get_generated_conda_env(wildcards, input):
@@ -92,11 +93,8 @@ rule all:
     input:
         "results/performance_measures/",
 
-
-rule simulate_reads:
+rule generate_haplotypes:
     output:
-        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.fastq",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
         dname_work=directory(
@@ -107,16 +105,35 @@ rule simulate_reads:
     conda:
         "envs/simulate_reads.yaml"
     script:
-        "scripts/simulate_reads.py"
+        "scripts/generate_haplotypes.py"
 
+rule shotgun_simulation:
+    input:
+        dname_work=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/",
+    output:
+        fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
+    params:
+        params=paramspace.instance,
+    conda:
+        "envs/simulate_reads.yaml"
+    script:
+        "scripts/shotgun_simulation.py"
+
+"""
+rule amplicon_simulation:
+    output:
+        name_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
+"""
 
 rule run_method:
     input:
         script="resources/method_definitions/{method}.py",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.bam",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{sequencing_mode}.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
     output:
-        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
+        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.{sequencing_mode}.vcf",
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
@@ -135,7 +152,7 @@ rule run_method:
 rule performance_measures:
     input:
         vcf_list=[
-            f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.vcf"
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.{sequencing_mode}.vcf"
             for params in paramspace.instance_patterns
             for method in method_list
             for replicate in range(config["replicate_count"])
