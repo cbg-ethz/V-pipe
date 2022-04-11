@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
 
     subprocess.run(
@@ -15,7 +16,9 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
             "-sam",
             "--paired",
             "-m",
-            str(read_length*2*0.8), #mean and standard deviation of DNA/RNA fragment lengths
+            str(
+                read_length * 2 * 0.8
+            ),  # mean and standard deviation of DNA/RNA fragment lengths
             "-s",
             str(10),
             "-i",
@@ -31,9 +34,8 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
 
 
 def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix):
-    """ Simulate long reads with PacBio error profile using PBSIM2.
-    """
-    diff_ratio = "6:50:54" # --difference-ratio
+    """Simulate long reads with PacBio error profile using PBSIM2."""
+    diff_ratio = "6:50:54"  # --difference-ratio
     hmm_model = "resources/pbsim2/data/P6C4.model"
 
     # run PBSIM2
@@ -42,11 +44,11 @@ def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix
             "pbsim",
             fname_haplotype,
             "--length-min",
-            str(read_length-5),
+            str(read_length - 5),
             "--length-max",
             str(read_length),
             "--length-mean",
-            str(read_length-2),
+            str(read_length - 2),
             "--depth",
             str(coverage_haplotype),
             "--hmm_model",
@@ -54,17 +56,11 @@ def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix
             "--difference-ratio",
             diff_ratio,
             "--prefix",
-            art_prefix
+            art_prefix,
         ]
     )
     # align reads
-    subprocess.run(
-        [
-            "bwa",
-            "index",
-            fname_haplotype
-        ]
-    )
+    subprocess.run(["bwa", "index", fname_haplotype])
 
     subprocess.run(
         [
@@ -73,24 +69,18 @@ def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix
             "-o",
             str(art_prefix) + ".sam",
             fname_haplotype,
-            str(art_prefix) + '_0001.fastq'
+            str(art_prefix) + "_0001.fastq",
         ]
     )
 
     subprocess.run(
-        [
-            "samtools",
-            "sort",
-            str(art_prefix) + ".sam",
-            "-o",
-            str(art_prefix) + ".sam"
-        ]
+        ["samtools", "sort", str(art_prefix) + ".sam", "-o", str(art_prefix) + ".sam"]
     )
 
 
 def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_prefix):
-    #--difference-ratio 23:31:46
-    diff_ratio = "23:31:46" # --difference-ratio
+    # --difference-ratio 23:31:46
+    diff_ratio = "23:31:46"  # --difference-ratio
     hmm_model = "resources/pbsim2/data/P6C4.model"
 
     # run PBSIM2
@@ -99,11 +89,11 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
             "pbsim",
             fname_haplotype,
             "--length-min",
-            str(read_length-5),
+            str(read_length - 5),
             "--length-max",
             str(read_length),
             "--length-mean",
-            str(read_length-2),
+            str(read_length - 2),
             "--depth",
             str(coverage_haplotype),
             "--hmm_model",
@@ -111,17 +101,11 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
             "--difference-ratio",
             diff_ratio,
             "--prefix",
-            art_prefix
+            art_prefix,
         ]
     )
     # align reads
-    subprocess.run(
-        [
-            "bwa",
-            "index",
-            fname_haplotype
-        ]
-    )
+    subprocess.run(["bwa", "index", fname_haplotype])
 
     subprocess.run(
         [
@@ -130,20 +114,13 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
             "-o",
             str(art_prefix) + ".sam",
             fname_haplotype,
-            str(art_prefix) + '_0001.fastq'
+            str(art_prefix) + "_0001.fastq",
         ]
     )
 
     subprocess.run(
-        [
-            "samtools",
-            "sort",
-            str(art_prefix) + ".sam",
-            "-o",
-            str(art_prefix) + ".sam"
-        ]
+        ["samtools", "sort", str(art_prefix) + ".sam", "-o", str(art_prefix) + ".sam"]
     )
-
 
 
 def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
@@ -151,18 +128,18 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
     master_name = "MasterSequence"
 
     if haplotype_generation == "distance":
-        n_haplo = params['n_group1'] + params['n_group2']
+        n_haplo = params["n_group1"] + params["n_group2"]
         # obtain haplotype frequencies
-        if params['freq_distribution'] == 'dirichlet':
-            if type(params['freq_param']) == str:
+        if params["freq_distribution"] == "dirichlet":
+            if type(params["freq_param"]) == str:
                 alpha = [float(freq) for freq in params["freq_param"].split(":")]
-            if type(params['freq_param']) == np.float64:
-                if np.isnan(params['freq_param']):
+            if type(params["freq_param"]) == np.float64:
+                if np.isnan(params["freq_param"]):
                     alpha = np.ones(n_haplo)
 
             freq_list = np.random.dirichlet(alpha)
 
-        elif params['freq_distribution'] == 'geom':
+        elif params["freq_distribution"] == "geom":
             freq_param = float(params["freq_param"])
             freq_list = np.asarray([freq_param ** (i + 1) for i in range(n_haplo)])
             freq_list = freq_list / np.sum(freq_list)
@@ -183,17 +160,22 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
         fname_haplotype = dname_work / f"{haplotype_name}.fasta"
         coverage_haplotype = int(params["coverage"] * freq)
 
-
         # simulate haplotype reads
         art_prefix = dname_work / f"art_output/haplo_{haplotype_name}_"
         art_prefix.parent.mkdir(parents=True, exist_ok=True)
 
-        if params["sequencing_technology"]=='illumina':
-            simulate_illumina(fname_haplotype, coverage_haplotype, params["read_length"], art_prefix)
-        elif params["sequencing_technology"]=='pacbio':
-            simulate_pacbio(fname_haplotype, coverage_haplotype, params["read_length"], art_prefix)
-        elif params["sequencing_technology"]=='nanopore':
-            simulate_nanopore(fname_haplotype, coverage_haplotype, params["read_length"], art_prefix)
+        if params["seq_technology"] == "illumina":
+            simulate_illumina(
+                fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
+            )
+        elif params["seq_technology"] == "pacbio":
+            simulate_pacbio(
+                fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
+            )
+        elif params["seq_technology"] == "nanopore":
+            simulate_nanopore(
+                fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
+            )
 
         # we assume that generated SAM file represent reads being mapped
         # to a reference (or de-novo consensus sequence).
@@ -206,12 +188,12 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
 
         # gather files
         filelist_sam.append(fname_sam)
-        if params["sequencing_technology"]=='illumina':
+        if params["seq_technology"] == "illumina":
             reads_f = dname_work / f"art_output/haplo_{haplotype_name}_1.fq"
             reads_r = dname_work / f"art_output/haplo_{haplotype_name}_2.fq"
-            filelist_fastq.append(reads_f) # paired end reads
-            filelist_fastq.append(reads_r) # paired end reads
-        elif params["sequencing_technology"]in ['pacbio', 'nanopore']:
+            filelist_fastq.append(reads_f)  # paired end reads
+            filelist_fastq.append(reads_r)  # paired end reads
+        elif params["seq_technology"] in ["pacbio", "nanopore"]:
             reads_f = dname_work / f"art_output/haplo_{haplotype_name}__0001.fastq"
             filelist_fastq.append(reads_f)
 
