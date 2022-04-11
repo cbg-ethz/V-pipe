@@ -23,7 +23,7 @@ else:
 
 print(method_list, file=sys.stderr)
 
-sequencing_mode = paramspace["sequencing_mode"][0] #TODO: Allow different sequencing_modes in parameter file
+sequencing_mode = paramspace["seq_mode"][0] #TODO: Allow different sequencing_modes in parameter file
 
 # helper functions
 def get_generated_conda_env(wildcards, input):
@@ -142,25 +142,55 @@ rule simulate_scheme:
     conda:
         "envs/split.yaml"
     input:
-        "data/{prefix}.fasta"
+        fname_reference=rules.generate_haplotypes.output.fname_reference,
     output:
-        "results/{prefix}.reference.fasta",
-        "results/{prefix}.primer.bed",
-        "results/{prefix}.insert.bed",
-        "results/{prefix}.primer.tsv",
-        "results/{prefix}.plot.pdf",
-        "results/{prefix}.plot.svg",
-        "results/{prefix}.report.json",
-        "results/{prefix}.pickle",
-        "results/{prefix}.log",
+        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
+        dname_out=directory(f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"),
     shell:
-        "primalscheme multiplex --name {prefix} --outpath results {input}"
+        "primalscheme multiplex --name reference --force --outpath {output.dname_out} {input.fname_reference}"
 
 
 rule amplicon_simulation:
+    input:
+        dname_work=rules.generate_haplotypes.output.dname_work,
+        fname_insert_bed=rules.simulate_scheme.output.fname_insert_bed,
     output:
-        name_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.fastq",
+        fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
+        fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
+    params:
+        params=paramspace.instance,
+        haplotype_generation=config['haplotype_generation'],
+    conda:
+        "envs/simulate_reads.yaml"
+    script:
+        "scripts/amplicon_simulation.py"
+
+
+rule flash:
+    input:
+        fname_fastq_R1=rules.amplicon_simulation.output.fname_fastq_R1,
+        fname_fastq_R2=rules.amplicon_simulation.output.fname_fastq_R2,
+    output:
+        fname_fastq_merged=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/reads_merged.extendedFrags.fastq",
+        dname_out=directory(f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/"),
+    conda:
+        "envs/split.yaml"
+    shell:
+        """
+        flash {input.fname_fastq_R1} {input.fname_fastq_R2} -r 250 -f 400 -s 40 --allow-outies \
+            --output-prefix=reads_merged --output-directory={output.dname_out}
+        """
+
+rule alignment:
+    conda:
+        "envs/split.yaml"
+    input:
+        fname_reference=rules.generate_haplotypes.output.fname_reference,
+        fname_fastq_merged=rules.flash.output.fname_fastq_merged,
+    output:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
+    shell:
+        "bwa index {input.fname_reference} && bwa mem {input.fname_reference} {input.fname_fastq_merged}  > {output.fname_bam} && samtools sort -o {output.fname_bam} {output.fname_bam}"
 
 
 rule run_method:
@@ -168,6 +198,7 @@ rule run_method:
         script="resources/method_definitions/{method}.py",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{sequencing_mode}.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_insert_bed=rules.simulate_scheme.output.fname_insert_bed, # if amplicon scheme
     output:
         fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.{sequencing_mode}.vcf",
         dname_work=directory(
