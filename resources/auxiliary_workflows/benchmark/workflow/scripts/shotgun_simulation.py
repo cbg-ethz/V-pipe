@@ -146,15 +146,34 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
 
 
 
-def main(fname_fastq, fname_bam, dname_work, params):
+def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
 
     master_name = "MasterSequence"
 
+    if haplotype_generation == "distance":
+        n_haplo = params['n_group1'] + params['n_group2']
+        # obtain haplotype frequencies
+        if params['freq_distribution'] == 'dirichlet':
+            if type(params['freq_param']) == str:
+                alpha = [float(freq) for freq in params["freq_param"].split(":")]
+            if type(params['freq_param']) == np.float64:
+                if np.isnan(params['freq_param']):
+                    alpha = np.ones(n_haplo)
+
+            freq_list = np.random.dirichlet(alpha)
+
+        elif params['freq_distribution'] == 'geom':
+            freq_param = float(params["freq_param"])
+            freq_list = np.asarray([freq_param ** (i + 1) for i in range(n_haplo)])
+            freq_list = freq_list / np.sum(freq_list)
+
     # infer haplotype sequences
-    freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
-    assert (
-        sum(freq_list) == 1
-    ), f"Invalid haplotype pattern: {params['haplotype_pattern']}"
+    elif haplotype_generation == "mutation_rate":
+        # infer haplotype sequences
+        freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
+        assert (
+            sum(freq_list) == 1
+        ), f"Invalid haplotype pattern: {params['haplotype_pattern']}, sum is {sum(freq_list)}"
 
     filelist_sam = []
     filelist_fastq = []
@@ -216,5 +235,6 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_fastq),
         Path(snakemake.output.fname_bam),
         Path(snakemake.input.dname_work),
+        snakemake.params.haplotype_generation,
         snakemake.params.params,
     )

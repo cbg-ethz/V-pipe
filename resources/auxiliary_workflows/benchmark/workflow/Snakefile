@@ -92,6 +92,7 @@ for method in method_list:
 rule all:
     input:
         "results/performance_measures/",
+        "results/haplotype_populations/",
 
 rule generate_haplotypes:
     output:
@@ -102,6 +103,7 @@ rule generate_haplotypes:
         ),
     params:
         params=paramspace.instance,
+        haplotype_generation=config['haplotype_generation'],
     conda:
         "envs/simulate_reads.yaml"
     script:
@@ -115,17 +117,51 @@ rule shotgun_simulation:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
     params:
         params=paramspace.instance,
+        haplotype_generation=config['haplotype_generation'],
     conda:
         "envs/simulate_reads.yaml"
     script:
         "scripts/shotgun_simulation.py"
 
-"""
+
+if config['haplotype_generation'] == 'distance':
+    rule collect_haplo_populations_visualizations:
+        input:
+            dname_work=[
+                f"results/simulated_reads/{params}/replicates/{replicate}/work/"
+                for params in paramspace.instance_patterns
+                for replicate in range(config["replicate_count"])
+                ],
+        output:
+            dname_out=directory(f"results/haplotype_populations/"),
+        script:
+            "scripts/collect_haplo_populations.py"
+
+
+rule simulate_scheme:
+    conda:
+        "envs/split.yaml"
+    input:
+        "data/{prefix}.fasta"
+    output:
+        "results/{prefix}.reference.fasta",
+        "results/{prefix}.primer.bed",
+        "results/{prefix}.insert.bed",
+        "results/{prefix}.primer.tsv",
+        "results/{prefix}.plot.pdf",
+        "results/{prefix}.plot.svg",
+        "results/{prefix}.report.json",
+        "results/{prefix}.pickle",
+        "results/{prefix}.log",
+    shell:
+        "primalscheme multiplex --name {prefix} --outpath results {input}"
+
+
 rule amplicon_simulation:
     output:
         name_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
-"""
+
 
 rule run_method:
     input:
