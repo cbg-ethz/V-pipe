@@ -1,3 +1,3 @@
-sequencing_technology,sequencing_mode,read_length,genome_size,coverage,mutation_rate,insertion_rate,deletion_rate,haplotype_pattern
+seq_technology,seq_mode,read_length,genome_size,coverage,mutation_rate,insertion_rate,deletion_rate,haplotype_pattern
 illumina,shotgun,250,10000,1000,0.1,0,0,1
 illumina,shotgun,250,10000,1000,0.1,0,0,0.5:0.5

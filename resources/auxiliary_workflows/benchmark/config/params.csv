@@ -1,3 +1,2 @@
-sequencing_technology,sequencing_mode,read_length,genome_size,coverage,mutation_rate,insertion_rate,deletion_rate,haplotype_pattern
-illumina,shotgun,250,10000,1000,0.1,0,0,1
-illumina,shotgun,250,10000,1000,0.1,0,0,0.5:0.5
+seq_technology,seq_mode,read_length,genome_size,coverage,n_group1,n_group2,d_group12,d_group1,d_group2,freq_distribution,freq_param
+illumina,amplicon,249,1000,100,5,5,20,10,6,dirichlet,1:1:1:1:1:1:1:1:1:1
