@@ -3,8 +3,8 @@ from pathlib import Path
 
 
 def main(fname_reference, fname_insert_bed, dname_out, params):
-    amplicon_size = params["seq_mode"].split(":")[1]
-    target_overlap = params["seq_mode"].split(":")[2]
+    amplicon_size = params["seq_mode_param"].split(":")[0]
+    target_overlap = params["seq_mode_param"].split(":")[1]
 
     subprocess.run(
         [
