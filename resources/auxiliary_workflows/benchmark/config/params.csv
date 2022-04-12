@@ -1,2 +1,2 @@
 seq_technology,seq_mode,read_length,genome_size,coverage,n_group1,n_group2,d_group12,d_group1,d_group2,freq_distribution,freq_param
-illumina,amplicon,249,1000,100,5,5,20,10,6,dirichlet,1:1:1:1:1:1:1:1:1:1
+illumina,amplicon:400:0,249,1000,100,5,5,20,10,6,dirichlet,1:1:1:1:1:1:1:1:1:1
