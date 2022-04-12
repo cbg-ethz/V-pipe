@@ -213,7 +213,7 @@ rule run_method:
         script="resources/method_definitions/{method}.py",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_insert_bed=lambda wildcards: rules.simulate_scheme.fname_insert_bed if wildcards.seq_mode == "amplicon" else "",
+        fname_insert_bed=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed" if wildcards.seq_mode == "amplicon" else [],
     output:
         fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         dname_work=directory(
