@@ -9,7 +9,6 @@ import shutil
 
 
 def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
-
     amplicons = []
     # open insert.bed file
     with open(fname_insert_bed) as f:
@@ -35,7 +34,6 @@ def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
-
     subprocess.run(
         [
             "art_illumina",
@@ -67,7 +65,6 @@ def main(
     haplotype_generation,
     params,
 ):
-
     master_name = "MasterSequence"
 
     if haplotype_generation == "distance":

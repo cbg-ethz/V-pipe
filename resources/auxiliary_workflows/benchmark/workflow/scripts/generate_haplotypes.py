@@ -68,6 +68,7 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
+
 def cmap_discretize(cmap, N):
     """Return a discrete colormap from the continuous colormap cmap.
 
@@ -82,17 +83,22 @@ def cmap_discretize(cmap, N):
 
     if type(cmap) == str:
         cmap = get_cmap(cmap)
-    colors_i = concatenate((linspace(0, 0.2, N), (0.,0.,0.,0.)))
+    colors_i = concatenate((linspace(0, 0.2, N), (0.0, 0.0, 0.0, 0.0)))
     colors_rgba = cmap(colors_i)
-    indices = linspace(0, 0.2, N+1)
+    indices = linspace(0, 0.2, N + 1)
     cdict = {}
-    for ki,key in enumerate(('red','green','blue')):
-        cdict[key] = [ (indices[i], colors_rgba[i-1,ki], colors_rgba[i,ki]) for i in xrange(N+1) ]
+    for ki, key in enumerate(("red", "green", "blue")):
+        cdict[key] = [
+            (indices[i], colors_rgba[i - 1, ki], colors_rgba[i, ki])
+            for i in xrange(N + 1)
+        ]
     # Return colormap object.
-    return matplotlib.colors.LinearSegmentedColormap(cmap.name + "_%d"%N, cdict, 1024)
+    return matplotlib.colors.LinearSegmentedColormap(cmap.name + "_%d" % N, cdict, 1024)
+
 
 def hamming(chaine1, chaine2):
     return sum(c1 != c2 for c1, c2 in zip(chaine1, chaine2))
+
 
 def compute_pairwise_hamming(haplos_list, haplo_ids):
 
@@ -102,10 +108,9 @@ def compute_pairwise_hamming(haplos_list, haplo_ids):
         for j_seq, seq2 in enumerate(haplos_list):
             dist[i_seq][j_seq] = hamming(seq, seq2)
 
-    distance_matrix1 = pd.DataFrame(columns=haplo_ids,
-                                index= haplo_ids,
-                                data=dist)
+    distance_matrix1 = pd.DataFrame(columns=haplo_ids, index=haplo_ids, data=dist)
     return distance_matrix1
+
 
 def mutate(master_seq, distance):
     seq_haplotype = np.asarray(list(master_seq))
@@ -127,9 +132,11 @@ def mutate(master_seq, distance):
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
-def generate_haplotype_groups(master_seq, n_group1, n_group2, d_group1, d_group2, d_group12):
-    """ d_group1, d_group2, d_group12: must be divisible by 2 (implementation reasons).
-    """
+
+def generate_haplotype_groups(
+    master_seq, n_group1, n_group2, d_group1, d_group2, d_group12
+):
+    """d_group1, d_group2, d_group12: must be divisible by 2 (implementation reasons)."""
     genome_length = len(master_seq)
 
     # generate master of group 1 and group 2
@@ -151,21 +158,22 @@ def generate_haplotype_groups(master_seq, n_group1, n_group2, d_group1, d_group2
 
     return haplo_list, ground_truth_list
 
+
 def plot_pairwise_distances(distances, dname_work):
     mask = np.zeros_like(distances)
     mask[np.triu_indices_from(mask)] = True
-    cmap = sns.cubehelix_palette(start=2.8, rot=.1, light=0.9, n_colors=8)
-    plt.figure(figsize=(45,10))
+    cmap = sns.cubehelix_palette(start=2.8, rot=0.1, light=0.9, n_colors=8)
+    plt.figure(figsize=(45, 10))
     with sns.axes_style("white"):
-        plt_sns= sns.heatmap(distances, mask=mask, square=True,annot=True,cbar=False, cmap=cmap)
+        plt_sns = sns.heatmap(
+            distances, mask=mask, square=True, annot=True, cbar=False, cmap=cmap
+        )
         figure = plt_sns.get_figure()
-        figure.suptitle('Pairwise hamming distances', fontsize=16)
-        figure.savefig(str(dname_work) + '/local_haplo_pairwise_distance.pdf', dpi=400)
+        figure.suptitle("Pairwise hamming distances", fontsize=16)
+        figure.savefig(str(dname_work) + "/local_haplo_pairwise_distance.pdf", dpi=400)
 
 
-def main(
-        fname_reference, fname_groundtruth, dname_work, haplotype_generation, params
-):
+def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, params):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     # np.random.seed(42)
@@ -182,18 +190,18 @@ def main(
     fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
     if haplotype_generation == "distance":
-        n_haplo = params['n_group1'] + params['n_group2']
+        n_haplo = params["n_group1"] + params["n_group2"]
         # obtain haplotype frequencies
-        if params['freq_distribution'] == 'dirichlet':
-            if type(params['freq_param']) == str:
+        if params["freq_distribution"] == "dirichlet":
+            if type(params["freq_param"]) == str:
                 alpha = [float(freq) for freq in params["freq_param"].split(":")]
-            if type(params['freq_param']) == np.float64:
-                if np.isnan(params['freq_param']):
+            if type(params["freq_param"]) == np.float64:
+                if np.isnan(params["freq_param"]):
                     alpha = np.ones(n_haplo)
 
             freq_list = np.random.dirichlet(alpha)
 
-        elif params['freq_distribution'] == 'geom':
+        elif params["freq_distribution"] == "geom":
             freq_param = float(params["freq_param"])
             freq_list = np.asarray([freq_param ** (i + 1) for i in range(n_haplo)])
             freq_list = freq_list / np.sum(freq_list)
@@ -202,18 +210,20 @@ def main(
         filelist_sam = []
         filelist_fastq = []
 
-        haplo_list, ground_truth_list_temp = generate_haplotype_groups(seq_master,
-                                                                  params["n_group1"],
-                                                                  params["n_group2"],
-                                                                  params["d_group1"],
-                                                                  params["d_group2"],
-                                                                  params["d_group12"])
+        haplo_list, ground_truth_list_temp = generate_haplotype_groups(
+            seq_master,
+            params["n_group1"],
+            params["n_group2"],
+            params["d_group1"],
+            params["d_group2"],
+            params["d_group12"],
+        )
 
         haplo_ids = [f"haplotype{i:04}" for i in range(n_haplo)]
 
         # compute pairwise distances
         distances = compute_pairwise_hamming(haplo_list, haplo_ids)
-        distances.to_csv(str(dname_work) + '/pairwise_hamming_distance.csv')
+        distances.to_csv(str(dname_work) + "/pairwise_hamming_distance.csv")
 
         # plot heatmap of pairwise distances
         plot_pairwise_distances(distances, dname_work)

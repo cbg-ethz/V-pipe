@@ -24,8 +24,10 @@ else:
 print(method_list, file=sys.stderr)
 
 sequencing_mode = paramspace["seq_mode"][0]
-if sequencing_mode.startswith('amplicon'):
-    sequencing_mode = sequencing_mode.split(":")[0] #TODO: Allow different sequencing_modes in parameter file
+if sequencing_mode.startswith("amplicon"):
+    sequencing_mode = sequencing_mode.split(":")[
+        0
+    ]  # TODO: Allow different sequencing_modes in parameter file
 
 
 # helper functions
@@ -97,6 +99,7 @@ rule all:
         "results/performance_measures/",
         #"results/haplotype_populations/" if config['haplotype_generation'] == 'distance' else None,
 
+
 rule generate_haplotypes:
     output:
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
@@ -106,11 +109,12 @@ rule generate_haplotypes:
         ),
     params:
         params=paramspace.instance,
-        haplotype_generation=config['haplotype_generation'],
+        haplotype_generation=config["haplotype_generation"],
     conda:
         "envs/simulate_reads.yaml"
     script:
         "scripts/generate_haplotypes.py"
+
 
 rule shotgun_simulation:
     input:
@@ -120,21 +124,22 @@ rule shotgun_simulation:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
     params:
         params=paramspace.instance,
-        haplotype_generation=config['haplotype_generation'],
+        haplotype_generation=config["haplotype_generation"],
     conda:
         "envs/simulate_reads.yaml"
     script:
         "scripts/shotgun_simulation.py"
 
 
-if config['haplotype_generation'] == 'distance':
+if config["haplotype_generation"] == "distance":
+
     rule collect_haplo_populations_visualizations:
         input:
             dname_work=[
                 f"results/simulated_reads/{params}/replicates/{replicate}/work/"
                 for params in paramspace.instance_patterns
                 for replicate in range(config["replicate_count"])
-                ],
+            ],
         output:
             dname_out=directory(f"results/haplotype_populations/"),
         script:
@@ -148,11 +153,14 @@ rule simulate_scheme:
         fname_reference=rules.generate_haplotypes.output.fname_reference,
     output:
         fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
-        dname_out=directory(f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"),
+        dname_out=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
+        ),
     params:
         params=paramspace.instance,
     script:
         "scripts/simulate_scheme.py"
+
 
 rule amplicon_simulation:
     input:
@@ -163,7 +171,7 @@ rule amplicon_simulation:
         fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
     params:
         params=paramspace.instance,
-        haplotype_generation=config['haplotype_generation'],
+        haplotype_generation=config["haplotype_generation"],
     conda:
         "envs/simulate_reads.yaml"
     script:
@@ -176,7 +184,9 @@ rule flash:
         fname_fastq_R2=rules.amplicon_simulation.output.fname_fastq_R2,
     output:
         fname_fastq_merged=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/reads_merged.extendedFrags.fastq",
-        dname_out=directory(f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/"),
+        dname_out=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/"
+        ),
     conda:
         "envs/split.yaml"
     shell:
@@ -184,6 +194,7 @@ rule flash:
         flash {input.fname_fastq_R1} {input.fname_fastq_R2} -r 250 -f 400 -s 40 --allow-outies \
             --output-prefix=reads_merged --output-directory={output.dname_out}
         """
+
 
 rule alignment:
     conda:
@@ -202,12 +213,14 @@ rule run_method:
         script="resources/method_definitions/{method}.py",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{sequencing_mode}.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_insert_bed=rules.simulate_scheme.output.fname_insert_bed if sequencing_mode == "amplicon" else "",
+        fname_insert_bed=rules.simulate_scheme.output.fname_insert_bed
+        if sequencing_mode == "amplicon"
+        else "",
     output:
         fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
-            ),
+        ),
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/benchmark.tsv"
     params:

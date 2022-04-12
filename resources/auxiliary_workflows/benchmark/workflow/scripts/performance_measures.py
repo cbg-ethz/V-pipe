@@ -67,7 +67,7 @@ def compute_performance(true_variants, predicted_variants):
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
         if tp == 0:
-            f1 =0
+            f1 = 0
         else:
             f1 = 2 * (precision * recall) / (precision + recall)
 

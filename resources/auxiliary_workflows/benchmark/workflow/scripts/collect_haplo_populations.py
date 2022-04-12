@@ -3,7 +3,6 @@ import shutil
 
 
 def main(list_dname_work, dname_out):
-
     if os.path.exists(dname_out) == False:
         os.makedirs(dname_out)
 

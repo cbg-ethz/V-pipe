@@ -1,10 +1,10 @@
 import subprocess
 from pathlib import Path
 
-def main(fname_reference, fname_insert_bed, dname_out, params):
 
-    amplicon_size = params['seq_mode'].split(":")[1]
-    target_overlap = params['seq_mode'].split(":")[2]
+def main(fname_reference, fname_insert_bed, dname_out, params):
+    amplicon_size = params["seq_mode"].split(":")[1]
+    target_overlap = params["seq_mode"].split(":")[2]
 
     subprocess.run(
         [
@@ -22,6 +22,7 @@ def main(fname_reference, fname_insert_bed, dname_out, params):
             str(fname_reference),
         ]
     )
+
 
 if __name__ == "__main__":
     main(

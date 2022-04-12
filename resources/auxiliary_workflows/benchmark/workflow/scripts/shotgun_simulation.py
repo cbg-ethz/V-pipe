@@ -9,7 +9,6 @@ import pandas as pd
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
-
     subprocess.run(
         [
             "art_illumina",
