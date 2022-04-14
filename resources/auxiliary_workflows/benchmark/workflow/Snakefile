@@ -23,6 +23,31 @@ else:
 
 print(method_list, file=sys.stderr)
 
+
+# group methods into local (produces VCF) and global (produces FASTA)
+method_list_local = []
+method_list_global = []
+
+for method in method_list:
+    group_prefix = "# GROUP:"
+
+    with open(f"resources/method_definitions/{method}.py") as fd:
+        for line in fd.readlines():
+            if not line.startswith(group_prefix):
+                continue
+
+            group = line[len(group_prefix) :].strip()
+            break
+
+    if group == "local":
+        method_list_local.append(method)
+    elif group == "global":
+        method_list_global.append(method)
+    else:
+        raise RuntimeError(f"Invalid group '{group}' for method '{method}'")
+
+
+# misc setup
 sequencing_mode = paramspace["seq_mode"][0]
 if sequencing_mode.startswith("amplicon"):
     sequencing_mode = sequencing_mode.split(":")[
@@ -96,7 +121,8 @@ for method in method_list:
 # rule definitions
 rule all:
     input:
-        "results/performance_measures/",
+        "results/performance_measures/local/" if len(method_list_local) > 0 else [],
+        "results/performance_measures/global/" if len(method_list_global) > 0 else [],
         #"results/haplotype_populations/" if config['haplotype_generation'] == 'distance' else None,
 
 
@@ -217,7 +243,9 @@ rule run_method:
         if wildcards.seq_mode == "amplicon"
         else [],
     output:
-        fname_results=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
+        fname_marker=touch(
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt"
+        ),
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
@@ -233,30 +261,68 @@ rule run_method:
         "{params.script_path}"
 
 
-rule performance_measures:
+rule gather_result_files_local:
+    input:
+        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt",
+    output:
+        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
+    shell:
+        """
+        cp -v {input.fname} {output.fname}
+        """
+
+
+rule gather_result_files_global:
+    input:
+        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt",
+    output:
+        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes.fasta",
+    shell:
+        """
+        cp -v {input.fname} {output.fname}
+        """
+
+
+rule performance_measures_local:
     input:
         vcf_list=[
             f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.vcf"
             for params in paramspace.instance_patterns
-            for method in method_list
+            for method in method_list_local
             for replicate in range(config["replicate_count"])
         ],
-        # we also include `method_list` to align with `vcf_list`
+        # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
             f"results/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
             for params in paramspace.instance_patterns
-            for method in method_list
+            for method in method_list_local
             for replicate in range(config["replicate_count"])
         ],
         benchmark_list=[
             f"results/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
             for params in paramspace.instance_patterns
-            for method in method_list
+            for method in method_list_local
             for replicate in range(config["replicate_count"])
         ],
     output:
-        dname_out=directory("results/performance_measures/"),
+        dname_out=directory("results/performance_measures/local/"),
     conda:
         "envs/performance_measures.yaml"
     script:
-        "scripts/performance_measures.py"
+        "scripts/performance_measures_local.py"
+
+
+rule performance_measures_global:
+    input:
+        fasta_list=[
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/haplotypes.fasta"
+            for params in paramspace.instance_patterns
+            for method in method_list_global
+            for replicate in range(config["replicate_count"])
+        ],
+    output:
+        dname_out=directory("results/performance_measures/global/"),
+    conda:
+        "envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_global.py"

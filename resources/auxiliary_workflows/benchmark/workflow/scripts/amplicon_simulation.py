@@ -25,7 +25,7 @@ def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
     for amplicon in amplicons:
         records.append(
             SeqRecord(
-                Seq(sequence[amplicon[0]-1 : amplicon[1]-1]),
+                Seq(sequence[amplicon[0] - 1 : amplicon[1] - 1]),
                 id=name,
                 description="position" + str(amplicon[0]) + ".." + str(amplicon[1]),
             )

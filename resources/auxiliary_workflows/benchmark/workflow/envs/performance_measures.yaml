@@ -8,3 +8,4 @@ dependencies:
   - humanize = 3.13.1
   - seaborn = 0.11.2
   - matplotlib = 3.5.0
+  - biopython = 1.79

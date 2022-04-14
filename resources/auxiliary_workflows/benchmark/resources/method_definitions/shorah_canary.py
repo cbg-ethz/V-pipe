@@ -1,3 +1,4 @@
+# GROUP: local
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # PIP: git+https://github.com/LaraFuhrmann/shorah@master
@@ -6,8 +7,7 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_insert_bed, fname_results, dname_work):
-
+def main(fname_bam, fname_reference, fname_insert_bed, fname_marker, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     if fname_insert_bed == "":
@@ -39,7 +39,9 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results, dname_work
             cwd=dname_work,
         )
 
-    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results)
+    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(
+        fname_marker.parent / "snvs.vcf"
+    )
 
 
 if __name__ == "__main__":
@@ -47,6 +49,6 @@ if __name__ == "__main__":
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
         Path(snakemake.input.fname_insert_bed),
-        Path(snakemake.output.fname_results),
+        Path(snakemake.output.fname_marker),
         Path(snakemake.output.dname_work),
     )
