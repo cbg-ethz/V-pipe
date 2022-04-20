@@ -217,21 +217,32 @@ rule flash:
         "envs/split.yaml"
     shell:
         """
-        flash {input.fname_fastq_R1} {input.fname_fastq_R2} -r 250 -f 400 -s 40 --allow-outies \
-            --output-prefix=reads_merged --output-directory={output.dname_out}
+        flash \
+          {input.fname_fastq_R1} \
+          {input.fname_fastq_R2} \
+          -r 250 \
+          -f 400 \
+          -s 40 \
+          --allow-outies \
+          --output-prefix=reads_merged \
+          --output-directory={output.dname_out}
         """
 
 
 rule alignment:
-    conda:
-        "envs/split.yaml"
     input:
         fname_reference=rules.generate_haplotypes.output.fname_reference,
         fname_fastq_merged=rules.flash.output.fname_fastq_merged,
     output:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
+    conda:
+        "envs/split.yaml"
     shell:
-        "bwa index {input.fname_reference} && bwa mem {input.fname_reference} {input.fname_fastq_merged}  > {output.fname_bam} && samtools sort -o {output.fname_bam} {output.fname_bam}"
+        """
+        bwa index {input.fname_reference}
+        bwa mem {input.fname_reference} {input.fname_fastq_merged} > {output.fname_bam}
+        samtools sort -o {output.fname_bam} {output.fname_bam}
+        """
 
 
 rule run_method:
