@@ -246,10 +246,20 @@ rule alignment:
         """
 
 
+rule samtools_index:
+    input:
+        f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+    output:
+        f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
+    wrapper:
+        "v1.3.2/bio/samtools/index"
+
+
 rule run_method:
     input:
         script="resources/method_definitions/{method}.py",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+        fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_insert_bed=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
         if wildcards.seq_mode == "amplicon"

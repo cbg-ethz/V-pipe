@@ -1,6 +1,5 @@
 # GROUP: global
 # CONDA: quasirecomb = 1.2
-# CONDA: samtools = 1.15.1
 
 import subprocess
 from pathlib import Path
@@ -9,7 +8,6 @@ from pathlib import Path
 def main(fname_bam, fname_reference, fname_marker, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    subprocess.run(["samtools", "index", fname_bam])
     subprocess.run(["quasirecomb", "-i", fname_bam, "-o", dname_work / "output"])
 
     (dname_work / "output" / "quasispecies.fasta").rename(
