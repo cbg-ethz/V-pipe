@@ -7,8 +7,8 @@ Benchmark Quasispecies assembly methods both on the level of local as well as gl
 To run the workflow, execute the following:
 
 ```bash
-# locally
-snakemake -prj1 --use-conda
+# locally (remove docker part if on linux)
+docker run --rm -v $PWD:/foo --workdir=/foo snakemake/snakemake:stable snakemake -prj1 --use-conda
 
 # on cluster
 ./run_workflow.sh
