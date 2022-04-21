@@ -17,6 +17,7 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
             fname_reference.resolve(),
         ],
         cwd=dname_work,
+        check=True,
     )
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(

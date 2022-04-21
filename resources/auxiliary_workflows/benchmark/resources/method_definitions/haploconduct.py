@@ -18,7 +18,8 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
             "-2",
             dname_work / "reads.R2.fastq",
             fname_bam,
-        ]
+        ],
+        check=True,
     )
     subprocess.run(
         [

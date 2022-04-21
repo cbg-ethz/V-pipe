@@ -14,20 +14,25 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
 
     # compile tool
     subprocess.run(
-        ["git", "clone", "https://github.com/cbg-ethz/PredictHaplo"], cwd=dname_work
+        ["git", "clone", "https://github.com/cbg-ethz/PredictHaplo"],
+        cwd=dname_work,
+        check=True,
     )
 
     repo_dir = dname_work / "PredictHaplo"
     subprocess.run(
-        ["cmake", "-DCMAKE_BUILD_TYPE=Release", "-B", "build", "-S", "."], cwd=repo_dir
+        ["cmake", "-DCMAKE_BUILD_TYPE=Release", "-B", "build", "-S", "."],
+        cwd=repo_dir,
+        check=True,
     )
-    subprocess.run(["cmake", "--build", "build"], cwd=repo_dir)
+    subprocess.run(["cmake", "--build", "build"], cwd=repo_dir, check=True)
 
     exec_path = repo_dir / "build" / "predicthaplo"
 
     # prepare environment
     subprocess.run(
-        ["samtools", "view", "-h", "-o", dname_work / "reads.sam", fname_bam]
+        ["samtools", "view", "-h", "-o", dname_work / "reads.sam", fname_bam],
+        check=True,
     )
 
     # execute tool
@@ -45,7 +50,8 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
             "0",
             "--min_align_score_fraction",
             "-1",
-        ]
+        ],
+        check=True,
     )
 
     # TODO: choose correct results file

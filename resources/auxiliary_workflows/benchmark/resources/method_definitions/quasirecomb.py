@@ -8,7 +8,9 @@ from pathlib import Path
 def main(fname_bam, fname_reference, fname_marker, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    subprocess.run(["quasirecomb", "-i", fname_bam, "-o", dname_work / "output"])
+    subprocess.run(
+        ["quasirecomb", "-i", fname_bam, "-o", dname_work / "output"], check=True
+    )
 
     (dname_work / "output" / "quasispecies.fasta").rename(
         fname_marker.parent / "haplotypes.fasta"

@@ -23,6 +23,7 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
             fname_bam.resolve(),
         ],
         cwd=dname_work,
+        check=True,
     )
 
     (dname_work / "quasispecies.fasta").rename(fname_marker.parent / "haplotypes.fasta")

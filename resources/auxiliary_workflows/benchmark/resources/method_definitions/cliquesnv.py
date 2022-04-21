@@ -11,7 +11,8 @@ def main(fname_bam, fname_reference, fname_marker, dname_work, seq_type, thread_
 
     # prepare environment
     subprocess.run(
-        ["samtools", "view", "-h", "-o", dname_work / "reads.sam", fname_bam]
+        ["samtools", "view", "-h", "-o", dname_work / "reads.sam", fname_bam],
+        check=True,
     )
 
     cliquesnv_mode = None
@@ -34,7 +35,8 @@ def main(fname_bam, fname_reference, fname_marker, dname_work, seq_type, thread_
             dname_work / "output",
             "-threads",
             str(thread_num),
-        ]
+        ],
+        check=True,
     )
 
     (dname_work / "output" / "reads.fasta").rename(
