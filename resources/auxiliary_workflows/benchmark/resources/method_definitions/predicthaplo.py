@@ -25,7 +25,9 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
     exec_path = repo_dir / "build" / "predicthaplo"
 
     # prepare environment
-    subprocess.run(["samtools", "view", "-o", dname_work / "reads.sam", fname_bam])
+    subprocess.run(
+        ["samtools", "view", "-h", "-o", dname_work / "reads.sam", fname_bam]
+    )
 
     # execute tool
     ph_prefix = dname_work / "predicthaplo_output"
