@@ -81,6 +81,7 @@ def get_generated_conda_env(wildcards, input):
 
     # format conda env file
     conda_env = """channels:
+  - broad-viral
   - conda-forge
   - bioconda
   - defaults
