@@ -3,6 +3,7 @@
 # CONDA: cmake = 3.22.1
 # CONDA: liblapack = 3.9.0
 # CONDA: gtest = 1.11.0
+# CONDA: samtools = 1.15.1
 
 import subprocess
 from pathlib import Path

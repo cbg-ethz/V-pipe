@@ -1,5 +1,6 @@
 # GROUP: global
 # CONDA: cliquesnv = 2.0.3
+# CONDA: samtools = 1.15.1
 
 import subprocess
 from pathlib import Path
