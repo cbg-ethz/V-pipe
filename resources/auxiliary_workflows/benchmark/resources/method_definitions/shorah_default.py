@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_marker, dname_work):
+def main(fname_bam, fname_reference, fname_result, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
@@ -20,15 +20,13 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
         check=True,
     )
 
-    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(
-        fname_marker.parent / "snvs.vcf"
-    )
+    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_result)
 
 
 if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.output.fname_marker),
+        Path(snakemake.output.fname_result),
         Path(snakemake.output.dname_work),
     )

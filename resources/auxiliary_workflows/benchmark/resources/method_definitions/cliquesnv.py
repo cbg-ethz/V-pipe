@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_marker, dname_work, seq_type, thread_num):
+def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_num):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # prepare environment
@@ -39,16 +39,14 @@ def main(fname_bam, fname_reference, fname_marker, dname_work, seq_type, thread_
         check=True,
     )
 
-    (dname_work / "output" / "reads.fasta").rename(
-        fname_marker.parent / "haplotypes.fasta"
-    )
+    (dname_work / "output" / "reads.fasta").rename(fname_result)
 
 
 if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.output.fname_marker),
+        Path(snakemake.output.fname_result),
         Path(snakemake.output.dname_work),
         snakemake.wildcards.seq_technology,
         snakemake.threads,

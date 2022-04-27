@@ -256,7 +256,7 @@ rule samtools_index:
         "v1.3.2/bio/samtools/index"
 
 
-rule run_method:
+rule run_method_local:
     input:
         script="resources/method_definitions/{method}.py",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
@@ -266,14 +266,12 @@ rule run_method:
         if wildcards.seq_mode == "amplicon"
         else [],
     output:
-        fname_marker=touch(
-            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt"
-        ),
+        fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
     benchmark:
-        f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/benchmark.tsv"
+        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_path=lambda wildcards, input: "../" + input.script,
         # env_path=get_generated_conda_env,
@@ -284,26 +282,14 @@ rule run_method:
         "{params.script_path}"
 
 
-rule gather_result_files_local:
-    input:
-        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt",
+use rule run_method_local as run_method_global with:
     output:
-        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
-    shell:
-        """
-        cp -v {input.fname} {output.fname}
-        """
-
-
-rule gather_result_files_global:
-    input:
-        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/marker.txt",
-    output:
-        fname=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes.fasta",
-    shell:
-        """
-        cp -v {input.fname} {output.fname}
-        """
+        fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes.fasta",
+        dname_work=directory(
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
+        ),
+    benchmark:
+        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
 
 
 rule performance_measures_local:

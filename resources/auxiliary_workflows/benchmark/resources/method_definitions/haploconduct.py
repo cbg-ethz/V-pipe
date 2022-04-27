@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_marker, dname_work):
+def main(fname_bam, fname_reference, fname_result, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
@@ -45,7 +45,7 @@ def main(fname_bam, fname_reference, fname_marker, dname_work):
     for result in [result_c, result_b, result_a]:
         if result.exists():
             print(f"Using stage result {result}")
-            result.rename(fname_marker.parent / "haplotypes.fasta")
+            result.rename(fname_result)
             break
     else:
         raise RuntimeError("Savage crashed and no results were generated")
@@ -55,6 +55,6 @@ if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.output.fname_marker),
+        Path(snakemake.output.fname_result),
         Path(snakemake.output.dname_work),
     )

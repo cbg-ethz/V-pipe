@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_marker, dname_work):
+def main(fname_bam, fname_reference, fname_result, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
@@ -45,6 +45,6 @@ if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.output.fname_marker),
+        Path(snakemake.output.fname_result),
         Path(snakemake.output.dname_work),
     )
