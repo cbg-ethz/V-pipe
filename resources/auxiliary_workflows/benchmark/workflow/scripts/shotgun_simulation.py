@@ -123,7 +123,6 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
 
 
 def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
-
     master_name = "MasterSequence"
 
     if haplotype_generation == "distance":

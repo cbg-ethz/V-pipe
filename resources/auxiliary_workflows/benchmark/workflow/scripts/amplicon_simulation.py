@@ -1,11 +1,15 @@
+import re
+import shutil
+import tempfile
+import fileinput
+import subprocess
+from pathlib import Path
+
+import numpy as np
+
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-from pathlib import Path
-import numpy as np
-import subprocess
-import fileinput
-import shutil
 
 
 def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
@@ -26,8 +30,8 @@ def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
         records.append(
             SeqRecord(
                 Seq(sequence[amplicon[0] - 1 : amplicon[1] - 1]),
-                id=name,
-                description="position" + str(amplicon[0]) + ".." + str(amplicon[1]),
+                id=f"{name}_position{amplicon[0]}..{amplicon[1]}",
+                description="",
             )
         )
     SeqIO.write(records, fname_output, "fasta")
@@ -62,6 +66,7 @@ def main(
     dname_work,
     fname_fastq_R1,
     fname_fastq_R2,
+    fname_bam,
     haplotype_generation,
     params,
 ):
@@ -118,8 +123,20 @@ def main(
 
         fname_sam = art_prefix.with_suffix(".sam")
         with fileinput.FileInput(fname_sam, inplace=True, backup=".bak") as fd:
+            need_header = True
             for line in fd:
-                print(line.replace(haplotype_name, master_name), end="")
+                if line.startswith("@SQ"):
+                    # only keep a single @SQ header line
+                    if need_header:
+                        print(
+                            f"@SQ\tSN:{master_name}\tLN:{snakemake.wildcards.genome_size}"
+                        )
+                        need_header = False
+                else:
+                    print(
+                        re.sub(rf"{haplotype_name}_.*?\t", f"{master_name}\t", line),
+                        end="",
+                    )
 
         # gather files
         filelist_sam.append(fname_sam)
@@ -141,6 +158,14 @@ def main(
             with open(fname, "rb") as fd_read:
                 shutil.copyfileobj(fd_read, fd_write)
 
+    # convert merged sam files to bam
+    fname_merged_sam = dname_work / "haplotype_reads.sam"
+    subprocess.run(["samtools", "merge", "-f", "-o", fname_merged_sam, *filelist_sam])
+
+    with tempfile.NamedTemporaryFile() as fd_tmp:
+        subprocess.run(["samtools", "view", "-b", "-o", fd_tmp.name, fname_merged_sam])
+        subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
+
 
 if __name__ == "__main__":
     main(
@@ -148,6 +173,7 @@ if __name__ == "__main__":
         Path(snakemake.input.dname_work),
         Path(snakemake.output.fname_fastq_R1),
         Path(snakemake.output.fname_fastq_R2),
+        Path(snakemake.output.fname_bam),
         snakemake.params.haplotype_generation,
         snakemake.params.params,
     )

@@ -197,6 +197,7 @@ rule amplicon_simulation:
     output:
         fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
         fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
     params:
         params=paramspace.instance,
         haplotype_generation=config["haplotype_generation"],
@@ -231,12 +232,12 @@ rule flash:
         """
 
 
-rule alignment:
+rule alignment_merged:
     input:
         fname_reference=rules.generate_haplotypes.output.fname_reference,
         fname_fastq_merged=rules.flash.output.fname_fastq_merged,
     output:
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.amplicon.bam",
     conda:
         "envs/split.yaml"
     shell:
@@ -259,7 +260,9 @@ rule samtools_index:
 rule run_method_local:
     input:
         script="resources/method_definitions/{method}.py",
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+        fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.{{seq_mode}}.bam"
+        if wildcards.method == "shorah_canary"
+        else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
         fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_insert_bed=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
