@@ -4,9 +4,13 @@
 # CONDA: liblapack = 3.9.0
 # CONDA: gtest = 1.11.0
 # CONDA: samtools = 1.15.1
+# CONDA: biopython = 1.79
 
 import subprocess
 from pathlib import Path
+
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
 
 
 def main(fname_bam, fname_reference, fname_result, dname_work):
@@ -56,8 +60,23 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
         check=True,
     )
 
-    # TODO: choose correct results file
-    (dname_work / "TODO").rename(fname_result)
+    # aggregate result
+    record_list = []
+    for path in dname_work.glob(f"{ph_prefix.name}global*.fas"):
+        for record in SeqIO.parse(path, "fasta"):
+            seq = record.seq.split("EndOfComments")[1]
+            window = path.name[len(f"{ph_prefix.name}global_") : -len(".fas")]
+            id_ = f"{window}__{record.id}"
+
+            rec = SeqRecord(
+                seq,
+                id=id_,
+                name=id_,
+                description=str(record.seq).split(";")[1],
+            )
+            record_list.append(rec)
+
+    SeqIO.write(record_list, fname_result, "fasta")
 
 
 if __name__ == "__main__":
