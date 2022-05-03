@@ -50,6 +50,8 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
             "0",
             "--min_align_score_fraction",
             "-1",
+            "--min_overlap_factor",
+            "0.1",
         ],
         check=True,
     )
