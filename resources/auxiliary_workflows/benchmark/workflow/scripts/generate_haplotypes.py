@@ -1,13 +1,12 @@
-import shutil
-import tempfile
-import fileinput
-import subprocess
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-# plots for haplotype clouds (pairwise_distance option)
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
 import seaborn as sns
 import matplotlib.pylab as plt
 
@@ -173,16 +172,18 @@ def plot_pairwise_distances(distances, dname_work):
         figure.savefig(str(dname_work) + "/local_haplo_pairwise_distance.pdf", dpi=400)
 
 
-def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, params):
+def main(
+    fname_reference,
+    fname_groundtruth,
+    fname_fasta,
+    dname_work,
+    haplotype_generation,
+    params,
+):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     # np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
-
-    # generate random master sequence
-    master_name = "MasterSequence"
-    seq_master = "".join(np.random.choice(BASE_LIST, size=params["genome_size"]))
-    fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
     # generate random master sequence
     master_name = "MasterSequence"
@@ -227,7 +228,6 @@ def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, p
 
         # plot heatmap of pairwise distances
         plot_pairwise_distances(distances, dname_work)
-
     elif haplotype_generation == "mutation_rate":
         # infer haplotype sequences
         freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
@@ -237,8 +237,6 @@ def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, p
 
         n_haplo = len(freq_list)
 
-        filelist_sam = []
-        filelist_fastq = []
         ground_truth_list = []
         ground_truth_list_temp = []
         haplo_list = []
@@ -256,6 +254,7 @@ def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, p
 
         haplo_ids = [f"haplotype{i:04}" for i in range(n_haplo)]
 
+    record_list = []
     for i, freq in enumerate(freq_list):
         # generate haplotype
         ground_truth = ground_truth_list_temp[i]
@@ -264,21 +263,28 @@ def main(fname_reference, fname_groundtruth, dname_work, haplotype_generation, p
 
         ground_truth["haplotype"] = haplotype_name
 
-        coverage_haplotype = int(params["coverage"] * freq)
-
         # save haplotype in FASTA
+        rec = SeqRecord(
+            Seq(seq_haplotype),
+            id=haplotype_name,
+            description=f"freq:{freq}",
+        )
+        record_list.append(rec)
+
         fname_haplotype = dname_work / f"{haplotype_name}.fasta"
-        fname_haplotype.write_text(f">{haplotype_name}\n{seq_haplotype}\n")
+        SeqIO.write(rec, fname_haplotype, "fasta")
 
         ground_truth_list.append(ground_truth)
 
     pd.concat(ground_truth_list).to_csv(fname_groundtruth)
+    SeqIO.write(record_list, fname_fasta, "fasta")
 
 
 if __name__ == "__main__":
     main(
         Path(snakemake.output.fname_reference),
         Path(snakemake.output.fname_groundtruth),
+        Path(snakemake.output.fname_fasta),
         Path(snakemake.output.dname_work),
         snakemake.params.haplotype_generation,
         snakemake.params.params,

@@ -132,6 +132,7 @@ rule generate_haplotypes:
     output:
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        fname_fasta=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes.fasta",
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
