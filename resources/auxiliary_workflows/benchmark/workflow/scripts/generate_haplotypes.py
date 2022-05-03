@@ -264,15 +264,15 @@ def main(
         ground_truth["haplotype"] = haplotype_name
 
         # save haplotype in FASTA
+        fname_haplotype = dname_work / f"{haplotype_name}.fasta"
+        fname_haplotype.write_text(f">{haplotype_name}\n{seq_haplotype}\n")
+
         rec = SeqRecord(
             Seq(seq_haplotype),
             id=haplotype_name,
             description=f"freq:{freq}",
         )
         record_list.append(rec)
-
-        fname_haplotype = dname_work / f"{haplotype_name}.fasta"
-        SeqIO.write(rec, fname_haplotype, "fasta")
 
         ground_truth_list.append(ground_truth)
 
