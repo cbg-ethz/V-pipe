@@ -327,8 +327,14 @@ rule performance_measures_local:
 
 rule performance_measures_global:
     input:
-        fasta_list=[
+        predicted_haplos_list=[
             f"results/method_runs/{params}/{method}/replicates/{replicate}/haplotypes.fasta"
+            for params in paramspace.instance_patterns
+            for method in method_list_global
+            for replicate in range(config["replicate_count"])
+        ],
+        true_haplos_list=[
+            f"results/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in paramspace.instance_patterns
             for method in method_list_global
             for replicate in range(config["replicate_count"])

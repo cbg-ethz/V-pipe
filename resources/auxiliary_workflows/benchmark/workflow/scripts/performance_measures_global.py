@@ -9,7 +9,15 @@ import seaborn as sns
 def read_fasta_files(fasta_files):
     tmp = []
     for fname in fasta_files:
-        _, _, params, method, _, replicate, _ = str(fname).split("/")
+        parts = str(fname).split("/")
+
+        if len(parts) == 6:
+            _, _, params, _, replicate, _ = parts
+            method = None
+        elif len(parts) == 7:
+            _, _, params, method, _, replicate, _ = parts
+        else:
+            raise RuntimeError(f"Cannot parse {parts}")
 
         for record in SeqIO.parse(fname, "fasta"):
             tmp.append(
@@ -51,15 +59,20 @@ def overview_plots(df_haplo, dname_out):
     g.savefig(dname_out / "overview.pdf")
 
 
-def main(fasta_list, dname_out):
+def main(predicted_haplos_list, true_haplos_list, dname_out):
     dname_out.mkdir(parents=True)
 
-    df_haplo = read_fasta_files(fasta_list)
-    overview_plots(df_haplo, dname_out)
+    # read data
+    df_pred = read_fasta_files(predicted_haplos_list)
+    df_true = read_fasta_files(true_haplos_list)
+
+    # create plots
+    overview_plots(df_pred, dname_out)
 
 
 if __name__ == "__main__":
     main(
-        [Path(e) for e in snakemake.input.fasta_list],
+        [Path(e) for e in snakemake.input.predicted_haplos_list],
+        [Path(e) for e in snakemake.input.true_haplos_list],
         Path(snakemake.output.dname_out),
     )
