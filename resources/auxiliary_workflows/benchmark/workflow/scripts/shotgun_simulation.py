@@ -206,7 +206,9 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
                 shutil.copyfileobj(fd_read, fd_write)
 
     with tempfile.NamedTemporaryFile() as fd_tmp:
-        subprocess.run(["samtools", "view", "-b", "-o", fd_tmp.name, fname_merged_sam])
+        subprocess.run(
+            ["samtools", "view", "-b", "-h", "-o", fd_tmp.name, fname_merged_sam]
+        )
         subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
 
 

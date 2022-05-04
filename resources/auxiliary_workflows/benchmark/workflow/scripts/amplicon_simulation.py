@@ -163,7 +163,9 @@ def main(
     subprocess.run(["samtools", "merge", "-f", "-o", fname_merged_sam, *filelist_sam])
 
     with tempfile.NamedTemporaryFile() as fd_tmp:
-        subprocess.run(["samtools", "view", "-b", "-o", fd_tmp.name, fname_merged_sam])
+        subprocess.run(
+            ["samtools", "view", "-b", "-h", "-o", fd_tmp.name, fname_merged_sam]
+        )
         subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
 
 
