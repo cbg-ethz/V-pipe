@@ -1,13 +1,28 @@
 # GROUP: global
 # CONDA: haploclique = 1.3.1
+# CONDA: pysam = 0.19.0
 
 import subprocess
 from pathlib import Path
+
+import pysam
 
 
 def main(fname_bam, fname_reference, fname_result, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
+    # fix CIGAR by converting = and X to M
+    fname_bam_fixed = fname_bam.parent / "reads.fixed.bam"
+
+    with pysam.AlignmentFile(fname_bam, "rb") as bam_in:
+        with pysam.AlignmentFile(
+            fname_bam_fixed, "wb", header=bam_in.header
+        ) as bam_out:
+            for read in bam_in.fetch(until_eof=True):
+                read.cigarstring = read.cigarstring.replace("X", "M").replace("=", "M")
+                bam_out.write(read)
+
+    # run tool
     subprocess.run(
         [
             "haploclique",
@@ -20,7 +35,7 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
             "--min_overlap_single=0.5",
             "--limit_clique_size=3",
             "--max_cliques=10000",
-            fname_bam.resolve(),
+            fname_bam_fixed.resolve(),
         ],
         cwd=dname_work,
         check=True,
