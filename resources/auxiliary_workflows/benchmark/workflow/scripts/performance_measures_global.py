@@ -36,7 +36,7 @@ def read_fasta_files(fasta_files):
                     "params": params,
                     "replicate": replicate,
                     "sequence": str(record.seq),
-                    "frequency": props.get("freq"),
+                    "frequency": float(props.get("freq")),
                 }
             )
 
