@@ -2,10 +2,14 @@ import subprocess
 from pathlib import Path
 
 import pandas as pd
-from Bio import SeqIO
+import numpy as np
+from sklearn import manifold
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+import editdistance
+from Bio import SeqIO
 
 
 def read_fasta_files(fasta_files):
@@ -145,6 +149,43 @@ def plot_quast(df_quast, dname_out):
             fig.savefig(dname_out / f"{col}__{params}.pdf")
 
 
+def sequence_embedding(df_pred, df_true, dname_out):
+    # compute dissimilarities
+    sequence_list = df_pred["sequence"].tolist() + df_true["sequence"].tolist()
+
+    mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
+    print(mat.shape)
+    for i, seq1 in enumerate(sequence_list):
+        for j, seq2 in enumerate(sequence_list):
+            if i >= j:
+                continue
+
+            print(i, j)
+            mat[i, j] = editdistance.eval(seq1, seq2)
+
+    mat = np.triu(mat) + np.tril(mat.T, 1)  # mirror to make symmetric
+
+    # do MDS
+    embedding = manifold.MDS(n_components=2, dissimilarity="precomputed")
+    mat_trans = embedding.fit_transform(mat)
+
+    df = pd.concat(
+        [
+            pd.DataFrame(mat_trans, columns=["MDS0", "MDS1"]),
+            pd.concat([df_pred, df_true], axis=0, ignore_index=True),
+        ],
+        axis=1,
+    )
+    df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
+
+    # plot result
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+
+    fig.savefig(dname_out / "sequence_mds.pdf")
+
+
 def main(predicted_haplos_list, true_haplos_list, dname_out):
     dname_out.mkdir(parents=True)
 
@@ -160,6 +201,9 @@ def main(predicted_haplos_list, true_haplos_list, dname_out):
         predicted_haplos_list, true_haplos_list, dname_out / "quast"
     )
     plot_quast(df_quast, dname_out)
+
+    # MDS
+    sequence_embedding(df_pred, df_true, dname_out)
 
 
 if __name__ == "__main__":
