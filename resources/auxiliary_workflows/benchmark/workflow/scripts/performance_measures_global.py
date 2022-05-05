@@ -22,12 +22,17 @@ def read_fasta_files(fasta_files):
             raise RuntimeError(f"Cannot parse {parts}")
 
         for record in SeqIO.parse(fname, "fasta"):
+            # description actually starts with id
+            description = record.description[len(record.id) + 1 :]
+            props = dict(pair.split(":") for pair in description.split("|"))
+
             tmp.append(
                 {
                     "method": method,
                     "params": params,
                     "replicate": replicate,
                     "sequence": str(record.seq),
+                    "frequency": props.get("freq"),
                 }
             )
 
