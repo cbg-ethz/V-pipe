@@ -95,6 +95,7 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
                 "--min-contig",
                 "0",
                 "--silent",
+                "--unique-mapping",
                 fname_contigs,
             ],
             check=True,
