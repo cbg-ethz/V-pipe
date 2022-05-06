@@ -22,7 +22,7 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
             str(10),
             "-i",
             fname_haplotype,
-            "-c",
+            "-f",
             str(coverage_haplotype),
             "-l",
             str(read_length),
