@@ -200,7 +200,7 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
 
     # merge sam files
     fname_merged_sam = dname_work / "haplotype_reads.sam"
-    subprocess.run(["samtools", "merge", "-o", fname_merged_sam, *filelist_sam])
+    subprocess.run(["samtools", "merge", "-f", "-o", fname_merged_sam, *filelist_sam])
 
     # save result
     with open(fname_fastq, "wb") as fd_write:
