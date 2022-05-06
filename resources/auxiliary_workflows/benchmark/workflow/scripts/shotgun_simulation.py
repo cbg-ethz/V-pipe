@@ -1,3 +1,4 @@
+import re
 import shutil
 import tempfile
 import fileinput
@@ -5,7 +6,6 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
@@ -182,7 +182,10 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
         fname_sam = art_prefix.with_suffix(".sam")
         with fileinput.FileInput(fname_sam, inplace=True, backup=".bak") as fd:
             for line in fd:
-                print(line.replace(haplotype_name, master_name), end="")
+                print(
+                    re.sub(rf"{haplotype_name}.*?\t", f"{master_name}\t", line),
+                    end="",
+                )
 
         # gather files
         filelist_sam.append(fname_sam)
