@@ -126,6 +126,11 @@ rule all:
         "results/performance_measures/local/" if len(method_list_local) > 0 else [],
         "results/performance_measures/global/" if len(method_list_global) > 0 else [],
         #"results/haplotype_populations/" if config['haplotype_generation'] == 'distance' else None,
+        expand(
+            "results/read_statistics/{params}/replicates/{replicate}/",
+            params=paramspace.instance_patterns,
+            replicate=range(config["replicate_count"]),
+        ),
 
 
 rule generate_haplotypes:
@@ -256,6 +261,20 @@ rule samtools_index:
         f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
     wrapper:
         "v1.3.2/bio/samtools/index"
+
+
+rule read_statistics:
+    input:
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+        fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
+    output:
+        outdir=directory(
+            f"results/read_statistics/{paramspace.wildcard_pattern}/replicates/{{replicate}}/"
+        ),
+    conda:
+        "envs/read_statistics.yaml"
+    script:
+        "scripts/read_statistics.py"
 
 
 rule run_method_local:
