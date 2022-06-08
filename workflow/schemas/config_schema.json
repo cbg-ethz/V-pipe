@@ -91,6 +91,12 @@
                     "description": "Default for those samples whose read length isn't specified explicitly in the optional third column of the `samples.tsv` table.",
                     "examples": [ "100" ]
                 },
+                "primers_bedfile": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A bed file with primers position to trim the alignment output\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/sars-cov-2/primers/nCoV-2019.primer.bed" ]
+                },
                 "trim_percent_cutoff": {
                     "type": "number",
                     "default": 0.8,
@@ -282,6 +288,10 @@
                 "remove_gaps_msa": {
                     "type": "string",
                     "default": "remove_gaps_msa"
+                },
+                "ivar": {
+                    "type": "string",
+                    "default": "ivar"
                 },
                 "aln2basecnt": {
                     "type": "string",
@@ -701,6 +711,24 @@
                     "type": "string",
                     "default": "",
                     "description": "Pass additional options to run Bowtie 2. V-pipe handles the input and output files, as well as the reference sequence. Thus, do not modify these options\nFor more details on Bowtie 2 configurable options refer to the software [documentation](http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml)."
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "primerstrim" : {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 235
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/primerstrim.yaml"
                 }
             },
             "default": {},

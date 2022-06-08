@@ -439,6 +439,7 @@ rule sam2bam:
     shell:
         """
         echo "Writing BAM file"
+        rm -f '{params.sort_tmp}'.[0-9]*.bam
         {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}"
         {params.SAMTOOLS} index "{output.BAM}"
         """

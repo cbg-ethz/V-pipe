@@ -7,6 +7,7 @@ input:
     reference: "{VPIPE_BASEDIR}/../resources/sars-cov-2/NC_045512.2.fasta"
     metainfo_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/metainfo.yaml"
     gff_directory: "{VPIPE_BASEDIR}/../resources/sars-cov-2/gffs/"
+    primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/nCoV-2019.primer.bed"
     primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/nCoV-2019.tsv"
     phylogeny_data: "{VPIPE_BASEDIR}/../resources/sars-cov-2/phylogeny/selected_covid_sequences.fasta"
 

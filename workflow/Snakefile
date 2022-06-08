@@ -37,6 +37,7 @@ rule allfastqc:
 
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
+include: "rules/primerstrim.smk"
 include: "rules/consensus.smk"
 include: "rules/mafs.smk"
 include: "rules/stats.smk"
