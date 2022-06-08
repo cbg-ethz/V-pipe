@@ -17,10 +17,10 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.9"
+          python-version: "3.10"
           mamba-version: "*"
           channels: conda-forge,bioconda,defaults
-          channel-priority: true
+          channel-priority: strict
           activate-environment: V-pipe
           auto-update-conda: true
 
