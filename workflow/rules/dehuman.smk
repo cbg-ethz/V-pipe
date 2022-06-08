@@ -224,6 +224,7 @@ rule dh_filter:
 
                 # (we compress reference-less, because the reference size is larger
                 # than the contaminant reads)
+                rm -f '{params.sort_tmp}'.[0-9]*.bam
                 FMT=cram,no_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
                 {params.SAMTOOLS} view -@ {threads} \
                                       -h -f 2 \
@@ -298,6 +299,7 @@ rule dehuman:
         REGEXP=\'s{{(?<=\\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}}{{BC:Z:\\1}}\'
         FMT=cram,embed_ref,use_bzip2,use_lzma,level=9,seqs_per_slice=1000000
 
+        rm -f '{params.sort_tmp}'.[0-9]*.bam
         perl -p -e ${{REGEXP}} {output.cram_sam} \
               | {params.SAMTOOLS} sort -@ {threads} \
                                        -T {params.sort_tmp} \
