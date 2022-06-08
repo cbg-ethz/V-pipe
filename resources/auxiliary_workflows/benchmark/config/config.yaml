@@ -4,4 +4,4 @@ method_list: null
 
 replicate_count: 10
 
-haplotype_generation: distance # distance or mutation_rate
+haplotype_generation: distance  # distance or mutation_rate
