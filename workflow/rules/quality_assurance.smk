@@ -55,16 +55,6 @@ rule extract:
 
 
 # 2. clipping
-def len_cutoff(wildcards):
-    parts = wildcards.dataset.split("/")
-    patient_ID = parts[-2]
-    date = parts[-1]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-    read_len = patient_dict[patient_tuple]
-    len_cutoff = int(config.input["trim_percent_cutoff"] * read_len)
-    return len_cutoff
-
-
 if config.input["paired"]:
 
     rule preprocessing:
@@ -76,7 +66,10 @@ if config.input["paired"]:
             R2gz="{dataset}/preprocessed_data/R2.fastq.gz",
         params:
             EXTRA=config.preprocessing["extra"],
-            LEN_CUTOFF=len_cutoff,
+            LEN_CUTOFF=lambda wildcards: int(
+                config.input["trim_percent_cutoff"]
+                * paramspace.instance(wildcards)["read_length"]
+            ),
             PRINSEQ=config.applications["prinseq"],
         log:
             outfile="{dataset}/preprocessed_data/prinseq.out.log",
@@ -125,7 +118,10 @@ else:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
         params:
             EXTRA=config.preprocessing["extra"],
-            LEN_CUTOFF=len_cutoff,
+            LEN_CUTOFF=lambda wildcards: int(
+                config.input["trim_percent_cutoff"]
+                * paramspace.instance(wildcards)["read_length"]
+            ),
             PRINSEQ=config.applications["prinseq"],
         log:
             outfile="{dataset}/preprocessed_data/prinseq.out.log",

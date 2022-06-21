@@ -8,6 +8,7 @@ import csv
 import os
 import pathlib
 import re
+import sys
 import typing
 
 from datetime import datetime, timezone
@@ -19,7 +20,7 @@ import json  # NOTE jsonschema  is only part of the full snakemake, not snakemak
 from collections import UserDict
 
 from snakemake.io import load_configfile
-from snakemake.utils import update_config, validate, min_version
+from snakemake.utils import update_config, validate, min_version, Paramspace
 
 from snakemake.sourcecache import infer_source_file
 from snakemake.common import is_local_file
@@ -27,6 +28,14 @@ from snakemake.common import is_local_file
 import logging
 
 LOGGER = logging.getLogger("snakemake.logging")
+
+try:
+    import pandas as pd
+except ImportError:
+    LOGGER.error(
+        "pandas package missing, please install it using 'mamba install pandas'."
+    )
+    sys.exit(1)
 
 if not "VPIPE_BENCH" in dir():
     VPIPE_BENCH = False
@@ -266,6 +275,12 @@ def process_config(config):
 
 config = process_config(config)
 
+assert (
+    config.input["trim_percent_cutoff"] > 0 and config.input["trim_percent_cutoff"] < 1
+), "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
+    config.input["trim_percent_cutoff"]
+)
+
 # 2. glob patients/samples + store as TSV if file is not provided
 
 # if file containing samples exists, proceed
@@ -298,11 +313,7 @@ if not os.path.isfile(config.input["samples_file"]):
 #
 # This list is reused on subsequent runs
 
-patient_list = []
-patient_dict = {}
-patient_record = typing.NamedTuple(
-    "patient_record", [("patient_id", str), ("date", str)]
-)
+sample_list = []
 
 if not os.path.isfile(config.input["samples_file"]):
     LOGGER.warning(
@@ -311,6 +322,7 @@ if not os.path.isfile(config.input["samples_file"]):
 else:
     with open(config.input["samples_file"], newline="") as csvfile:
         spamreader = csv.reader(csvfile, delimiter="\t")
+        sample_id_set = set()
 
         for row in spamreader:
             if len(row) == 0 or row[0][0] == "#":
@@ -321,35 +333,41 @@ else:
             ), "ERROR: Line '{}' does not contain at least two entries!".format(
                 spamreader.line_num
             )
-            patient_tuple = patient_record(patient_id=row[0], date=row[1])
-            patient_list.append(patient_tuple)
+            tmp_dict = {
+                "sample": row[0],
+                "date": row[1],
+            }
 
+            id_ = tmp_dict["sample"] + "-" + tmp_dict["date"]
             assert (
-                config.input["trim_percent_cutoff"] > 0
-                and config.input["trim_percent_cutoff"] < 1
-            ), "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
-                config.input["trim_percent_cutoff"]
-            )
-            assert (
-                patient_tuple not in patient_dict
+                id_ not in sample_id_set
             ), "ERROR: sample '{}-{}' is not unique".format(row[0], row[1])
+            sample_id_set.add(id_)
 
-            if len(row) == 2:
-                # All samples are assumed to have same read length and the default, 250 bp
-                patient_dict[patient_tuple] = config.input["read_length"]
-
-            elif len(row) >= 3:
+            if len(row) >= 3:
                 # Extract read length from input.samples_file. Samples may have
                 # different read lengths. Reads will be filtered out if read length
                 # after trimming is less than trim_cutoff * read_length.
                 try:
-                    patient_dict[patient_tuple] = int(row[2])
+                    tmp_dict["read_length"] = int(row[2])
                 except ValueError as e:
                     raise ValueError(
                         "ERROR: Wrong read-length value given for sample '{}-{}'. If present, third column in a TSV file MUST be a number. Not <{}>. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
                             row[0], row[1], row[2]
                         )
                     ) from e
+            else:
+                # All samples are assumed to have same read length and the default, 250 bp
+                tmp_dict["read_length"] = config.input["read_length"]
+
+            if len(row) >= 4:
+                # parse amplicon protocol
+                tmp_dict["amplicon_protocol"] = row[3]
+
+            sample_list.append(tmp_dict)
+
+samplespace = Paramspace(pd.DataFrame(sample_list))
+print(samplespace.dataframe)
 
 
 # 4. generate list of target files
@@ -368,9 +386,9 @@ IDs = []
 dehumanized_raw_reads = []
 upload_markers = []
 
-for p in patient_list:
+for row in samplespace.dataframe.itertuples():
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
-    sdir = os.path.join(config.output["datadir"], p.patient_id, p.date)
+    sdir = os.path.join(config.output["datadir"], samplespace.wildcard_pattern.format(**row._asdict()))
 
     alignments.append(os.path.join(sdir, "alignments/REF_aln.bam"))
     # if config.output["QA"]:
@@ -402,7 +420,7 @@ for p in patient_list:
         fastqc_files.append(os.path.join(sdir, "extracted_data/R2_fastqc.html"))
 
     datasets.append(sdir)
-    IDs.append(("{}-{}").format(p.patient_id, p.date))
+    IDs.append(("{}-{}").format(row.sample, row.date))
 
     # SNV
     if config.output["snv"]:
@@ -518,9 +536,8 @@ def ID(wildcards):
 
 def window_lengths(wildcards):
     window_len = []
-    for p in patient_list:
-        read_len = patient_dict[p]
-        aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
+    for row in samplespace.dataframe.itertuples():
+        aux = int((row.read_length * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
         window_len.append(str(aux * config.snv["shift"]))
 
     window_len = ",".join(window_len)
@@ -529,22 +546,12 @@ def window_lengths(wildcards):
 
 def shifts(wildcards):
     shifts = []
-    for p in patient_list:
-        read_len = patient_dict[p]
-        aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
+    for row in samplespace.dataframe.itertuples():
+        aux = int((row.read_length * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
         shifts.append(str(aux))
 
     shifts = ",".join(shifts)
     return shifts
-
-
-def get_maxins(wildcards):
-    if "maxins" in config["bowtie_align"]:
-        return config.bowtie_align["maxins"]
-    else:
-        patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-        read_len = patient_dict[patient_record(patient_id=patient_ID, date=date)]
-        return 4 * read_len
 
 
 # WARNING needs to handle trailing slashes gracefully and re-use the exact two-levels of the directory structure (patient / date)

@@ -567,7 +567,10 @@ elif config.general["aligner"] == "bowtie":
             params:
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
-                MAXINS=get_maxins,
+                MAXINS=config.bowtie_align["maxins"]
+                if "maxins" in config["bowtie_align"]
+                else lambda wildcards: 4
+                * paramspace.instance(wildcards)["read_length"],
                 EXTRA=config.bowtie_align["extra"],
                 BOWTIE=config.applications["bowtie"],
                 SAMTOOLS=config.applications["samtools"],

@@ -6,24 +6,6 @@ __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
 
-def window_length1(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-
-    read_len = patient_dict[patient_tuple]
-    aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
-    return str(aux * config.snv["shift"])
-
-
-def shift1(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-
-    read_len = patient_dict[patient_tuple]
-    aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
-    return str(aux)
-
-
 # 1. Call single nucleotide variants
 rule coverage_intervals:
     input:
@@ -33,8 +15,25 @@ rule coverage_intervals:
         temp("{dataset}/variants/coverage_intervals.tsv"),
     params:
         NAME=ID,
-        WINDOW_LEN=window_length1,
-        SHIFT=shift1,
+        WINDOW_LEN=lambda wildcards: str(
+            int(
+                (
+                    paramspace.instance(wildcards)["read_length"] * 4 / 5
+                    + config.snv["shift"]
+                )
+                / config.snv["shift"]
+            )
+            * config.snv["shift"]
+        ),
+        SHIFT=str(
+            int(
+                (
+                    paramspace.instance(wildcards)["read_length"] * 4 / 5
+                    + config.snv["shift"]
+                )
+                / config.snv["shift"]
+            )
+        ),
         COVERAGE=config.coverage_intervals["coverage"],
         OVERLAP="" if config.coverage_intervals["overlap"] else "-cf $TMPTSV",
         LIBERAL="-e" if config.coverage_intervals["liberal"] else "",
@@ -69,13 +68,6 @@ rule coverage_intervals:
         """
 
 
-def read_len(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-    read_len = patient_dict[patient_tuple]
-    return read_len
-
-
 rule snv:
     input:
         REF=(
@@ -93,7 +85,7 @@ rule snv:
         CSV="{dataset}/variants/SNVs/snvs.csv",
         VCF="{dataset}/variants/SNVs/snvs.vcf",
     params:
-        READ_LEN=read_len,
+        READ_LEN=lambda wildcards: paramspace.instance(wildcards)["read_length"],
         ALPHA=config.snv["alpha"],
         IGNORE_INDELS="--ignore_indels" if config.snv["ignore_indels"] else "",
         COVERAGE=config.snv["coverage"],
