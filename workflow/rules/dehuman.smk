@@ -185,7 +185,7 @@ rule dh_filter:
         echo "Count aligned reads ---------------------------------------------"
         echo
 
-        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} {input.host_aln} | tee {output.filter_count})
+        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} -F 2304 {input.host_aln} | tee {output.filter_count})
 
         if (( count > 0 )); then
             echo
