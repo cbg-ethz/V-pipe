@@ -49,8 +49,13 @@ def population_nucleotide_diversity(df_mutations, length):
         df_temp = df_mutations[df_mutations["position"] == position_temp]
         N = df_temp["coverage"].unique()[0]
         position_pnd = 0
-        pi = df_temp["tvar"] * (df_temp["tvar"] - 1)
-        postion_pi = (N * (N - 1) - pi.sum()) / (N * (N - 1))
+        freq_sum = 0
+        postion_pi = 1
+        for index, row in df_temp.iterrows():
+            postion_pi = postion_pi * row["tvar"]
+            freq_sum+= row["tvar"]
+        pi = pi  * (1- freq_sum)
+        postion_pi = (N * (N - 1) - postion_pi) / (N * (N - 1))
 
         pi += postion_pi
 
