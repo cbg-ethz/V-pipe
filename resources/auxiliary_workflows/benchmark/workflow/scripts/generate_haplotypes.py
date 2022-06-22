@@ -262,6 +262,7 @@ def main(
         haplotype_name = haplo_ids[i]
 
         ground_truth["haplotype"] = haplotype_name
+        ground_truth["frequency"] = freq
 
         # save haplotype in FASTA
         fname_haplotype = dname_work / f"{haplotype_name}.fasta"
