@@ -314,6 +314,17 @@ use rule run_method_local as run_method_global with:
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
 
+rule haplotypes_stats:
+    input:
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+    output:
+        fname=f"results/haplo_stats/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes_stats.csv"
+    conda:
+        "envs/haplotype_stats.yaml"
+    script:
+        "scripts/haplotypes_stats.py"
+
 
 rule performance_measures_local:
     input:
@@ -334,6 +345,11 @@ rule performance_measures_local:
             f"results/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
             for params in paramspace.instance_patterns
             for method in method_list_local
+            for replicate in range(config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in paramspace.instance_patterns
             for replicate in range(config["replicate_count"])
         ],
     output:
