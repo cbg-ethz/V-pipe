@@ -48,6 +48,6 @@ if __name__ == "__main__":
         Path(snakemake.input.fname_reference),
         Path(snakemake.output.fname_result),
         Path(snakemake.output.dname_work),
-        snakemake.wildcards.seq_technology,
+        snakemake.wildcards.seq_tech,
         snakemake.threads,
     )

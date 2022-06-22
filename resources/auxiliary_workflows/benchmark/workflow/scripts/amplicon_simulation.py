@@ -38,6 +38,7 @@ def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
+    print(fname_haplotype)
     subprocess.run(
         [
             "art_illumina",
@@ -73,29 +74,41 @@ def main(
     master_name = "MasterSequence"
 
     if haplotype_generation == "distance":
-        n_haplo = params["n_group1"] + params["n_group2"]
+        (
+            n_group1,
+            n_group2,
+            d_group12,
+            d_group1,
+            d_group2,
+            freq_dist,
+            freq_param,
+        ) = params["haplos"].split("@")
+        n_group1 = int(n_group1)
+        n_group2 = int(n_group2)
+        n_haplo = n_group1 + n_group2
         # obtain haplotype frequencies
-        if params["freq_distribution"] == "dirichlet":
-            if type(params["freq_param"]) == str:
-                alpha = [float(freq) for freq in params["freq_param"].split(":")]
-            if type(params["freq_param"]) == np.float64:
-                if np.isnan(params["freq_param"]):
+        if freq_dist == "dirichlet":
+            if type(freq_param) == str:
+                alpha = [float(freq) for freq in freq_param.split(":")]
+            if type(freq_param) == np.float64:
+                if np.isnan(freq_param):
                     alpha = np.ones(n_haplo)
 
             freq_list = np.random.dirichlet(alpha)
 
-        elif params["freq_distribution"] == "geom":
-            freq_param = float(params["freq_param"])
+        elif freq_dist == "geom":
+            freq_param = float(freq_param)
             freq_list = np.asarray([freq_param ** (i + 1) for i in range(n_haplo)])
             freq_list = freq_list / np.sum(freq_list)
 
     # infer haplotype sequences
     elif haplotype_generation == "mutation_rate":
+        haplotype_pattern = params["haplos"].split("@")[-1]
         # infer haplotype sequences
-        freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
+        freq_list = [float(freq) for freq in haplotype_pattern.split(":")]
         assert (
             sum(freq_list) == 1
-        ), f"Invalid haplotype pattern: {params['haplotype_pattern']}, sum is {sum(freq_list)}"
+        ), f"Invalid haplotype pattern: {haplotype_pattern}, sum is {sum(freq_list)}"
 
     filelist_sam = []
     filelist_fastq_f = []
@@ -113,7 +126,7 @@ def main(
         art_prefix = dname_work / f"art_output/haplo_{haplotype_name}_"
         art_prefix.parent.mkdir(parents=True, exist_ok=True)
 
-        if params["seq_technology"] == "illumina":
+        if params["seq_tech"] == "illumina":
             simulate_illumina(
                 fname_insert_haplotype,
                 coverage_haplotype,
@@ -140,7 +153,7 @@ def main(
 
         # gather files
         filelist_sam.append(fname_sam)
-        if params["seq_technology"] == "illumina":
+        if params["seq_tech"] == "illumina":
             reads_f = dname_work / f"art_output/haplo_{haplotype_name}_1.fq"
             reads_r = dname_work / f"art_output/haplo_{haplotype_name}_2.fq"
             filelist_fastq_f.append(reads_f)  # paired end reads

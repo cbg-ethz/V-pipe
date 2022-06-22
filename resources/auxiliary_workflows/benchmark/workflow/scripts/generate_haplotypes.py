@@ -191,19 +191,33 @@ def main(
     fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
     if haplotype_generation == "distance":
-        n_haplo = params["n_group1"] + params["n_group2"]
+        (
+            n_group1,
+            n_group2,
+            d_group12,
+            d_group1,
+            d_group2,
+            freq_dist,
+            freq_param,
+        ) = params["haplos"].split("@")
+        n_group1 = int(n_group1)
+        n_group2 = int(n_group2)
+        d_group12 = int(d_group12)
+        d_group1 = int(d_group1)
+        d_group2 = int(d_group2)
+        n_haplo = int(n_group1) + int(n_group2)
         # obtain haplotype frequencies
-        if params["freq_distribution"] == "dirichlet":
-            if type(params["freq_param"]) == str:
-                alpha = [float(freq) for freq in params["freq_param"].split(":")]
-            if type(params["freq_param"]) == np.float64:
-                if np.isnan(params["freq_param"]):
+        if freq_dist == "dirichlet":
+            if type(freq_param) == str:
+                alpha = [float(freq) for freq in freq_param.split(":")]
+            if type(freq_param) == np.float64:
+                if np.isnan(freq_param):
                     alpha = np.ones(n_haplo)
 
             freq_list = np.random.dirichlet(alpha)
 
-        elif params["freq_distribution"] == "geom":
-            freq_param = float(params["freq_param"])
+        elif freq_dist == "geom":
+            freq_param = float(freq_param)
             freq_list = np.asarray([freq_param ** (i + 1) for i in range(n_haplo)])
             freq_list = freq_list / np.sum(freq_list)
 
@@ -213,11 +227,11 @@ def main(
 
         haplo_list, ground_truth_list_temp = generate_haplotype_groups(
             seq_master,
-            params["n_group1"],
-            params["n_group2"],
-            params["d_group1"],
-            params["d_group2"],
-            params["d_group12"],
+            n_group1,
+            n_group2,
+            d_group1,
+            d_group2,
+            d_group12,
         )
 
         haplo_ids = [f"haplotype{i:04}" for i in range(n_haplo)]
@@ -228,12 +242,19 @@ def main(
 
         # plot heatmap of pairwise distances
         plot_pairwise_distances(distances, dname_work)
+
     elif haplotype_generation == "mutation_rate":
+        mutation_rate, insertion_rate, deletion_rate, haplotype_pattern = params[
+            "haplos"
+        ].split("@")
+        mutation_rate = float(mutation_rate)
+        insertion_rate = float(insertion_rate)
+        deletion_rate = float(deletion_rate)
         # infer haplotype sequences
-        freq_list = [float(freq) for freq in params["haplotype_pattern"].split(":")]
+        freq_list = [float(freq) for freq in haplotype_pattern.split(":")]
         assert (
             sum(freq_list) == 1
-        ), f"Invalid haplotype pattern: {params['haplotype_pattern']}, sum is {sum(freq_list)}"
+        ), f"Invalid haplotype pattern: {haplotype_pattern}, sum is {sum(freq_list)}"
 
         n_haplo = len(freq_list)
 
@@ -245,9 +266,9 @@ def main(
             haplotype_name = f"haplotype{i:04}"
             seq_haplotype, ground_truth = generate_haplotype(
                 seq_master,
-                params["mutation_rate"],
-                params["insertion_rate"],
-                params["deletion_rate"],
+                mutation_rate,
+                insertion_rate,
+                deletion_rate,
             )
             ground_truth_list_temp.append(ground_truth)
             haplo_list.append(seq_haplotype)
@@ -262,7 +283,6 @@ def main(
         haplotype_name = haplo_ids[i]
 
         ground_truth["haplotype"] = haplotype_name
-        ground_truth["frequency"] = freq
 
         # save haplotype in FASTA
         fname_haplotype = dname_work / f"{haplotype_name}.fasta"
