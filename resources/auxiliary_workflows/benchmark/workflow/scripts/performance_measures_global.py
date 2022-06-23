@@ -17,11 +17,11 @@ def read_fasta_files(fasta_files):
     for fname in fasta_files:
         parts = str(fname).split("/")
 
-        if len(parts) == 6:
-            _, _, params, _, replicate, _ = parts
+        if len(parts) == 7:
+            _, setup_type, _, params, _, replicate, _ = parts
             method = None
-        elif len(parts) == 7:
-            _, _, params, method, _, replicate, _ = parts
+        elif len(parts) == 8:
+            _, setup_type, _, params, method, _, replicate, _ = parts
         else:
             raise RuntimeError(f"Cannot parse {parts}")
 
