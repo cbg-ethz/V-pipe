@@ -11,6 +11,8 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 
+import math
+
 
 def cut_amplicon_regions(fname_reference, fname_insert_bed, fname_output):
     amplicons = []
@@ -107,7 +109,7 @@ def main(
         # infer haplotype sequences
         freq_list = [float(freq) for freq in haplotype_pattern.split(":")]
         assert (
-            sum(freq_list) == 1
+            math.isclose(sum(freq_list),1)
         ), f"Invalid haplotype pattern: {haplotype_pattern}, sum is {sum(freq_list)}"
 
     filelist_sam = []

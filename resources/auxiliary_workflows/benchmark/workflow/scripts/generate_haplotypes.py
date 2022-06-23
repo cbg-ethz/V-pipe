@@ -10,6 +10,8 @@ from Bio.SeqRecord import SeqRecord
 import seaborn as sns
 import matplotlib.pylab as plt
 
+import math
+
 
 BASE_LIST = list("TCGA")
 
@@ -253,7 +255,7 @@ def main(
         # infer haplotype sequences
         freq_list = [float(freq) for freq in haplotype_pattern.split(":")]
         assert (
-            sum(freq_list) == 1
+            math.isclose(sum(freq_list),1)
         ), f"Invalid haplotype pattern: {haplotype_pattern}, sum is {sum(freq_list)}"
 
         n_haplo = len(freq_list)
