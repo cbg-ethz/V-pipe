@@ -13,7 +13,7 @@ configfile: "config/config.yaml"
 
 # setup paramspace
 df_params = pd.read_csv(config["params_path"], comment="#")
-paramspace = Paramspace(df_params, filename_params="*")
+paramspace = Paramspace(df_params, filename_params="*", filename_sep="__")
 
 # method selection
 if config["method_list"] is None:
