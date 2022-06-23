@@ -50,7 +50,7 @@ def overview_plots(df_haplo, dname_out):
 
     df_haplo["seq_len"] = df_haplo["sequence"].str.len()
     df_long = pd.melt(df_haplo, id_vars=["method", "params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("_", "\n")
+        params=lambda x: x["params"].str.replace("__", "\n")
     )
     df_long = df_long[df_long["variable"] != "sequence"]
 
