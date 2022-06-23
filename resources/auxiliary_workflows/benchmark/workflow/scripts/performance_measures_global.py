@@ -30,13 +30,20 @@ def read_fasta_files(fasta_files):
             description = record.description[len(record.id) + 1 :]
             props = dict(pair.split(":") for pair in description.split("|"))
 
+            # extract properties
+            freq = props.get("freq")
+
+            if freq is None:
+                freq = props.get("Freq")
+
+            # finalize
             tmp.append(
                 {
                     "method": method,
                     "params": params,
                     "replicate": replicate,
                     "sequence": str(record.seq),
-                    "frequency": float(props.get("freq")),
+                    "frequency": float(freq),
                 }
             )
 
