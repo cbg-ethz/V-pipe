@@ -1,0 +1,4 @@
+method_list: null
+replicate_count: 10
+haplotype_generation: distance
+params_path: config_distance/params.csv

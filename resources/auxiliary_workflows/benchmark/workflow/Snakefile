@@ -12,12 +12,12 @@ configfile: "config/config.yaml"
 
 
 # setup paramspace
-df_params = pd.read_csv("config/params.csv", comment="#")
+df_params = pd.read_csv(config["params_path"], comment="#")
 paramspace = Paramspace(df_params, filename_params="*")
 
 # method selection
 if config["method_list"] is None:
-    (method_list,) = glob_wildcards("resources/method_definitions/{method}.py")
+    (method_list,) = glob_wildcards(srcdir("../resources/method_definitions/{method}.py"))
 else:
     method_list = config["method_list"]
 
@@ -31,7 +31,8 @@ method_list_global = []
 for method in method_list:
     group_prefix = "# GROUP:"
 
-    with open(f"resources/method_definitions/{method}.py") as fd:
+    fname_method = srcdir(f"../resources/method_definitions/{method}.py")
+    with open(fname_method) as fd:
         for line in fd.readlines():
             if not line.startswith(group_prefix):
                 continue
@@ -116,7 +117,7 @@ dependencies:"""
 for method in method_list:
     get_generated_conda_env(
         None,
-        Namedlist(fromdict={"script": f"resources/method_definitions/{method}.py"}),
+        Namedlist(fromdict={"script": srcdir(f"../resources/method_definitions/{method}.py")}),
     )
 
 
@@ -279,7 +280,7 @@ rule read_statistics:
 
 rule run_method_local:
     input:
-        script="resources/method_definitions/{method}.py",
+        script=srcdir("../resources/method_definitions/{method}.py"),
         fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.{{seq_mode}}.bam"
         if wildcards.method == "shorah_canary"
         else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",

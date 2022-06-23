@@ -1,0 +1,40 @@
+from snakemake.io import load_configfile
+
+
+# setup workflow
+def load_config(path):
+    config = load_configfile(path)
+    return config
+
+
+# import modules
+module distance:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_distance/config.yaml")
+    replace_prefix:
+        {"results/": "results/distance/"}
+
+
+use rule * from distance as distance_*
+
+
+module mutationrate:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_mutationrate/config.yaml")
+    replace_prefix:
+        {"results/": "results/mutationrate/"}
+
+
+use rule * from mutationrate as mutationrate_*
+
+
+# define required output files
+rule all:
+    input:
+        rules.distance_all.input,
+        rules.mutationrate_all.input,
+    default_target: True

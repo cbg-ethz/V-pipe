@@ -1,0 +1,4 @@
+method_list: null
+replicate_count: 10
+haplotype_generation: mutation_rate
+params_path: config_mutationrate/params.csv
