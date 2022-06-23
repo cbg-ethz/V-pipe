@@ -61,6 +61,7 @@ def overview_plots(df_haplo, dname_out):
         hue="method",
         col="variable",
         kind="box",
+        sharey=False,
         height=10,
     )
 
