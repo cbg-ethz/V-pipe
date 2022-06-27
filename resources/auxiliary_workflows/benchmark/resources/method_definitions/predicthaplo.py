@@ -10,6 +10,7 @@ import subprocess
 from pathlib import Path
 
 from Bio import SeqIO
+from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
@@ -18,7 +19,7 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
 
     # compile tool
     subprocess.run(
-        ["git", "clone", "https://github.com/cbg-ethz/PredictHaplo"],
+        ["git", "clone", "https://github.com/cbg-ethz/PredictHaplo.git"],
         cwd=dname_work,
         check=True,
     )
@@ -50,31 +51,36 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
             fname_reference,
             "--prefix",
             ph_prefix,
+            "--reconstructed_haplotypes",
+            fname_result,
             "--have_true_haplotypes",
             "0",
             "--min_align_score_fraction",
             "-1",
             "--min_overlap_factor",
             "0.1",
+            "--entropy_threshold",
+            "1e-4",
+            "--min_length",
+            "1",
         ],
         check=True,
     )
 
-    # aggregate result
+    # clean output file
     record_list = []
-    for path in dname_work.glob(f"{ph_prefix.name}global*.fas"):
-        for record in SeqIO.parse(path, "fasta"):
-            seq = record.seq.split("EndOfComments")[1]
-            window = path.name[len(f"{ph_prefix.name}global_") : -len(".fas")]
-            id_ = f"{window}__{record.id}"
+    for record in SeqIO.parse(fname_result, "fasta"):
+        props = str(record.seq).split("EndOfComments")[0]
+        seq = str(record.seq).split("EndOfComments")[-1]
 
-            rec = SeqRecord(
-                seq,
-                id=id_,
-                name=id_,
-                description=str(record.seq).split(";")[1],
-            )
-            record_list.append(rec)
+        desc = props.split(";")[1]  # only keep frequency
+
+        rec = SeqRecord(
+            Seq(seq),
+            id=record.id,
+            description=desc,
+        )
+        record_list.append(rec)
 
     SeqIO.write(record_list, fname_result, "fasta")
 
