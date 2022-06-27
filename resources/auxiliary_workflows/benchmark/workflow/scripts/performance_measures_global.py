@@ -71,6 +71,7 @@ def overview_plots(df_haplo, dname_out):
         sharey=False,
         height=10,
     )
+    g.map_dataframe(sns.swarmplot, x="params", y="value", color='k')
 
     for ax in g.axes.flat:
         ax.tick_params(axis="x", which="major", labelsize=1)
