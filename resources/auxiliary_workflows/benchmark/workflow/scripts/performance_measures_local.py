@@ -78,7 +78,12 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
     # compute performance
     tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
-        _, _, params, method, _, replicate, _ = str(fname_vcf).split("/")
+        parts = str(fname_vcf).split("/")
+
+        if len(parts) == 7:
+            _, _, params, method, _, replicate, _ = parts
+        elif len(parts) == 8: # for multi workflow
+            _, _, _, params, method, _, replicate, _ = parts
 
         true_variants = convert_groundtruth(fname_groundtruth)
         predicted_variants = convert_vcf(fname_vcf)
@@ -119,7 +124,11 @@ def runtime_plots(benchmark_list, dname_out):
     # gather benchmark information
     tmp = []
     for fname in benchmark_list:
-        _, _, params, method, _, replicate, _ = str(fname).split("/")
+        parts = str(fname).split("/")
+        if len(parts) == 7:
+            _, _, params, method, _, replicate, _ = parts
+        elif len(parts) == 8: # for multi workflow
+            _, _, _, params, method, _, replicate, _ = parts
 
         df_tmp = pd.read_csv(fname, sep="\t")
         df_tmp["method"] = method

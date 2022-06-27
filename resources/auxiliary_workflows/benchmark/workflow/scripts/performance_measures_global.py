@@ -136,7 +136,11 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
             tmp["reference"] = res_dir.name
 
             # finalize
-            _, _, params, method, _, replicate, _ = str(fname_contigs).split("/")
+            parts = str(fname_contigs).split("/")
+            if len(parts) == 7:
+                _, _, params, method, _, replicate, _ = parts
+            elif len(parts) == 8: # for multi workflow
+                _, _, _, params, method, _, replicate, _ = parts
             tmp["params"] = params
             tmp["method"] = method
             tmp["replicate"] = replicate
