@@ -1,0 +1,4 @@
+method_list: ['lofreq', 'shorah_default_amplicon']
+replicate_count: 1
+haplotype_generation: distance
+params_path: config_distance/params.csv

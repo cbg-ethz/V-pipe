@@ -1,0 +1,2 @@
+seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
+illumina,shotgun,,200,200,100,0.1@0@0@0.5:0.5
