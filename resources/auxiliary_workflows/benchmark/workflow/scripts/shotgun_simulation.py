@@ -195,10 +195,18 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
         fname_sam = art_prefix.with_suffix(".sam")
         with fileinput.FileInput(fname_sam, inplace=True, backup=".bak") as fd:
             for line in fd:
-                print(
-                    re.sub(rf"{haplotype_name}.*?\t", f"{master_name}\t", line),
-                    end="",
-                )
+                if "@SQ" in line:
+                    # replace reference name in header
+                    print(
+                        re.sub(rf"SN:{haplotype_name}.*?\t", f"SN:{master_name}\t", line),
+                        end="",
+                    )
+                else:
+                    # only replace reference but not query name
+                    print(
+                        re.sub(rf"\t{haplotype_name}.*?\t", f"\t{master_name}\t", line),
+                        end="",
+                    )
 
         # gather files
         filelist_sam.append(fname_sam)
