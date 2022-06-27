@@ -1,8 +1,6 @@
 # GROUP: global
 # CONDA: r-regresshaplo = 1.0
 
-# installation crashes as dependencies are not available
-
 import subprocess
 from pathlib import Path
 
