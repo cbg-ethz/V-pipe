@@ -9,6 +9,7 @@ snakemake \
   --profile lsf \
   -pr \
   --cores 200 \
+  --use-conda \
   --latency-wait 30 \
   --show-failed-logs \
   "$@"
