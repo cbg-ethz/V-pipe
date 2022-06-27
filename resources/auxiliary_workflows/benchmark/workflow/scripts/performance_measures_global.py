@@ -206,6 +206,7 @@ def main(predicted_haplos_list, true_haplos_list, dname_out):
     # read data
     df_pred = read_fasta_files(predicted_haplos_list)
     df_true = read_fasta_files(true_haplos_list)
+    df_true["method"] = "ground_truth"
 
     # create plots
     overview_plots(df_pred, dname_out)
