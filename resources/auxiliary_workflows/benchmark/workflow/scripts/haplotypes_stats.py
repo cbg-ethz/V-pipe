@@ -120,7 +120,7 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
     # population nucleotide diversity
     out_dict.update(
         {
-            "population_nucleotide_diverstiy": population_nucleotide_diversity(
+            "population_nucleotide_diversity": population_nucleotide_diversity(
                 df_snv, ref_seq_length
             )
         }
