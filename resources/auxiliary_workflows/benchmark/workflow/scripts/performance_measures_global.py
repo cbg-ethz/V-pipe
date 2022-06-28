@@ -50,6 +50,21 @@ def read_fasta_files(fasta_files):
     return pd.DataFrame(tmp)
 
 
+def read_haplostats(haplostats_list):
+    df_list = []
+    for fname in haplostats_list:
+        parts = str(fname).split("/")
+        _, _, params, _, replicate, _ = parts
+
+        tmp = pd.read_csv(fname)
+        tmp["params"] = params
+        tmp["replicate"] = replicate
+
+        df_list.append(tmp)
+
+    return pd.concat(df_list)
+
+
 def overview_plots(df_haplo, dname_out):
     if df_haplo.empty:
         print("Warning: df_haplo is empty")
@@ -71,7 +86,7 @@ def overview_plots(df_haplo, dname_out):
         sharey=False,
         height=10,
     )
-    g.map_dataframe(sns.swarmplot, x="params", y="value", color='k')
+    g.map_dataframe(sns.swarmplot, x="params", y="value", color="k")
 
     for ax in g.axes.flat:
         ax.tick_params(axis="x", which="major", labelsize=1)
@@ -140,7 +155,7 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
             parts = str(fname_contigs).split("/")
             if len(parts) == 7:
                 _, _, params, method, _, replicate, _ = parts
-            elif len(parts) == 8: # for multi workflow
+            elif len(parts) == 8:  # for multi workflow
                 _, _, _, params, method, _, replicate, _ = parts
             tmp["params"] = params
             tmp["method"] = method
@@ -200,13 +215,15 @@ def sequence_embedding(df_pred, df_true, dname_out):
     fig.savefig(dname_out / "sequence_mds.pdf")
 
 
-def main(predicted_haplos_list, true_haplos_list, dname_out):
+def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
     dname_out.mkdir(parents=True)
 
     # read data
     df_pred = read_fasta_files(predicted_haplos_list)
     df_true = read_fasta_files(true_haplos_list)
     df_true["method"] = "ground_truth"
+
+    df_stats = read_haplostats(haplostats_list)
 
     # create plots
     overview_plots(df_pred, dname_out)
@@ -225,5 +242,6 @@ if __name__ == "__main__":
     main(
         [Path(e) for e in snakemake.input.predicted_haplos_list],
         [Path(e) for e in snakemake.input.true_haplos_list],
+        [Path(e) for e in snakemake.input.haplostats_list],
         Path(snakemake.output.dname_out),
     )
