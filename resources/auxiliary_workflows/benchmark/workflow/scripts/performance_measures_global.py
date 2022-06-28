@@ -215,6 +215,75 @@ def sequence_embedding(df_pred, df_true, dname_out):
     fig.savefig(dname_out / "sequence_mds.pdf")
 
 
+def compute_pr(df_pred, df_true, thres=0.05):
+    def compute_dist(seq1, seq2):
+        dist = editdistance.eval(seq1, seq2)
+        rel = dist / max(len(seq1), len(seq2))
+        return rel
+
+    tmp = []
+    for (method, params), df_group in df_pred.groupby(["method", "params"]):
+        tp = 0
+        fp = 0
+        fn = 0
+
+        # true positive: predicted seq appears in ground truth
+        # false positive: predicted seq does not appear in ground truth
+        for row in df_group.itertuples():
+            ser_dist = df_true["sequence"].apply(
+                lambda x: compute_dist(x, row.sequence)
+            )
+            passed_thres = (ser_dist <= thres).any()
+
+            if passed_thres:
+                tp += 1
+            else:
+                fp += 1
+
+        # false negative: ground truth sequence was not predicted
+        # single prediction should not map to multiple ground truth seqs
+        df_cur = df_group.copy()
+        for row in df_true.itertuples():
+            ser_dist = df_cur["sequence"].apply(lambda x: compute_dist(x, row.sequence))
+            passed_thres = (ser_dist <= thres).any()
+
+            if not passed_thres:
+                fn += 1
+            else:
+                # remove current prediction
+                df_cur = df_cur.drop(ser_dist.idxmin())
+
+        # finalize
+        tmp.append(
+            {
+                "method": method,
+                "params": params,
+                "tp": tp,
+                "fp": fp,
+                "fn": fn,
+                "precision": tp / (tp + fp),
+                "recall": tp / (tp + fn),
+            }
+        )
+
+    return pd.DataFrame(tmp)
+
+
+def plot_pr(df_pr, df_stats, dname_out):
+    df_long = df_pr.melt(id_vars=["method", "params"]).assign(
+        params=lambda x: x["params"].str.replace("__", "\n")
+    )
+    df_long = df_long[df_long["variable"].isin(["precision", "recall"])]
+
+    g = sns.FacetGrid(
+        df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
+    )
+    g.map_dataframe(sns.boxplot, x="params", y="value", hue="method")
+    g.map_dataframe(sns.swarmplot, x="params", y="value", hue="method")
+
+    g.savefig(dname_out / "pr_overview.pdf")
+
+
 def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
     dname_out.mkdir(parents=True)
 
@@ -236,6 +305,10 @@ def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
 
     # MDS
     sequence_embedding(df_pred, df_true, dname_out)
+
+    # precision/recall
+    df_pr = compute_pr(df_pred, df_true)
+    plot_pr(df_pr, df_stats, dname_out)
 
 
 if __name__ == "__main__":
