@@ -307,10 +307,18 @@ def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
 
     df_stats = read_haplostats(haplostats_list)
 
+    # quick stats
+    print("Haplotype counts per method")
+    print(df_pred["method"].value_counts())
+
     # create plots
     overview_plots(df_pred, dname_out)
 
-    # quast stuff
+    # precision/recall
+    df_pr = compute_pr(df_pred, df_true)
+    plot_pr(df_pr, df_stats, dname_out)
+
+    # # quast stuff
     df_quast = run_metaquast(
         predicted_haplos_list, true_haplos_list, dname_out / "quast"
     )
@@ -318,10 +326,6 @@ def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
 
     # MDS
     sequence_embedding(df_pred, df_true, dname_out)
-
-    # precision/recall
-    df_pr = compute_pr(df_pred, df_true)
-    plot_pr(df_pr, df_stats, dname_out)
 
 
 if __name__ == "__main__":
