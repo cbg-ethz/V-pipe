@@ -271,11 +271,11 @@ def compute_pr(df_pred, df_true, thres=0.05):
 
 def plot_pr(df_pr, df_stats, dname_out):
     # prepare data
-    diversity_column = "population_nucleotide_diversity"
+    diversity_column_list = ["population_nucleotide_diversity", "mean_position_shannon"]
 
     df_long = (
         df_pr.merge(df_stats, on="params")
-        .melt(id_vars=["method", "params", diversity_column])
+        .melt(id_vars=["method", "params", *diversity_column_list])
         .assign(params=lambda x: x["params"].str.replace("__", "\n"))
     )
     df_long = df_long[df_long["variable"].isin(["precision", "recall"])]
@@ -288,12 +288,13 @@ def plot_pr(df_pr, df_stats, dname_out):
     g.map_dataframe(sns.swarmplot, x="params", y="value", hue="method")
     g.savefig(dname_out / "pr_overview.pdf")
 
-    g = sns.FacetGrid(
-        df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
-    )
-    g.map_dataframe(sns.boxplot, x=diversity_column, y="value", hue="method")
-    g.map_dataframe(sns.swarmplot, x=diversity_column, y="value", hue="method")
-    g.savefig(dname_out / "pr_diversity.pdf")
+    for diversity_column in diversity_column_list:
+        g = sns.FacetGrid(
+            df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
+        )
+        g.map_dataframe(sns.boxplot, x=diversity_column, y="value", hue="method")
+        g.map_dataframe(sns.swarmplot, x=diversity_column, y="value", hue="method")
+        g.savefig(dname_out / f"pr_diversity_{diversity_column}.pdf")
 
 
 def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
