@@ -1,6 +1,6 @@
 # `null` will execut all methods
 # list of strings will execute selected methods
-method_list: null
+method_list: [haploclique, quasirecomb, predicthaplo, haploconduct, cliquesnv]
 
 replicate_count: 10
 
