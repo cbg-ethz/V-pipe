@@ -15,6 +15,9 @@ import math
 
 BASE_LIST = list("TCGA")
 
+RNG_SEED = 42 + int(snakemake.wildcards.replicate)
+np.random.seed(RNG_SEED)
+
 
 def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_rate=0):
     """Generate haplotype from master sequence."""

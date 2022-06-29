@@ -9,6 +9,10 @@ import math
 import numpy as np
 
 
+RNG_SEED = 42 + int(snakemake.wildcards.replicate)
+np.random.seed(RNG_SEED)
+
+
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
     subprocess.run(
         [
@@ -21,6 +25,8 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
             ),  # mean and standard deviation of DNA/RNA fragment lengths
             "-s",
             str(10),
+            "--rndSeed",
+            str(RNG_SEED),
             "-i",
             fname_haplotype,
             "-f",
