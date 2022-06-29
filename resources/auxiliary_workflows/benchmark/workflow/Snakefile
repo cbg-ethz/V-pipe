@@ -309,7 +309,7 @@ rule run_method_local:
     threads: 1
     resources:
         mem_mb=20_000,
-        time_min=60 * 24
+        time_min=60 * 24,
     script:
         "{params.script_path}"
 
