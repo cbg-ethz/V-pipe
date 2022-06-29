@@ -86,7 +86,9 @@ def overview_plots(df_haplo, dname_out):
         sharey=False,
         height=10,
     )
-    g.map_dataframe(sns.swarmplot, x="params", y="value", color="k")
+    g.map_dataframe(
+        sns.stripplot, x="params", y="value", hue="method", color="k", dodge=True
+    )
 
     for ax in g.axes.flat:
         ax.tick_params(axis="x", which="major", labelsize=1)
@@ -172,7 +174,7 @@ def plot_quast(df_quast, dname_out):
             fig, ax = plt.subplots(figsize=(8, 6))
 
             sns.boxplot(data=group, y=col, x="method", ax=ax)
-            sns.swarmplot(data=group, y=col, x="method", color=".25", ax=ax)
+            sns.stripplot(data=group, y=col, x="method", color=".25", dodge=True, ax=ax)
 
             fig.tight_layout()
             fig.savefig(dname_out / f"{col}__{params}.pdf")
@@ -285,7 +287,8 @@ def plot_pr(df_pr, df_stats, dname_out):
         df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
     )
     g.map_dataframe(sns.boxplot, x="params", y="value", hue="method")
-    g.map_dataframe(sns.swarmplot, x="params", y="value", hue="method")
+    g.map_dataframe(sns.swarmplot, x="params", y="value", hue="method", dodge=True)
+    g.add_legend()
     g.savefig(dname_out / "pr_overview.pdf")
 
     for diversity_column in diversity_column_list:
@@ -293,7 +296,10 @@ def plot_pr(df_pr, df_stats, dname_out):
             df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
         )
         g.map_dataframe(sns.boxplot, x=diversity_column, y="value", hue="method")
-        g.map_dataframe(sns.swarmplot, x=diversity_column, y="value", hue="method")
+        g.map_dataframe(
+            sns.swarmplot, x=diversity_column, y="value", hue="method", dodge=True
+        )
+        g.add_legend()
         g.savefig(dname_out / f"pr_diversity_{diversity_column}.pdf")
 
 
