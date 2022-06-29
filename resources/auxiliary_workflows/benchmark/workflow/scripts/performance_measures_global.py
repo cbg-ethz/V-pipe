@@ -318,7 +318,7 @@ def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
     df_pr = compute_pr(df_pred, df_true)
     plot_pr(df_pr, df_stats, dname_out)
 
-    # # quast stuff
+    # quast stuff
     df_quast = run_metaquast(
         predicted_haplos_list, true_haplos_list, dname_out / "quast"
     )
