@@ -1,5 +1,6 @@
 # GROUP: global
 # CONDA: cxx-compiler = 1.4.1
+# CONDA: make = 4.3
 # CONDA: cmake = 3.22.1
 # CONDA: liblapack = 3.9.0
 # CONDA: gtest = 1.11.0

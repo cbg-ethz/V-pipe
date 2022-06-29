@@ -17,7 +17,9 @@ paramspace = Paramspace(df_params, filename_params="*", filename_sep="__")
 
 # method selection
 if config["method_list"] is None:
-    (method_list,) = glob_wildcards(srcdir("../resources/method_definitions/{method}.py"))
+    (method_list,) = glob_wildcards(
+        srcdir("../resources/method_definitions/{method}.py")
+    )
 else:
     method_list = config["method_list"]
 
@@ -117,7 +119,9 @@ dependencies:"""
 for method in method_list:
     get_generated_conda_env(
         None,
-        Namedlist(fromdict={"script": srcdir(f"../resources/method_definitions/{method}.py")}),
+        Namedlist(
+            fromdict={"script": srcdir(f"../resources/method_definitions/{method}.py")}
+        ),
     )
 
 
@@ -315,12 +319,13 @@ use rule run_method_local as run_method_global with:
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
 
+
 rule haplotypes_stats:
     input:
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
     output:
-        fname=f"results/haplo_stats/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes_stats.csv"
+        fname=f"results/haplo_stats/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes_stats.csv",
     conda:
         "envs/haplotype_stats.yaml"
     script:
@@ -371,6 +376,12 @@ rule performance_measures_global:
         ],
         true_haplos_list=[
             f"results/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
+            for params in paramspace.instance_patterns
+            for method in method_list_global
+            for replicate in range(config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
             for params in paramspace.instance_patterns
             for method in method_list_global
             for replicate in range(config["replicate_count"])

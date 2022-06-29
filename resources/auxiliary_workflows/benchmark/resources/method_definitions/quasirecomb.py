@@ -1,8 +1,12 @@
 # GROUP: global
 # CONDA: quasirecomb = 1.2
+# CONDA: biopython = 1.79
 
 import subprocess
 from pathlib import Path
+
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
 
 
 def main(fname_bam, fname_reference, fname_result, dname_work):
@@ -11,8 +15,21 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
     subprocess.run(
         ["quasirecomb", "-i", fname_bam, "-o", dname_work / "output"], check=True
     )
+    fname_quasi = dname_work / "output" / "quasispecies.fasta"
 
-    (dname_work / "output" / "quasispecies.fasta").rename(fname_result)
+    # clean output file
+    record_list = []
+    for record in SeqIO.parse(fname_quasi, "fasta"):
+        id_, freq = record.id.split("_")
+
+        rec = SeqRecord(
+            record.seq,
+            id=id_,
+            description=f"freq:{float(freq)}",
+        )
+        record_list.append(rec)
+
+    SeqIO.write(record_list, fname_result, "fasta")
 
 
 if __name__ == "__main__":
