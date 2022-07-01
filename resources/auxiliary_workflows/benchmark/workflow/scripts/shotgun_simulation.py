@@ -9,6 +9,10 @@ import math
 import numpy as np
 
 
+RNG_SEED = 42 + int(snakemake.wildcards.replicate)
+np.random.seed(RNG_SEED)
+
+
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
     subprocess.run(
         [
@@ -21,6 +25,8 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
             ),  # mean and standard deviation of DNA/RNA fragment lengths
             "-s",
             str(10),
+            "--rndSeed",
+            str(RNG_SEED),
             "-i",
             fname_haplotype,
             "-f",
@@ -159,8 +165,8 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
         haplotype_pattern = params["haplos"].split("@")[-1]
         # infer haplotype sequences
         freq_list = [float(freq) for freq in haplotype_pattern.split(":")]
-        assert (
-            math.isclose(sum(freq_list),1)
+        assert math.isclose(
+            sum(freq_list), 1
         ), f"Invalid haplotype pattern: {haplotype_pattern}, sum is {sum(freq_list)}"
 
     filelist_sam = []
@@ -198,7 +204,9 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
                 if "@SQ" in line:
                     # replace reference name in header
                     print(
-                        re.sub(rf"SN:{haplotype_name}.*?\t", f"SN:{master_name}\t", line),
+                        re.sub(
+                            rf"SN:{haplotype_name}.*?\t", f"SN:{master_name}\t", line
+                        ),
                         end="",
                     )
                 else:

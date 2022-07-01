@@ -306,6 +306,10 @@ rule run_method_local:
     conda:
         # "{params.env_path}"
         "../results/envs/{method}.py.yaml"
+    threads: 1
+    resources:
+        mem_mb=20_000,
+        time_min=60 * 24,
     script:
         "{params.script_path}"
 

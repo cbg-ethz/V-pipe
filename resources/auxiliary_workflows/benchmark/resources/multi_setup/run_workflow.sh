@@ -8,6 +8,7 @@ bsub \
 snakemake \
   --profile lsf \
   -pr \
+  --use-conda \
   --cores 200 \
   --latency-wait 30 \
   --show-failed-logs \

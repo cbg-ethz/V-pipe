@@ -1,9 +1,12 @@
 # GROUP: global
 # CONDA: cliquesnv = 2.0.3
 # CONDA: samtools = 1.15.1
+# CONDA: biopython = 1.79
 
 import subprocess
 from pathlib import Path
+
+from Bio import SeqIO
 
 
 def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_num):
@@ -38,8 +41,16 @@ def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_
         ],
         check=True,
     )
+    fname_cliquesnv = dname_work / "output" / "reads.fasta"
 
-    (dname_work / "output" / "reads.fasta").rename(fname_result)
+    # fix frequency information
+    record_list = []
+    for record in SeqIO.parse(fname_cliquesnv, "fasta"):
+        _, _, freq = record.id.split("_")
+        record.description = f"freq:{freq}"
+
+        record_list.append(record)
+    SeqIO.write(record_list, fname_result, "fasta")
 
 
 if __name__ == "__main__":
