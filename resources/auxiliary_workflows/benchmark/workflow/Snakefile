@@ -407,5 +407,7 @@ rule performance_measures_global:
         dname_out=directory("results/performance_measures/global/"),
     conda:
         "envs/performance_measures.yaml"
+    params:
+        method_list_global=method_list_global,
     script:
         "scripts/performance_measures_global.py"

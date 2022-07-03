@@ -288,7 +288,13 @@ def compute_pr(df_pred, df_true, thres=0.05):
             }
         )
 
-    return pd.DataFrame(tmp)
+    # set column dtypes
+    df_pr = pd.DataFrame(tmp)
+    df_pr["method"] = pd.Categorical(
+        df_pr["method"], categories=sorted(snakemake.params.method_list_global)
+    )
+
+    return df_pr
 
 
 def plot_pr(df_pr, df_stats, dname_out):
