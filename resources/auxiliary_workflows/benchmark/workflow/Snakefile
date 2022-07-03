@@ -390,13 +390,11 @@ rule performance_measures_global:
         true_haplos_list=[
             f"results/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in paramspace.instance_patterns
-            for method in method_list_global
             for replicate in range(config["replicate_count"])
         ],
         haplostats_list=[
             f"results/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
             for params in paramspace.instance_patterns
-            for method in method_list_global
             for replicate in range(config["replicate_count"])
         ],
         runstatus_list=[
