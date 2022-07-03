@@ -359,6 +359,17 @@ def main(
     # MDS
     sequence_embedding(df_pred, df_true, dname_out)
 
+    # save raw results
+    csv_dir = dname_out / "csv_files"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+
+    df_pred.to_csv(csv_dir / "predictions.csv.gz")
+    df_true.to_csv(csv_dir / "ground_truth.csv.gz")
+    df_stats.to_csv(csv_dir / "data_stats.csv")
+    df_runstats.to_csv(csv_dir / "run_stats.csv")
+    df_pr.to_csv(csv_dir / "pr_results.csv")
+    df_quast.to_csv(csv_dir / "quast_results.csv")
+
 
 if __name__ == "__main__":
     main(
