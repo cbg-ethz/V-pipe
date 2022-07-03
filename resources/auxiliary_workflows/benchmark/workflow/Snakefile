@@ -166,6 +166,9 @@ rule shotgun_simulation:
         haplotype_generation=config["haplotype_generation"],
     conda:
         "envs/simulate_reads.yaml"
+    resources:
+        mem_mb=5_000,
+        time_min=60 * 4,
     script:
         "scripts/shotgun_simulation.py"
 
