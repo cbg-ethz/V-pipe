@@ -1,0 +1,2 @@
+__default__:
+        - "-R \"select[model==EPYC_7H12]\""
