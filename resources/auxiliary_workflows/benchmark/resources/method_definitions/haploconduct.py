@@ -6,7 +6,9 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_result, dname_work):
+def main(
+    fname_bam, fname_reference, fname_result, fname_status, dname_work, timeout_min
+):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
@@ -21,21 +23,29 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
         ],
         check=True,
     )
-    subprocess.run(
-        [
-            "haploconduct",
-            "savage",
-            # "--ref",
-            # fname_reference.resolve(),
-            "--split",
-            "4",  # TODO: choose this appropriately
-            "-p1",
-            (dname_work / "reads.R1.fastq").resolve(),
-            "-p2",
-            (dname_work / "reads.R2.fastq").resolve(),
-        ],
-        cwd=dname_work,
-    )
+
+    try:
+        subprocess.run(
+            [
+                "haploconduct",
+                "savage",
+                # "--ref",
+                # fname_reference.resolve(),
+                "--split",
+                "4",  # TODO: choose this appropriately
+                "-p1",
+                (dname_work / "reads.R1.fastq").resolve(),
+                "-p2",
+                (dname_work / "reads.R2.fastq").resolve(),
+            ],
+            cwd=dname_work,
+            timeout=timeout_min,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"Method timeout after {timeout_min} seconds")
+        fname_status.write_text("timeout")
+        fname_result.touch()
+        return
 
     # select result (later stage is better)
     result_a = dname_work / "contigs_stage_a.fasta"
@@ -48,7 +58,8 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
             result.rename(fname_result)
             break
     else:
-        raise RuntimeError("Savage crashed and no results were generated")
+        fname_status.write_text("crash")
+        fname_result.touch()
 
 
 if __name__ == "__main__":
@@ -56,5 +67,7 @@ if __name__ == "__main__":
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
         Path(snakemake.output.fname_result),
+        Path(snakemake.output.fname_status),
         Path(snakemake.output.dname_work),
+        (snakemake.resources.time_min - 2) * 60,  # two minutes for setup
     )

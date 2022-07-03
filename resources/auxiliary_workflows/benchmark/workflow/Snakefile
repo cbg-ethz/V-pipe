@@ -298,6 +298,9 @@ rule run_method_local:
         else [],
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
+        fname_status=touch(
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/status.txt"
+        ),
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
@@ -320,6 +323,9 @@ rule run_method_local:
 use rule run_method_local as run_method_global with:
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes.fasta",
+        fname_status=touch(
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/status.txt"
+        ),
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
@@ -389,6 +395,12 @@ rule performance_measures_global:
         ],
         haplostats_list=[
             f"results/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in paramspace.instance_patterns
+            for method in method_list_global
+            for replicate in range(config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/status.txt"
             for params in paramspace.instance_patterns
             for method in method_list_global
             for replicate in range(config["replicate_count"])

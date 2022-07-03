@@ -65,6 +65,26 @@ def read_haplostats(haplostats_list):
     return pd.concat(df_list)
 
 
+def read_runstats(runstatus_list):
+    tmp = []
+    for fname in runstatus_list:
+        parts = str(fname).split("/")
+        _, _, params, method, _, replicate, _ = parts
+
+        status = fname.read_text()
+
+        tmp.append(
+            {
+                "params": params,
+                "method": method,
+                "replicate": replicate,
+                "status": status if len(status) > 0 else "success",
+            }
+        )
+
+    return pd.DataFrame(tmp)
+
+
 def overview_plots(df_haplo, dname_out):
     if df_haplo.empty:
         print("Warning: df_haplo is empty")
@@ -303,7 +323,9 @@ def plot_pr(df_pr, df_stats, dname_out):
         g.savefig(dname_out / f"pr_diversity_{diversity_column}.pdf")
 
 
-def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
+def main(
+    predicted_haplos_list, true_haplos_list, haplostats_list, runstatus_list, dname_out
+):
     dname_out.mkdir(parents=True)
 
     # read data
@@ -312,8 +334,12 @@ def main(predicted_haplos_list, true_haplos_list, haplostats_list, dname_out):
     df_true["method"] = "ground_truth"
 
     df_stats = read_haplostats(haplostats_list)
+    df_runstats = read_runstats(runstatus_list)
 
     # quick stats
+    print("Run status")
+    print(df_runstats.groupby("method")["status"].value_counts())
+
     print("Haplotype counts per method")
     print(df_pred["method"].value_counts())
 
@@ -339,5 +365,6 @@ if __name__ == "__main__":
         [Path(e) for e in snakemake.input.predicted_haplos_list],
         [Path(e) for e in snakemake.input.true_haplos_list],
         [Path(e) for e in snakemake.input.haplostats_list],
+        [Path(e) for e in snakemake.input.runstatus_list],
         Path(snakemake.output.dname_out),
     )
