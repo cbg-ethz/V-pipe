@@ -313,7 +313,9 @@ def plot_pr(df_pr, df_stats, dname_out):
         df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
     )
     g.map_dataframe(sns.boxplot, x="params", y="value", hue="method")
-    g.map_dataframe(sns.swarmplot, x="params", y="value", hue="method", dodge=True)
+    g.map_dataframe(
+        sns.swarmplot, x="params", y="value", hue="method", dodge=True, clip_on=False
+    )
     g.add_legend()
     g.savefig(dname_out / "pr_overview.pdf")
 
@@ -323,7 +325,12 @@ def plot_pr(df_pr, df_stats, dname_out):
         )
         g.map_dataframe(sns.boxplot, x=diversity_column, y="value", hue="method")
         g.map_dataframe(
-            sns.swarmplot, x=diversity_column, y="value", hue="method", dodge=True
+            sns.swarmplot,
+            x=diversity_column,
+            y="value",
+            hue="method",
+            dodge=True,
+            clip_on=False,
         )
         g.add_legend()
         g.savefig(dname_out / f"pr_diversity_{diversity_column}.pdf")
