@@ -32,9 +32,22 @@ module mutationrate:
 use rule * from mutationrate as mutationrate_*
 
 
+module realdata:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_realdata/config.yaml")
+    replace_prefix:
+        {"results/": "results/realdata/"}
+
+
+use rule * from realdata as realdata_*
+
+
 # define required output files
 rule all:
     input:
         rules.distance_all.input,
         rules.mutationrate_all.input,
+        rules.realdata_all.input,
     default_target: True

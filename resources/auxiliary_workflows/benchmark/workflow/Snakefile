@@ -151,6 +151,8 @@ rule generate_haplotypes:
         haplotype_generation=config["haplotype_generation"],
     conda:
         "envs/simulate_reads.yaml"
+    wildcard_constraints:
+        seq_mode=r"(?!real_data).*",
     script:
         "scripts/generate_haplotypes.py"
 
@@ -259,6 +261,57 @@ rule alignment_merged:
         bwa index {input.fname_reference}
         bwa mem {input.fname_reference} {input.fname_fastq_merged} > {output.fname_bam}
         samtools sort -o {output.fname_bam} {output.fname_bam}
+        """
+
+
+rule provide_real_data:
+    output:
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        fname_fasta=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes.fasta",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
+        ),
+    conda:
+        "envs/split.yaml"
+    resources:
+        mem_mb=5_000,
+        time_min=60 * 4,
+    wildcard_constraints:
+        seq_mode="real_data",
+    shell:
+        """
+        source="{wildcards.seq_mode_param}"
+        mkdir -p "{output.dname_work}"
+
+        if [[ "$source" == "5-virus-mix" ]]; then
+            # download all references
+            curl --output-dir "{output.dname_work}" -O "https://raw.githubusercontent.com/cbg-ethz/5-virus-mix/master/data/REF.fasta"
+
+            # only keep HXB2 reference
+            sed -ne '3p;4p' "{output.dname_work}/REF.fasta" > "{output.fname_reference}"
+
+            # download true haplotypes
+            curl --output-dir "{output.dname_work}" -O "https://raw.githubusercontent.com/cbg-ethz/5-virus-mix/master/data/5VM.fasta"
+            mv "{output.dname_work}/5VM.fasta" "{output.fname_fasta}"
+
+            # create ground truth information (TODO)
+            touch {output.fname_groundtruth}
+
+            # download fastq
+            curl --output-dir "{output.dname_work}" -O "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR961/SRR961514/SRR961514_1.fastq.gz"
+            curl --output-dir "{output.dname_work}" -O "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR961/SRR961514/SRR961514_2.fastq.gz"
+
+            # align reads to reference
+            bwa index {output.fname_reference}
+            bwa mem \
+                -t {threads} \
+                {output.fname_reference} \
+                "{output.dname_work}/SRR961514_1.fastq.gz" "{output.dname_work}/SRR961514_2.fastq.gz" \
+                > {output.fname_bam}
+            samtools sort -o {output.fname_bam} {output.fname_bam}
+        fi
         """
 
 
