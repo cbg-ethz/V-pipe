@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def main(
-    fname_bam, fname_reference, fname_result, fname_status, dname_work, timeout_min
+    fname_bam, fname_reference, fname_result, fname_status, dname_work, timeout_sec
 ):
     dname_work.mkdir(parents=True, exist_ok=True)
 
@@ -39,10 +39,10 @@ def main(
                 (dname_work / "reads.R2.fastq").resolve(),
             ],
             cwd=dname_work,
-            timeout=timeout_min,
+            timeout=timeout_sec,
         )
     except subprocess.TimeoutExpired:
-        print(f"Method timeout after {timeout_min} seconds")
+        print(f"Method timeout after {timeout_sec} seconds")
         fname_status.write_text("timeout")
         fname_result.touch()
         return
@@ -69,5 +69,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result),
         Path(snakemake.output.fname_status),
         Path(snakemake.output.dname_work),
-        (snakemake.resources.time_min - 2) * 60,  # two minutes for setup
+        (snakemake.resources.time_min - 60) * 60,  # one hour for setup
     )
