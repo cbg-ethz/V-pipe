@@ -18,10 +18,15 @@ def read_fasta_files(fasta_files):
         parts = str(fname).split("/")
 
         if len(parts) == 6:
+            # ground truth has no method
             _, _, params, _, replicate, _ = parts
             method = None
         elif len(parts) == 7:
+            # method results in main workflow
             _, _, params, method, _, replicate, _ = parts
+        elif len(parts) == 8:
+            # method results in sub workflows
+            _, _, _, params, method, _, replicate, _ = parts
         else:
             raise RuntimeError(f"Cannot parse {parts}")
 
