@@ -1,2 +1,2 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-,real_data,5-virus-mix,,,,
+illumina,real_data,5-virus-mix,,,,
