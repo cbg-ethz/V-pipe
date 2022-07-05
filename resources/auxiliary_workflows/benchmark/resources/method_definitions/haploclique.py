@@ -21,7 +21,10 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
             fname_bam_fixed, "wb", header=bam_in.header
         ) as bam_out:
             for read in bam_in.fetch(until_eof=True):
-                read.cigarstring = read.cigarstring.replace("X", "M").replace("=", "M")
+                if read.cigarstring is not None:
+                    read.cigarstring = read.cigarstring.replace("X", "M").replace(
+                        "=", "M"
+                    )
                 bam_out.write(read)
 
     # run tool
