@@ -12,23 +12,18 @@ import editdistance
 from Bio import SeqIO
 
 
-def read_fasta_files(fasta_files):
+def read_fasta_files(fasta_files, with_method=True):
     tmp = []
     for fname in fasta_files:
         parts = str(fname).split("/")
 
-        if len(parts) == 6:
-            # ground truth has no method
-            _, _, params, _, replicate, _ = parts
-            method = None
-        elif len(parts) == 7:
-            # method results in main workflow
-            _, _, params, method, _, replicate, _ = parts
-        elif len(parts) == 8:
-            # method results in sub workflows
-            _, _, _, params, method, _, replicate, _ = parts
+        if with_method:
+            params = parts[-5]
+            method = parts[-4]
         else:
-            raise RuntimeError(f"Cannot parse {parts}")
+            params = parts[-4]
+            method = None
+        replicate = parts[-2]
 
         for record in SeqIO.parse(fname, "fasta"):
             # description actually starts with id
@@ -59,7 +54,8 @@ def read_haplostats(haplostats_list):
     df_list = []
     for fname in haplostats_list:
         parts = str(fname).split("/")
-        _, _, params, _, replicate, _ = parts
+        params = parts[-4]
+        replicate = parts[-2]
 
         tmp = pd.read_csv(fname)
         tmp["params"] = params
@@ -74,7 +70,9 @@ def read_runstats(runstatus_list):
     tmp = []
     for fname in runstatus_list:
         parts = str(fname).split("/")
-        _, _, params, method, _, replicate, _ = parts
+        params = parts[-5]
+        method = parts[-4]
+        replicate = parts[-2]
 
         status = fname.read_text()
 
@@ -348,7 +346,7 @@ def main(
 
     # read data
     df_pred = read_fasta_files(predicted_haplos_list)
-    df_true = read_fasta_files(true_haplos_list)
+    df_true = read_fasta_files(true_haplos_list, with_method=False)
     df_true["method"] = "ground_truth"
 
     df_stats = read_haplostats(haplostats_list)
