@@ -38,6 +38,8 @@ def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_
             dname_work / "output",
             "-threads",
             str(thread_num),
+            "-Xms512m",
+            "-Xmx20g",
         ],
         check=True,
     )
