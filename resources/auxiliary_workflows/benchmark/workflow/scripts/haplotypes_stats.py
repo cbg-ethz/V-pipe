@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
 import os
-import vcf
 import pandas as pd
 import numpy as np
 import skbio
@@ -87,6 +85,12 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
     """
     Compute various diversity indices.
     """
+    if os.path.getsize(fname_snv_in) == 0:
+        # ground truth was empty for some reason
+        with open(fname_out, "w") as fd:
+            fd.write(f"coverage\n{coverage}\n")
+        return
+
     # get length of reference sequence
     ref_seq_length = len(load_reference_seq(fname_reference))
 
@@ -137,9 +141,9 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
     out_dict.update({"mutation_spectrum": mutation_spectrum(df_snv, bins)})
 
     # save to dataframe
-    df_diveristy = pd.DataFrame(columns=list(out_dict.keys()))
-    df_diveristy = df_diveristy.append(out_dict, ignore_index=True)
-    df_diveristy.to_csv(fname_out, index=False)
+    df_diversity = pd.DataFrame(columns=list(out_dict.keys()))
+    df_diversity = df_diversity.append(out_dict, ignore_index=True)
+    df_diversity.to_csv(fname_out, index=False)
 
 
 if __name__ == "__main__":
