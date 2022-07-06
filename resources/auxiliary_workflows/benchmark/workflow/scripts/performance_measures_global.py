@@ -204,6 +204,16 @@ def plot_quast(df_quast, dname_out):
 
 
 def sequence_embedding(df_pred, df_true, dname_out):
+    # subsample large results
+    max_num = 50
+
+    df_pred = df_pred.copy()
+    df_pred = (
+        df_pred.groupby("method")
+        .apply(lambda x: x.sample(n=min(len(x), max_num)))
+        .reset_index(drop=True)
+    )
+
     # compute dissimilarities
     sequence_list = df_pred["sequence"].tolist() + df_true["sequence"].tolist()
 
