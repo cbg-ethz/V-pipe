@@ -267,7 +267,9 @@ def compute_pr(df_pred, df_true, thres=0.05):
         return rel
 
     tmp = []
-    for (method, params), df_group in df_pred.groupby(["method", "params"]):
+    for (method, params, replicate), df_group in df_pred.groupby(
+        ["method", "params", "replicate"]
+    ):
         tp = 0
         fp = 0
         fn = 0
@@ -303,6 +305,7 @@ def compute_pr(df_pred, df_true, thres=0.05):
             {
                 "method": method,
                 "params": params,
+                "replicate": replicate,
                 "tp": tp,
                 "fp": fp,
                 "fn": fn,
@@ -324,39 +327,52 @@ def plot_pr(df_pr, df_stats, dname_out):
     # prepare data
     diversity_column_list = ["population_nucleotide_diversity", "mean_position_shannon"]
 
-    df_long = (
-        df_pr.merge(df_stats, on="params")
-        .melt(id_vars=["method", "params", *diversity_column_list])
-        .assign(params=lambda x: x["params"].str.replace("__", "\n"))
+    df_m = df_pr.merge(df_stats, on=["params", "replicate"]).assign(
+        params=lambda x: x["params"].str.replace("__", "\n")
     )
-    df_long = df_long[df_long["variable"].isin(["precision", "recall"])]
 
-    # plots
-    g = sns.FacetGrid(
-        df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
-    )
-    g.map_dataframe(sns.boxplot, x="params", y="value", hue="method")
-    g.map_dataframe(
-        sns.swarmplot, x="params", y="value", hue="method", dodge=True, clip_on=False
-    )
-    g.add_legend()
-    g.savefig(dname_out / "pr_overview.pdf")
+    # helper functions
+    def do_plot(df, x, y, fname):
+        fig, ax = plt.subplots()
 
-    for diversity_column in diversity_column_list:
-        g = sns.FacetGrid(
-            df_long, col="variable", col_wrap=2, sharey=False, ylim=(0, 1), height=6
-        )
-        g.map_dataframe(sns.boxplot, x=diversity_column, y="value", hue="method")
-        g.map_dataframe(
-            sns.swarmplot,
-            x=diversity_column,
-            y="value",
+        sns.boxplot(data=df, x=x, y=y, hue="method", ax=ax)
+        sns.swarmplot(
+            data=df,
+            x=x,
+            y=y,
             hue="method",
             dodge=True,
             clip_on=False,
+            linewidth=1,
+            edgecolor="gray",
+            ax=ax,
         )
-        g.add_legend()
-        g.savefig(dname_out / f"pr_diversity_{diversity_column}.pdf")
+
+        ax.set_ylim(0, 1)
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[:2], labels[:2])
+
+        fig.tight_layout()
+        fig.savefig(fname)
+
+    # plots
+    do_plot(df_m, "params", "precision", dname_out / "overview_precision.pdf")
+    do_plot(df_m, "params", "recall", dname_out / "overview_recall.pdf")
+
+    for diversity_column in diversity_column_list:
+        do_plot(
+            df_m,
+            diversity_column,
+            "precision",
+            dname_out / f"overview_precision_{diversity_column}.pdf",
+        )
+        do_plot(
+            df_m,
+            diversity_column,
+            "recall",
+            dname_out / f"overview_recall_{diversity_column}.pdf",
+        )
 
 
 def main(
