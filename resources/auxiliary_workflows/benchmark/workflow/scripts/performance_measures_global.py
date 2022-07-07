@@ -361,7 +361,7 @@ def plot_pr(df_pr, df_stats, dname_out):
         ax.set_ylim(0, 1)
 
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[:2], labels[:2])
+        ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
 
         fig.tight_layout()
         fig.savefig(fname)
