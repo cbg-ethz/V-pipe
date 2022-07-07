@@ -1,3 +1,4 @@
+import functools
 import subprocess
 from pathlib import Path
 
@@ -263,6 +264,7 @@ def sequence_embedding(df_pred, df_true, dname_out):
 
 
 def compute_pr(df_pred, df_true, thres=0.05):
+    @functools.lru_cache(None)
     def compute_dist(seq1, seq2):
         dist = editdistance.eval(seq1, seq2)
         rel = dist / max(len(seq1), len(seq2))
