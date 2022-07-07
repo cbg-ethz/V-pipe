@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 def read_fasta_files(fasta_files, with_method=True):
     tmp = []
-    for fname in fasta_files:
+    for fname in tqdm(fasta_files, desc="Read FASTA files"):
         parts = str(fname).split("/")
 
         if with_method:
@@ -54,7 +54,7 @@ def read_fasta_files(fasta_files, with_method=True):
 
 def read_haplostats(haplostats_list):
     df_list = []
-    for fname in haplostats_list:
+    for fname in tqdm(haplostats_list, desc="Read haplostat files"):
         parts = str(fname).split("/")
         params = parts[-4]
         replicate = parts[-2]
@@ -70,7 +70,7 @@ def read_haplostats(haplostats_list):
 
 def read_runstats(runstatus_list):
     tmp = []
-    for fname in runstatus_list:
+    for fname in tqdm(runstatus_list, desc="Read runstatus files"):
         parts = str(fname).split("/")
         params = parts[-5]
         method = parts[-4]
@@ -209,7 +209,9 @@ def sequence_embedding(df_pred, df_true, dname_out):
     mds_dir = dname_out / "mds_plots"
     mds_dir.mkdir(parents=True)
 
-    for (params, replicate), df_pred_grpd in df_pred.groupby(["params", "replicate"]):
+    for (params, replicate), df_pred_grpd in tqdm(
+        df_pred.groupby(["params", "replicate"]), desc="Compute MDS"
+    ):
         df_true_grpd = df_true[
             (df_true["params"] == params) & (df_true["replicate"] == replicate)
         ]
@@ -230,8 +232,8 @@ def sequence_embedding(df_pred, df_true, dname_out):
         )
 
         mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
-        for i, seq1 in enumerate(tqdm(sequence_list)):
-            for j, seq2 in enumerate(tqdm(sequence_list)):
+        for i, seq1 in enumerate(tqdm(sequence_list, leave=False)):
+            for j, seq2 in enumerate(tqdm(sequence_list, leave=False)):
                 if i >= j:
                     continue
 
@@ -267,8 +269,8 @@ def compute_pr(df_pred, df_true, thres=0.05):
         return rel
 
     tmp = []
-    for (method, params, replicate), df_group in df_pred.groupby(
-        ["method", "params", "replicate"]
+    for (method, params, replicate), df_group in tqdm(
+        df_pred.groupby(["method", "params", "replicate"]), desc="Compute PR"
     ):
         tp = 0
         fp = 0
@@ -276,7 +278,7 @@ def compute_pr(df_pred, df_true, thres=0.05):
 
         # true positive: predicted seq appears in ground truth
         # false positive: predicted seq does not appear in ground truth
-        for row in df_group.itertuples():
+        for row in tqdm(df_group.itertuples(), leave=False):
             ser_dist = df_true["sequence"].apply(
                 lambda x: compute_dist(x, row.sequence)
             )
@@ -290,7 +292,7 @@ def compute_pr(df_pred, df_true, thres=0.05):
         # false negative: ground truth sequence was not predicted
         # single prediction should not map to multiple ground truth seqs
         df_cur = df_group.copy()
-        for row in df_true.itertuples():
+        for row in tqdm(df_true.itertuples(), leave=False):
             ser_dist = df_cur["sequence"].apply(lambda x: compute_dist(x, row.sequence))
             passed_thres = (ser_dist <= thres).any()
 
