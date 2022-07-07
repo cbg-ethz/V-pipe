@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import editdistance
 from Bio import SeqIO
 
+from tqdm import tqdm
+
 
 def read_fasta_files(fasta_files, with_method=True):
     tmp = []
@@ -204,50 +206,58 @@ def plot_quast(df_quast, dname_out):
 
 
 def sequence_embedding(df_pred, df_true, dname_out):
-    # subsample large results
-    max_num = 50
+    mds_dir = dname_out / "mds_plots"
+    mds_dir.mkdir(parents=True)
 
-    df_pred = df_pred.copy()
-    df_pred = (
-        df_pred.groupby("method")
-        .apply(lambda x: x.sample(n=min(len(x), max_num)))
-        .reset_index(drop=True)
-    )
+    for (params, replicate), df_pred_grpd in df_pred.groupby(["params", "replicate"]):
+        df_true_grpd = df_true[
+            (df_true["params"] == params) & (df_true["replicate"] == replicate)
+        ]
 
-    # compute dissimilarities
-    sequence_list = df_pred["sequence"].tolist() + df_true["sequence"].tolist()
+        # subsample large results
+        max_num = 50
 
-    mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
-    print(mat.shape)
-    for i, seq1 in enumerate(sequence_list):
-        for j, seq2 in enumerate(sequence_list):
-            if i >= j:
-                continue
+        df_pred_grpd = df_pred_grpd.copy()
+        df_pred_grpd = (
+            df_pred_grpd.groupby("method")
+            .apply(lambda x: x.sample(n=min(len(x), max_num)))
+            .reset_index(drop=True)
+        )
 
-            print(i, j)
-            mat[i, j] = editdistance.eval(seq1, seq2)
+        # compute dissimilarities
+        sequence_list = (
+            df_pred_grpd["sequence"].tolist() + df_true_grpd["sequence"].tolist()
+        )
 
-    mat = np.triu(mat) + np.tril(mat.T, 1)  # mirror to make symmetric
+        mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
+        for i, seq1 in enumerate(tqdm(sequence_list)):
+            for j, seq2 in enumerate(tqdm(sequence_list)):
+                if i >= j:
+                    continue
 
-    # do MDS
-    embedding = manifold.MDS(n_components=2, dissimilarity="precomputed")
-    mat_trans = embedding.fit_transform(mat)
+                mat[i, j] = editdistance.eval(seq1, seq2)
 
-    df = pd.concat(
-        [
-            pd.DataFrame(mat_trans, columns=["MDS0", "MDS1"]),
-            pd.concat([df_pred, df_true], axis=0, ignore_index=True),
-        ],
-        axis=1,
-    )
-    df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
+        mat = np.triu(mat) + np.tril(mat.T, 1)  # mirror to make symmetric
 
-    # plot result
-    fig, ax = plt.subplots(figsize=(8, 6))
+        # do MDS
+        embedding = manifold.MDS(n_components=2, dissimilarity="precomputed")
+        mat_trans = embedding.fit_transform(mat)
 
-    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+        df = pd.concat(
+            [
+                pd.DataFrame(mat_trans, columns=["MDS0", "MDS1"]),
+                pd.concat([df_pred_grpd, df_true_grpd], axis=0, ignore_index=True),
+            ],
+            axis=1,
+        )
+        df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
 
-    fig.savefig(dname_out / "sequence_mds.pdf")
+        # plot result
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+
+        fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
 
 
 def compute_pr(df_pred, df_true, thres=0.05):
