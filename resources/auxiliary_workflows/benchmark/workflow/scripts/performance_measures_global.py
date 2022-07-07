@@ -278,10 +278,14 @@ def compute_pr(df_pred, df_true, thres=0.05):
         fp = 0
         fn = 0
 
+        df_true_grpd = df_true[
+            (df_true["params"] == params) & (df_true["replicate"] == replicate)
+        ]
+
         # true positive: predicted seq appears in ground truth
         # false positive: predicted seq does not appear in ground truth
         for row in tqdm(df_group.itertuples(), total=df_group.shape[0], leave=False):
-            ser_dist = df_true["sequence"].apply(
+            ser_dist = df_true_grpd["sequence"].apply(
                 lambda x: compute_dist(x, row.sequence)
             )
             passed_thres = (ser_dist <= thres).any()
@@ -294,7 +298,9 @@ def compute_pr(df_pred, df_true, thres=0.05):
         # false negative: ground truth sequence was not predicted
         # single prediction should not map to multiple ground truth seqs
         df_cur = df_group.copy()
-        for row in tqdm(df_true.itertuples(), total=df_true.shape[0], leave=False):
+        for row in tqdm(
+            df_true_grpd.itertuples(), total=df_true_grpd.shape[0], leave=False
+        ):
             ser_dist = df_cur["sequence"].apply(lambda x: compute_dist(x, row.sequence))
             passed_thres = (ser_dist <= thres).any()
 
