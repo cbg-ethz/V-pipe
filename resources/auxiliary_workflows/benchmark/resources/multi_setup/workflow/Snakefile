@@ -8,16 +8,28 @@ def load_config(path):
 
 
 # import modules
-module distance:
+module distance_varycoverage:
     snakefile:
         "../../../workflow/Snakefile"
     config:
-        load_config("config_distance/config.yaml")
+        load_config("config_distance_varycoverage/config.yaml")
     replace_prefix:
-        {"results/": "results/distance/"}
+        {"results/": "results/distance_varycoverage/"}
 
 
-use rule * from distance as distance_*
+use rule * from distance_varycoverage as distance_varycoverage_*
+
+
+module distance_varyparams:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_distance_varyparams/config.yaml")
+    replace_prefix:
+        {"results/": "results/distance_varyparams/"}
+
+
+use rule * from distance_varyparams as distance_varyparams_*
 
 
 module mutationrate:
@@ -47,7 +59,8 @@ use rule * from realdata as realdata_*
 # define required output files
 rule all:
     input:
-        rules.distance_all.input,
-        rules.mutationrate_all.input,
-        rules.realdata_all.input,
+        rules.distance_varycoverage_all.input,
+        rules.distance_varyparams_all.input,
+        # rules.mutationrate_all.input,
+        # rules.realdata_all.input,
     default_target: True
