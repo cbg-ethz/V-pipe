@@ -210,6 +210,7 @@ def sequence_embedding(df_pred, df_true, dname_out):
     mds_dir = dname_out / "mds_plots"
     mds_dir.mkdir(parents=True)
 
+    df_list = []
     for (params, replicate), df_pred_grpd in tqdm(
         df_pred.groupby(["params", "replicate"]), desc="Compute MDS"
     ):
@@ -254,6 +255,10 @@ def sequence_embedding(df_pred, df_true, dname_out):
             axis=1,
         )
         df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
+        df["params"] = params
+        df["replicate"] = replicate
+
+        df_list.append(df)
 
         # plot result
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -261,6 +266,8 @@ def sequence_embedding(df_pred, df_true, dname_out):
         sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
 
         fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
+
+    return pd.concat(df_list, ignore_index=True)
 
 
 def compute_pr(df_pred, df_true, thres=0.05):
@@ -420,7 +427,7 @@ def main(
     plot_quast(df_quast, dname_out)
 
     # MDS
-    sequence_embedding(df_pred, df_true, dname_out)
+    df_mds = sequence_embedding(df_pred, df_true, dname_out)
 
     # save raw results
     csv_dir = dname_out / "csv_files"
@@ -432,6 +439,7 @@ def main(
     df_runstats.to_csv(csv_dir / "run_stats.csv")
     df_pr.to_csv(csv_dir / "pr_results.csv")
     df_quast.to_csv(csv_dir / "quast_results.csv")
+    df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
 
 if __name__ == "__main__":
