@@ -11,7 +11,13 @@ import pysam
 
 
 def main(
-    fname_bam, fname_reference, fname_result, fname_status, dname_work, timeout_sec
+    fname_bam,
+    fname_reference,
+    fname_result,
+    fname_status,
+    dname_work,
+    timeout_sec,
+    thread_num,
 ):
     dname_work.mkdir(parents=True, exist_ok=True)
 
@@ -48,8 +54,10 @@ def main(
             [
                 "haploconduct",
                 "savage",
-                # "--ref",
-                # fname_reference.resolve(),
+                "--ref",
+                fname_reference.resolve(),
+                "--num_threads",
+                str(thread_num),
                 "--split",
                 str(split_num),
                 "-p1",
@@ -89,4 +97,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_status),
         Path(snakemake.output.dname_work),
         (snakemake.resources.time_min - 60) * 60,  # one hour for setup
+        snakemake.threads,
     )
