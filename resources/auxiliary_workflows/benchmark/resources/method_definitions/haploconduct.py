@@ -31,7 +31,7 @@ def main(
     # estimate reasonable split parameter
     # goal: 500 < coverage/split_num < 1000
     depth_list = []
-    for line in pysam.depth("-a", fname_bam).splitlines():
+    for line in pysam.depth("-a", str(fname_bam)).splitlines():
         depth_list.append(int(line.split()[2]))
     coverage_mean = statistics.mean(depth_list)
 
