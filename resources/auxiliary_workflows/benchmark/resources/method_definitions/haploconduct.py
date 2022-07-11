@@ -32,7 +32,8 @@ def main(
     # goal: 500 < coverage/split_num < 1000
     depth_list = []
     for line in pysam.depth("-a", str(fname_bam)).splitlines():
-        depth_list.append(int(line.split()[2]))
+        _, _, depth = line.split()
+        depth_list.append(int(depth))
     coverage_mean = statistics.mean(depth_list)
 
     split_num = 1
