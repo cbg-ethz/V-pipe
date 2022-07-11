@@ -1,9 +1,13 @@
 # GROUP: global
 # CONDA: haploconduct = 0.2.1
 # CONDA: samtools = 1.15.1
+# CONDA: pysam = 0.19.1
 
+import statistics
 import subprocess
 from pathlib import Path
+
+import pysam
 
 
 def main(
@@ -24,6 +28,20 @@ def main(
         check=True,
     )
 
+    # estimate reasonable split parameter
+    # goal: 500 < coverage/split_num < 1000
+    depth_list = []
+    for line in pysam.depth("-a", fname_bam).splitlines():
+        depth_list.append(int(line.split()[2]))
+    coverage_mean = statistics.mean(depth_list)
+
+    split_num = 1
+    while coverage_mean / split_num > 1000:
+        split_num += 1
+    print(
+        f"Split estimate: {split_num} (coverage / split_num = {round(coverage_mean / split_num, 1)})"
+    )
+
     try:
         subprocess.run(
             [
@@ -32,7 +50,7 @@ def main(
                 # "--ref",
                 # fname_reference.resolve(),
                 "--split",
-                "4",  # TODO: choose this appropriately
+                str(split_num),
                 "-p1",
                 (dname_work / "reads.R1.fastq").resolve(),
                 "-p2",
