@@ -13,7 +13,18 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
-        ["quasirecomb", "-i", fname_bam, "-o", dname_work / "output"], check=True
+        [
+            "quasirecomb",
+            "-i",
+            fname_bam,
+            "-o",
+            dname_work / "output",
+            "-XX:NewRatio=9",
+            "-Xms512m",
+            "-Xmx20g",
+            "-XX:+UseParallelGC",
+        ],
+        check=True,
     )
     fname_quasi = dname_work / "output" / "quasispecies.fasta"
 
