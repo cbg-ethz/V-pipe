@@ -456,6 +456,12 @@ rule performance_measures_global:
             for method in method_list_global
             for replicate in range(config["replicate_count"])
         ],
+        benchmark_list=[
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
+            for params in paramspace.instance_patterns
+            for method in method_list_global
+            for replicate in range(config["replicate_count"])
+        ],
     output:
         dname_out=directory("results/performance_measures/global/"),
     conda:

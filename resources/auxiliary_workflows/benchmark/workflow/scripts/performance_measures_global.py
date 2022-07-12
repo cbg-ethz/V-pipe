@@ -1,3 +1,4 @@
+import datetime
 import functools
 import subprocess
 from pathlib import Path
@@ -8,6 +9,7 @@ from sklearn import manifold
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 import editdistance
 from Bio import SeqIO
@@ -91,6 +93,24 @@ def read_runstats(runstatus_list):
     return pd.DataFrame(tmp)
 
 
+def read_benchmarks(benchmark_list):
+    df_list = []
+    for fname in tqdm(benchmark_list, desc="Read benchmark files"):
+        parts = str(fname).split("/")
+        params = parts[-5]
+        method = parts[-4]
+        replicate = parts[-2]
+
+        tmp = pd.read_csv(fname, sep="\t")
+        tmp["params"] = params
+        tmp["method"] = method
+        tmp["replicate"] = replicate
+
+        df_list.append(tmp)
+
+    return pd.concat(df_list)
+
+
 def overview_plots(df_haplo, dname_out):
     if df_haplo.empty:
         print("Warning: df_haplo is empty")
@@ -120,6 +140,42 @@ def overview_plots(df_haplo, dname_out):
         ax.tick_params(axis="x", which="major", labelsize=1)
 
     g.savefig(dname_out / "overview.pdf")
+
+
+def benchmark_plots(df_bench, dname_out):
+    @FuncFormatter
+    def fmt_yaxis(x, pos):
+        return str(datetime.timedelta(seconds=x))
+
+    # prepare data
+    df_bench["params"] = df_bench["params"].str.replace("__", "\n")
+
+    # plot
+    fig, ax = plt.subplots()
+
+    sns.boxplot(data=df_bench, x="params", y="s", hue="method", ax=ax)
+    sns.swarmplot(
+        data=df_bench,
+        x="params",
+        y="s",
+        hue="method",
+        dodge=True,
+        clip_on=False,
+        linewidth=1,
+        edgecolor="gray",
+        ax=ax,
+    )
+
+    ax.tick_params(axis="x", which="major", labelsize=1)
+
+    ax.set_ylabel("Runtime [hh:mm:ss]")
+    ax.yaxis.set_major_formatter(fmt_yaxis)
+
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
+
+    fig.tight_layout()
+    fig.savefig(dname_out / "benchmark_plot.pdf")
 
 
 def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
@@ -394,7 +450,12 @@ def plot_pr(df_pr, df_stats, dname_out):
 
 
 def main(
-    predicted_haplos_list, true_haplos_list, haplostats_list, runstatus_list, dname_out
+    predicted_haplos_list,
+    true_haplos_list,
+    haplostats_list,
+    runstatus_list,
+    benchmark_list,
+    dname_out,
 ):
     dname_out.mkdir(parents=True)
 
@@ -405,6 +466,7 @@ def main(
 
     df_stats = read_haplostats(haplostats_list)
     df_runstats = read_runstats(runstatus_list)
+    df_bench = read_benchmarks(benchmark_list)
 
     # quick stats
     print("Run status")
@@ -415,6 +477,9 @@ def main(
 
     # create plots
     overview_plots(df_pred, dname_out)
+
+    # benchmark plots
+    benchmark_plots(df_bench, dname_out)
 
     # precision/recall
     df_pr = compute_pr(df_pred, df_true)
@@ -455,5 +520,6 @@ if __name__ == "__main__":
         [Path(e) for e in snakemake.input.true_haplos_list],
         [Path(e) for e in snakemake.input.haplostats_list],
         [Path(e) for e in snakemake.input.runstatus_list],
+        [Path(e) for e in snakemake.input.benchmark_list],
         Path(snakemake.output.dname_out),
     )
