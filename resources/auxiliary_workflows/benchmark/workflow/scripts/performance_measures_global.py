@@ -494,11 +494,13 @@ def main(
     # MDS
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
 
-    # special non-HaploClique MDS plot because it's so far away
+    # subset MDS plot to show well-performing methods
     sequence_embedding(
-        df_pred[df_pred["method"] != "haploclique"],
+        df_pred[
+            (df_pred["method"] != "haploclique") & (df_pred["method"] != "haploconduct")
+        ],
         df_true,
-        dname_out / "no_haploclique",
+        dname_out / "subset",
     )
 
     # save raw results
