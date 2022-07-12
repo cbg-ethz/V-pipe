@@ -429,6 +429,13 @@ def main(
     # MDS
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
 
+    # special non-HaploClique MDS plot because it's so far away
+    sequence_embedding(
+        df_pred[df_pred["method"] != "haploclique"],
+        df_true,
+        dname_out / "no_haploclique",
+    )
+
     # save raw results
     csv_dir = dname_out / "csv_files"
     csv_dir.mkdir(parents=True, exist_ok=True)
