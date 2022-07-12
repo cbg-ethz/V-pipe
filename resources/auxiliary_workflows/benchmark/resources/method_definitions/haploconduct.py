@@ -2,12 +2,14 @@
 # CONDA: haploconduct = 0.2.1
 # CONDA: samtools = 1.15.1
 # CONDA: pysam = 0.19.1
+# CONDA: biopython = 1.79
 
 import statistics
 import subprocess
 from pathlib import Path
 
 import pysam
+from Bio import SeqIO
 
 
 def main(
@@ -82,7 +84,14 @@ def main(
     for result in [result_c, result_b, result_a]:
         if result.exists():
             print(f"Using stage result {result}")
-            result.rename(fname_result)
+
+            # add dummy frequencies
+            record_list = []
+            for record in SeqIO.parse(result, "fasta"):
+                record.description = "freq:-1"
+                record_list.append(record)
+            SeqIO.write(record_list, fname_result, "fasta")
+
             break
     else:
         fname_status.write_text("crash")
