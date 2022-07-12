@@ -485,11 +485,11 @@ def main(
     df_pr = compute_pr(df_pred, df_true)
     plot_pr(df_pr, df_stats, dname_out)
 
-    # quast stuff
-    df_quast = run_metaquast(
-        predicted_haplos_list, true_haplos_list, dname_out / "quast"
-    )
-    plot_quast(df_quast, dname_out)
+    # # quast stuff
+    # df_quast = run_metaquast(
+    #     predicted_haplos_list, true_haplos_list, dname_out / "quast"
+    # )
+    # plot_quast(df_quast, dname_out)
 
     # MDS
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
@@ -510,7 +510,7 @@ def main(
     df_stats.to_csv(csv_dir / "data_stats.csv")
     df_runstats.to_csv(csv_dir / "run_stats.csv")
     df_pr.to_csv(csv_dir / "pr_results.csv")
-    df_quast.to_csv(csv_dir / "quast_results.csv")
+    # df_quast.to_csv(csv_dir / "quast_results.csv")
     df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
 
