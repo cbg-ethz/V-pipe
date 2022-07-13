@@ -345,6 +345,10 @@ def compute_pr(df_pred, df_true, thres=0.05):
             (df_true["params"] == params) & (df_true["replicate"] == replicate)
         ]
 
+        # subsample large results
+        max_num = 500
+        df_group = df_group.sample(n=min(df_group.shape[0], max_num))
+
         # true positive: predicted seq appears in ground truth
         # false positive: predicted seq does not appear in ground truth
         for row in tqdm(df_group.itertuples(), total=df_group.shape[0], leave=False):
