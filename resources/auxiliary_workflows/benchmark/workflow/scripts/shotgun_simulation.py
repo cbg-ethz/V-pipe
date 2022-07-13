@@ -39,12 +39,13 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
     )
 
 
-def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix):
+def simulate_pacbio(
+    fname_haplotype, coverage_haplotype, read_length, art_prefix, pbsim2_model
+):
     """Simulate long reads with PacBio error profile using PBSIM2."""
     diff_ratio = "6:50:54"  # --difference-ratio
-    hmm_model = "resources/pbsim2/data/P6C4.model"
-
     # run PBSIM2
+    print("fname_haplotype ", fname_haplotype)
     subprocess.run(
         [
             "pbsim",
@@ -58,7 +59,7 @@ def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix
             "--depth",
             str(coverage_haplotype),
             "--hmm_model",
-            hmm_model,
+            pbsim2_model,
             "--difference-ratio",
             diff_ratio,
             "--prefix",
@@ -84,11 +85,11 @@ def simulate_pacbio(fname_haplotype, coverage_haplotype, read_length, art_prefix
     )
 
 
-def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_prefix):
+def simulate_nanopore(
+    fname_haplotype, coverage_haplotype, read_length, art_prefix, pbsim2_model
+):
     # --difference-ratio 23:31:46
     diff_ratio = "23:31:46"  # --difference-ratio
-    hmm_model = "resources/pbsim2/data/P6C4.model"
-
     # run PBSIM2
     subprocess.run(
         [
@@ -103,7 +104,7 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
             "--depth",
             str(coverage_haplotype),
             "--hmm_model",
-            hmm_model,
+            pbsim2_model,
             "--difference-ratio",
             diff_ratio,
             "--prefix",
@@ -129,7 +130,9 @@ def simulate_nanopore(fname_haplotype, coverage_haplotype, read_length, art_pref
     )
 
 
-def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
+def main(
+    fname_fastq, fname_bam, dname_work, haplotype_generation, params, pbsim2_model
+):
     master_name = "MasterSequence"
 
     if haplotype_generation == "distance":
@@ -186,12 +189,21 @@ def main(fname_fastq, fname_bam, dname_work, haplotype_generation, params):
                 fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
             )
         elif params["seq_tech"] == "pacbio":
+            print("art_prefix ", art_prefix)
             simulate_pacbio(
-                fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
+                fname_haplotype,
+                coverage_haplotype,
+                params["read_length"],
+                art_prefix,
+                pbsim2_model,
             )
         elif params["seq_tech"] == "nanopore":
             simulate_nanopore(
-                fname_haplotype, coverage_haplotype, params["read_length"], art_prefix
+                fname_haplotype,
+                coverage_haplotype,
+                params["read_length"],
+                art_prefix,
+                pbsim2_model,
             )
 
         # we assume that generated SAM file represent reads being mapped
@@ -251,4 +263,5 @@ if __name__ == "__main__":
         Path(snakemake.input.dname_work),
         snakemake.params.haplotype_generation,
         snakemake.params.params,
+        snakemake.input.pbsim2_model,
     )

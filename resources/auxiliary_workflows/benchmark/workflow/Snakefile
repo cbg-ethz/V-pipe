@@ -58,6 +58,7 @@ if sequencing_mode.startswith("amplicon"):
     ]  # TODO: Allow different sequencing_modes in parameter file
 
 
+
 # helper functions
 def get_generated_conda_env(wildcards, input):
     # retrieve conda dependencies from script
@@ -138,6 +139,17 @@ rule all:
         ),
 
 
+rule download_pbsim2_model:
+    output:
+        dname=directory(f"resources/pbsim2/"),
+        fname_pbsim2_model=f"resources/pbsim2/P6C4.model",
+    shell:
+        """
+        mkdir -p "{output.dname}"
+        cd "{output.dname}"
+        wget https://raw.githubusercontent.com/yukiteruono/pbsim2/master/data/P6C4.model
+        """
+
 rule generate_haplotypes:
     output:
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
@@ -160,6 +172,7 @@ rule generate_haplotypes:
 rule shotgun_simulation:
     input:
         dname_work=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/",
+        pbsim2_model=f"resources/pbsim2/P6C4.model",
     output:
         fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
