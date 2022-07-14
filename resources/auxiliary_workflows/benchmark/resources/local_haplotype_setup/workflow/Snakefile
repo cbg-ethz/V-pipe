@@ -42,6 +42,18 @@ rule all:
         "results/distance/performance_measures/local/",
     default_target: True
 
+rule download_pbsim2_model:
+    output:
+        dname=directory(f"resources/pbsim2/"),
+        fname_pbsim2_model=f"resources/pbsim2/P6C4.model",
+    default_target: True
+    shell:
+        """
+        mkdir -p "{output.dname}"
+        cd "{output.dname}"
+        wget https://raw.githubusercontent.com/yukiteruono/pbsim2/master/data/P6C4.model
+        """
+
 # distance rules
 use rule run_method_local from distance as distance_run_method_local_global with:
     output:
