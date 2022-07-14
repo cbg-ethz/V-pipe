@@ -2,7 +2,7 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-phred-scores
+# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-quality-scores
 
 import subprocess
 from pathlib import Path
