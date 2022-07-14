@@ -2,7 +2,7 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@inference-mfa-looser-convergence
+# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-new-inference
 
 
 """
