@@ -2,7 +2,7 @@
 # CONDA: haploconduct = 0.2.1
 # CONDA: samtools = 1.15.1
 # CONDA: pysam = 0.19.1
-# CONDA: biopython = 1.79
+# CONDA: biopython = 1.76
 
 import statistics
 import subprocess
