@@ -131,6 +131,7 @@ rule all:
     input:
         "results/performance_measures/local/" if len(method_list_local) > 0 else [],
         "results/performance_measures/global/" if len(method_list_global) > 0 else [],
+        "results/haplo_stats/summary.csv",
         #"results/haplotype_populations/" if config['haplotype_generation'] == 'distance' else None,
         expand(
             "results/read_statistics/{params}/replicates/{replicate}/",
@@ -409,6 +410,22 @@ rule haplotypes_stats:
         "envs/haplotype_stats.yaml"
     script:
         "scripts/haplotypes_stats.py"
+
+rule collect_haplotypes_stats:
+    input:
+        haplostats_list=[
+            f"results/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in paramspace.instance_patterns
+            for replicate in range(config["replicate_count"])
+        ],
+    output:
+        fname_haplostats_summary=f"results/haplo_stats/summary.csv",
+    run:
+        import pandas as pd
+        merged_deletions_csv = pd.concat(
+            [pd.read_csv(path_del) for path_del in input.haplostats_list]
+        )
+        merged_deletions_csv.to_csv(output.fname_haplostats_summary)
 
 
 rule performance_measures_local:
