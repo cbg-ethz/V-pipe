@@ -1,4 +1,4 @@
-method_list: [haploclique, quasirecomb, predicthaplo, haploconduct, cliquesnv]
+method_list: [haploclique, predicthaplo, haploconduct, cliquesnv]
 replicate_count: 10
 haplotype_generation: mutation_rate
 params_path: config_mutationrate/params.csv

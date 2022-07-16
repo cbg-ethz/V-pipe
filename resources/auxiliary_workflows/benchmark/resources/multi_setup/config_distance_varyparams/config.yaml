@@ -1,4 +1,4 @@
-method_list: [haploclique, quasirecomb, predicthaplo, haploconduct, cliquesnv]
+method_list: [haploclique, predicthaplo, haploconduct, cliquesnv]
 replicate_count: 10
 haplotype_generation: distance
 params_path: config_distance_varyparams/params.csv
