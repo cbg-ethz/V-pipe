@@ -288,7 +288,7 @@ rule provide_real_data:
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
     conda:
-        "envs/split.yaml"
+        "envs/real_data.yaml"
     resources:
         mem_mb=5_000,
         time_min=60 * 4,
