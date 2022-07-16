@@ -296,7 +296,12 @@ rule provide_real_data:
         seq_mode="real_data",
     shell:
         """
-        source="{wildcards.seq_mode_param}"
+        tmp="{wildcards.seq_mode_param}"
+        parts=(${{tmp//@/ }})
+        source="${{parts[0]}}"
+        subsample_frac="${{parts[1]}}"
+        echo "Using $subsample_frac of $source"
+
         mkdir -p "{output.dname_work}"
 
         if [[ "$source" == "5-virus-mix" ]]; then
@@ -325,6 +330,11 @@ rule provide_real_data:
                 "{output.dname_work}/SRR961514_1.fastq.gz" "{output.dname_work}/SRR961514_2.fastq.gz" \
                 > {output.fname_bam}
             samtools sort -o {output.fname_bam} {output.fname_bam}
+
+            # subsample
+            tmpfile="{output.dname_work}/tmp.bam"
+            samtools view --subsample "$subsample_frac" -o "$tmpfile" {output.fname_bam}
+            mv "$tmpfile" {output.fname_bam}
         fi
         """
 

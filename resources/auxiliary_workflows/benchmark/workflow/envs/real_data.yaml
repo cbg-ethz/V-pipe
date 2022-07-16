@@ -6,4 +6,4 @@ dependencies:
   - curl = 7.83.1
   - sed = 4.8
   - bwa = 0.7.17
-  - samtools = 1.9
+  - samtools = 1.15.1

@@ -1,4 +1,4 @@
 method_list: [haploclique, predicthaplo, haploconduct, cliquesnv]
-replicate_count: 1
+replicate_count: 3
 haplotype_generation: null
 params_path: config_realdata/params.csv
