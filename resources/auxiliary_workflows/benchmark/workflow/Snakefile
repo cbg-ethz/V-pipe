@@ -333,7 +333,11 @@ rule provide_real_data:
 
             # subsample
             tmpfile="{output.dname_work}/tmp.bam"
-            samtools view --subsample "$subsample_frac" -o "$tmpfile" {output.fname_bam}
+            samtools view \
+              --subsample "$subsample_frac" \
+              --subsample-seed "{wildcards.replicate}" \
+              -o "$tmpfile" \
+              {output.fname_bam}
             mv "$tmpfile" {output.fname_bam}
         fi
         """
