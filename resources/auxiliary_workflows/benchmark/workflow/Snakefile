@@ -58,7 +58,6 @@ if sequencing_mode.startswith("amplicon"):
     ]  # TODO: Allow different sequencing_modes in parameter file
 
 
-
 # helper functions
 def get_generated_conda_env(wildcards, input):
     # retrieve conda dependencies from script
@@ -150,6 +149,7 @@ rule download_pbsim2_model:
         cd "{output.dname}"
         wget https://raw.githubusercontent.com/yukiteruono/pbsim2/master/data/P6C4.model
         """
+
 
 rule generate_haplotypes:
     output:
@@ -311,9 +311,18 @@ rule provide_real_data:
             # only keep HXB2 reference
             sed -ne '3p;4p' "{output.dname_work}/REF.fasta" > "{output.fname_reference}"
 
-            # download true haplotypes
+            # download true haplotypes and set frequencies (source: table 1 in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132706/)
             curl --output-dir "{output.dname_work}" -O "https://raw.githubusercontent.com/cbg-ethz/5-virus-mix/master/data/5VM.fasta"
             mv "{output.dname_work}/5VM.fasta" "{output.fname_fasta}"
+
+            sed \
+              -i \
+              -e "s/>89.6/>89.6 freq:0.221/" \
+              -e "s/>HXB2/>HXB2 freq:0.112/" \
+              -e "s/>JRCSF/>JRCSF freq:0.28/" \
+              -e "s/>NL43/>NL43 freq:0.273/" \
+              -e "s/>YU2/>YU2 freq:0.111/" \
+              "{output.fname_fasta}"
 
             # create ground truth information (TODO)
             touch {output.fname_groundtruth}
@@ -425,6 +434,7 @@ rule haplotypes_stats:
     script:
         "scripts/haplotypes_stats.py"
 
+
 rule collect_haplotypes_stats:
     input:
         haplostats_list=[
@@ -436,6 +446,7 @@ rule collect_haplotypes_stats:
         fname_haplostats_summary=f"results/haplo_stats/summary.csv",
     run:
         import pandas as pd
+
         merged_deletions_csv = pd.concat(
             [pd.read_csv(path_del) for path_del in input.haplostats_list]
         )
