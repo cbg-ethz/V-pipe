@@ -141,13 +141,15 @@ rule all:
 
 rule download_pbsim2_model:
     output:
-        dname=directory(f"resources/pbsim2/"),
-        fname_pbsim2_model=f"resources/pbsim2/P6C4.model",
+        fname_pbsim2_model="results/pbsim2/P6C4.model",
     shell:
         """
-        mkdir -p "{output.dname}"
-        cd "{output.dname}"
-        wget https://raw.githubusercontent.com/yukiteruono/pbsim2/master/data/P6C4.model
+        dname="$(dirname {output.fname_pbsim2_model})"
+        mkdir -p "$dname"
+
+        wget \
+            -O "{output.fname_pbsim2_model}" \
+            https://raw.githubusercontent.com/yukiteruono/pbsim2/master/data/P6C4.model
         """
 
 
@@ -173,7 +175,7 @@ rule generate_haplotypes:
 rule shotgun_simulation:
     input:
         dname_work=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/",
-        pbsim2_model=f"resources/pbsim2/P6C4.model",
+        pbsim2_model="results/pbsim2/P6C4.model",
     output:
         fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
