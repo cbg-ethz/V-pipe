@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 from Bio import SeqIO
+from Bio.Seq import Seq
 
 
 def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_num):
@@ -51,6 +52,9 @@ def main(fname_bam, fname_reference, fname_result, dname_work, seq_type, thread_
         for record in SeqIO.parse(fname_cliquesnv, "fasta"):
             _, _, freq = record.id.split("_")
             record.description = f"freq:{freq}"
+
+            seq_nodel = str(record.seq).replace("-", "")
+            record.seq = Seq(seq_nodel)
 
             record_list.append(record)
     else:
