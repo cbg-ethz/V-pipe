@@ -439,6 +439,10 @@ def plot_pr(df_pr, df_stats, dname_out):
     do_plot(df_m, "params", "recall", dname_out / "overview_recall.pdf")
 
     for diversity_column in diversity_column_list:
+        if diversity_column not in df_m.columns:
+            print(f"Skipping {diversity_column} PR plot")
+            continue
+
         do_plot(
             df_m,
             diversity_column,
