@@ -180,8 +180,25 @@ def benchmark_plots(df_bench, dname_out):
 
 def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
     df_list = []
-    for fname_contigs, fname_truth in zip(predicted_haplos_list, true_haplos_list):
+    for fname_contigs in predicted_haplos_list:
         cwd = workdir / fname_contigs.parent
+
+        # find matching ground truth
+        parts = str(fname_contigs).split("/")
+        params = parts[-5]
+        method = parts[-4]
+        replicate = parts[-2]
+
+        for fname_truth in true_haplos_list:
+            truth_parts = str(fname_truth).split("/")
+            truth_params = truth_parts[-4]
+            truth_replicate = truth_parts[-2]
+
+            if params == truth_params and replicate == truth_replicate:
+                break
+        else:
+            raise RuntimeError(f"No ground truth found for '{fname_contigs}'")
+
         # split reference fasta into individual files
         ref_dir = cwd / "haplotype_references"
         ref_dir.mkdir(parents=True, exist_ok=True)
@@ -236,11 +253,6 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
             tmp["reference"] = res_dir.name
 
             # finalize
-            parts = str(fname_contigs).split("/")
-            if len(parts) == 7:
-                _, _, params, method, _, replicate, _ = parts
-            elif len(parts) == 8:  # for multi workflow
-                _, _, _, params, method, _, replicate, _ = parts
             tmp["params"] = params
             tmp["method"] = method
             tmp["replicate"] = replicate
