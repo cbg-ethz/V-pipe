@@ -15,6 +15,7 @@ import editdistance
 from Bio import SeqIO
 
 from tqdm import tqdm
+from natsort import natsorted, natsort_keygen
 
 
 def read_fasta_files(fasta_files, with_method=True):
@@ -127,7 +128,7 @@ def format_params(df):
 
         last_params = params
 
-    varying_keys = sorted(varying_keys)
+    varying_keys = natsorted(varying_keys)
 
     # retain only varying parameters
     def retainer(param_str):
@@ -135,6 +136,9 @@ def format_params(df):
         return "__".join(f"{key}~{params[key]}" for key in varying_keys)
 
     df = df.assign(params=lambda x: x["params"].apply(retainer))
+
+    # sort parameters
+    df = df.sort_values(by="params", key=natsort_keygen())
 
     # make remaining parameters readable
     df = df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
