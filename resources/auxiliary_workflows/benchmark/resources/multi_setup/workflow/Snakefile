@@ -65,7 +65,7 @@ use rule * from realdata as realdata_*
 rule all:
     input:
         rules.distance_varycoverage_all.input,
-        # rules.distance_varyparams_all.input,
+        rules.distance_varyparams_all.input,
         # rules.mutationrate_all.input,
         rules.realdata_all.input,
     default_target: True
