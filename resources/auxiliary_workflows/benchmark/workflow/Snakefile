@@ -423,6 +423,11 @@ use rule run_method_local as run_method_global with:
         ),
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
+    threads: 10
+    resources:
+        mem_mb=lambda wildcards, threads, attempt: int((15_000 * attempt) / threads),
+        time_min=60 * 24,
+    retries: 1
 
 
 rule haplotypes_stats:
