@@ -338,67 +338,80 @@ def plot_quast(df_quast, dname_out):
         fig.savefig(dname_out / f"{col}.pdf")
 
 
+def mds_worker(index, df_pred_grpd, df_true, mds_dir):
+    params, replicate = index
+
+    df_true_grpd = df_true[
+        (df_true["params"] == params) & (df_true["replicate"] == replicate)
+    ]
+
+    # subsample large results
+    max_num = 50
+
+    df_pred_grpd = df_pred_grpd.copy()
+    df_pred_grpd = (
+        df_pred_grpd.groupby("method")
+        .apply(lambda x: x.sample(n=min(len(x), max_num)))
+        .reset_index(drop=True)
+    )
+
+    # compute dissimilarities
+    sequence_list = (
+        df_pred_grpd["sequence"].tolist() + df_true_grpd["sequence"].tolist()
+    )
+
+    mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
+    for i, seq1 in enumerate(tqdm(sequence_list, leave=False)):
+        for j, seq2 in enumerate(tqdm(sequence_list, leave=False)):
+            if i >= j:
+                continue
+
+            mat[i, j] = editdistance.eval(seq1, seq2)
+
+    mat = np.triu(mat) + np.tril(mat.T, 1)  # mirror to make symmetric
+
+    # do MDS
+    embedding = manifold.MDS(n_components=2, dissimilarity="precomputed")
+    mat_trans = embedding.fit_transform(mat)
+
+    df = pd.concat(
+        [
+            pd.DataFrame(mat_trans, columns=["MDS0", "MDS1"]),
+            pd.concat([df_pred_grpd, df_true_grpd], axis=0, ignore_index=True),
+        ],
+        axis=1,
+    )
+    df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
+    df["params"] = params
+    df["replicate"] = replicate
+
+    # plot result
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+
+    fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
+
+    return df
+
+
 def sequence_embedding(df_pred, df_true, dname_out):
     mds_dir = dname_out / "mds_plots"
     mds_dir.mkdir(parents=True)
 
-    df_list = []
-    for (params, replicate), df_pred_grpd in tqdm(
-        df_pred.groupby(["params", "replicate"]), desc="Compute MDS"
-    ):
-        df_true_grpd = df_true[
-            (df_true["params"] == params) & (df_true["replicate"] == replicate)
-        ]
+    # compute
+    df_list = pqdm(
+        (
+            (index, df_group, df_true, mds_dir)
+            for index, df_group in df_pred.groupby(["params", "replicate"])
+        ),
+        mds_worker,
+        n_jobs=snakemake.threads,
+        argument_type="args",
+        desc="Compute MDS",
+    )
 
-        # subsample large results
-        max_num = 50
-
-        df_pred_grpd = df_pred_grpd.copy()
-        df_pred_grpd = (
-            df_pred_grpd.groupby("method")
-            .apply(lambda x: x.sample(n=min(len(x), max_num)))
-            .reset_index(drop=True)
-        )
-
-        # compute dissimilarities
-        sequence_list = (
-            df_pred_grpd["sequence"].tolist() + df_true_grpd["sequence"].tolist()
-        )
-
-        mat = np.zeros(shape=(len(sequence_list), len(sequence_list)))
-        for i, seq1 in enumerate(tqdm(sequence_list, leave=False)):
-            for j, seq2 in enumerate(tqdm(sequence_list, leave=False)):
-                if i >= j:
-                    continue
-
-                mat[i, j] = editdistance.eval(seq1, seq2)
-
-        mat = np.triu(mat) + np.tril(mat.T, 1)  # mirror to make symmetric
-
-        # do MDS
-        embedding = manifold.MDS(n_components=2, dissimilarity="precomputed")
-        mat_trans = embedding.fit_transform(mat)
-
-        df = pd.concat(
-            [
-                pd.DataFrame(mat_trans, columns=["MDS0", "MDS1"]),
-                pd.concat([df_pred_grpd, df_true_grpd], axis=0, ignore_index=True),
-            ],
-            axis=1,
-        )
-        df["method"] = df["method"].apply(lambda x: "ground_truth" if x is None else x)
-        df["params"] = params
-        df["replicate"] = replicate
-
-        df_list.append(df)
-
-        # plot result
-        fig, ax = plt.subplots(figsize=(8, 6))
-
-        sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
-
-        fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
-
+    # finalize
     return pd.concat(df_list, ignore_index=True)
 
 
