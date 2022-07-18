@@ -15,6 +15,7 @@ import editdistance
 from Bio import SeqIO
 
 from tqdm import tqdm
+from pqdm.processes import pqdm
 from natsort import natsorted, natsort_keygen
 
 
@@ -401,70 +402,83 @@ def sequence_embedding(df_pred, df_true, dname_out):
     return pd.concat(df_list, ignore_index=True)
 
 
-def compute_pr(df_pred, df_true, thres=0.01):
-    @functools.lru_cache(None)
-    def compute_dist(seq1, seq2):
-        dist = editdistance.eval(seq1, seq2)
-        rel = dist / max(len(seq1), len(seq2))
-        return rel
+@functools.lru_cache(None)
+def relative_edit_distance(seq1, seq2):
+    dist = editdistance.eval(seq1, seq2)
+    rel = dist / max(len(seq1), len(seq2))
+    return rel
 
-    tmp = []
-    for (method, params, replicate), df_group in tqdm(
-        df_pred.groupby(["method", "params", "replicate"]), desc="Compute PR"
-    ):
-        tp = 0
-        fp = 0
-        fn = 0
 
-        df_true_grpd = df_true[
-            (df_true["params"] == params) & (df_true["replicate"] == replicate)
-        ]
+def pr_worker(index, df_group, df_true, thres):
+    (method, params, replicate) = index
 
-        # subsample large results
-        max_num = 500
-        df_group = df_group.sample(n=min(df_group.shape[0], max_num))
+    tp = 0
+    fp = 0
+    fn = 0
 
-        # true positive: predicted seq appears in ground truth
-        # false positive: predicted seq does not appear in ground truth
-        for row in tqdm(df_group.itertuples(), total=df_group.shape[0], leave=False):
-            ser_dist = df_true_grpd["sequence"].apply(
-                lambda x: compute_dist(x, row.sequence)
-            )
-            passed_thres = (ser_dist <= thres).any()
+    df_true_grpd = df_true[
+        (df_true["params"] == params) & (df_true["replicate"] == replicate)
+    ]
 
-            if passed_thres:
-                tp += 1
-            else:
-                fp += 1
+    # subsample large results
+    max_num = 500
+    df_group = df_group.sample(n=min(df_group.shape[0], max_num))
 
-        # false negative: ground truth sequence was not predicted
-        # single prediction should not map to multiple ground truth seqs
-        df_cur = df_group.copy()
-        for row in tqdm(
-            df_true_grpd.itertuples(), total=df_true_grpd.shape[0], leave=False
-        ):
-            ser_dist = df_cur["sequence"].apply(lambda x: compute_dist(x, row.sequence))
-            passed_thres = (ser_dist <= thres).any()
-
-            if not passed_thres:
-                fn += 1
-            else:
-                # remove current prediction
-                df_cur = df_cur.drop(ser_dist.idxmin())
-
-        # finalize
-        tmp.append(
-            {
-                "method": method,
-                "params": params,
-                "replicate": replicate,
-                "tp": tp,
-                "fp": fp,
-                "fn": fn,
-                "precision": tp / (tp + fp),
-                "recall": tp / (tp + fn),
-            }
+    # true positive: predicted seq appears in ground truth
+    # false positive: predicted seq does not appear in ground truth
+    for row in tqdm(df_group.itertuples(), total=df_group.shape[0], leave=False):
+        ser_dist = df_true_grpd["sequence"].apply(
+            lambda x: relative_edit_distance(x, row.sequence)
         )
+        passed_thres = (ser_dist <= thres).any()
+
+        if passed_thres:
+            tp += 1
+        else:
+            fp += 1
+
+    # false negative: ground truth sequence was not predicted
+    # single prediction should not map to multiple ground truth seqs
+    df_cur = df_group.copy()
+    for row in tqdm(
+        df_true_grpd.itertuples(), total=df_true_grpd.shape[0], leave=False
+    ):
+        ser_dist = df_cur["sequence"].apply(
+            lambda x: relative_edit_distance(x, row.sequence)
+        )
+        passed_thres = (ser_dist <= thres).any()
+
+        if not passed_thres:
+            fn += 1
+        else:
+            # remove current prediction
+            df_cur = df_cur.drop(ser_dist.idxmin())
+
+    # finalize
+    return {
+        "method": method,
+        "params": params,
+        "replicate": replicate,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "precision": tp / (tp + fp),
+        "recall": tp / (tp + fn),
+    }
+
+
+def compute_pr(df_pred, df_true, thres=0.01):
+    # compute
+    tmp = pqdm(
+        (
+            (index, df_group, df_true, thres)
+            for index, df_group in df_pred.groupby(["method", "params", "replicate"])
+        ),
+        pr_worker,
+        n_jobs=snakemake.threads,
+        argument_type="args",
+        desc="Compute PR",
+    )
 
     # set column dtypes
     df_pr = pd.DataFrame(tmp)
