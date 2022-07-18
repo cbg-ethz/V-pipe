@@ -111,14 +111,18 @@ def read_benchmarks(benchmark_list):
     return pd.concat(df_list)
 
 
+def format_params(df):
+    return df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+
+
 def overview_plots(df_haplo, dname_out):
     if df_haplo.empty:
         print("Warning: df_haplo is empty")
         return
 
     df_haplo["seq_len"] = df_haplo["sequence"].str.len()
-    df_long = pd.melt(df_haplo, id_vars=["method", "params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("__", "\n")
+    df_long = format_params(
+        pd.melt(df_haplo, id_vars=["method", "params", "replicate"])
     )
     df_long = df_long[df_long["variable"] != "sequence"]
 
@@ -271,7 +275,7 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
 def plot_quast(df_quast, dname_out):
     dname_out.mkdir(parents=True, exist_ok=True)
 
-    df_quast = df_quast.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+    df_quast = format_params(df_quast)
 
     for col in df_quast.select_dtypes(include="number"):
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -438,9 +442,7 @@ def plot_pr(df_pr, df_stats, dname_out):
     # prepare data
     diversity_column_list = ["population_nucleotide_diversity", "mean_position_shannon"]
 
-    df_m = df_pr.merge(df_stats, on=["params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("__", "\n")
-    )
+    df_m = format_params(df_pr.merge(df_stats, on=["params", "replicate"]))
 
     # helper functions
     def do_plot(df, x, y, fname):
