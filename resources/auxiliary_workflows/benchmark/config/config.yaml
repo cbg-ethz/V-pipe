@@ -8,6 +8,6 @@ haplotype_generation: distance  # distance or mutation_rate
 
 params_path: config/params.csv
 
-master_seq_path: ../../hiv/HXB2.fasta
+master_seq_path: null
 # if None, then generate MasterSequence by drawing bases
 # uniformly at random using the user-provided genome length
