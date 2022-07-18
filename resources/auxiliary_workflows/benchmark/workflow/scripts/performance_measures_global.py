@@ -569,6 +569,9 @@ def main(
 ):
     dname_out.mkdir(parents=True)
 
+    csv_dir = dname_out / "csv_files"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+
     # read data
     df_pred = read_fasta_files(predicted_haplos_list)
     df_true = read_fasta_files(true_haplos_list, with_method=False)
@@ -577,6 +580,11 @@ def main(
     df_stats = read_haplostats(haplostats_list)
     df_runstats = read_runstats(runstatus_list)
     df_bench = read_benchmarks(benchmark_list)
+
+    df_pred.to_csv(csv_dir / "predictions.csv.gz")
+    df_true.to_csv(csv_dir / "ground_truth.csv.gz")
+    df_stats.to_csv(csv_dir / "data_stats.csv")
+    df_runstats.to_csv(csv_dir / "run_stats.csv")
 
     # quick stats
     print("Run status")
@@ -594,15 +602,18 @@ def main(
     # precision/recall
     df_pr = compute_pr(df_pred, df_true)
     plot_pr(df_pr, df_stats, dname_out)
+    df_pr.to_csv(csv_dir / "pr_results.csv")
 
     # quast stuff
     df_quast = run_metaquast(
         predicted_haplos_list, true_haplos_list, dname_out / "quast" / "run"
     )
     plot_quast(df_quast, dname_out / "quast" / "images")
+    df_quast.to_csv(csv_dir / "quast_results.csv")
 
     # MDS
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
+    df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
     # subset MDS plot to show well-performing methods
     sequence_embedding(
@@ -612,18 +623,6 @@ def main(
         df_true,
         dname_out / "subset",
     )
-
-    # save raw results
-    csv_dir = dname_out / "csv_files"
-    csv_dir.mkdir(parents=True, exist_ok=True)
-
-    df_pred.to_csv(csv_dir / "predictions.csv.gz")
-    df_true.to_csv(csv_dir / "ground_truth.csv.gz")
-    df_stats.to_csv(csv_dir / "data_stats.csv")
-    df_runstats.to_csv(csv_dir / "run_stats.csv")
-    df_pr.to_csv(csv_dir / "pr_results.csv")
-    df_quast.to_csv(csv_dir / "quast_results.csv")
-    df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
 
 if __name__ == "__main__":
