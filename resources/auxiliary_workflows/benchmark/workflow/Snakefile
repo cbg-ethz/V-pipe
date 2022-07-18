@@ -164,6 +164,7 @@ rule generate_haplotypes:
     params:
         params=paramspace.instance,
         haplotype_generation=config["haplotype_generation"],
+        master_seq_path=config["master_seq_path"],
     conda:
         "envs/simulate_reads.yaml"
     wildcard_constraints:

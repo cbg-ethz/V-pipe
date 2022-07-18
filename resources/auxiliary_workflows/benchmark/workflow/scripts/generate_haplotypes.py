@@ -184,15 +184,21 @@ def main(
     dname_work,
     haplotype_generation,
     params,
+    master_seq_path,
 ):
     """Create master sequence, infer haplotypes and simulate reads."""
     # initial setup
     # np.random.seed(42)
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    # generate random master sequence
-    master_name = "MasterSequence"
-    seq_master = "".join(np.random.choice(BASE_LIST, size=params["genome_size"]))
+    if master_seq_path is None:
+        # generate random master sequence
+        master_name = "MasterSequence"
+        seq_master = "".join(np.random.choice(BASE_LIST, size=params["genome_size"]))
+    else:
+        for record in SeqIO.parse(master_seq_path, "fasta"):
+            master_name = record.id
+            seq_master = record.seq
     fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
     if haplotype_generation == "distance":
@@ -315,4 +321,5 @@ if __name__ == "__main__":
         Path(snakemake.output.dname_work),
         snakemake.params.haplotype_generation,
         snakemake.params.params,
+        snakemake.params.master_seq_path,
     )
