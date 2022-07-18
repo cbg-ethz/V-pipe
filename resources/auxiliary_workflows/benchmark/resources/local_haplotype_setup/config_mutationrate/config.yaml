@@ -2,3 +2,4 @@ method_list: ['lofreq', 'shorah_default_amplicon']
 replicate_count: 1
 haplotype_generation: mutation_rate
 params_path: config_mutationrate/params.csv
+master_seq_path: None
