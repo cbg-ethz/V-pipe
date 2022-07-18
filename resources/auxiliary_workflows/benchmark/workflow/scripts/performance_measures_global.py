@@ -112,7 +112,34 @@ def read_benchmarks(benchmark_list):
 
 
 def format_params(df):
-    return df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+    # detect which parameters vary
+    varying_keys = set()
+    last_params = None
+    for row in df.itertuples():
+        params = dict(pair.split("~") for pair in row.params.split("__"))
+
+        if last_params is not None:
+            assert params.keys() == last_params.keys()
+
+            for key in params:
+                if params[key] != last_params[key]:
+                    varying_keys.add(key)
+
+        last_params = params
+
+    varying_keys = sorted(varying_keys)
+
+    # retain only varying parameters
+    def retainer(param_str):
+        params = dict(pair.split("~") for pair in param_str.split("__"))
+        return "__".join(f"{key}~{params[key]}" for key in varying_keys)
+
+    df = df.assign(params=lambda x: x["params"].apply(retainer))
+
+    # make remaining parameters readable
+    df = df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+
+    return df
 
 
 def overview_plots(df_haplo, dname_out):
@@ -140,8 +167,8 @@ def overview_plots(df_haplo, dname_out):
         sns.stripplot, x="params", y="value", hue="method", color="k", dodge=True
     )
 
-    for ax in g.axes.flat:
-        ax.tick_params(axis="x", which="major", labelsize=1)
+    # for ax in g.axes.flat:
+    #     ax.tick_params(axis="x", which="major", labelsize=1)
 
     g.savefig(dname_out / "overview.pdf")
 
@@ -152,7 +179,7 @@ def benchmark_plots(df_bench, dname_out):
         return str(datetime.timedelta(seconds=x))
 
     # prepare data
-    df_bench["params"] = df_bench["params"].str.replace("__", "\n")
+    df_bench = format_params(df_bench)
 
     # plot
     fig, ax = plt.subplots()
@@ -170,7 +197,7 @@ def benchmark_plots(df_bench, dname_out):
         ax=ax,
     )
 
-    ax.tick_params(axis="x", which="major", labelsize=1)
+    # ax.tick_params(axis="x", which="major", labelsize=1)
 
     ax.set_ylabel("Runtime [hh:mm:ss]")
     ax.yaxis.set_major_formatter(fmt_yaxis)
@@ -291,7 +318,7 @@ def plot_quast(df_quast, dname_out):
             ax=ax,
         )
 
-        ax.tick_params(axis="x", which="major", labelsize=1)
+        # ax.tick_params(axis="x", which="major", labelsize=1)
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
@@ -462,7 +489,7 @@ def plot_pr(df_pr, df_stats, dname_out):
         )
 
         ax.set_ylim(0, 1)
-        ax.tick_params(axis="x", which="major", labelsize=1)
+        # ax.tick_params(axis="x", which="major", labelsize=1)
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
