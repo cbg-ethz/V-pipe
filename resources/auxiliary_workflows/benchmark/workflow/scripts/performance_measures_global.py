@@ -247,19 +247,41 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
 
             df_list.append(tmp)
 
-    return pd.concat(df_list, ignore_index=True)
+    # set column dtypes
+    df_quast = pd.concat(df_list, ignore_index=True)
+    df_quast["method"] = pd.Categorical(
+        df_quast["method"], categories=sorted(snakemake.params.method_list_global)
+    )
+
+    return df_quast
 
 
 def plot_quast(df_quast, dname_out):
-    for params, group in df_quast.groupby("params"):
-        for col in group.select_dtypes(include="number"):
-            fig, ax = plt.subplots(figsize=(8, 6))
+    dname_out.mkdir(parents=True, exist_ok=True)
 
-            sns.boxplot(data=group, y=col, x="method", ax=ax)
-            sns.stripplot(data=group, y=col, x="method", color=".25", dodge=True, ax=ax)
+    df_quast = df_quast.assign(params=lambda x: x["params"].str.replace("__", "\n"))
 
-            fig.tight_layout()
-            fig.savefig(dname_out / f"{col}__{params}.pdf")
+    for col in df_quast.select_dtypes(include="number"):
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        sns.boxplot(data=df_quast, x="params", y=col, hue="method", ax=ax)
+        sns.stripplot(
+            data=df_quast,
+            x="params",
+            y=col,
+            hue="method",
+            color=".25",
+            dodge=True,
+            ax=ax,
+        )
+
+        ax.tick_params(axis="x", which="major", labelsize=1)
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
+
+        fig.tight_layout()
+        fig.savefig(dname_out / f"{col}.pdf")
 
 
 def sequence_embedding(df_pred, df_true, dname_out):
