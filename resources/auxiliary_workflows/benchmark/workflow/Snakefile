@@ -400,8 +400,8 @@ rule run_method_local:
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
-        script_path=lambda wildcards, input: input.script,
         # env_path=get_generated_conda_env,
+        script_path=lambda wildcards, input: input.script,
     conda:
         # "{params.env_path}"
         "../results/envs/{method}.py.yaml"
