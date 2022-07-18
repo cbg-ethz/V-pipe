@@ -531,8 +531,9 @@ rule performance_measures_global:
         "envs/performance_measures.yaml"
     params:
         method_list_global=method_list_global,
+    threads: 10
     resources:
-        mem_mb=5_000,
+        mem_mb=500,
         time_min=60 * 24,
     script:
         "scripts/performance_measures_global.py"
