@@ -34,6 +34,17 @@ module mutationrate:
 
 use rule * from mutationrate as mutationrate_*
 
+module realdata:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_realdata/config.yaml")
+    replace_prefix:
+        {"results/": "results/realdata/",
+        "resources/": "resources/realdata/"}
+
+
+use rule * from realdata as realdata_*
 
 # define required output files
 rule all:
@@ -42,6 +53,8 @@ rule all:
         "results/mutationrate/performance_measures/local/",
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
+        "results/realdata/performance_measures/global/",
+        "results/realdata/performance_measures/local/",
     default_target: True
 
 # distance rules
@@ -100,6 +113,23 @@ use rule performance_measures_global from distance as distance_performance_measu
             for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])
         ],
+        haplostats_list=[
+            f"results/distance/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in distance.paramspace.instance_patterns
+            for replicate in range(distance.config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/status.txt"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list_global
+            for replicate in range(distance.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list_global
+            for replicate in range(distance.config["replicate_count"])
+        ],
 
 # mutation rate rules
 use rule run_method_local from mutationrate as mutationrate_run_method_local_global with:
@@ -142,6 +172,7 @@ use rule performance_measures_local from mutationrate as mutationrate_performanc
             for replicate in range(mutationrate.config["replicate_count"])
         ],
 
+
 use rule performance_measures_global from mutationrate as mutationrate_performance_measures_global with:
     input:
         predicted_haplos_list=[
@@ -155,4 +186,94 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
             for params in mutationrate.paramspace.instance_patterns
             for method in mutationrate. method_list_global
             for replicate in range(mutationrate.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/mutationrate/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in mutationrate.paramspace.instance_patterns
+            for replicate in range(mutationrate.config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/status.txt"
+            for params in mutationrate.paramspace.instance_patterns
+            for method in mutationrate.method_list_global
+            for replicate in range(mutationrate.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
+            for params in mutationrate.paramspace.instance_patterns
+            for method in mutationrate.method_list_global
+            for replicate in range(mutationrate.config["replicate_count"])
+        ],
+
+# real data rules
+use rule run_method_local from realdata as realdata_run_method_local_global with:
+    output:
+        fname_result_haplos=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
+        dname_work=directory(
+            f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
+        ),
+    benchmark:
+        f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+    resources:
+        mem_mb=4024,
+        time_min=440,
+
+use rule performance_measures_local from realdata as realdata_performance_measures_local with:
+    input:
+        vcf_list=[
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_local + realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        # we also include `method_list_local` to align with `vcf_list`
+        groundtruth_list=[
+            f"results/realdata/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_local + realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_local + realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in realdata.paramspace.instance_patterns
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+
+use rule performance_measures_global from realdata as realdata_performance_measures_global with:
+    input:
+        predicted_haplos_list=[
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        true_haplos_list=[
+            f"results/realdata/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in realdata.paramspace.instance_patterns
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/status.txt"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list_global
+            for replicate in range(realdata.config["replicate_count"])
         ],
