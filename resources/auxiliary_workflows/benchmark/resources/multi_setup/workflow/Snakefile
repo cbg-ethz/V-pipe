@@ -1,6 +1,11 @@
 from snakemake.io import load_configfile
 
 
+# onerror:
+#    # crashes are due to unpreventable cluster errors
+#    shell("./run_workflow.sh")
+
+
 # setup workflow
 def load_config(path):
     config = load_configfile(path)
@@ -60,7 +65,7 @@ use rule * from realdata as realdata_*
 rule all:
     input:
         rules.distance_varycoverage_all.input,
-        # rules.distance_varyparams_all.input,
+        rules.distance_varyparams_all.input,
         # rules.mutationrate_all.input,
         rules.realdata_all.input,
     default_target: True

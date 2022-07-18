@@ -15,6 +15,7 @@ import editdistance
 from Bio import SeqIO
 
 from tqdm import tqdm
+from natsort import natsorted, natsort_keygen
 
 
 def read_fasta_files(fasta_files, with_method=True):
@@ -111,14 +112,48 @@ def read_benchmarks(benchmark_list):
     return pd.concat(df_list)
 
 
+def format_params(df):
+    # detect which parameters vary
+    varying_keys = set()
+    last_params = None
+    for row in df.itertuples():
+        params = dict(pair.split("~") for pair in row.params.split("__"))
+
+        if last_params is not None:
+            assert params.keys() == last_params.keys()
+
+            for key in params:
+                if params[key] != last_params[key]:
+                    varying_keys.add(key)
+
+        last_params = params
+
+    varying_keys = natsorted(varying_keys)
+
+    # retain only varying parameters
+    def retainer(param_str):
+        params = dict(pair.split("~") for pair in param_str.split("__"))
+        return "__".join(f"{key}~{params[key]}" for key in varying_keys)
+
+    df = df.assign(params=lambda x: x["params"].apply(retainer))
+
+    # sort parameters
+    df = df.sort_values(by="params", key=natsort_keygen())
+
+    # make remaining parameters readable
+    df = df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+
+    return df
+
+
 def overview_plots(df_haplo, dname_out):
     if df_haplo.empty:
         print("Warning: df_haplo is empty")
         return
 
     df_haplo["seq_len"] = df_haplo["sequence"].str.len()
-    df_long = pd.melt(df_haplo, id_vars=["method", "params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("__", "\n")
+    df_long = format_params(
+        pd.melt(df_haplo, id_vars=["method", "params", "replicate"])
     )
     df_long = df_long[df_long["variable"] != "sequence"]
 
@@ -136,8 +171,8 @@ def overview_plots(df_haplo, dname_out):
         sns.stripplot, x="params", y="value", hue="method", color="k", dodge=True
     )
 
-    for ax in g.axes.flat:
-        ax.tick_params(axis="x", which="major", labelsize=1)
+    # for ax in g.axes.flat:
+    #     ax.tick_params(axis="x", which="major", labelsize=1)
 
     g.savefig(dname_out / "overview.pdf")
 
@@ -148,7 +183,7 @@ def benchmark_plots(df_bench, dname_out):
         return str(datetime.timedelta(seconds=x))
 
     # prepare data
-    df_bench["params"] = df_bench["params"].str.replace("__", "\n")
+    df_bench = format_params(df_bench)
 
     # plot
     fig, ax = plt.subplots()
@@ -166,7 +201,7 @@ def benchmark_plots(df_bench, dname_out):
         ax=ax,
     )
 
-    ax.tick_params(axis="x", which="major", labelsize=1)
+    # ax.tick_params(axis="x", which="major", labelsize=1)
 
     ax.set_ylabel("Runtime [hh:mm:ss]")
     ax.yaxis.set_major_formatter(fmt_yaxis)
@@ -271,7 +306,7 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
 def plot_quast(df_quast, dname_out):
     dname_out.mkdir(parents=True, exist_ok=True)
 
-    df_quast = df_quast.assign(params=lambda x: x["params"].str.replace("__", "\n"))
+    df_quast = format_params(df_quast)
 
     for col in df_quast.select_dtypes(include="number"):
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -287,7 +322,7 @@ def plot_quast(df_quast, dname_out):
             ax=ax,
         )
 
-        ax.tick_params(axis="x", which="major", labelsize=1)
+        # ax.tick_params(axis="x", which="major", labelsize=1)
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
@@ -360,7 +395,7 @@ def sequence_embedding(df_pred, df_true, dname_out):
     return pd.concat(df_list, ignore_index=True)
 
 
-def compute_pr(df_pred, df_true, thres=0.05):
+def compute_pr(df_pred, df_true, thres=0.01):
     @functools.lru_cache(None)
     def compute_dist(seq1, seq2):
         dist = editdistance.eval(seq1, seq2)
@@ -438,9 +473,7 @@ def plot_pr(df_pr, df_stats, dname_out):
     # prepare data
     diversity_column_list = ["population_nucleotide_diversity", "mean_position_shannon"]
 
-    df_m = df_pr.merge(df_stats, on=["params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("__", "\n")
-    )
+    df_m = format_params(df_pr.merge(df_stats, on=["params", "replicate"]))
 
     # helper functions
     def do_plot(df, x, y, fname):
@@ -460,7 +493,7 @@ def plot_pr(df_pr, df_stats, dname_out):
         )
 
         ax.set_ylim(0, 1)
-        ax.tick_params(axis="x", which="major", labelsize=1)
+        # ax.tick_params(axis="x", which="major", labelsize=1)
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])

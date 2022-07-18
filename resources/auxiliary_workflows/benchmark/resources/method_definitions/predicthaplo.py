@@ -77,7 +77,7 @@ def main(fname_bam, fname_reference, fname_result, dname_work):
         desc = props.split(";")[1]  # only keep frequency
 
         rec = SeqRecord(
-            Seq(seq),
+            Seq(seq.replace("-", "")),
             id=record.id,
             description=desc,
         )
