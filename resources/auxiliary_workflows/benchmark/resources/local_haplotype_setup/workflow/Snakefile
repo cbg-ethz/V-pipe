@@ -37,8 +37,7 @@ module realdata:
     config:
         load_config("config_realdata/config.yaml")
     replace_prefix:
-        {"results/": "results/realdata/",
-        "resources/": "resources/realdata/"}
+        {"results/": "results/realdata/", "resources/": "resources/realdata/"}
 
 
 use rule * from realdata as realdata_*
