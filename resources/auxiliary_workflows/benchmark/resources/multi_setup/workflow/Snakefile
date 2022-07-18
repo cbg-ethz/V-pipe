@@ -1,6 +1,11 @@
 from snakemake.io import load_configfile
 
 
+# onerror:
+#    # crashes are due to unpreventable cluster errors
+#    shell("./run_workflow.sh")
+
+
 # setup workflow
 def load_config(path):
     config = load_configfile(path)
