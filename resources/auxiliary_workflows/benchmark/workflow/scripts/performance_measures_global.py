@@ -171,8 +171,10 @@ def overview_plots(df_haplo, dname_out):
         sns.stripplot, x="params", y="value", hue="method", color="k", dodge=True
     )
 
-    # for ax in g.axes.flat:
-    #     ax.tick_params(axis="x", which="major", labelsize=1)
+    for ax in g.axes.flat:
+        ax.set_xticklabels(
+            ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor"
+        )
 
     g.savefig(dname_out / "overview.pdf")
 
@@ -201,7 +203,9 @@ def benchmark_plots(df_bench, dname_out):
         ax=ax,
     )
 
-    # ax.tick_params(axis="x", which="major", labelsize=1)
+    ax.set_xticklabels(
+        ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor"
+    )
 
     ax.set_ylabel("Runtime [hh:mm:ss]")
     ax.yaxis.set_major_formatter(fmt_yaxis)
@@ -322,7 +326,9 @@ def plot_quast(df_quast, dname_out):
             ax=ax,
         )
 
-        # ax.tick_params(axis="x", which="major", labelsize=1)
+        ax.set_xticklabels(
+            ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor"
+        )
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
@@ -493,7 +499,9 @@ def plot_pr(df_pr, df_stats, dname_out):
         )
 
         ax.set_ylim(0, 1)
-        # ax.tick_params(axis="x", which="major", labelsize=1)
+        ax.set_xticklabels(
+            ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor"
+        )
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[: len(handles) // 2], labels[: len(handles) // 2])
