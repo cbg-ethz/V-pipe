@@ -444,14 +444,18 @@ def pr_worker(index, df_group, df_true, thres):
 
     # true positive: predicted seq appears in ground truth
     # false positive: predicted seq does not appear in ground truth
+    df_cur = df_true_grpd.copy()
     for row in tqdm(df_group.itertuples(), total=df_group.shape[0], leave=False):
-        ser_dist = df_true_grpd["sequence"].apply(
+        ser_dist = df_cur["sequence"].apply(
             lambda x: relative_edit_distance(x, row.sequence)
         )
         passed_thres = (ser_dist <= thres).any()
 
         if passed_thres:
             tp += 1
+
+            # remove ground truth because it was predicted
+            df_cur = df_cur.drop(ser_dist.idxmin())
         else:
             fp += 1
 
