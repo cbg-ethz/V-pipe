@@ -14,9 +14,9 @@ from matplotlib.ticker import FuncFormatter
 import editdistance
 from Bio import SeqIO
 
+import natsort as ns
 from tqdm import tqdm
 from pqdm.processes import pqdm
-from natsort import natsorted, natsort_keygen
 
 
 def read_fasta_files(fasta_files, with_method=True):
@@ -129,7 +129,7 @@ def format_params(df):
 
         last_params = params
 
-    varying_keys = natsorted(varying_keys)
+    varying_keys = ns.natsorted(varying_keys, alg=ns.REAL)
 
     # retain only varying parameters
     def retainer(param_str):
@@ -139,7 +139,7 @@ def format_params(df):
     df = df.assign(params=lambda x: x["params"].apply(retainer))
 
     # sort parameters
-    df = df.sort_values(by="params", key=natsort_keygen())
+    df = df.sort_values(by="params", key=ns.natsort_keygen(alg=ns.REAL))
 
     # make remaining parameters readable
     df = df.assign(params=lambda x: x["params"].str.replace("__", "\n"))
