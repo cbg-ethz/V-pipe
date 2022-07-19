@@ -223,6 +223,11 @@ def run_metaquast(predicted_haplos_list, true_haplos_list, workdir):
     for fname_contigs in predicted_haplos_list:
         cwd = workdir / fname_contigs.parent
 
+        # skip if empty
+        if fname_contigs.stat().st_size == 0:
+            print(f"Skipping empty file '{fname_contigs}'")
+            continue
+
         # find matching ground truth
         parts = str(fname_contigs).split("/")
         params = parts[-5]
