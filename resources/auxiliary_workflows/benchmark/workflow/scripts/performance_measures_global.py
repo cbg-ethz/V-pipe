@@ -327,8 +327,10 @@ def plot_quast(df_quast, dname_out):
             x="params",
             y=col,
             hue="method",
-            color=".25",
             dodge=True,
+            clip_on=False,
+            linewidth=1,
+            edgecolor="gray",
             ax=ax,
         )
 
