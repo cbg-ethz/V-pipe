@@ -7,22 +7,20 @@ from pathlib import Path
 
 def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
-    if int(genome_size) < 240:
-        open(fname_result, 'a').close()
-    else:
-        subprocess.run(
-            [
-                "shorah",
-                "shotgun",
-                "-b",
-                fname_bam.resolve(),
-                "-f",
-                fname_reference.resolve(),
-            ],
-            cwd=dname_work,
-            check=True,
-        )
-        (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_result)
+
+    subprocess.run(
+        [
+            "shorah",
+            "shotgun",
+            "-b",
+            fname_bam.resolve(),
+            "-f",
+            fname_reference.resolve(),
+        ],
+        cwd=dname_work,
+        check=True,
+    )
+    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_result)
 
     open(fname_result_haplos, 'a').close()
 
