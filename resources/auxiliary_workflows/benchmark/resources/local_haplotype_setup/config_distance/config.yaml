@@ -2,4 +2,4 @@ method_list: [lofreq_local_haplo, shorah_default_amplicon, shorah_mfa_qualities_
 replicate_count: 1
 haplotype_generation: distance
 params_path: config_distance/params.csv
-master_seq_path: None
+master_seq_path: null
