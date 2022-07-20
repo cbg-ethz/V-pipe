@@ -1,4 +1,4 @@
-method_list: [lofreq, shorah_default_amplicon, shorah_mfa_qualities_unique, shorah_mfa_s1_a0.000001_relaxConv, shorah_mfa_stick_qualities_unique]
+method_list: [lofreq_local_haplo, shorah_default_amplicon, shorah_mfa_qualities_unique, shorah_mfa_s1_a0.000001_relaxConv, shorah_mfa_stick_qualities_unique]
 replicate_count: 1
 haplotype_generation: mutation_rate
 params_path: config_mutationrate/params.csv
