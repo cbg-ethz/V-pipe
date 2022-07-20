@@ -123,7 +123,7 @@ use rule performance_measures_global from distance as distance_performance_measu
             for replicate in range(distance.config["replicate_count"])
         ],
         benchmark_list=[
-            f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
+            f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark.tsv"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])

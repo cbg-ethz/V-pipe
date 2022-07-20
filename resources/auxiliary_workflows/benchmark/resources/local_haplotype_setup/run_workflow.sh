@@ -7,6 +7,7 @@ bsub \
   -oo snake.out -eo snake.err \
 snakemake \
   --profile lsf \
+  --rerun-incomplete \
   -pr \
   --cores 200 \
   --use-conda \
