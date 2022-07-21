@@ -24,8 +24,7 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
 
 def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work):
 
-    genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
-    alpha = 0.00001
+    alpha = 0.01
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
