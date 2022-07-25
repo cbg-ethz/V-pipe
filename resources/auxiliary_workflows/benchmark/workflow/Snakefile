@@ -382,7 +382,7 @@ rule run_method_local:
     input:
         script=srcdir("../resources/method_definitions/{method}.py"),
         fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.{{seq_mode}}.bam"
-        if wildcards.method == "shorah_canary"
+        if wildcards.seq_mode == "amplicon"
         else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
         fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
