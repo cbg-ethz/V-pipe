@@ -1,4 +1,4 @@
-method_list: [lofreq_local_haplo, shorah_default, shorah_mfa_qualities_unique_uniform, shorah_mfa_s1_a0.000001_relaxConv_uniform, shorah_mfa_stick_qualities_unique_uniform]
+method_list: [lofreq_local_haplo, shorah_default, shorah_mfa_qualities_unique_uniform, shorah_mfa_s1_a0.000001_relaxConv_uniform]
 replicate_count: 1
 haplotype_generation: null
 params_path: config_realdata/params.csv
