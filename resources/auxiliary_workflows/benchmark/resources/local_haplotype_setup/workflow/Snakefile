@@ -31,6 +31,18 @@ module mutationrate:
 
 use rule * from mutationrate as mutationrate_*
 
+module longreads:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_longreads/config.yaml")
+    replace_prefix:
+        {"results/": "results/longreads/", "resources/": "resources/longreads/"}
+
+
+use rule * from longreads as longreads_*
+
+
 module realdata:
     snakefile:
         "../../../workflow/Snakefile"
@@ -42,6 +54,7 @@ module realdata:
 
 use rule * from realdata as realdata_*
 
+
 # define required output files
 rule all:
     input:
@@ -49,6 +62,8 @@ rule all:
         "results/mutationrate/performance_measures/local/",
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
+        "results/longreads/performance_measures/global/",
+        "results/longreads/performance_measures/local/",
         "results/realdata/performance_measures/global/",
         "results/realdata/performance_measures/local/",
     default_target: True
@@ -213,6 +228,85 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
             for method in mutationrate.method_list_global
             for replicate in range(mutationrate.config["replicate_count"])
         ],
+
+# longreads rate rules
+use rule run_method_local from longreads as longreads_run_method_local_global with:
+    output:
+        fname_result_haplos=f"results/longreads/method_runs/{longreads.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/longreads/method_runs/{longreads.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
+        dname_work=directory(
+            f"results/longreads/method_runs/{longreads.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
+        ),
+        fname_status=touch(
+            f"results/longreads/method_runs/{longreads.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + longreads.method_list)}}}/replicates/{{replicate}}/status_.txt"
+        ),
+    benchmark:
+        f"results/longreads/method_runs/{longreads.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + longreads.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+    resources:
+        mem_mb=8024,
+        time_min=440,
+
+
+use rule performance_measures_local from longreads as longreads_performance_measures_local with:
+    input:
+        vcf_list=[
+            f"results/longreads/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        # we also include `method_list_local` to align with `vcf_list`
+        groundtruth_list=[
+            f"results/longreads/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/longreads/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/longreads/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in longreads.paramspace.instance_patterns
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+
+
+use rule performance_measures_global from longreads as longreads_performance_measures_global with:
+    input:
+        predicted_haplos_list=[
+            f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
+            for params in mutationrate.paramspace.instance_patterns
+            for method in mutationrate.method_list_global
+            for replicate in range(mutationrate.config["replicate_count"])
+        ],
+        true_haplos_list=[
+            f"results/longreads/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list_global
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/longreads/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in longreads.paramspace.instance_patterns
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/longreads/method_runs/{params}/{method}/replicates/{replicate}/status_.txt"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list_global
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/longreads/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list_global
+            for replicate in range(longreads.config["replicate_count"])
+        ],
+
 
 # real data rules
 use rule run_method_local from realdata as realdata_run_method_local_global with:

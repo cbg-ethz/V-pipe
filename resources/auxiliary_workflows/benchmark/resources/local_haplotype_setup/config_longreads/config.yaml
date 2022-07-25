@@ -1,0 +1,5 @@
+method_list: [lofreq_local_haplo, shorah_default, shorah_mfa_qualities_unique_uniform, shorah_mfa_s1_a0.000001_relaxConv_uniform, shorah_mfa_stick_qualities_unique_uniform, shorah_mfa_qualities_unique, shorah_mfa_s1_a0.000001_relaxConv]
+replicate_count: 1
+haplotype_generation: distance
+params_path: config_longreads/params.csv
+master_seq_path: ../../hiv/HXB2.fasta
