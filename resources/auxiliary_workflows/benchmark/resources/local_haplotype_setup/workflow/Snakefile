@@ -70,15 +70,15 @@ use rule * from realdata as realdata_*
 # define required output files
 rule all:
     input:
-        #"results/mutationrate/performance_measures/global/",
-        #"results/mutationrate/performance_measures/local/",
-        #"results/distance/performance_measures/global/",
-        #"results/distance/performance_measures/local/",
-        #"results/longreads/performance_measures/global/",
-        #"results/longreads/performance_measures/local/",
+        "results/mutationrate/performance_measures/global/",
+        "results/mutationrate/performance_measures/local/",
+        "results/distance/performance_measures/global/",
+        "results/distance/performance_measures/local/",
+        "results/longreads/performance_measures/global/",
+        "results/longreads/performance_measures/local/",
         "results/amplicon/performance_measures/local/",
-        #"results/realdata/performance_measures/global/",
-        #"results/realdata/performance_measures/local/",
+        "results/realdata/performance_measures/global/",
+        "results/realdata/performance_measures/local/",
     default_target: True
 
 # distance rules
