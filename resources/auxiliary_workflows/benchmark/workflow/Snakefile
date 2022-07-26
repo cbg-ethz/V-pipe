@@ -4,7 +4,10 @@ from pathlib import Path
 import pandas as pd
 
 from snakemake.utils import Paramspace
-from snakemake.io import Namedlist
+from snakemake.utils import min_version
+
+
+min_version("7.10.0")
 
 
 # setup config
@@ -109,20 +112,10 @@ dependencies:"""
     conda_prefix = Path("results/envs/")
     conda_prefix.mkdir(parents=True, exist_ok=True)
 
-    conda_env_path = conda_prefix / f"{Path(input.script).name}.yaml"
+    conda_env_path = conda_prefix / f"{wildcards.method}.yaml"
     conda_env_path.write_text(conda_env)
 
-    return Path("..") / conda_env_path
-
-
-# generate conda envs
-for method in method_list:
-    get_generated_conda_env(
-        None,
-        Namedlist(
-            fromdict={"script": srcdir(f"../resources/method_definitions/{method}.py")}
-        ),
-    )
+    return str(conda_env_path.resolve())
 
 
 # rule definitions
@@ -400,11 +393,9 @@ rule run_method_local:
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
-        # env_path=get_generated_conda_env,
         script_path=lambda wildcards, input: input.script,
     conda:
-        # "{params.env_path}"
-        "../results/envs/{method}.py.yaml"
+        get_generated_conda_env
     threads: 10
     resources:
         mem_mb=2_000,
