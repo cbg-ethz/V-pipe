@@ -162,6 +162,7 @@ rule generate_haplotypes:
         "envs/simulate_reads.yaml"
     wildcard_constraints:
         seq_mode=r"(?!real_data).*",
+        seq_mode_param=r"(?!real_data).*",
     script:
         "scripts/generate_haplotypes.py"
 
@@ -212,6 +213,9 @@ rule simulate_scheme:
         ),
     params:
         params=paramspace.instance,
+    wildcard_constraints:
+        seq_mode=r"(?!real_data).*",
+        seq_mode_param=r"(?!real_data).*",
     script:
         "scripts/simulate_scheme.py"
 
@@ -227,16 +231,72 @@ rule amplicon_simulation:
     params:
         params=paramspace.instance,
         haplotype_generation=config["haplotype_generation"],
+    wildcard_constraints:
+        seq_mode=r"(?!real_data).*",
+        seq_mode_param=r"(?!real_data).*",
     conda:
         "envs/simulate_reads.yaml"
     script:
         "scripts/amplicon_simulation.py"
 
 
+rule provide_2_SARS_CoV_2_mix:
+    output:
+        fname_cram=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.cram",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
+        ),
+    resources:
+        mem_mb=5_000,
+        time_min=60 * 4,
+    wildcard_constraints:
+        read_length="2-SARS-CoV-2-mix",
+    shell:
+        """
+        tmp="{wildcards.read_length}"
+        parts=(${{tmp//@/ }})
+        source="{wildcards.read_length}"
+        subsample_frac="${wildcards.coverage}"
+        sample="{wildcards.genome_size}"
+        echo "Using $subsample_frac of $source of sample $sample"
+
+        fname_cram="resources/experimental_data/SARS-CoV-2-2-strain-mix/"$sample"/"$sample".cram"
+        fname_expected_variants="resources/experimental_data/SARS-CoV-2-2-strain-mix/"$sample"/"$sample"_expected_variants.csv"
+        fname_reference="resources/experimental_data/SARS-CoV-2-2-strain-mix/reference.fasta"
+        fname_insert_bed="resources/experimental_data/SARS-CoV-2-2-strain-mix/nCoV-2019.insert.bed"
+
+        mkdir -p "{output.dname_work}"
+
+        if [[ "$source" == "2-SARS-CoV-2-mix" ]]; then
+            cp "$fname_cram" "{output.fname_cram}"
+            cp "$fname_expected_variants" "{output.fname_groundtruth}"
+            cp "$fname_reference" "{output.fname_reference}"
+            cp "$fname_insert_bed" "{output.fname_insert_bed}"
+        fi
+        """
+
+rule split:
+    conda:
+        "envs/split.yaml"
+    input:
+        fname_aln=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.cram",
+    output:
+        fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
+        fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
+    wildcard_constraints:
+        read_length="2-SARS-CoV-2-mix",
+    shell:
+        "samtools collate -O {input.fname_aln} | samtools fastq -1 {output.fname_fastq_R1} -2 {output.fname_fastq_R2} -"
+
+
+
 rule flash:
     input:
-        fname_fastq_R1=rules.amplicon_simulation.output.fname_fastq_R1,
-        fname_fastq_R2=rules.amplicon_simulation.output.fname_fastq_R2,
+        fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
+        fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
     output:
         fname_fastq_merged=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/flash/reads_merged.extendedFrags.fastq",
         dname_out=directory(
@@ -260,7 +320,7 @@ rule flash:
 
 rule alignment_merged:
     input:
-        fname_reference=rules.generate_haplotypes.output.fname_reference,
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_fastq_merged=rules.flash.output.fname_fastq_merged,
     output:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.bam",
@@ -374,7 +434,7 @@ rule read_statistics:
 rule run_method_local:
     input:
         script=srcdir("../resources/method_definitions/{method}.py"),
-        fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.{{seq_mode}}.bam"
+        fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
         if wildcards.seq_mode == "amplicon"
         else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
         fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
