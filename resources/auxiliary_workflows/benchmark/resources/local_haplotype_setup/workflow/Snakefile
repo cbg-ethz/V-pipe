@@ -337,9 +337,9 @@ use rule performance_measures_global from longreads as longreads_performance_mea
     input:
         predicted_haplos_list=[
             f"results/mutationrate/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
-            for params in mutationrate.paramspace.instance_patterns
-            for method in mutationrate.method_list_global
-            for replicate in range(mutationrate.config["replicate_count"])
+            for params in longreads.paramspace.instance_patterns
+            for method in longreads.method_list_global
+            for replicate in range(longreads.config["replicate_count"])
         ],
         true_haplos_list=[
             f"results/longreads/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
