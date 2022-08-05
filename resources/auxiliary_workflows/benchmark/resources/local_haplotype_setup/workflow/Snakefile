@@ -184,7 +184,6 @@ use rule performance_measures_global from distance as distance_performance_measu
         true_haplos_list=[
             f"results/distance/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in distance.paramspace.instance_patterns
-            for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])
         ],
         haplostats_list=[
@@ -266,7 +265,6 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
         true_haplos_list=[
             f"results/mutationrate/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in mutationrate.paramspace.instance_patterns
-            for method in mutationrate.method_list_global
             for replicate in range(mutationrate.config["replicate_count"])
         ],
         haplostats_list=[
@@ -344,7 +342,6 @@ use rule performance_measures_global from longreads as longreads_performance_mea
         true_haplos_list=[
             f"results/longreads/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in longreads.paramspace.instance_patterns
-            for method in longreads.method_list_global
             for replicate in range(longreads.config["replicate_count"])
         ],
         haplostats_list=[
@@ -421,7 +418,6 @@ use rule performance_measures_global from realdata as realdata_performance_measu
         true_haplos_list=[
             f"results/realdata/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in realdata.paramspace.instance_patterns
-            for method in realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
         ],
         haplostats_list=[
