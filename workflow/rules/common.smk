@@ -158,7 +158,7 @@ def process_config(config):
     process configuration.
 
     - precedence logic:
-      snakemake (configfile(s) + --confg) >> legacy configparse INI >> virus base config >> schema default
+      snakemake (configfile(s) + --config) >> legacy configparse INI >> virus base config >> schema default
 
     - validate with schema
     """
@@ -223,7 +223,7 @@ def process_config(config):
         else:
             LOGGER.info(
                 "Using base configuration from %s"
-                % porevious_config["general"]["virus_base_config"]
+                % cur_config["general"]["virus_base_config"]
             )
         update_config(config, cur_config)
     else:
