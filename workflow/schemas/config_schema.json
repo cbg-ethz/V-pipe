@@ -82,8 +82,14 @@
                 "samples_file": {
                     "type": "string",
                     "default": "config/samples.tsv",
-                    "description": "File containing sample unique identifiers and dates as tab-separated values, e.g.,\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\n\nHere, we have two samples from patient 1 and one sample from patient 2. By default, V-pipe searches for a file named samples.tsv, if this file does not exist, a list of samples is built by globbing datadir directory contents.\n\nOptionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.\n\nStandardized Snakemake workflows place their tables inside the `config/` subdirectory, but using this options you can specify alternate locations, e.g., the current working directory (as done in legacy V-pipe v1.x/2.x).",
+                    "description": "File containing sample unique identifiers and dates as tab-separated values, e.g.,\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\n\nHere, we have two samples from patient 1 and one sample from patient 2. By default, V-pipe searches for a file named samples.tsv, if this file does not exist, a list of samples is built by globbing datadir directory contents.\n\nOptionally, the samples file can contain a third column specifying the read length. This is particularly useful when samples are sequenced using protocols with different read lengths.\n\nOptionally, a fourth column can contain a short name of a protocol (e.g.: `v3`) that is detailed in the file specified in [`input` => `protocols_file`](#input_protocols_file). This is useful if protocol details such as primers change over time, e.g. to adapt to new variants with SNV breaking primer binding affinity.\n\nStandardized Snakemake workflows place their tables inside the `config/` subdirectory, but using this options you can specify alternate locations, e.g., the current working directory (as done in legacy V-pipe v1.x/2.x).",
                     "examples": [ "samples.tsv" ]
+                },
+                "protocols_file": {
+                    "type": "string",
+                    "default": "",
+                    "description": "When different samples have been processed with different library protocols, this file specifies a lookup table with per-protocol specific (primers bed and fasta), eg.:\n```yaml\nv3:\n  name: ARTIC v3\n  primers_bedfile: resources/sars-cov-2/primers/v3/nCoV-2019.primer.bed\n  primers_fasta: resources/sars-cov-2/primers/v3/nCoV-2019.primer.fast\nv4:\n  name: ARTIC v4\n  primers_bedfile: resources/sars-cov-2/primers/v4/SARS-CoV-2.primer.bed\n  primers_fasta: resources/sars-cov-2/primers/4v/SARS-CoV-2.primer.fasta```\n\nThe short name can then be referenced in the [samples TSV table file](#input_samples_file):\n```tsv\nsample_a\t20211108\t250\tv3\nsample_b\t20220214\t250\tv4\n```",
+                    "examples": [ "resources/sars-cov-2/protocols.yaml" ]
                 },
                 "read_length": {
                     "type": "integer",
@@ -94,8 +100,8 @@
                 "primers_bedfile": {
                     "type": "string",
                     "default": "",
-                    "description": "A bed file with primers position to trim the alignment output\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
-                    "examples": [ "resources/sars-cov-2/primers/nCoV-2019.primer.bed" ]
+                    "description": "A bed file with primers position to trim the alignment output\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.\n\n**Note**: individual sample can override this using the 4th column in the [samples TSV table file](#input_samples_file) and the [protocols YAML look-up table](#input_protocols_file).",
+                    "examples": [ "resources/sars-cov-2/primers/v3/nCoV-2019.primer.bed" ]
                 },
                 "trim_percent_cutoff": {
                     "type": "number",
@@ -124,8 +130,8 @@
                 "primers_file": {
                     "type": "string",
                     "default": "",
-                    "description": "A table with primers to display on the visualization\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
-                    "examples": [ "resources/sars-cov-2/primers/nCoV-2019.tsv" ]
+                    "description": "A table with primers to display on the visualization\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.\n\n**Note**: individual sample can override this using the 4th column in the [samples TSV table file](#input_samples_file) and the [protocols YAML look-up table](#input_protocols_file).",
+                    "examples": [ "resources/sars-cov-2/primers/v3/nCoV-2019.tsv" ]
                 },
                 "phylogeny_data": {
                     "type": "string",
