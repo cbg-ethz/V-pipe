@@ -7,19 +7,15 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 
 def window_length1(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-
-    read_len = patient_dict[patient_tuple]
+    s_rec = guess_sample(wildcards.dataset)
+    read_len = sample_table[s_rec].len
     aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
     return str(aux * config.snv["shift"])
 
 
 def shift1(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-
-    read_len = patient_dict[patient_tuple]
+    s_rec = guess_sample(wildcards.dataset)
+    read_len = sample_table[s_rec].len
     aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
     return str(aux)
 
@@ -70,9 +66,8 @@ rule coverage_intervals:
 
 
 def read_len(wildcards):
-    patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-    read_len = patient_dict[patient_tuple]
+    s_rec = guess_sample(wildcards.dataset)
+    read_len = sample_table[s_rec].len
     return read_len
 
 

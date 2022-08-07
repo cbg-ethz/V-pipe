@@ -60,11 +60,8 @@ rule extract:
 
 # 2. clipping
 def len_cutoff(wildcards):
-    parts = wildcards.dataset.split("/")
-    patient_ID = parts[-2]
-    date = parts[-1]
-    patient_tuple = patient_record(patient_id=patient_ID, date=date)
-    read_len = patient_dict[patient_tuple]
+    s_rec = guess_sample(wildcards.dataset)
+    read_len = sample_table[s_rec].len
     len_cutoff = int(config.input["trim_percent_cutoff"] * read_len)
     return len_cutoff
 

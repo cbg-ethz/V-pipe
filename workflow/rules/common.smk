@@ -31,6 +31,10 @@ LOGGER = logging.getLogger("snakemake.logging")
 if not "VPIPE_BENCH" in dir():
     VPIPE_BENCH = False
 
+##########################
+#   Configuration file   #
+##########################
+
 # even if the --configfile option overload is used this default *must* always exist:
 # - the _content_ of these extra configfiles will overwrite the basefile's _content_
 # - not the _filenames_ themselves
@@ -266,43 +270,106 @@ def process_config(config):
 
 config = process_config(config)
 
+
+def load_protocols(pyaml):
+    """
+    Load the look-up YAML file specifying per-protocol specific, usefull for a 4th column in the samples TSV table
+    """
+    if not pyaml:
+        return {}
+
+    # normal search (with normal macro expansion, like the default values)
+    try:
+        pf = cacheopen(
+            pyaml.format(VPIPE_BASEDIR=VPIPE_BASEDIR),
+            mode="rt",
+        )
+    except FileNotFoundError as e:
+        raise ValueError(
+            f"Cannot find protocols look-up YAML file {pyaml}",
+        ) from e
+
+    return load_configfile(pf)
+
+
+protocols = load_protocols(config["input"]["protocols_file"])
+
+
+########################
+#   Samples TSV file   #
+########################
+
 # 2. glob patients/samples + store as TSV if file is not provided
 
 # if file containing samples exists, proceed
 # to build list of target files
 if not os.path.isfile(config.input["samples_file"]):
     # sample file does not exist, have to first glob
-    # all patients' data and then construct sample
+    # all samples' data and then construct sample
     # list that would pass QA checks
-
-    patient_sample_pairs = glob_wildcards(
-        os.path.join(config.input["datadir"], "{patient_date}", "raw_data", "{file}")
+    LOGGER.info(
+        f"Missing Sample list file {config.input['samples_file']}, automatically scanning {config.input['datadir']} for samples..."
     )
 
-    if not set(patient_sample_pairs.patient_date):
+    sample_pairs = glob_wildcards(
+        os.path.join(config.input["datadir"], "{sample_date}", "raw_data", "{file}")
+    )
+
+    if not set(sample_pairs.sample_date):
         LOGGER.warning(
             f"WARNING: No samples found in {config.input['datadir']}. Not generating {config.input['samples_file']}."
         )
     else:
+        c = 0
         with open(config.input["samples_file"], "w") as outfile:
-            for i in set(patient_sample_pairs.patient_date):
-                (patient, date) = [x.strip() for x in i.split("/") if x.strip()]
-                outfile.write("{}\t{}\n".format(patient, date))
+            for i in set(sample_pairs.sample_date):
+                (sample, date) = [x.strip() for x in i.split("/") if x.strip()]
+                outfile.write("{}\t{}\n".format(sample, date))
+                c += 1
+        LOGGER.info(f"{c} samples found in {config.input['datadir']}.")
 
-# TODO: have to preprocess patient files to filter likely failures
+
+# TODO: have to preprocess samples files to filter likely failures
 # 1.) Determine 5%/95% length of FASTQ files
 # 2.) Determine whether FASTQ would survive
+# 3.) Detect amplicon protocols using ampseer
+# NOTE: Currently, "1.)" is partially handled in utils/sort_sample_dumb.
 
-
-# 3. load patients from TSV and create list of samples
+# 3. load samples from TSV and create list of samples
 #
 # This list is reused on subsequent runs
 
-patient_list = []
-patient_dict = {}
-patient_record = typing.NamedTuple(
-    "patient_record", [("patient_id", str), ("date", str)]
-)
+sample_list = []
+sample_table = {}
+sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date", str)])
+sample_id_patchmap = {}
+sample_dir = {}
+
+
+def guess_sample(path):
+    """
+    function to guess the current sample's record from the path
+    e.g.:
+      "results/Sam12/seq_20211108/"
+       =>
+      samplet_id="Sam12", date="seq_20211108"
+    """
+    s_rec = sample_record(
+        **dict(
+            zip(
+                ["sample_id", "date"],
+                list(os.path.normpath(path).split(os.path.sep)[-2:]),
+            )
+        )
+    )
+    # HACK to handle gracefully non two-level samples (e.g.: single level)
+    # TODO replace with string suffix search from sample_dir
+    return sample_id_patchmap.get(s_rec, s_rec)
+
+
+# TODO this should in the end go into some structure, ideally a peppy (Python module for Portable Ecapsulated Project)
+sample_row = typing.NamedTuple("sample_row", [("len", int), ("protocol", str)])
+
 
 if not os.path.isfile(config.input["samples_file"]):
     LOGGER.warning(
@@ -321,8 +388,8 @@ else:
             ), "ERROR: Line '{}' does not contain at least two entries!".format(
                 spamreader.line_num
             )
-            patient_tuple = patient_record(patient_id=row[0], date=row[1])
-            patient_list.append(patient_tuple)
+            sample_tuple = sample_record(sample_id=row[0], date=row[1])
+            sample_list.append(sample_tuple)
 
             assert (
                 config.input["trim_percent_cutoff"] > 0
@@ -331,19 +398,35 @@ else:
                 config.input["trim_percent_cutoff"]
             )
             assert (
-                patient_tuple not in patient_dict
+                sample_tuple not in sample_table
             ), "ERROR: sample '{}-{}' is not unique".format(row[0], row[1])
 
-            if len(row) == 2:
-                # All samples are assumed to have same read length and the default, 250 bp
-                patient_dict[patient_tuple] = config.input["read_length"]
+            if not (sample_tuple.sample_id and sample_tuple.date):
+                # HACK to handle gracefully non two-level samples (e.g.: single level)
 
-            elif len(row) >= 3:
+                # guess_sample can return wrong guesses if there is only 1 level: the output directory will be assigned to sample_id
+                patch_tuple = guess_sample(
+                    os.path.join(
+                        config.output["datadir"],
+                        sample_tuple.sample_id,
+                        sample_tuple.date,
+                    )
+                )
+                # we keep track of such mis-haps so we can patch them.
+                sample_id_patchmap[patch_tuple] = sample_tuple
+
+            # defaults (if columns are missing in TSV)
+            l = config.input[
+                "read_length"
+            ]  # All samples are assumed to have same read length and the default, 250 bp
+            p = None  # protocol-specific are assumed to be passed by config options
+
+            if len(row) >= 3:
                 # Extract read length from input.samples_file. Samples may have
                 # different read lengths. Reads will be filtered out if read length
                 # after trimming is less than trim_cutoff * read_length.
                 try:
-                    patient_dict[patient_tuple] = int(row[2])
+                    l = int(row[2])
                 except ValueError as e:
                     raise ValueError(
                         "ERROR: Wrong read-length value given for sample '{}-{}'. If present, third column in a TSV file MUST be a number. Not <{}>. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
@@ -351,6 +434,27 @@ else:
                         )
                     ) from e
 
+            if len(row) >= 4:
+                # Extract protocol name from sample file.
+                # Over the time of a long-running experiment, protocols can change to adapt to changing mix of present variants
+                # e.g.: Primers might change due to SNVs in new variants
+                p = row[3]
+
+                if not len(protocols):
+                    raise ValueError(
+                        "ERROR: Protocol short name <{}> specified for sample '{}-{}', but no protocols_file defined in section 'input' of the configuration. If present, fourth column in a TSV file MUST be a shortname specified in the protocols YAML look-up file. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            p, row[0], row[1]
+                        )
+                    )
+
+                if p not in protocols:
+                    raise ValueError(
+                        "ERROR: Wrong protocol short name <{}> for sample '{}-{}'. If present, fourth column in a TSV file MUST be a shortname specified in the protocols look-up file: [{}]. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            p, row[0], row[1], (";".join(protocols.keys()))
+                        )
+                    )
+
+            sample_table[sample_tuple] = sample_row(len=l, protocol=p)
 
 # 4. generate list of target files
 all_files = []
@@ -368,9 +472,10 @@ IDs = []
 dehumanized_raw_reads = []
 upload_markers = []
 
-for p in patient_list:
+for srec in sample_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
-    sdir = os.path.join(config.output["datadir"], p.patient_id, p.date)
+    sdir = os.path.join(config.output["datadir"], srec.sample_id, srec.date)
+    sample_dir[sdir] = srec
 
     alignments.append(os.path.join(sdir, "alignments/REF_aln.bam"))
     # if config.output["QA"]:
@@ -402,7 +507,7 @@ for p in patient_list:
         fastqc_files.append(os.path.join(sdir, "extracted_data/R2_fastqc.html"))
 
     datasets.append(sdir)
-    IDs.append(("{}-{}").format(p.patient_id, p.date))
+    IDs.append(("{}-{}").format(srec.sample_id, srec.date))
 
     # SNV
     if config.output["snv"]:
@@ -511,45 +616,74 @@ if not VPIPE_BENCH:
 
 # Auxiliary functions
 
+# TODO These shoudle eventually go into additional columns once we move to proper dataset
+
+
+def protocol_option(wildcards, option):
+    s_rec = guess_sample(wildcards.dataset)
+    proto = sample_table[s_rec].protocol
+
+    # no sample-specific protocol => use from config
+    if not proto:
+        return config.input[option]
+
+    #  samples-sepcific protocol => pick from the protocol look-up YAML
+    try:
+        return protocols[proto][option]
+    except (KeyError, TypeError) as e:
+        raise (
+            f"no {option} defined for protocol {proto} used by sample {s_rec.sample_id}-{s_rec.date}"
+        ) from e
+
 
 def ID(wildcards):
-    return "-".join(os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:])
+    s_rec = guess_sample(wildcards.dataset)
+    try:
+        # normal two-level
+        return "-".join(s_rec)
+    except TypeError:
+        # HACK single-level
+        return s_rec.sample_id or s_rec.date
 
 
 def window_lengths(wildcards):
     window_len = []
-    for p in patient_list:
-        read_len = patient_dict[p]
+    for s in sample_list:
+        read_len = sample_table[s].len
         aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
         window_len.append(str(aux * config.snv["shift"]))
 
-    window_len = ",".join(window_len)
-    return window_len
+    return ",".join(window_len)
 
 
 def shifts(wildcards):
     shifts = []
-    for p in patient_list:
-        read_len = patient_dict[p]
+    for s in sample_list:
+        read_len = sample_table[s]
         aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
         shifts.append(str(aux))
 
-    shifts = ",".join(shifts)
-    return shifts
+    return ",".join(shifts)
 
 
 def get_maxins(wildcards):
     if "maxins" in config["bowtie_align"]:
         return config.bowtie_align["maxins"]
     else:
-        patient_ID, date = os.path.normpath(wildcards.dataset).split(os.path.sep)[-2:]
-        read_len = patient_dict[patient_record(patient_id=patient_ID, date=date)]
+        s_rec = guess_sample(wildcards.dataset)
+        read_len = sample_table[s_rec]
         return 4 * read_len
 
 
 # WARNING needs to handle trailing slashes gracefully and re-use the exact two-levels of the directory structure (patient / date)
 def rebase_datadir(base, dataset):
-    return os.path.join(base, *os.path.normpath(dataset).split(os.path.sep)[-2:])
+    s_rec = guess_sample(dataset)
+    try:
+        # normal two-level
+        return os.path.join(base, *list(s_rec))
+    except TypeError:
+        # HACK single-level
+        return os.path.join(base, s_rec.sample_id or s_rec.date)
 
 
 def raw_data_file(wildcards, pair):
