@@ -18,8 +18,13 @@ rule dh_reuse_alignreject:
         reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
     params:
         SAMTOOLS=config.applications["samtools"],
+    log:
+        outfile="{dataset}/alignments/reject.out.log",
+        errfile="{dataset}/alignments/reject.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/alignments/reject.benchmark"
     group:
         "align"
     resources:
@@ -36,7 +41,8 @@ rule dh_reuse_alignreject:
                                  -F 2 \
                                  -1 {output.reject_1} \
                                  -2 {output.reject_2} \
-                                 {input.reject_aln}
+                                 {input.reject_aln} \
+                                 2> >(tee {log.errfile} >&2)
         echo
         """
 
@@ -56,8 +62,13 @@ rule dh_redo_alignreject:
     params:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
+    log:
+        outfile="{dataset}/alignments/reject.out.log",
+        errfile="{dataset}/alignments/reject.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/alignments/reject.benchmark"
     group:
         "dehuman"
     resources:
@@ -72,7 +83,8 @@ rule dh_redo_alignreject:
 
         {params.BWA} mem -t {threads} \
                          -o {output.tmp_aln} \
-                         {input.global_ref} {input.fastq}
+                         {input.global_ref} {input.fastq} \
+                         > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         echo
         echo "Keep reject  -----------------------------------------------------"
@@ -82,7 +94,8 @@ rule dh_redo_alignreject:
                                  -F 2 \
                                  -1 {output.reject_1} \
                                  -2 {output.reject_2} \
-                                 {output.tmp_aln}
+                                 {output.tmp_aln} \
+                                 2> >(tee -a {log.errfile} >&2)
         echo
         """
 
@@ -112,8 +125,13 @@ rule dh_hostalign:
         host_aln=temp_with_prefix("{dataset}/alignments/host_aln.sam"),
     params:
         BWA=config.applications["bwa"],
+    log:
+        outfile="{dataset}/alignments/host_aln.out.log",
+        errfile="{dataset}/alignments/host_aln.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/alignments/host_aln.benchmark"
     group:
         "dehuman"
     resources:
@@ -129,7 +147,8 @@ rule dh_hostalign:
 
         {params.BWA} mem -t {threads} \
                          -o {output.host_aln}\
-                         {input.host_ref} {input.reject_1} {input.reject_2}
+                         {input.host_ref} {input.reject_1} {input.reject_2} \
+                         > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         echo
         """
@@ -161,8 +180,13 @@ rule dh_filter:
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         # set to 1 to trigger matches with human genome (used for testing):
         F=2,
+    log:
+        outfile="{dataset}/raw_uploads/dehuman_filter.out.log",
+        errfile="{dataset}/raw_uploads/dehuman_filter.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/raw_uploads/dehuman_filter.benchmark"
     group:
         "dehuman"
     resources:
@@ -185,7 +209,7 @@ rule dh_filter:
         echo "Count aligned reads ---------------------------------------------"
         echo
 
-        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} -F 2304 {input.host_aln} | tee {output.filter_count})
+        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} -F 2304 {input.host_aln} | tee {output.filter_count} 2> >(tee {log.errfile} >&2) )
 
         if (( count > 0 )); then
             echo
@@ -200,17 +224,17 @@ rule dh_filter:
             {params.SAMTOOLS} view -@ {threads} \
                                    -f {params.F} \
                                    {input.host_aln} \
-                                   | cut -f 1 > {output.filter_list}
+                                   | cut -f 1 > {output.filter_list} 2> >(tee -a {log.errfile} >&2)
 
             unpack_rawreads {input.R1:q} \
                    | {params.remove_reads_script} {output.filter_list} \
                    | gzip \
-                   > {output.filtered_1} &
+                   > {output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
 
             unpack_rawreads {input.R2:q} \
                    | {params.remove_reads_script} {output.filter_list} \
                    | gzip \
-                   > {output.filtered_2} &
+                   > {output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
 
             wait
 
@@ -232,21 +256,22 @@ rule dh_filter:
                     | {params.SAMTOOLS} sort -@ {threads} \
                                     -T {params.sort_tmp} \
                                     --output-fmt ${{FMT}} \
-                                    -o {params.host_aln_cram}
+                                    -o {params.host_aln_cram} \
+                                    2> >(tee -a {log.errfile} >&2)
 
                 echo
                 echo "Compressing host-depleted raw reads ------------------------------"
                 echo
 
-                {params.SAMTOOLS} index -@ {threads} {params.host_aln_cram}
+                {params.SAMTOOLS} index -@ {threads} {params.host_aln_cram} 2> >(tee -a {log.errfile} >&2)
             fi
         else
             echo
             echo "No potential human reads found -----------------------------------"
             echo "Copy raw reads file"
             echo
-            unpack_rawreads {input.R1} | gzip > {output.filtered_1} &
-            unpack_rawreads {input.R2} | gzip > {output.filtered_2} &
+            unpack_rawreads {input.R1} | gzip > {output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
+            unpack_rawreads {input.R2} | gzip > {output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
             wait
             touch {output.filter_list}
         fi
@@ -272,8 +297,13 @@ rule dehuman:
         SAMTOOLS=config.applications["samtools"],
         checksum_type=config.general["checksum"],
         sort_tmp=temp_prefix("{dataset}/raw_uploads/dehuman.tmp"),
+    log:
+        outfile="{dataset}/raw_uploads/dehuman.out.log",
+        errfile="{dataset}/raw_uploads/dehuman.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/raw_uploads/dehuman.benchmark"
     group:
         "dehuman"
     resources:
@@ -289,7 +319,8 @@ rule dehuman:
         {params.BWA} mem -t {threads} \
                          -C \
                          -o {output.cram_sam} \
-                         {input.global_ref} {input.filtered_1} {input.filtered_2}
+                         {input.global_ref} {input.filtered_1} {input.filtered_2} \
+                         > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         # HACK handle incompatibilities between:
         #  - Illumina's 'bcl2fastq', which write arbitrary strings
@@ -306,9 +337,10 @@ rule dehuman:
                                        -M \
                                        --reference {input.global_ref} \
                                        --output-fmt ${{FMT}} \
-                                       -o {output.final_cram}
+                                       -o {output.final_cram} \
+                                       2> >(tee -a {log.errfile} >&2)
 
-        {params.checksum_type}sum {output.final_cram} > {output.checksum}
+        {params.checksum_type}sum {output.final_cram} > {output.checksum} 2> >(tee -a {log.errfile} >&2)
 
         echo
         echo DONE -------------------------------------------------------------

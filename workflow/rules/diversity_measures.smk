@@ -10,6 +10,8 @@ rule compute_diversity_measures:
         shannon_csv="{dataset}/variants/SNVs/position_shannon_entropy.csv",
     conda:
         config.diversity["conda"]
+    benchmark:
+        "{dataset}/variants/SNVs/diversity_measures.benchmark"
     script:
         "../scripts/compute_diversity_measures.py"
 
@@ -22,6 +24,12 @@ rule aggregate_diversity:
         fnames_shannon=expand(
             "{dataset}/variants/SNVs/position_shannon_entropy.csv", dataset=datasets
         ),
+    benchmark:
+        os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "diversity_measures.benchmark",
+        )
     output:
         diversity_csv=os.path.join(
             config.output["datadir"],

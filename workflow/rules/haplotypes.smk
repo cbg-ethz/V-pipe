@@ -104,7 +104,7 @@ if config.input["paired"]:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
             source {params.FUNCTIONS}
-            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee -a {log.errfile} >&2)
+            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} SECOND_END_FASTQ={output.R2} RC=false 2> >(tee {log.errfile} >&2)
             # Remove /1 and /2 from the read names
             sed -i -e "s:/1$::" {output.R1}
             sed -i -e "s:/2$::" {output.R2}
@@ -145,7 +145,7 @@ else:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
             source {params.FUNCTIONS}
-            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee -a {log.errfile} >&2)
+            SamToFastq {params.PICARD} I={input} FASTQ={output.R1} 2> >(tee {log.errfile} >&2)
 
             R1=${{PWD}}/{output.R1}
             {params.SAVAGE} -t {threads} --split {params.SPLIT} -s ${{R1}} -o {params.OUTDIR} 2> >(tee -a {log.errfile} >&2)
@@ -191,7 +191,7 @@ if config.input["paired"]:
         threads: config.predicthaplo["threads"]
         shell:
             """
-            {params.SAMTOOLS} sort -n {input.fname_bam} -o {output.fname_sam}
+            {params.SAMTOOLS} sort -n {input.fname_bam} -o {output.fname_sam} 2> >(tee {log.errfile} >&2)
 
             {params.PREDICTHAPLO} \
                 --sam {output.fname_sam} \

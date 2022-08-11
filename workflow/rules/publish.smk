@@ -81,8 +81,13 @@ rule unfiltered_cram:
         SAMTOOLS=config.applications["samtools"],
         checksum_type=config.general["checksum"],
         sort_tmp=temp_prefix("{dataset}/raw_uploads/raw_reads.tmp"),
+    log:
+        outfile="{dataset}/raw_uploads/raw_reads.out.log",
+        errfile="{dataset}/raw_uploads/raw_reads.err.log",
     conda:
         config.dehuman["conda"]
+    benchmark:
+        "{dataset}/raw_uploads/raw_reads.benchmark"
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
@@ -107,7 +112,8 @@ rule unfiltered_cram:
                          -o {output.cram_sam} \
                          {input.global_ref} \
                          <(unpack_rawreads {input.R1:q}) \
-                         <(unpack_rawreads {input.R2:q})
+                         <(unpack_rawreads {input.R2:q}) \
+                         > {log.outfile} 2> >(tee {log.errfile} >&2)
 
         # HACK handle incompatibilities between:
         #  - Illumina's 'bcl2fastq', which write arbitrary strings
@@ -124,9 +130,10 @@ rule unfiltered_cram:
                                        -M \
                                        --reference {input.global_ref} \
                                        --output-fmt ${{FMT}} \
-                                       -o {output.final_cram}
+                                       -o {output.final_cram} \
+                                       2> >(tee -a {log.errfile} >&2)
 
-        {params.checksum_type}sum {output.final_cram} > {output.checksum}
+        {params.checksum_type}sum {output.final_cram} > {output.checksum} 2> >(tee -a {log.errfile} >&2)
 
         echo
         echo DONE -------------------------------------------------------------

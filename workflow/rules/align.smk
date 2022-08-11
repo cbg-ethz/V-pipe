@@ -280,7 +280,7 @@ if config.general["aligner"] == "ngshmmalign":
         threads: 1
         shell:
             """
-            {params.GUNZIP} -c {input} > {output}
+            {params.GUNZIP} -c {input} > {output} 2> >(tee {log.errfile} >&2)
             """
 
     ruleorder: preproc_gunzip > gunzip
@@ -440,8 +440,8 @@ rule sam2bam:
         """
         echo "Writing BAM file"
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}"
-        {params.SAMTOOLS} index "{output.BAM}"
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}" > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.SAMTOOLS} index "{output.BAM}" >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 

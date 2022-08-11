@@ -44,6 +44,8 @@ rule primerstrim:
         errfile="{file}_trim.err.log",
     conda:
         config.primerstrim["conda"]
+    benchmark:
+        "{file}_trim.benchmark"
     resources:
         disk_mb=1250,
         mem_mb=config.primerstrim["mem"],
@@ -55,12 +57,12 @@ rule primerstrim:
 
         # iVar will Segfault without this:
         mkdir -p "$(dirname {params.ivar_tmp}"")"
-        {params.IVAR} trim -e -i {input.BAM} -b {params.BED_PRIMERS} -p {params.ivar_tmp}
+        {params.IVAR} trim -e -i {input.BAM} -b {params.BED_PRIMERS} -p {params.ivar_tmp} > {log.outfile} 2> {log.errfile}
 
         # samtools complains without that:
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS}  sort -o {output.BAM} -T {params.sort_tmp} {params.ivar_tmp}.bam
-        {params.SAMTOOLS}  index {output.BAM}
+        {params.SAMTOOLS}  sort -o {output.BAM} -T {params.sort_tmp} {params.ivar_tmp}.bam 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS}  index {output.BAM} 2> >(tee -a {log.errfile} >&2)
         rm -f {params.ivar_tmp}.bam
 
         """

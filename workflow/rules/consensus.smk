@@ -29,6 +29,8 @@ rule consensus_bcftools:
         errfile="{dataset}/references/consensus.bcftools.err.log",
     conda:
         config.consensus_bcftools["conda"]
+    benchmark:
+        "{dataset}/alignments/consensus.bcftools.benchmark"
     resources:
         disk_mb=1250,
         mem_mb=config.consensus_bcftools["mem"],
@@ -57,22 +59,25 @@ rule consensus_bcftools:
             --threads {threads} \
             -e 'TYPE="INDEL" & INFO/AD[1]<INFO/AD[0]' \
             -Ob \
-            --output {output.fname_temp_bcf}
+            --output {output.fname_temp_bcf} \
+            2> >(tee {log.errfile} >&2)
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
         # TODO: homogene use of 0-base vs 1-base
         {params.gunzip} -c {input.fname_cov} | tail -n +2 \
         | awk -v base=0 \
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
-        > {output.fname_mask_lowcoverage}
+        > {output.fname_mask_lowcoverage} \
+            2> >(tee -a {log.errfile} >&2)
 
         # preparations
         {params.enhance_bcf} \
            {output.fname_temp_bcf} \
            {output.fname_bcf} \
-           {params.ambiguous_base_coverage_threshold}
+           {params.ambiguous_base_coverage_threshold} \
+           2> >(tee -a {log.errfile} >&2)
 
-        {params.bcftools} index {output.fname_bcf}
+        {params.bcftools} index {output.fname_bcf} 2> >(tee -a {log.errfile} >&2)
 
         common_consensus_params="--fasta-ref {input.fname_ref} --mark-del - --mask {output.fname_mask_lowcoverage} --mask-with n"
 
@@ -83,7 +88,8 @@ rule consensus_bcftools:
             $common_consensus_params \
             -H A \
             -i "INFO/AD[0]<INFO/AD[*]" \
-            {output.fname_bcf}
+            {output.fname_bcf} \
+            2> >(tee -a {log.errfile} >&2)
 
         # ambiguous bases
         {params.bcftools} consensus \
@@ -91,7 +97,8 @@ rule consensus_bcftools:
             --chain {output.fname_chain_ambig} \
             $common_consensus_params \
             -H I --iupac-codes \
-            {output.fname_bcf}
+            {output.fname_bcf} \
+            2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -129,7 +136,7 @@ rule consensus_sequences:
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
         CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
 
-        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR}
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -161,7 +168,7 @@ rule consseq_QA:
             {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher} 2> >(tee {log.errfile} >&2)
         else
             touch {output.REF_matcher}
-            echo "pure 'nnnn...' consensus, no possible alignement"
+            echo "pure 'nnnn...' consensus, no possible alignement" | tee {log.outfile}
         fi
         """
 

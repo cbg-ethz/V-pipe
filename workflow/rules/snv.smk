@@ -287,7 +287,7 @@ rule lofreq:
     shell:
         """
         # Add qualities to indels
-        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > {log.outfile} 2> >(tee {log.errfile} >&2)
         # Index bam file
         {params.SAMTOOLS} index {output.BAM} 2> >(tee {log.errfile} >&2)
 

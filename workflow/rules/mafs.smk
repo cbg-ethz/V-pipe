@@ -32,7 +32,7 @@ rule basecounts:
     threads: 1
     shell:
         """
-        {params.ALN2BASECNT} --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}"
+        {params.ALN2BASECNT} --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -99,7 +99,7 @@ rule coverage:
     threads: config.coverage["threads"]
     shell:
         """
-        {params.GATHER_COVERAGE} --output {output.COVERAGE} --stats {output.COVSTATS} --threads {threads} @{input.COVLIST} > >(tee {log.outfile}) 2>&1
+        {params.GATHER_COVERAGE} --output {output.COVERAGE} --stats {output.COVSTATS} --threads {threads} @{input.COVLIST} > >(tee {log.outfile}) 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -153,5 +153,5 @@ rule minor_variants:
     threads: config.minor_variants["threads"]
     shell:
         """
-        {params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2>&1
+        {params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2> >(tee {log.errfile} >&2)
         """
