@@ -1,5 +1,6 @@
-method_list: [lofreq_local_haplo, shorah_default, shorah_mfa_qualities_unique_uniform, shorah_mfa_s1_a0.000001_relaxConv_uniform]
-replicate_count: 1
+method_list: [lofreq_local_haplo,
+              shorah_default]
+replicate_count: 5
 haplotype_generation: null
 params_path: config_realdata/params.csv
 master_seq_path: null

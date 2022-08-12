@@ -1,5 +1,9 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
 illumina,shotgun,,201,201,100,5@5@20@5@10@geom@0.75
 illumina,shotgun,,201,201,1000,5@5@20@5@10@geom@0.75
+illumina,shotgun,,201,201,3000,5@5@20@5@10@geom@0.75
+illumina,shotgun,,201,201,5000,5@5@20@5@10@geom@0.75
 illumina,shotgun,,201,201,100,5@20@10@5@5@geom@0.75
 illumina,shotgun,,201,201,1000,5@20@10@5@5@geom@0.75
+illumina,shotgun,,201,201,5000,5@20@10@5@5@geom@0.75
+illumina,shotgun,,201,201,3000,5@20@10@5@5@geom@0.75
