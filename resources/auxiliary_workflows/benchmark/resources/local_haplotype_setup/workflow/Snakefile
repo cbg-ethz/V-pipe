@@ -86,7 +86,6 @@ rule all:
         "results/longreads/performance_measures/global/",
         "results/longreads/performance_measures/local/",
         "results/amplicon/performance_measures/local/",
-        "results/realdata/performance_measures/global/",
         "results/realdata/performance_measures/local/",
         "results/realdata_sarscov2/performance_measures/local/",
     default_target: True
@@ -461,36 +460,5 @@ use rule performance_measures_local from realdata as realdata_performance_measur
         haplostats_list=[
             f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
             for params in realdata.paramspace.instance_patterns
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-
-use rule performance_measures_global from realdata as realdata_performance_measures_global with:
-    input:
-        predicted_haplos_list=[
-            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
-            for params in realdata.paramspace.instance_patterns
-            for method in realdata.method_list_global
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-        true_haplos_list=[
-            f"results/realdata/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
-            for params in realdata.paramspace.instance_patterns
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-        haplostats_list=[
-            f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in realdata.paramspace.instance_patterns
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-        runstatus_list=[
-            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/status_.txt"
-            for params in realdata.paramspace.instance_patterns
-            for method in realdata.method_list_global
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-        benchmark_list=[
-            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
-            for params in realdata.paramspace.instance_patterns
-            for method in realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
         ],
