@@ -26,7 +26,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.00001
-    inference_convergence_threshold = 1e-3
+    inference_convergence_threshold = 1e-5
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
@@ -54,7 +54,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "--conv_thres",
             str(inference_convergence_threshold),
             "--unique_modus",
-            False,
+            True,
         ],
         cwd=dname_work,
     )

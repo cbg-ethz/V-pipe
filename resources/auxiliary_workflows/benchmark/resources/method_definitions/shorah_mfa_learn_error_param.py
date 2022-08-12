@@ -2,7 +2,7 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-quality-scores-unique
+# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-new-inference
 
 import subprocess
 from pathlib import Path
@@ -26,7 +26,6 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.00001
-    inference_convergence_threshold = 1e-3
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
@@ -50,11 +49,6 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "--n_max_haplotypes",
             str(n_max_haplotypes),
             "--n_mfa_starts",
-            str(n_mfa_starts),
-            "--conv_thres",
-            str(inference_convergence_threshold),
-            "--unique_modus",
-            False,
         ],
         cwd=dname_work,
     )

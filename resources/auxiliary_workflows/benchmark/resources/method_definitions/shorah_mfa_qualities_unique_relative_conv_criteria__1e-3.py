@@ -2,7 +2,7 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-quality-scores-unique
+# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-quality-scores-unique-relcov
 
 import subprocess
 from pathlib import Path
@@ -54,7 +54,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "--conv_thres",
             str(inference_convergence_threshold),
             "--unique_modus",
-            False,
+            True,
         ],
         cwd=dname_work,
     )

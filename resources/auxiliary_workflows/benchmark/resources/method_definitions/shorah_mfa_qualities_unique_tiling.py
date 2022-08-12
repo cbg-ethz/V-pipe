@@ -26,12 +26,13 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.00001
+    inference_convergence_threshold = 1e-3
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    if fname_insert_bed == "":
+    if fname_insert_bed == []:
         # no insert file --> shotgun mode
         subprocess.run(
             [
@@ -49,6 +50,10 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 str(n_max_haplotypes),
                 "--n_mfa_starts",
                 str(n_mfa_starts),
+                "--conv_thres",
+                str(inference_convergence_threshold),
+                "--unique_modus",
+                True,
             ],
             cwd=dname_work,
         )
@@ -71,7 +76,11 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 "--n_mfa_starts",
                 str(n_mfa_starts),
                 "--insert-file",
-                fname_insert_bed.resolve(),
+                str(fname_insert_bed),
+                "--conv_thres",
+                str(inference_convergence_threshold),
+                "--unique_modus",
+                True,
             ],
             cwd=dname_work,
         )
@@ -85,7 +94,7 @@ if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.input.fname_insert_bed),
+        snakemake.input.fname_insert_bed,
         Path(snakemake.output.fname_result),
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
