@@ -15,6 +15,10 @@ re_trim_dataset = re.compile("(?P<dataset>.+)/alignments/REF_aln")
 
 
 def primers_file(wildcards):
+    # skip if no sample ever has 4th column
+    if 0 == sample_proto_count:
+        return config.input["primers_bedfile"]
+
     # file -> dataset
     ds = re_trim_dataset.match(wildcards.file)
     if not ds:
@@ -66,3 +70,51 @@ rule primerstrim:
         rm -f {params.ivar_tmp}.bam
 
         """
+
+
+rule ampliconclip:
+    input:
+        BAM="{file}.bam",
+        BAI="{file}.bam.bai",
+    output:
+        BAM="{file}_trim.bam",
+        BAI="{file}_trim.bam.bai",
+        stats="{file}_trim.stats",
+    params:
+        SAMTOOLS=config.applications["samtools"],
+        BED_PRIMERS=primers_file,
+        # prefixes to use for both softwares
+        sort_tmp=temp_prefix("{file}_trim_tmp"),
+    log:
+        outfile="{file}_trim.out.log",
+        errfile="{file}_trim.err.log",
+    conda:
+        config.sam2bam["conda"]
+    benchmark:
+        "{file}_trim.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.primerstrim["mem"],
+        time_min=config.primerstrim["time"],
+    threads: 1
+    shell:
+        """
+        echo "Trimming BAM with samtools"
+
+        # samtools complains without that:
+        rm -f '{params.sort_tmp}'.[0-9]*.bam
+
+        {params.SAMTOOLS} ampliconclip -b {params.BED_PRIMERS} -f {output.stats} {input.BAM} |
+            {params.SAMTOOLS}  sort -o {output.BAM} -T {params.sort_tmp} 2> >(tee {log.errfile} >&2)
+        {params.SAMTOOLS}  index {output.BAM} 2> >(tee -a {log.errfile} >&2)
+        """
+
+
+if config.general["primers_trimmer"] == "ivar":
+
+    ruleorder: primerstrim > ampliconclip
+
+
+elif config.general["primers_trimmer"] == "samtools":
+
+    ruleorder: ampliconclip > primerstrim

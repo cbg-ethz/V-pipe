@@ -344,6 +344,7 @@ sample_table = {}
 sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date", str)])
 sample_id_patchmap = {}
 sample_dir = {}
+sample_proto_count = 0
 
 
 def guess_sample(path):
@@ -453,6 +454,8 @@ else:
                             p, row[0], row[1], (";".join(protocols.keys()))
                         )
                     )
+
+                sample_proto_count += 1
 
             sample_table[sample_tuple] = sample_row(len=l, protocol=p)
 
@@ -620,6 +623,10 @@ if not VPIPE_BENCH:
 
 
 def protocol_option(wildcards, option):
+    # skip if no sample ever has 4th column
+    if 0 == sample_proto_count:
+        return config.input[option]
+
     s_rec = guess_sample(wildcards.dataset)
     proto = sample_table[s_rec].protocol
 
