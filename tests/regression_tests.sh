@@ -45,6 +45,28 @@ function run_workflow {
 
     pushd "${PROJECT_DIR}"
     mkdir config
+
+    data_root="${VPIPEROOT}/tests/data/${VIRUS}/"
+    config_addendum=""
+    config_output_trim=""
+    if [ -e "${data_root}/samples.tsv" ]; then
+        config_addendum=", samples_file: ${data_root}/samples.tsv"
+        # automatically turn trimming on if 4-columns format in TSV
+        # shellcheck disable=SC2162
+        while read s b l p o; do
+            # no proto?
+            if [[ -z "${p}" ]]; then
+                continue
+            fi
+
+            # proto => trim!
+            config_output_trim=$'    trim_primers: true\n'
+            break
+
+            : "${s} ${b} ${l} ${o}" are unused
+        done < "${data_root}/samples.tsv"
+    fi
+
     cat > config/config.yaml <<CONFIG
 general:
     virus_base_config: "${VIRUS}"
@@ -57,19 +79,13 @@ output:
     diversity: true
     QA: true
     upload: true
-
+${config_output_trim}
 upload:
     orig_cram: true
 
 snv:
     threads: ${THREADS}
 CONFIG
-
-    data_root="${VPIPEROOT}/tests/data/${VIRUS}/"
-    config_addendum=""
-    if [ -e "${data_root}/samples.tsv" ]; then
-        config_addendum=", samples_file: ${data_root}/samples.tsv"
-    fi
 
     PYTHONUNBUFFERED=1 snakemake \
         -s "${VPIPEROOT}/workflow/Snakefile" \

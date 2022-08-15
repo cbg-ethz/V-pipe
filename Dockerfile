@@ -43,13 +43,15 @@ COPY tests/data ${test_data}
 WORKDIR /work
 
 # configuration: activate all steps
-RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
+RUN mkdir config
 
 # TODO harmonize list with CI tests and Docker tests
 RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do printf '\n\n\e[36;1mvirus: %s\e[0m\n' "${virus}" \
  &&   ln -sf "${test_data}/${virus}/" ./samples \
- &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi \
+ &&   trim= \
+ &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv \
+ &&      while read s b l p o; do test -z "${p}" && continue; trim='  trim_primers: true'; break; done < ./config/samples.tsv; fi \
+ &&   printf 'output:\n%s\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml  \
  &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
  &&   rm -f samples config/samples.tsv \
   ; done \
@@ -83,10 +85,11 @@ ARG vpipe_path
 ARG envs_path
 ARG test_data
 ENV virus=hiv
+ENV trim=""
 
 WORKDIR /work
 RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
+ && printf 'output:\n%s\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process
@@ -105,10 +108,11 @@ ARG vpipe_path
 ARG envs_path
 ARG test_data
 ENV virus=sars-cov-2
+ENV trim="  trim_primers: true"
 
 WORKDIR /work
 RUN mkdir config \
- && printf 'output:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' > config/config.yaml
+ && printf 'output:\n%s\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
 RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
 # NOTE see top comment if `--network=none` breaks build process

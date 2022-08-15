@@ -289,7 +289,18 @@ def load_protocols(pyaml):
             f"Cannot find protocols look-up YAML file {pyaml}",
         ) from e
 
-    return load_configfile(pf)
+    py = load_configfile(pf)
+
+    # interpolate some parameters
+    # (currently only the base directory for resources packaged in V-pipe)
+    for (name, section) in py.items():
+        if not isinstance(section, dict):
+            continue
+        for entry, value in section.items():
+            if isinstance(value, str):
+                section[entry] = value.format(VPIPE_BASEDIR=VPIPE_BASEDIR)
+
+    return py
 
 
 protocols = load_protocols(config["input"]["protocols_file"])

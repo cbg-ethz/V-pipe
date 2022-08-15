@@ -7,8 +7,11 @@ input:
     reference: "{VPIPE_BASEDIR}/../resources/sars-cov-2/NC_045512.2.fasta"
     metainfo_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/metainfo.yaml"
     gff_directory: "{VPIPE_BASEDIR}/../resources/sars-cov-2/gffs/"
-    primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/nCoV-2019.primer.bed"
-    primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/nCoV-2019.tsv"
+    protocols_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers.yaml"
+    inserts_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.insert.bed"
+    primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.primer.bed"
+    primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.tsv"
+    primers_fasta: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/ARTIC_v3.fasta"
     phylogeny_data: "{VPIPE_BASEDIR}/../resources/sars-cov-2/phylogeny/selected_covid_sequences.fasta"
 
 frameshift_deletions_checks:

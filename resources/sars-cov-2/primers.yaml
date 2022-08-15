@@ -1,0 +1,18 @@
+v41:
+  name: SARS-CoV-2 ARTIC V4.1
+  inserts_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v41/SARS-CoV-2.insert.bed"
+  primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v41/SARS-CoV-2.primer.bed"
+  primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v41/SARS-CoV-2.tsv"
+  primers_fasta: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v41/SARS-CoV-2.primer.fasta"
+v4:
+  name: SARS-CoV-2 ARTIC V4
+  inserts_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v4/SARS-CoV-2.insert.bed"
+  primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v4/SARS-CoV-2.primer.bed"
+  primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v4/SARS-CoV-2.tsv"
+  primets_fasta: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v4/ARTIC_v4.fasta"
+v3:
+  name: SARS-CoV-2 ARTIC V3
+  inserts_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.insert.bed"
+  primers_bedfile: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.primer.bed"
+  primers_file: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/nCoV-2019.tsv"
+  primers_fasta: "{VPIPE_BASEDIR}/../resources/sars-cov-2/primers/v3/ARTIC_v3.fasta"
