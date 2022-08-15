@@ -99,7 +99,7 @@ else
 	force="f"
 fi
 
-( set -x; ln "-s${force}" "$fixed_uploads" "uploads/$unique_id" )
+( set -x; rm -f "uploads/$unique_id"; ln "-s${force}" "$fixed_uploads" "uploads/$unique_id" )
 
 
 # run command if asked to
