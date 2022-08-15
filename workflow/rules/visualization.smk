@@ -1,3 +1,10 @@
+__author__ = "Kim"
+__author__ = "Monica Dragan"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
+
 # NOTE  shorah and lofreq each have their independent option "consensus"
 # see input.REF in rule snv
 rule generate_web_visualization:
@@ -6,7 +13,7 @@ rule generate_web_visualization:
         reference_file=config["input"]["reference"],
         coverage_file="{dataset}/alignments/coverage.tsv.gz",
         vcf_file="{dataset}/variants/SNVs/snvs.vcf",
-        bam_file="{dataset}/alignments/REF_aln.bam",
+        bam_file=alignment_wildcard,
         gff_directory=(
             config.input["gff_directory"] if config.input["gff_directory"] else []
         ),

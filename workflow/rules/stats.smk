@@ -18,7 +18,7 @@ rule allstats:
 
 rule alignment_coverage:
     input:
-        BAM=expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
+        BAM=expand(alignment_wildcard, dataset=datasets),
         TSV="variants/coverage.tsv",
     output:
         "stats/coverage_intervals.tsv",
@@ -48,10 +48,11 @@ rule stats:
     input:
         R1=construct_input_fastq,
         R1_QC="{dataset}/preprocessed_data/R1.fastq.gz",
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
     output:
         temp("{dataset}/read_counts_{pair,1}.tsv"),
     params:
+        ID=ID,
         R1_temp=lambda wildcards: f"{wildcards.dataset}/preprocessed_data/temp.fastq",
         # int(4) is a workaround for a snakefmt bug:
         FACTOR=2 if config.input["paired"] else int(4),
@@ -61,9 +62,7 @@ rule stats:
         config.stats["conda"]
     shell:
         """
-        SAMPLE_ID={wildcards.dataset}
-        SAMPLE_ID="${{SAMPLE_ID#*/}}"
-        SAMPLE_ID="${{SAMPLE_ID//\//-}}"
+        SAMPLE_ID="{params.ID}"
 
         # Number of input reads
         LINECOUNT=$( cat {input.R1} | wc -l )

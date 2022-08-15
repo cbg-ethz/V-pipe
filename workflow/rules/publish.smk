@@ -162,4 +162,9 @@ rule checksum:
 
 
 ruleorder: unfiltered_cram > checksum
-ruleorder: dehuman > checksum
+
+
+if hasattr(rules, "dehuman"):
+
+    # only if dehuman.smk is included
+    ruleorder: dehuman > checksum

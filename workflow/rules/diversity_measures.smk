@@ -1,6 +1,13 @@
 import os
 
 
+__author__ = "Kim"
+__author__ = "Lara Fuhrmann"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
+
 rule compute_diversity_measures:
     input:
         fnames_samples_snvs_vcf="{dataset}/variants/SNVs/snvs.vcf",

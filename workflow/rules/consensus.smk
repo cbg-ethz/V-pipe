@@ -1,6 +1,13 @@
+__author__ = "Kim"
+__author__ = "Lara Fuhrmann"
+__license__ = "Apache2.0"
+__maintainer__ = "Ivan Topolsky"
+__email__ = "v-pipe@bsse.ethz.ch"
+
+
 rule consensus_bcftools:
     input:
-        fname_bam="{dataset}/alignments/REF_aln.bam",
+        fname_bam=alignment_wildcard,
         fname_cov="{dataset}/alignments/coverage.tsv.gz",
         fname_ref=reference_file,
     output:
@@ -104,7 +111,7 @@ rule consensus_bcftools:
 
 rule consensus_sequences:
     input:
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
         REF=reference_file,
     output:
         REF_amb="{dataset}/references/ref_ambig.fasta",
@@ -176,7 +183,7 @@ rule consseq_QA:
 rule frameshift_deletions_checks:
     input:
         REF_NAME=reference_file,
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
         #REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
         REF_majority_dels="{dataset}/references/consensus.bcftools.fasta",
         GENES_GFF=(

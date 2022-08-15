@@ -10,7 +10,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 # 0. Gather base counts from alignments
 rule basecounts:
     input:
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
     output:
         BASECNT="{dataset}/alignments/basecnt.tsv.gz",
         COVERAGE="{dataset}/alignments/coverage.tsv.gz",
@@ -109,7 +109,7 @@ rule minor_variants:
     input:
         REF=reference_file,
         BASECNT=expand("{dataset}/alignments/basecnt.tsv.gz", dataset=datasets),
-        BAM=expand("{dataset}/alignments/REF_aln.bam", dataset=datasets),
+        BAM=expand(alignment_wildcard, dataset=datasets),
     output:
         VARIANTS=os.path.join(
             config.output["datadir"],

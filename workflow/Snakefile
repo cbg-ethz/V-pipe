@@ -37,13 +37,15 @@ rule allfastqc:
 
 include: "rules/quality_assurance.smk"
 include: "rules/align.smk"
-include: "rules/primerstrim.smk"
 include: "rules/consensus.smk"
 include: "rules/mafs.smk"
 include: "rules/stats.smk"
-include: "rules/publish.smk"
-include: "rules/dehuman.smk"
 include: "rules/clean.smk"
+
+
+if config.output["trim_primers"]:
+
+    include: "rules/primerstrim.smk"
 
 
 if config.output["snv"] or config.output["local"]:
@@ -69,3 +71,13 @@ if config.output["visualization"]:
 if config.output["diversity"]:
 
     include: "rules/diversity_measures.smk"
+
+
+if config.output["dehumanized_raw_reads"]:
+
+    include: "rules/dehuman.smk"
+
+
+if config.output["upload"]:
+
+    include: "rules/publish.smk"

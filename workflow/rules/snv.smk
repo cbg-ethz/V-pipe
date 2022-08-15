@@ -23,7 +23,7 @@ def shift1(wildcards):
 # 1. Call single nucleotide variants
 rule coverage_intervals:
     input:
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
         TSV="{dataset}/alignments/coverage.tsv.gz",
     output:
         temp("{dataset}/variants/coverage_intervals.tsv"),
@@ -82,7 +82,7 @@ rule snv:
             if config.snv["consensus"]
             else reference_file
         ),
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
         TSV="{dataset}/variants/coverage_intervals.tsv",
     output:
         CSV="{dataset}/variants/SNVs/snvs.csv",
@@ -264,7 +264,7 @@ rule lofreq:
             if config.lofreq["consensus"]
             else "%s.fai" % reference_file
         ),
-        BAM="{dataset}/alignments/REF_aln.bam",
+        BAM=alignment_wildcard,
     output:
         BAM="{dataset}/variants/SNVs/REF_aln_indelqual.bam",
         SNVs="{dataset}/variants/SNVs/snvs.vcf",

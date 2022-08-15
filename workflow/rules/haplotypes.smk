@@ -6,7 +6,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 rule haploclique:
     input:
-        "{dataset}/alignments/REF_aln.bam",
+        alignment_wildcard,
     output:
         FASTA="{dataset}/variants/global/quasispecies.fasta",
         BAM="{dataset}/variants/global/quasispecies.bam",
@@ -77,7 +77,7 @@ if config.input["paired"]:
 
     rule savage:
         input:
-            "{dataset}/alignments/REF_aln.bam",
+            alignment_wildcard,
         output:
             R1=temp("{dataset}/variants/global/R1.fastq"),
             R2=temp("{dataset}/variants/global/R2.fastq"),
@@ -119,7 +119,7 @@ else:
 
     rule savage_se:
         input:
-            "{dataset}/alignments/REF_aln.bam",
+            alignment_wildcard,
         output:
             R1=temp("{dataset}/variants/global/R1.fastq"),
             FASTA="{dataset}/variants/global/contigs_stage_c.fasta",
@@ -156,7 +156,7 @@ if config.input["paired"]:
 
     rule predicthaplo:
         input:
-            fname_bam="{dataset}/alignments/REF_aln.bam",
+            fname_bam=alignment_wildcard,
             # NOTE  shorah and lofreq each have their independent option "consensus"
             fname_ref=(
                 os.path.join(

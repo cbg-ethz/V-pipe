@@ -475,12 +475,20 @@ IDs = []
 dehumanized_raw_reads = []
 upload_markers = []
 
+# do we use raw alignments or trimmed alignments?
+alignment_file = (
+    "alignments/REF_aln.bam"
+    if not config.output["trim_primers"]
+    else "alignments/REF_aln_trim.bam"
+)
+alignment_wildcard = "{dataset}/" + alignment_file
+
 for srec in sample_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
     sdir = os.path.join(config.output["datadir"], srec.sample_id, srec.date)
     sample_dir[sdir] = srec
 
-    alignments.append(os.path.join(sdir, "alignments/REF_aln.bam"))
+    alignments.append(os.path.join(sdir, alignment_file))
     # if config.output["QA"]:
     #    alignments.append(os.path.join(sdir, "QA_alignments/coverage_ambig.tsv"))
     #    alignments.append(os.path.join(sdir, "QA_alignments/coverage_majority.tsv"))
@@ -555,15 +563,15 @@ for srec in sample_list:
     if config.output["upload"]:
         upload_markers.append(os.path.join(sdir, "upload_prepared.touch"))
 
-    # merge lists containing expected output
-    all_files = (
-        alignments
-        + consensus
-        + results
-        + visualizations
-        + dehumanized_raw_reads
-        + upload_markers
-    )
+# merge lists containing expected output
+all_files = (
+    alignments
+    + consensus
+    + results
+    + visualizations
+    + dehumanized_raw_reads
+    + upload_markers
+)
 
 # diversity measures
 if not config.output["snv"] and config.output["diversity"]:
@@ -572,7 +580,13 @@ if not config.output["snv"] and config.output["diversity"]:
     )
 
 if config.output["snv"] and config.output["diversity"]:
-    all_files.append(os.path.join(config.output["datadir"], "aggregated_diversity.csv"))
+    all_files.append(
+        os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            "aggregated_diversity.csv",
+        )
+    )
 
 
 IDs = ",".join(IDs)
