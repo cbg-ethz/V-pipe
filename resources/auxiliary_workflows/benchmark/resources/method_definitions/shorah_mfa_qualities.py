@@ -54,7 +54,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "--conv_thres",
             str(inference_convergence_threshold),
             "--unique_modus",
-            False,
+            str(False),
         ],
         cwd=dname_work,
     )

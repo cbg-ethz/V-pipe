@@ -53,7 +53,7 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 "--conv_thres",
                 str(inference_convergence_threshold),
                 "--unique_modus",
-                True,
+                str(True),
             ],
             cwd=dname_work,
         )
@@ -80,7 +80,7 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 "--conv_thres",
                 str(inference_convergence_threshold),
                 "--unique_modus",
-                True,
+                str(True),
             ],
             cwd=dname_work,
         )
