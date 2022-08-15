@@ -18,6 +18,10 @@ rule gunzip:
     log:
         outfile=temp("{file}_{ext}_gunzip.out.log"),
         errfile=temp("{file}_{ext}_gunzip.err.log"),
+    benchmark:
+        "{file}_{ext}_gunzip.benchmark"
+    group:
+        "extract"
     resources:
         disk_mb=1000,
         mem_mb=config.gunzip["mem"],
