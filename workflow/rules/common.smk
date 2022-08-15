@@ -345,6 +345,7 @@ sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date",
 sample_id_patchmap = {}
 sample_dir = {}
 sample_proto_count = 0
+sample_default_count = 0
 
 
 def guess_sample(path):
@@ -422,7 +423,7 @@ else:
             ]  # All samples are assumed to have same read length and the default, 250 bp
             p = None  # protocol-specific are assumed to be passed by config options
 
-            if len(row) >= 3:
+            if (len(row) >= 3) and row[2]:
                 # Extract read length from input.samples_file. Samples may have
                 # different read lengths. Reads will be filtered out if read length
                 # after trimming is less than trim_cutoff * read_length.
@@ -435,7 +436,7 @@ else:
                         )
                     ) from e
 
-            if len(row) >= 4:
+            if (len(row) >= 4) and row[3]:
                 # Extract protocol name from sample file.
                 # Over the time of a long-running experiment, protocols can change to adapt to changing mix of present variants
                 # e.g.: Primers might change due to SNVs in new variants
@@ -456,8 +457,30 @@ else:
                     )
 
                 sample_proto_count += 1
+            else:
+                sample_default_count += 1
 
             sample_table[sample_tuple] = sample_row(len=l, protocol=p)
+
+if config["output"]["trim_primers"]:
+    if sample_default_count and not config["input"]["primers_bedfile"]:
+        raise ValueError(
+            "ERROR: {} sample(s) do not specify any protocol short name. If there is no fourth column in a TSV file, a default primers_bedfile MUST be specified in the config file in section input, option primers_bedfile. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                sample_default_count
+            )
+        )
+    elif (0 == sample_default_count) and config["input"]["primers_bedfile"]:
+        LOGGER.warning(
+            "NOTE: no sample uses the default primers_bedfile, each sample specifies a protocol short name."
+        )
+
+if len(protocols) and (0 == sample_proto_count):
+    LOGGER.warning(
+        "WARNING: protocols YAML look-up file <{}> specified, but no sample ever uses it: fourth column absent from samples TSV file.".fomret(
+            config["input"]["protocols_file"]
+        )
+    )
+
 
 # 4. generate list of target files
 all_files = []
