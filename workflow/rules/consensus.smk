@@ -171,7 +171,7 @@ rule consseq_QA:
     threads: 1
     shell:
         """
-        if tail -n +2 {input.REF_majority_dels} | grep -qP '[^n]'; then
+        if tail -n +2 {input.REF_majority_dels} | grep -qE '[^n]'; then
             {params.MATCHER} -asequence {input.REF} -bsequence {input.REF_majority_dels} -outfile {output.REF_matcher} 2> >(tee {log.errfile} >&2)
         else
             touch {output.REF_matcher}
