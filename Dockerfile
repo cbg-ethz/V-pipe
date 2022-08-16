@@ -43,19 +43,25 @@ COPY tests/data ${test_data}
 WORKDIR /work
 
 # configuration: activate all steps
-RUN mkdir config
+RUN mkdir config \
+ &&   printf 'output:\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true\n' > config/config.yaml \
+ &&   printf 'output:\n  trim_primers: true\n' > config/config-trim.yaml \
+ &&   printf '{ }\n' > config/config-empty.yaml
 
 # TODO harmonize list with CI tests and Docker tests
+# hadolint ignore=SC2162,SC2034,SC2086
 RUN for virus in ${virus_download_list:-$(ls ${test_data}/)}; do printf '\n\n\e[36;1mvirus: %s\e[0m\n' "${virus}" \
  &&   ln -sf "${test_data}/${virus}/" ./samples \
- &&   trim= \
- &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv \
- &&      while read s b l p o; do test -z "${p}" && continue; trim='  trim_primers: true'; break; done < ./config/samples.tsv; fi \
- &&   printf 'output:\n%s\n  snv: true\n  local: true\n  global: true\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml  \
- &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
- &&   rm -f samples config/samples.tsv \
+ &&   extra=config/config-extra.yaml \
+ &&   if test -e samples/samples.tsv; then cp -f samples/samples.tsv config/samples.tsv \
+ &&      while read s b l p o; do test -z "${p}" && continue; extra="config/config-trim.yaml ${extra}"; printf '\e[36m(with primers trimming)\e[0m\n'; break; done < config/samples.tsv; fi \
+ &&   if test -e samples/config-extra.yaml; then cp -f samples/config-extra.yaml config/config-extra.yaml; printf '\e[36m(with extra config)\e[0m\n'; cat config/config-extra.yaml; else  cp -f config/config-empty.yaml config/config-extra.yaml; fi \
+ &&   printf 'config files: %s\n' "${extra}" \
+ &&   PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 1 --conda-create-envs-only --use-conda --conda-prefix ${envs_path} --configfile ${extra} --config "general={virus_base_config: ${virus}}" \
+ &&   rm -f samples config/samples.tsv config/config-extra.yaml \
   ; done \
  && jdupes -Lr ${envs_path}/
+
 
 
 ###
@@ -85,16 +91,20 @@ ARG vpipe_path
 ARG envs_path
 ARG test_data
 ENV virus=hiv
-ENV trim=""
 
 WORKDIR /work
+# NOTE output must be last
 RUN mkdir config \
- && printf 'output:\n%s\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml
+ && printf 'upload:\n  orig_cram: true\noutput:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\n' > config/config.yaml \
+ &&   printf '{ }\n' > config/config-empty.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
-RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
+# hadolint ignore=SC2162,SC2034
+RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv config/samples.tsv \
+ &&      while read s b l p o; do test -z "${p}" && continue; printf '  trim_primers: true\n' >> config/config.yaml && printf '\n\n\e[36m(with primers trimming)\e[0m\n'; break; done < config/samples.tsv; fi
+RUN if test -e samples/config-extra.yaml; then cp -f samples/config-extra.yaml config/config-extra.yaml; else cp config/config-empty.yaml config/config-extra.yaml; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
-    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
+    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --configfile config/config-extra.yaml --config "general={virus_base_config: ${virus}}" \
  && echo "$(date --iso-8601=sec ; grep -E 'failed|for error' .snakemake/log/*.snakemake.log)" > ${install_path}/${virus}.teststamp
 
 
@@ -108,16 +118,20 @@ ARG vpipe_path
 ARG envs_path
 ARG test_data
 ENV virus=sars-cov-2
-ENV trim="  trim_primers: true"
 
 WORKDIR /work
+# NOTE output must be last
 RUN mkdir config \
- && printf 'output:\n%s\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\nupload:\n  orig_cram: true' "${trim}" > config/config.yaml
+ && printf 'upload:\n  orig_cram: true\noutput:\n  snv: true\n  local: true\n  global: false\n  visualization: true\n  diversity: true\n  QA: true\n  upload: true\n' > config/config.yaml \
+ &&   printf '{ }\n' > config/config-empty.yaml
 COPY --from=create-envs ${test_data}/${virus} ./samples
-RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv ./config/samples.tsv; fi
+# hadolint ignore=SC2162,SC2034
+RUN if test -e samples/samples.tsv; then cp -f samples/samples.tsv config/samples.tsv \
+ &&      while read s b l p o; do test -z "${p}" && continue; printf '  trim_primers: true\n' >> config/config.yaml && printf '\n\n\e[36m(with primers trimming)\e[0m\n'; break; done < config/samples.tsv; fi
+RUN if test -e samples/config-extra.yaml; then cp -f samples/config-extra.yaml config/config-extra.yaml; else cp config/config-empty.yaml config/config-extra.yaml; fi
 # NOTE see top comment if `--network=none` breaks build process
 RUN --network=none \
-    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --config "general={virus_base_config: ${virus}}" \
+    PYTHONUNBUFFERED=1 snakemake -s ${vpipe_path}/workflow/Snakefile -j 4 --use-conda --conda-prefix ${envs_path} --configfile config/config-extra.yaml --config "general={virus_base_config: ${virus}}" \
  && echo "$(date --iso-8601=sec ; grep -E 'failed|for error' .snakemake/log/*.snakemake.log)" > ${install_path}/${virus}.teststamp
 
 

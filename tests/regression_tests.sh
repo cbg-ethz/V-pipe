@@ -45,28 +45,6 @@ function run_workflow {
 
     pushd "${PROJECT_DIR}"
     mkdir config
-
-    data_root="${VPIPEROOT}/tests/data/${VIRUS}/"
-    config_addendum=""
-    config_output_trim=""
-    if [ -e "${data_root}/samples.tsv" ]; then
-        config_addendum=", samples_file: ${data_root}/samples.tsv"
-        # automatically turn trimming on if 4-columns format in TSV
-        # shellcheck disable=SC2162
-        while read s b l p o; do
-            # no proto?
-            if [[ -z "${p}" ]]; then
-                continue
-            fi
-
-            # proto => trim!
-            config_output_trim=$'    trim_primers: true\n'
-            break
-
-            : "${s} ${b} ${l} ${o}" are unused
-        done < "${data_root}/samples.tsv"
-    fi
-
     cat > config/config.yaml <<CONFIG
 general:
     virus_base_config: "${VIRUS}"
@@ -79,17 +57,52 @@ output:
     diversity: true
     QA: true
     upload: true
-${config_output_trim}
+
 upload:
     orig_cram: true
 
 snv:
     threads: ${THREADS}
 CONFIG
+    cat > config/config-trim.yaml <<CONFIG_TRIM
+output:
+    trim_primers: true
+CONFIG_TRIM
+    config_file=( "config/config.yaml" )
 
+    data_root="${VPIPEROOT}/tests/data/${VIRUS}/"
+    # does this test data provides a samples TSV?
+    config_addendum=""
+    if [ -e "${data_root}/samples.tsv" ]; then
+        config_addendum=", samples_file: ${data_root}/samples.tsv"
+        # automatically turn trimming on if 4-columns format in TSV
+        # shellcheck disable=SC2162
+        while read s b l p o; do
+            # no proto?
+            if [[ -z "${p}" ]]; then
+                continue
+            fi
+
+            # proto => trim!
+            config_file+=( "config/config-trim.yaml" )
+            echo "with trimming"
+            break
+
+            : "${s} ${b} ${l} ${o}" are unused
+        done < "${data_root}/samples.tsv"
+    fi
+    # does this test data provides extra configuration options
+    if [ -e "${data_root}/config-extra.yaml" ]; then
+        config_file+=( "${data_root}/config-extra.yaml" )
+       echo "with extra config:"
+       cat "${data_root}/config-extra.yaml"
+       echo
+    fi
+
+    echo "config files ${config_file[*]}"
     PYTHONUNBUFFERED=1 snakemake \
         -s "${VPIPEROOT}/workflow/Snakefile" \
-        --configfile config/config.yaml \
+        --configfile "${config_file[@]}" \
         --config "input={datadir: ${data_root}${config_addendum}}" \
         --use-conda \
         --cores ${THREADS} \
@@ -104,7 +117,7 @@ CONFIG
     echo
     PYTHONUNBUFFERED=1 snakemake \
         -s "${VPIPEROOT}/workflow/Snakefile" \
-        --configfile config/config.yaml \
+        --configfile "${config_file[@]}" \
         --config "input={datadir: ${data_root}${config_addendum}}" \
         --use-conda \
         --cores ${THREADS} \
