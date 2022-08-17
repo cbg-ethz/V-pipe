@@ -51,6 +51,7 @@ Currently, the following _virus base config_ are available:
 
 - [hiv](hiv.yaml): provides HXB2 as a reference sequence for HIV, and sets the default aligner to _ngshmmalign_.
 - [sars-cov-2](sars-cov-2.yaml): provides NC\_045512.2 as a reference sequence for SARS-CoV-2, sets the default aligner to _bwa_ and sets the variant calling to be done against the reference instead of the cohort's consensus.
+  In addition, a look-up for the recent versions of ARTIC protocol is provided; this makes it possible to set per-sample protocol in the sample table, and to turn on amplicon trimming (see [amplicon protocols](#amplicon_protocols)).
 
 ### configuration manual
 
@@ -126,6 +127,60 @@ The samples' read-length is used for critical steps of the pipeline (e.g.: quali
   ```
 
   The utils subdirectory contain [mass-importers tools](../utils/README.md#samples-mass-importers) that can generate this third column while importing samples.
+
+### amplicon protocols
+
+Samples can be the result of PCR amplification. This can require some additional processing, e.g., primers might need trimming:
+
+```yaml
+output:
+  trim_primers: true
+```
+
+In order to complete these steps, additional information needs to be provided, e.g., a BED file describing the primers to be trimmed.
+
+- This can be specified globally with several properties in the configuration file in section _input_:
+  ```yaml
+  input:
+    primers_bedfile: references/primers/SARS-CoV-2.primer.bed
+    inserts_bedfile: references/primers/SARS-CoV-2.insert.bed
+  ```
+
+- The samples TSV file can contain an optional fourth column specifying the protocol:
+  - When different samples have been processed with different library protocols, a lookup table with per-protocol specific (primers bed and fasta), can be provided in a YAML file.
+    `references/primers.yaml`:
+    ```yaml
+    v41:
+      name: SARS-CoV-2 ARTIC V4.1
+      inserts_bedfile: references/primers/v41/SARS-CoV-2.insert.bed
+      primers_bedfile: references/primers/v41/SARS-CoV-2.primer.bed
+    v4:
+      name: SARS-CoV-2 ARTIC V4
+      inserts_bedfile: references/primers/v4/SARS-CoV-2.insert.bed
+      primers_bedfile: references/primers/v4/SARS-CoV-2.primer.bed
+    v3:
+      name: SARS-CoV-2 ARTIC V3
+      inserts_bedfile: references/primers/v3/nCoV-2019.insert.bed
+      primers_bedfile: references/primers/v3/nCoV-2019.primer.bed
+    ```  
+  - in the configuration file, this look-up can be then specified in section _input_ option _protocols_file_:
+   `config/config.yaml`:
+    ```yaml
+    input:
+      protocols_file: references/primers.yaml
+    ```
+  - The short name can now be referenced in the fourth column samples TSV table file: 
+    `config/samples.tsv`:
+    ```tsv
+    sample_a  20211108  250 v3
+    sample_b  20220214  250 v4
+    ```
+
+  This is useful if multiple different amplicon schemes have been used of the lifetime of a long-running project, as new variants appear over time with SNVs that require adapting amplicons.
+
+- [_virus base config_](#virus-base-config) can provide some defaults for either above
+  e.g.: sars-cov-2 provides BED files for ARTIC v3, v4 and v4.1
+
 
 ## samples
 

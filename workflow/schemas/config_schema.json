@@ -58,7 +58,7 @@
                 "temp_prefix": {
                     "type": "string",
                     "default": "",
-                    "description": "Some step of V-pipe produce temporary files such as, e.g., decompressed intermediate - i.e. files which aren't kept long-term but are deleted after all steps that needed them have finished. By default, these files are written in the output data directory. This option, makes it is possible to write them in a different directory instead. Use this option to, e.g., leverage a faster cluster-local storage or avoid wasting backup space on a snapshotted storage. You might want to consult the documentation provided by your HPC.",
+                    "description": "Some step of V-pipe produce temporary files such as, e.g., decompressed intermediate --- i.e. files which aren't kept long-term but are deleted after all steps that needed them have finished. By default, these files are written in the output data directory. This option, makes it is possible to write them in a different directory instead. Use this option to, e.g., leverage a faster cluster-local storage or avoid wasting backup space on a snapshotted storage. You might want to consult the documentation provided by your HPC.",
                     "examples": ["temp", "/cluster/scratch"]
                 }
             },
@@ -95,8 +95,8 @@
                 "protocols_file": {
                     "type": "string",
                     "default": "",
-                    "description": "When different samples have been processed with different library protocols, this file specifies a lookup table with per-protocol specific (primers bed and fasta), eg.:\n```yaml\nv3:\n  name: ARTIC v3\n  primers_bedfile: resources/sars-cov-2/primers/v3/nCoV-2019.primer.bed\n  primers_fasta: resources/sars-cov-2/primers/v3/nCoV-2019.primer.fast\nv4:\n  name: ARTIC v4\n  primers_bedfile: resources/sars-cov-2/primers/v4/SARS-CoV-2.primer.bed\n  primers_fasta: resources/sars-cov-2/primers/4v/SARS-CoV-2.primer.fasta```\n\nThe short name can then be referenced in the [samples TSV table file](#input_samples_file):\n```tsv\nsample_a\t20211108\t250\tv3\nsample_b\t20220214\t250\tv4\n```",
-                    "examples": [ "resources/sars-cov-2/protocols.yaml" ]
+                    "description": "When different samples have been processed with different library protocols, this file specifies a lookup table with per-protocol specific (primers bed and fasta), eg.:\n```yaml\nv41:\n  name: SARS-CoV-2 ARTIC V4.1\n  inserts_bedfile: references/primers/v41/SARS-CoV-2.insert.bed\n  primers_bedfile: references/primers/v41/SARS-CoV-2.primer.bed\n  primers_file: references/primers/v41/SARS-CoV-2.tsv\n  primers_fasta: references/primers/v41/SARS-CoV-2.primer.fasta\nv4:\n  name: SARS-CoV-2 ARTIC V4\n  inserts_bedfile: references/primers/v4/SARS-CoV-2.insert.bed\n  primers_bedfile: references/primers/v4/SARS-CoV-2.primer.bed\n  primers_file: references/primers/v4/SARS-CoV-2.tsv\n  primers_fasta: references/primers/v4/ARTIC_v4.fasta\nv3:\n  name: SARS-CoV-2 ARTIC V3\n  inserts_bedfile: references/primers/v3/nCoV-2019.insert.bed\n  primers_bedfile: references/primers/v3/nCoV-2019.primer.bed\n  primers_file: references/primers/v3/nCoV-2019.tsv\n  primers_fasta: references/primers/v3/ARTIC_v3.fasta\n```\n\nThe short name can then be referenced in the [samples TSV table file](#input_samples_file):\n```tsv\nsample_a\t20211108\t250\tv3\nsample_b\t20220214\t250\tv4\n```\n\n**Note**: The virus-specific base configuration specified in [`general` => `virus_base_config`](#general_virus_base_config) will most likely change this option's default.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": [ "resources/sars-cov-2/primers.yaml" ]
                 },
                 "read_length": {
                     "type": "integer",
@@ -174,7 +174,7 @@
                 "trim_primers": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option indicates that the samples come from PCR amplification and the primers should be trimmed amplicon in the alignment file. The trimmed read are written to each sample's `…/variants/SNVs/REF_aln_trim.bam`.\n\nUsing this option requires either specifying a primers bed file in [`input` => `protocols_file`](#input_primers_bedfile), or using a [4 column input samples TSV file](#input_samples_file) and specify a protocol look-up YAML file in [`input` => `protocols_file`](#input_protocols_file).",
+                    "description": "This option indicates that the samples come from PCR amplification and the primers should be trimmed from amplicons in the alignment file. The trimmed read are written to each sample's `…/variants/SNVs/REF_aln_trim.bam`.\n\nUsing this option requires either specifying a primers bed file in [`input` => `protocols_file`](#input_primers_bedfile), or using a [4 column input samples TSV file](#input_samples_file) and specify a protocol look-up YAML file in [`input` => `protocols_file`](#input_protocols_file).",
                     "examples": [true]
                 },
                 "snv": {
@@ -224,7 +224,7 @@
             "type": "object"
         },
         "applications": {
-            "description": "The path to the different software packages can be specified using this section.\n\nIt is especially useful when dependencies are not obtained via conda such as VICUNA, and when the software packages are not in the `PATH`.\n\n**Note** we strongly recommend to use conda environments, by adding the `--use-conda` flag to the V-pipe execution command, e.g. `./vpipe --use-conda`. If you prefer to use your own installations, this section allows you to specify the location of the executables.",
+            "description": "The path to the different software packages can be specified using this section.\n\nIt is especially useful when dependencies are not obtained via conda such as VICUNA, and when the software packages are not in the `PATH`.\n\n**Note** we strongly recommend to use conda environments, by adding the `--use-conda` flag to the V-pipe execution command, e.g. `./vpipe --use-conda`. If you prefer to use your own installations, this section allows you to specify the location of the executable files.",
             "examples":[{"bwa":"/path/to/bwa","haploclique":"/path/to/haploclique"}],
             "properties": {
                 "gunzip": {
@@ -1334,7 +1334,7 @@
                 "catchup": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use this option when generating dehumanized raw reads (`dehuman.cram`) on old samples _**that have already**_ been processed in the past - a _catch up_.\n\nNormally, removing host-mapping reads requires analyzing reads which were rejected by V-pipe's main processing (as specified in section `general`, property `aligner`). But this output is considered temporary and will get deleted by Snakemake once the processing of a sample has finished. To generate `dehuman.cram` V-pipe would need to run the aligner again, which will both regenerate the data necessary for this output but also generate a new alignment which will trigger the whole workflow again.\nUse this property `catchup` to only generate the input necessary for `dehuman.cram`, leaving untouched the alignment and everything else that has already been processed.",
+                    "description": "Use this option when generating dehumanized raw reads (`dehuman.cram`) on old samples _**that have already**_ been processed in the past --- a _catch up_.\n\nNormally, removing host-mapping reads requires analyzing reads which were rejected by V-pipe's main processing (as specified in section `general`, property `aligner`). But this output is considered temporary and will get deleted by Snakemake once the processing of a sample has finished. To generate `dehuman.cram` V-pipe would need to run the aligner again, which will both regenerate the data necessary for this output but also generate a new alignment which will trigger the whole workflow again.\nUse this property `catchup` to only generate the input necessary for `dehuman.cram`, leaving untouched the alignment and everything else that has already been processed.",
                     "examples": [true]
                 }
             },
@@ -1414,7 +1414,7 @@
                 "script": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/scripts/prepare_upload_symlinks.sh",
-                    "description": "Custom script that assists and prepares uploads.\n\nIt will receive the following positional parameters:\n - _<OUTPUT>_: the output file that must be created by the script.\n - _<SAMPLE_ID>_: a string (with no path separator slashes) that can be used as a name, uniquely identifying the sample and the date.\n - _<SAMPLE_DIR>_: the base directory of the sample.\n - _<UPLOAD_FILES>_...: a list of files to consider for upload\n\nFor an example, see the default script `prepare_upload_symlinks.sh`, it generates symlinks that help tracking which samples are new and/or updated between runs of V-pipe and thus should be considered for upload.",
+                    "description": "Custom script that assists and prepares uploads.\n\nIt will receive the following positional parameters:\n - _&lt;OUTPUT&gt;_: the output file that must be created by the script.\n - *&lt;SAMPLE_ID&gt;*: a string (with no path separator slashes) that can be used as a name, uniquely identifying the sample and the date.\n - *&lt;SAMPLE_DIR&gt;*: the base directory of the sample.\n - *&lt;UPLOAD_FILES&gt;*...: a list of files to consider for upload\n\nFor an example, see the default script `prepare_upload_symlinks.sh`, it generates symlinks that help tracking which samples are new and/or updated between runs of V-pipe and thus should be considered for upload.",
                     "example": ["custom_scripts/uploader.py"]
                 },
                 "options": {
