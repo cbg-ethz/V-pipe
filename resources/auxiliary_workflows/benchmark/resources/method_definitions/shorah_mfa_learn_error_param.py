@@ -49,6 +49,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "--n_max_haplotypes",
             str(n_max_haplotypes),
             "--n_mfa_starts",
+            str(n_mfa_starts),
         ],
         cwd=dname_work,
     )

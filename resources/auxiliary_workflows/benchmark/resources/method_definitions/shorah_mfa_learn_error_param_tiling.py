@@ -30,25 +30,6 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
     n_mfa_starts = 1
 
     dname_work.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "shorah",
-            "shotgun",
-            "-b",
-            fname_bam.resolve(),
-            "-f",
-            fname_reference.resolve(),
-            "--inference",
-            "mean_field_approximation",
-            "--alpha",
-            str(alpha),
-            "--n_max_haplotypes",
-            str(n_max_haplotypes),
-            "--n_mfa_starts",
-        ],
-        cwd=dname_work,
-    )
-
     if fname_insert_bed == []:
         # no insert file --> shotgun mode
         subprocess.run(

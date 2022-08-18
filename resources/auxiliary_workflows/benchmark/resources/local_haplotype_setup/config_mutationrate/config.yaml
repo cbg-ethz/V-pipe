@@ -5,7 +5,6 @@ method_list: [lofreq_local_haplo,
               shorah_mfa_qualities_unique_relative_conv_criteria__1e-4,
               shorah_mfa_qualities_unique_relative_conv_criteria__1e-5,
               shorah_mfa_qualities_unique,
-              shorah_mfa_qualities_unique,
               shorah_mfa_qualities,
               shorah_mfa_learn_error_param]
 replicate_count: 5
