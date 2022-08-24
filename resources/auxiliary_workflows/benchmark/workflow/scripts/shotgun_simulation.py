@@ -67,16 +67,15 @@ def simulate_pacbio(
         ]
     )
     # align reads
-    subprocess.run(["bwa", "index", fname_haplotype])
-
     subprocess.run(
         [
-            "bwa",
-            "mem",
-            "-o",
-            str(art_prefix) + ".sam",
+            "minimap2",
+            "-ax",
+            "map-pb",
             fname_haplotype,
             str(art_prefix) + "_0001.fastq",
+            ">",
+            str(art_prefix) + ".sam",
         ]
     )
 
@@ -112,16 +111,15 @@ def simulate_nanopore(
         ]
     )
     # align reads
-    subprocess.run(["bwa", "index", fname_haplotype])
-
     subprocess.run(
         [
-            "bwa",
-            "mem",
-            "-o",
-            str(art_prefix) + ".sam",
+            "minimap2",
+            "-ax",
+            "map-ont",
             fname_haplotype,
             str(art_prefix) + "_0001.fastq",
+            ">",
+            str(art_prefix) + ".sam",
         ]
     )
 
