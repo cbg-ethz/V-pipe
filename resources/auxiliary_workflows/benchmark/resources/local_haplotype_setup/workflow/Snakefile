@@ -8,6 +8,18 @@ def load_config(path):
 
 
 # import modules
+module test:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_test/config.yaml")
+    replace_prefix:
+        {"results/": "results/test/", "resources/": "resources/test/"}
+
+use rule * from test as test_*
+
+
+# import modules
 module distance:
     snakefile:
         "../../../workflow/Snakefile"
@@ -79,6 +91,8 @@ use rule * from realdata_sarscov2 as realdata_sarscov2_*
 # define required output files
 rule all:
     input:
+        "results/test/performance_measures/global/",
+        "results/test/performance_measures/local/",
         "results/mutationrate/performance_measures/global/",
         "results/mutationrate/performance_measures/local/",
         "results/distance/performance_measures/global/",
