@@ -72,9 +72,10 @@ def simulate_pacbio(
             "minimap2",
             "-ax",
             "map-pb",
+            "--secondary=no",
             fname_haplotype,
             str(art_prefix) + "_0001.fastq",
-            ">",
+            "-o",
             str(art_prefix) + ".sam",
         ]
     )
@@ -116,9 +117,10 @@ def simulate_nanopore(
             "minimap2",
             "-ax",
             "map-ont",
+            "--secondary=no",
             fname_haplotype,
             str(art_prefix) + "_0001.fastq",
-            ">",
+            "-o",
             str(art_prefix) + ".sam",
         ]
     )
