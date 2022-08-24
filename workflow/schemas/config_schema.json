@@ -45,6 +45,7 @@
                 "threads": {
                     "type": "integer",
                     "default": 1,
+                    "minimum": 1,
                     "description": "This option should be used to specify the default number of threads for all multi-threaded rules. That is, unless the number of threads is specified for each rule, this value is set as default.",
                     "examples": [4]
                 },
@@ -113,6 +114,8 @@
                 "trim_percent_cutoff": {
                     "type": "number",
                     "default": 0.8,
+                    "minimum": 0,
+                    "maximum": 1,
                     "description": "Using this parameter, the user can specify the read-length threshold that should be applied during the quality trimming as a percentage (0 < `trim_percent_cutoff` < 1).",
                     "examples": [ 0.9 ]
                 },
@@ -785,6 +788,8 @@
                 "min_freq": {
                     "type": "number",
                     "default": 0.05,
+                    "minimum": 0,
+                    "maximum": 1,
                     "description": "Minimum frequency for an ambiguous nucleotide."
                 }
             },
@@ -818,7 +823,9 @@
                 },
                 "ambiguous_base_coverage_threshold": {
                     "type": "number",
-                    "default": 0.05
+                    "default": 0.05,
+                    "minimum": 0,
+                    "maximum": 1
                 }
             },
             "default": {},
@@ -1019,6 +1026,8 @@
                 },
                 "posterior_threshold": {
                     "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
                     "default": 0.9
                 },
                 "coverage": {

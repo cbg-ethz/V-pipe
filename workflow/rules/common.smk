@@ -381,7 +381,9 @@ def guess_sample(path):
 
 
 # TODO this should in the end go into some structure, ideally a peppy (Python module for Portable Ecapsulated Project)
-sample_row = typing.NamedTuple("sample_row", [("len", int), ("protocol", str)])
+sample_row = typing.NamedTuple(
+    "sample_row", [("num", int), ("len", int), ("protocol", str)]
+)
 
 
 if not os.path.isfile(config.input["samples_file"]):
@@ -389,6 +391,7 @@ if not os.path.isfile(config.input["samples_file"]):
         f"WARNING: Sample list file {config.input['samples_file']} not found."
     )
 else:
+
     with open(config.input["samples_file"], newline="") as csvfile:
         spamreader = csv.reader(csvfile, delimiter="\t")
 
@@ -405,14 +408,10 @@ else:
             sample_list.append(sample_tuple)
 
             assert (
-                config.input["trim_percent_cutoff"] > 0
-                and config.input["trim_percent_cutoff"] < 1
-            ), "ERROR: 'trim_percent_cutoff' is expected to be a fraction (between 0 and 1), whereas 'trim_percent_cutoff'={}".format(
-                config.input["trim_percent_cutoff"]
-            )
-            assert (
                 sample_tuple not in sample_table
-            ), "ERROR: sample '{}-{}' is not unique".format(row[0], row[1])
+            ), "ERROR: on line {} sample '{}-{}' is not unique, previous was on line {}".format(
+                spamreader.line_num, row[0], row[1], sample_table[sample_tuple].num
+            )
 
             if not (sample_tuple.sample_id and sample_tuple.date):
                 # HACK to handle gracefully non two-level samples (e.g.: single level)
@@ -442,8 +441,8 @@ else:
                     l = int(row[2])
                 except ValueError as e:
                     raise ValueError(
-                        "ERROR: Wrong read-length value given for sample '{}-{}'. If present, third column in a TSV file MUST be a number. Not <{}>. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
-                            row[0], row[1], row[2]
+                        "ERROR: Wrong read-length value given on line {} for sample '{}-{}'. If present, third column in a TSV file MUST be a number. Not <{}>. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            spamreader.line_num, row[0], row[1], row[2]
                         )
                     ) from e
 
@@ -455,15 +454,19 @@ else:
 
                 if not len(protocols):
                     raise ValueError(
-                        "ERROR: Protocol short name <{}> specified for sample '{}-{}', but no protocols_file defined in section 'input' of the configuration. If present, fourth column in a TSV file MUST be a shortname specified in the protocols YAML look-up file. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
-                            p, row[0], row[1]
+                        "ERROR: Protocol short name <{}> specified on line {} for sample '{}-{}', but no protocols_file defined in section 'input' of the configuration. If present, fourth column in a TSV file MUST be a shortname specified in the protocols YAML look-up file. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            p, spamreader.line_num, row[0], row[1]
                         )
                     )
 
                 if p not in protocols:
                     raise ValueError(
-                        "ERROR: Wrong protocol short name <{}> for sample '{}-{}'. If present, fourth column in a TSV file MUST be a shortname specified in the protocols look-up file: [{}]. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
-                            p, row[0], row[1], (";".join(protocols.keys()))
+                        "ERROR: Wrong protocol short name <{}> on line {} for sample '{}-{}'. If present, fourth column in a TSV file MUST be a shortname specified in the protocols look-up file: [{}]. Please read: config/README.md or https://github.com/cbg-ethz/V-pipe/tree/master/config".format(
+                            p,
+                            spamreader.line_num,
+                            row[0],
+                            row[1],
+                            (";".join(protocols.keys())),
                         )
                     )
 
@@ -471,7 +474,9 @@ else:
             else:
                 sample_default_count += 1
 
-            sample_table[sample_tuple] = sample_row(len=l, protocol=p)
+            sample_table[sample_tuple] = sample_row(
+                num=spamreader.line_num, len=l, protocol=p
+            )
 
 if config["output"]["trim_primers"]:
     if sample_default_count and not config["input"]["primers_bedfile"]:
