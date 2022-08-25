@@ -487,12 +487,11 @@ rule run_method_local:
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
-    params:
-        quast = True,
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_path=lambda wildcards, input: input.script,
+        quast = True,
     conda:
         get_generated_conda_env
     threads: 10
