@@ -102,6 +102,7 @@ use rule * from realdata_sarscov2 as realdata_sarscov2_*
 # define required output files
 rule all:
     input:
+        "results/curlcakes_ONT/performance_measures/local/",
         "results/test/performance_measures/global/",
         "results/test/performance_measures/local/",
         "results/mutationrate/performance_measures/global/",
@@ -114,6 +115,51 @@ rule all:
         "results/realdata/performance_measures/local/",
         "results/realdata_sarscov2/performance_measures/local/",
     default_target: True
+
+# curlcakes_ONT rules
+use rule run_method_local from curlcakes_ONT as curlcakes_ONT_run_method_local_global with:
+    output:
+        fname_result_haplos=f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
+        dname_work=directory(
+            f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
+        ),
+        fname_status=touch(
+            f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + curlcakes_ONT.method_list)}}}/replicates/{{replicate}}/status_.txt"
+        ),
+    benchmark:
+        f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + curlcakes_ONT.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+    resources:
+        mem_mb=8024,
+        time_min=440,
+
+
+use rule performance_measures_local from curlcakes_ONT as curlcakes_ONT_performance_measures_local with:
+    input:
+        vcf_list=[
+            f"results/curlcakes_ONT/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in curlcakes_ONT.paramspace.instance_patterns
+            for method in curlcakes_ONT.method_list
+            for replicate in range(curlcakes_ONT.config["replicate_count"])
+        ],
+        # we also include `method_list_local` to align with `vcf_list`
+        groundtruth_list=[
+            f"results/curlcakes_ONT/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in curlcakes_ONT.paramspace.instance_patterns
+            for method in curlcakes_ONT.method_list
+            for replicate in range(curlcakes_ONT.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/curlcakes_ONT/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in curlcakes_ONT.paramspace.instance_patterns
+            for method in curlcakes_ONT.method_list
+            for replicate in range(curlcakes_ONT.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/curlcakes_ONT/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in curlcakes_ONT.paramspace.instance_patterns
+            for replicate in range(curlcakes_ONT.config["replicate_count"])
+        ],
 
 
 # test rules
@@ -162,7 +208,7 @@ use rule performance_measures_local from test as test_performance_measures_local
         ],
 
 
-use rule performance_measures_global from distance as distance_performance_measures_global with:
+use rule performance_measures_global from test as test_performance_measures_global with:
     input:
         predicted_haplos_list=[
             f"results/test/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
@@ -171,7 +217,7 @@ use rule performance_measures_global from distance as distance_performance_measu
             for replicate in range(test.config["replicate_count"])
         ],
         true_haplos_list=[
-            f"results/distance/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
+            f"results/test/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in test.paramspace.instance_patterns
             for replicate in range(test.config["replicate_count"])
         ],
