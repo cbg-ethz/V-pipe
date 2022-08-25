@@ -258,7 +258,7 @@ rule provide_curlcakes_ONT_data:
     shell:
         """
         source="{wildcards.read_length}"
-        sample="{wildcards.genome_size}"
+        sample="{wildcards.coverage}"
         parts=(${{sample//_/ }})
         reference="${{parts[0]}}"
 
