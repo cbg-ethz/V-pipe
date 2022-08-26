@@ -87,6 +87,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
             _, _, _, params, method, _, replicate, _ = parts
 
         true_variants = convert_groundtruth(fname_groundtruth)
+        predicted_variants = convert_vcf(fname_vcf)
 
         if len(true_variants) == 0:
             # no true variants
@@ -96,11 +97,10 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
                 {
                     "method": method,
                     "params": params,
+                    "replicate": replicate,
                     "fp": fp,
                 }
             )
-
-        predicted_variants = convert_vcf(fname_vcf)
 
         precision, recall, f1 = compute_performance(true_variants, predicted_variants)
 
