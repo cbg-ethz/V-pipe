@@ -96,7 +96,10 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
 
     # Parse ground_truth
     df_snv = pd.read_csv(fname_snv_in)
-    df_snv["coverage"] = float(coverage)
+     try:
+        df_snv["coverage"] = float(coverage)
+    except:
+        df_snv["coverage"] = np.nan
     df_snv["frequency"] = pd.to_numeric(df_snv["frequency"], downcast="float")
     df_snv["tvar"] = df_snv["frequency"].apply(lambda x: int(x * float(coverage)))
 
