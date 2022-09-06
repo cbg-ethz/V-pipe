@@ -380,6 +380,8 @@ rule provide_real_data:
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
+    params:
+        path_ground_truth=f"resources/Five=Virus-Mix/ground_truth.csv"
     conda:
         "envs/real_data.yaml"
     resources:
@@ -418,7 +420,7 @@ rule provide_real_data:
               "{output.fname_fasta}"
 
             # create ground truth information (TODO)
-            touch {output.fname_groundtruth}
+            cp {params.path_ground_truth} {output.fname_groundtruth}
 
             # download fastq
             curl --output-dir "{output.dname_work}" -O "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR961/SRR961514/SRR961514_1.fastq.gz"
