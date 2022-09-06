@@ -1,8 +1,8 @@
-# GROUP: global
+# GROUP: local
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-quality-scores-unique
+# PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
 import subprocess
 from pathlib import Path
@@ -39,12 +39,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             fname_bam.resolve(),
             "-f",
             fname_reference.resolve(),
-            "-w",
-            str(genome_size),
-            "-s",
-            str(1),
-            "--inference",
-            "mean_field_approximation",
+            "--use_quality_scores",
             "--alpha",
             str(alpha),
             "--n_max_haplotypes",
@@ -53,45 +48,13 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             str(n_mfa_starts),
             "--conv_thres",
             str(inference_convergence_threshold),
-            "--unique_modus",
-            str(False),
+            "--non-unique_modus",
         ],
         cwd=dname_work,
     )
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
-
-    mypath = (dname_work /'support').resolve()
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    print('onlyfiles', onlyfiles)
-    for file in onlyfiles:
-        if 'reads-support.fas' in file:
-            file_name = onlyfiles[0]
-            fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-            if file.endswith('.gz'):
-                fname_zipped = (dname_work / "support" / onlyfiles[0]).resolve()
-                fname_haplos = onlyfiles[0].split('.gz')[0]
-                fname_unzipped = (dname_work / "support" / fname_haplos).resolve()
-                # unzip
-                gunzip(fname_zipped, fname_result_haplos)
-
-            elif file.endswith('.fas'):
-                fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-                (dname_work  / "support"  / file).rename(fname_result_haplos)
-
-    # fix frequency information
-
-    freq_list = []
-    for record in SeqIO.parse(fname_result_haplos, "fasta"):
-        freq_list.append(float(record.description.split('ave_reads=')[-1]))
-    norm_freq_list = [float(i)/sum(freq_list) for i in freq_list]
-
-    record_list = []
-    for idx, record in enumerate(SeqIO.parse(fname_result_haplos, "fasta")):
-        record.description = f"freq:{norm_freq_list[idx]}"
-        record_list.append(record)
-    SeqIO.write(record_list, fname_result_haplos, "fasta")
-
+    open(fname_result_haplos, 'a').close()
 
 if __name__ == "__main__":
     main(
