@@ -61,7 +61,21 @@
                     "default": "",
                     "description": "Some step of V-pipe produce temporary files such as, e.g., decompressed intermediate --- i.e. files which aren't kept long-term but are deleted after all steps that needed them have finished. By default, these files are written in the output data directory. This option, makes it is possible to write them in a different directory instead. Use this option to, e.g., leverage a faster cluster-local storage or avoid wasting backup space on a snapshotted storage. You might want to consult the documentation provided by your HPC.",
                     "examples": ["temp", "/cluster/scratch"]
+                },
+                "tsvbased": {
+                    "type": "integer",
+                    "enum": [0,1],
+                    "default": 1,
+                    "description": "Specify whether TSV files like coverage and base counts should be 1-based (i.e.: the first base pair position is called `1`) like standard practice used in biology, or should be 0-based (i.e.: the first base pair position is called `0`) like in several Python tools such as pysam.\n\nBy default V-pipe uses 1-based TSV file (position column starts with `1`), but this option change the behaviour.",
+                    "examples": [0]
+                },
+                "id_separator": {
+                    "type": "string",
+                    "default": "/",
+                    "description": "Charater to use when assembling the two levels (e.g.: sample and a date), into a column title to be used in a report TSV file\n\nE.g., with this sample file\n```tsv\npatient1    20100113\npatient1    20110202\npatient2    20081130\n```\nthe coverage TSV file's column will be called `patient1/20100113`, `patient1/20110202` and `patient2/20081130`.",
+                    "examples": [ "-" ]
                 }
+
             },
             "default": {},
             "type": "object"

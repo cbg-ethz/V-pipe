@@ -557,7 +557,7 @@ for srec in sample_list:
         fastqc_files.append(os.path.join(sdir, "extracted_data/R2_fastqc.html"))
 
     datasets.append(sdir)
-    IDs.append(("{}-{}").format(srec.sample_id, srec.date))
+    IDs.append(config.general["id_separator"].join([srec.sample_id, srec.date]))
 
     # SNV
     if config.output["snv"]:
@@ -700,7 +700,7 @@ def ID(wildcards):
     s_rec = guess_sample(wildcards.dataset)
     try:
         # normal two-level
-        return "-".join(s_rec)
+        return config.general["id_separator"].join(s_rec)
     except TypeError:
         # HACK single-level
         return s_rec.sample_id or s_rec.date

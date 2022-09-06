@@ -18,6 +18,7 @@ rule basecounts:
     params:
         NAME=ID,
         ALN2BASECNT=config.applications["aln2basecnt"],
+        ARRAYBASED=config.general["tsvbased"],
     log:
         outfile="{dataset}/alignments/basecounts.out.log",
         errfile="{dataset}/alignments/basecounts.out.log",
@@ -32,7 +33,7 @@ rule basecounts:
     threads: 1
     shell:
         """
-        {params.ALN2BASECNT} --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.ALN2BASECNT} --first "{params.ARRAYBASED}" --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 

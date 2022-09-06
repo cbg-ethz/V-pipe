@@ -43,6 +43,7 @@ rule generate_web_visualization:
         reference_uri_file="{dataset}/visualization/reference_uri_file",
         bam_uri_file="{dataset}/visualization/bam_uri_file",
     params:
+        tsvbased=config.general["tsvbased"],
         assemble_visualization_webpage=cachepath(
             "../scripts/assemble_visualization_webpage.py",
             executable=True,
@@ -98,6 +99,7 @@ rule generate_web_visualization:
         python "{params.assemble_visualization_webpage}" \
             --consensus    "{input.consensus_file}" \
             --coverage    "{input.coverage_file}" \
+            --tsvbased "{params.tsvbased}" \
             --vcf    "{input.vcf_file}" \
             --gff    "{input.gff_directory}" \
             --primers    "{input.primers_file}" \

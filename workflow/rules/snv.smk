@@ -36,6 +36,7 @@ rule coverage_intervals:
         LIBERAL="-e" if config.coverage_intervals["liberal"] else "",
         EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
         GUNZIP=config.applications["gunzip"],
+        ARRAYBASED=config.general["tsvbased"],
     log:
         outfile="{dataset}/variants/coverage_intervals.out.log",
         errfile="{dataset}/variants/coverage_intervals.out.log",
@@ -56,7 +57,7 @@ rule coverage_intervals:
         TMPINT=$(mktemp -t XXXXXXXX_int.tsv)
         {params.GUNZIP} -c {input.TSV} | cut -f'2-' > $TMPTSV
         mkdir -p "$(dirname "{output}")"
-        {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
+        {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} -b {params.ARRAYBASED} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
         cat $TMPINT >> "{log.outfile}"
         read name intervals < $TMPINT
         IFS=',' read -r -a interarray <<< "$intervals"

@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - smallgenomeutilities=0.3.6
+  - smallgenomeutilities=0.3.8

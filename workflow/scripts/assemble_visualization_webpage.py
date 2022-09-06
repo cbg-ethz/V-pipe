@@ -192,7 +192,7 @@ def get_primers_data(full_path, consensus, primers_metainfo={}):
     return primers_map
 
 
-def convert_coverage(fname, sample_name=None):
+def convert_coverage(fname, sample_name=None, based=0):
     """Convert the read coverage to bp coverage."""
     print(f'Parsing coverage: "{fname}"')
     csv = pd.read_csv(
@@ -200,7 +200,10 @@ def convert_coverage(fname, sample_name=None):
     )
     col = None
     if len(csv.columns) == 1:
-        if sample_name is not None and sample_name != csv.columns[0]:
+        if sample_name is not None and csv.columns[0] not in {
+            sample_name,
+            sample_name.replace("/", "-"),
+        }:
             print(
                 f'Ooops: column name "{csv.columns[0]}" in file is different from requested sample name "{sample_name}"!'
             )
@@ -239,6 +242,7 @@ def assemble_snv_calling_visualization_webpage(
     html_file_out,
     reference_file,
     metainfo_yaml,
+    tsvbased=0,
 ):
 
     # parse the consensus sequence
@@ -246,7 +250,7 @@ def assemble_snv_calling_visualization_webpage(
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
 
     # parse coverage file
-    coverage = convert_coverage(coverage_file, sample_name.replace("/", "-"))
+    coverage = convert_coverage(coverage_file, sample_name, tsvbased)
 
     # load biodata in json format
     vcf_json = convert_vcf(vcf_file)
@@ -340,6 +344,15 @@ def main():
         type=str,
         dest="coverage_file",
         help="global coverage table",
+    )
+    parser.add_argument(
+        "--tsvbased",
+        metavar="TSVBASED",
+        type=int,
+        default=0,
+        choices=[0, 1],
+        dest="tsvbased",
+        help="specify whether the coverage TSV is 0-based (python tools like pysam), or 1-based (standard notation in genetics)",
     )
     parser.add_argument(
         "-v",
@@ -555,6 +568,7 @@ def main():
         sample_name,
         consensus_file=args.consensus_file,
         coverage_file=args.coverage_file,
+        tsvbased=args.tsvbased,
         vcf_file=args.vcf_file,
         gff_directory=args.gff_directory,
         primers_file=args.primers_file,

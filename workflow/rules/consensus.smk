@@ -21,6 +21,7 @@ rule consensus_bcftools:
             "{dataset}/references/coverage_mask_lowcoverage.bed"
         ),
     params:
+        tsvbased=config.general["tsvbased"],
         max_coverage=config.consensus_bcftools["max_coverage"],
         mask_coverage_threshold=config.consensus_bcftools["mask_coverage_threshold"],
         ambiguous_base_coverage_threshold=config.consensus_bcftools[
@@ -70,9 +71,8 @@ rule consensus_bcftools:
             2> >(tee {log.errfile} >&2)
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
-        # TODO: homogene use of 0-base vs 1-base
         {params.gunzip} -c {input.fname_cov} | tail -n +2 \
-        | awk -v base=0 \
+        | awk -v base={params.tsvbased} \
             '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
         > {output.fname_mask_lowcoverage} \
             2> >(tee -a {log.errfile} >&2)

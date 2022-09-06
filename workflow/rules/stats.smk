@@ -26,6 +26,7 @@ rule alignment_coverage:
         COVERAGE=config.alignment_coverage["coverage"],
         NAMES=IDs,
         EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
+        ARRAYBASED=config.general["tsvbased"],
     log:
         outfile="stats/alignment_coverage.out.log",
         errfile="stats/alignment_coverage.out.log",
@@ -40,7 +41,7 @@ rule alignment_coverage:
     threads: 1
     shell:
         """
-        {params.EXTRACT_COVERAGE_INTERVALS} -cf {input.TSV} -c {params.COVERAGE} --no-shorah -N {params.NAMES} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
+        {params.EXTRACT_COVERAGE_INTERVALS} -b {params.ARRAYBASED} -cf {input.TSV} -c {params.COVERAGE} --no-shorah -N {params.NAMES} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
         """
 
 
