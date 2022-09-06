@@ -94,7 +94,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
             # Goal: Count the false positives
             fp = len(predicted_variants)
             fps_tmp.append(
-                {
+                {   "fname_vcf": fname_vcf,
                     "method": method,
                     "params": params,
                     "replicate": replicate,
