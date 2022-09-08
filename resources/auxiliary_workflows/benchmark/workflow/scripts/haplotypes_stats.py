@@ -98,7 +98,7 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
 
     # Parse ground_truth
     df_snv = pd.read_csv(fname_snv_in)
-     try:
+    try:
         df_snv["coverage"] = float(coverage)
     except:
         df_snv["coverage"] = np.nan
