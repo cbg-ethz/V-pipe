@@ -493,7 +493,6 @@ rule run_method_local:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_path=lambda wildcards, input: input.script,
-        quast = True,
     conda:
         get_generated_conda_env
     threads: 10
@@ -622,6 +621,7 @@ rule performance_measures_global:
         "envs/performance_measures.yaml"
     params:
         method_list_global=method_list_global,
+        quast=True,
     threads: 10
     resources:
         mem_mb=500,
