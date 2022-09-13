@@ -395,7 +395,7 @@ def mds_worker(index, df_pred_grpd, df_true, mds_dir):
     # plot result
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax, style = "method", alpha=.5)
 
     fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
 
