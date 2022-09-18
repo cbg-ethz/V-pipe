@@ -17,17 +17,23 @@ jupyter:
 
 # V-Pipe Tutorial
 
-This tutorial shows the basics of how to interact with V-pipe.
+V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (e.g., consensus sequences, SNV calls, local/global haplotypes). V-pipe is written using the Snakemake workflow management system.
+
+## Requirements
+
+V-pipe is optimized for Linux or Mac OS systems. Therefore, we recommend users with a Windows system to install WSL2 - this is not a full virtual machine but rather a way to run Windows and Linux cooperatively at the same time.  
 
 
 ## Organizing Data
 
+V-Pipe takes as an input rawd data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes.
+
 V-pipe expects the input samples to be organized in a two-level hierarchy:
 
-At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
-A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
-Inside that directory, the sub-directory raw_data holds the sequencing data in FASTQ format (optionally compressed with GZip).
-Paired-ended reads need to be in split files with _R1 and _R2 suffixes.
+At the first level, input files are grouped by samples (e.g.: patients or biological replicates of an experiment).
+At the second level, different datasets belonging to the same sample (e.g., from sample dates) are distinguished.
+Inside the 2nd-level directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).
+Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
 
 ```
 samples
@@ -49,9 +55,9 @@ samples
 
 ## Preparing a small dataset
 
-You can run the first test on your workstation or a good laptop.
+In the directory `example_HIV_data` you find a small test dataset that you can run on your workstation or laptop.
 
-First, you need to prepare the data. As an example, we download the following Multiplexed Illumina MiSeq samples of HIV from SRA: SRR9588830, SRR9588828, SRR9588844 and SRR9588785. They where taken from a HIV-1 positive patients at different time points post-infection. Find here the corresponding publicaiton: DOI: 10.1126/scitranslmed.aaw5589.
+First, you need to prepare the data. As an example, we download the following HIV Multiplexed Illumina MiSeq data from the short read archive (SRA): SRR9588830, SRR9588828, SRR9588844 and SRR9588785. They where taken from a HIV-1 positive patients at different time points post-infection. Find here the corresponding publicaiton: DOI: 10.1126/scitranslmed.aaw5589.
 
 To download the data, we recommend using ``` sra-tools ```.
 
@@ -92,16 +98,16 @@ samples
 
 ## Install V-pipe
 
-V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is written using [Snakemake](https://snakemake.readthedocs.io/en/stable/).
+V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is implemented using [Snakemake](https://snakemake.readthedocs.io/en/stable/).
 
 For advanced users: If your are fluent with these tools, you can:
 
 * directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
-* specifiy your V-pipe configuration
-* and start using V-pipe with them, using the --use-conda to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies.
-* please refer to the documentation for additional instructions.
+* specifiy your V-pipe configuration, and start using V-pipe
 
-The present tutorial will show simplified commands that automate much of this process.
+Use `--use-conda` to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies. Please refer to the documentation for additional instructions.
+
+In this present tutorial you will learn how to setup a workflow for the example dataset.
 
 To deploy V-pipe, you can use the installation script with the following parameters:
 
@@ -109,10 +115,11 @@ To deploy V-pipe, you can use the installation script with the following paramet
 curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
 bash quick_install.sh -p testing -w work
 ```
-If you get `zsh: permission denied: ./quick_install.sh`, then run `chmod +x quick_install.sh` this gives the necessary permissions.
+
+If you get `zsh: permission denied: ./quick_install.sh`, then run `chmod +x quick_install.sh` this gives the necessary permissions. Note that
 
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
-* using `-w` will create a working directory and populate it. It will copy over the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
+* using `-w` will create a working directory and populate it. It will colloquial the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
 
 Tip: To create and populate other new working directories, you can call init_project.sh from within the new directory:
 
@@ -122,16 +129,17 @@ cd working_2
 ../V-pipe/init_project.sh
 ```
 
+
 ## Preparation
 
-Copy the samples directory you created in the step Preparing a small dataset to this working directory. You can display the directory structure with tree samples or find samples.
+Copy the samples directory you created in the step Preparing a small dataset to this working directory. You can display the directory structure with `tree sample`s or `find samples`.
 
 ```bash
 mv ./samples ./testing/work/resources/
 ```
 
 ### Reference
-If reference sequences is available add it to the `resources/reference/ref.fasta` directory. In our case, however, we will use the reference sequence HXB2 already provided with V-Pipe `V-pipe/resources/hiv/HXB2.fasta `.
+If you have a reference sequences that you would like to use for read mapping and alignment, then add it to the `resources/reference/ref.fasta` directory. In our case, however, we will use the reference sequence HXB2 already provided by V-Pipe `V-pipe/resources/hiv/HXB2.fasta`.
 
 ### Preparing V-pipe's configuration
 
@@ -165,21 +173,21 @@ output:
     diversity: true
 ```
 
-Tip: A YAML file use spaces as indentation, you can use 2 or 4 spaces for indentation, but no tab. There are also online yaml file validators that you might want to use if your yaml file is wrongly formatted.
+Note: A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentation, but no tab. There are also online YAML file validators that you might want to use if your YAML file is wrongly formatted.
 
 ## Running V-pipe
 
 
-Before running heck what will be executed:
+Before running check what will be executed:
 
 ```bash
 cd ./testing/work/
 ./vpipe --dryrun
 ```
 
-As it is your first run of V-pipe, this will also generate the sample collection table. Check `samples.tsv` in your editor.
+As this is your first run of V-pipe, it will also generate the sample collection table. Check `samples.tsv` in your editor.
 
-Note that the demo files you downloaded have reads of length 301 only. V-pipe’s default parameters are optimized for reads of length 250; add the third column in the tab-separated file:
+Note that the samples you have downloaded have reads of length 301 only. V-pipe’s default parameters are optimized for reads of length 250. To adapt to the read length, add a third column in the tab-separated file as follows:
 
 ```bash
 cat <<EOT > ./testing/work/samples.tsv
@@ -189,12 +197,12 @@ CAP188	30	301
 EOT
 ```
 
-Tip: Always check the content of the `samples.tsv` file.
+Always check the content of the `samples.tsv` file.
 
-If you didn’t use the correct structure, this file might end up empty or some entries might be missing.
-You can safely delete it and re-run the `--dryrun` to regenerate it.
+If you did not use the correct directory structure, this file might end up empty or some entries might be missing.
+You can safely delete it and re-run with option `--dry-run` to regenerate it.
 
-Run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
+Finally, we can run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
 cd ./testing/work/
@@ -204,14 +212,14 @@ cd ./testing/work/
 
 ## Output
 
-The Wiki contains an overview of the output files. The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `samples/​{hierarchy}​/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `samples/​{hierarchy}​/variants/SNVs/snvs.csv`. 
+The Wiki contains an overview of the output files. The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `samples/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `samples/​{hierarchy}​/variants/SNVs/snvs.csv`.
 
 
 ## Swapping component
 
 The default configuration uses ShoRAH to call the SNVs and to reconstruct the local (windowed) haplotypes.
 
-Components can be swapped simply by changing the `config.yaml` file. For example to call SNVs using lofreq:
+Components of the pipeline can be swapped simply by changing the `config.yaml` file. For example to call SNVs using lofreq instead of ShoRAH use
 
 ```yaml
 general:
