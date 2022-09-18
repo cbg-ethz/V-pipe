@@ -150,7 +150,7 @@ snv:
 output:
     snv: true
     local: true
-    global: false
+    global: true
     visualization: true
     QA: false
     diversity: true
@@ -173,11 +173,10 @@ As this is your first run of V-pipe, it will also generate the sample collection
 Note that the samples you have downloaded have reads of length 301 only. V-pipe’s default parameters are optimized for reads of length 250. To adapt to the read length, add a third column in the tab-separated file as follows:
 
 ```bash
-cat <<EOT > ./testing/work/samples.tsv
+cat ./testing/work/samples.tsv
 CAP217	4390	301
 CAP188	4	301
 CAP188	30	301
-EOT
 ```
 
 Always check the content of the `samples.tsv` file.
