@@ -26,7 +26,7 @@ V-pipe is optimized for Linux or Mac OS systems. Therefore, we recommend users w
 
 ## Organizing Data
 
-V-Pipe takes as an input rawd data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes.
+V-Pipe takes as an input raw data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes.
 
 V-pipe expects the input samples to be organized in a two-level hierarchy:
 
@@ -56,27 +56,7 @@ samples
 ## Preparing a small dataset
 
 In the directory `example_HIV_data` you find a small test dataset that you can run on your workstation or laptop.
-
-First, you need to prepare the data. As an example, we download the following HIV Multiplexed Illumina MiSeq data from the short read archive (SRA): SRR9588830, SRR9588828, SRR9588844 and SRR9588785. They where taken from a HIV-1 positive patients at different time points post-infection. Find here the corresponding publicaiton: DOI: 10.1126/scitranslmed.aaw5589.
-
-To download the data, we recommend using ``` sra-tools ```.
-
-```bash
-mkdir -p samples/CAP188/4/
-cd samples/CAP188/4/
-fastq-dump -O raw_data --split-e  SRR9588828
-```
-
-Using the `--split-e` option, we download the reads seperatled into forward and reverse reads. Here you can find some more information on `fastq-dump`: https://edwards.flinders.edu.au/fastq-dump/
-
-You then have to rename the files so that they have `_R1` and `_R2` suffixes:
-
-```bash
-mv samples/CAP188/4/raw_data/SRR9588828_1.fastq samples/CAP188/4/raw_data/SRR9588828_R1.fastq
-mv samples/CAP188/4/raw_data/SRR9588828_2.fastq samples/CAP188/4/raw_data/SRR9588828_R2.fastq
-```
-
-The downloaded files will have the following structure:
+The files will have the following structure:
 
 ```
 samples
@@ -116,7 +96,7 @@ curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_in
 bash quick_install.sh -p testing -w work
 ```
 
-If you get `zsh: permission denied: ./quick_install.sh`, then run `chmod +x quick_install.sh` this gives the necessary permissions. Note that
+If you get `zsh: permission denied: ./quick_install.sh`, run `chmod +x quick_install.sh` this gives the necessary permissions. Note that
 
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
 * using `-w` will create a working directory and populate it. It will colloquial the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
@@ -132,7 +112,7 @@ cd working_2
 
 ## Preparation
 
-Copy the samples directory you created in the step Preparing a small dataset to this working directory. You can display the directory structure with `tree sample`s or `find samples`.
+Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. You can display the directory structure with `tree sample`s or `find samples`.
 
 ```bash
 mv ./samples ./testing/work/resources/
@@ -156,7 +136,7 @@ input:
     reference: "{VPIPE_BASEDIR}/../resources/hiv/HXB2.fasta"
     metainfo_file: "{VPIPE_BASEDIR}/../resources/hiv/metainfo.yaml"
     gff_directory: "{VPIPE_BASEDIR}/../resources/hiv/gffs/"
-    datadir: "{VPIPE_BASEDIR}/../../work_samples_region/resources/samples_region1_subsample_smaller"
+    datadir: "{VPIPE_BASEDIR}/../../work/resources/samples"
     read_length: 301
     samples_file: samples.tsv
     paired: true
