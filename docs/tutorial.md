@@ -96,10 +96,13 @@ curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_in
 bash quick_install.sh -p testing -w work
 ```
 
-If you get `zsh: permission denied: ./quick_install.sh`, run `chmod +x quick_install.sh` this gives the necessary permissions. Note that
+Note that
 
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
 * using `-w` will create a working directory and populate it. It will colloquial the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
+
+
+If you get `zsh: permission denied: ./quick_install.sh`, run `chmod +x quick_install.sh` this gives the necessary permissions.
 
 Tip: To create and populate other new working directories, you can call init_project.sh from within the new directory:
 
