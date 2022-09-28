@@ -38,7 +38,34 @@ argparser.add_argument('-l', '--forcelanes', required=False,
 	action='store_true', dest='forcelanes', help="Explicitly look for sample in each lane (for replicates across lanes)")
 argparser.add_argument('-p', '--patchmap', metavar='TSV', required=False, default=None,
 	type=str, dest='patchtsv', help="patchmap file to rename samples")
+argparser.add_argument("-4", "--protocols", metavar="PROTOCOLSYAML", required=False, default=None,
+	type=str, dest="protoyaml", help="Generate 4-column samples.tsv, using 'name' and 'alias' from the supplied protocols YAML file")
+
 args = argparser.parse_args()
+
+def load_proto(protoyaml):
+	"""load a protocols YAML file and build a mapping of full name strings to the short keys"""
+	with open(protoyaml) as f:
+		py = yaml.load(f, Loader=yaml.BaseLoader)
+
+	pmap = {}
+
+	for k, p in py.items():
+
+		if "name" in p:
+			pmap[p.get("name")] = k
+
+		for a in p.get("alias", []):
+			assert (
+				a not in pmap
+			), f"duplicate alias <{a}> in protocols YAML file <{protoyaml}>, last see in <{pmap[a]}>"
+			pmap[a] = k
+
+	return pmap
+
+
+proto = load_proto(args.protoyaml) if args.protoyaml else None
+
 
 statsdir=args.statsdir
 fastqdir=args.fastqdir if args.fastqdir else os.path.join(statsdir, 'Fastq')
@@ -208,7 +235,18 @@ with open(os.path.join(statsdir, 'SampleSheetUsed.csv'),'rt',encoding='utf-8', n
 				print(fixedname, f"{'paired' if ends > 1 else 'single'}-end", rlen, sep='\t')
 			# output files
 			if tsv:
-				print(fixedname, batch, rlen, sep='\t', file=tsv)
+				tf = [fixedname, batch, rlen]
+				if proto:
+					if library:
+						assert (
+							library in proto
+						), f"Cannot find library kit <{library}> in protocols YAML file <{args.protoyaml}>"
+						tf += [proto[library]]
+					else:
+						print(
+							f"\u001b[K\t\twarning, missing KIT for sample {fixedname}"
+						)
+				print(*tf, sep="\t", file=tsv)
 			if sh:
 				subst={'force':('f' if args.force else ''),'download':fastqdir,'sampleset':sampleset,'sname':samname,'fname':fixedname,'lglob': ('_L{001..%03u}' % lanes if args.forcelanes else '_L[0-9][0-9][0-9]'),'ends':ends,'batch':batch,'suffix':''}
 				# 'midfix': _S*_L%(lane)03u
