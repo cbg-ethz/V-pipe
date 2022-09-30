@@ -66,7 +66,7 @@
                     "type": "integer",
                     "enum": [0,1],
                     "default": 1,
-                    "description": "Specify whether TSV files like coverage and base counts should be 1-based (i.e.: the first base pair position is called `1`) like standard practice used in biology, or should be 0-based (i.e.: the first base pair position is called `0`) like in several Python tools such as pysam.\n\nBy default V-pipe uses 1-based TSV file (position column starts with `1`), but this option change the behaviour.",
+                    "description": "Specify whether TSV files like coverage and base counts should be 1-based (i.e.: the first base pair position is called `1`) like standard practice used in biology and most text formats such as VCF and GFF, or should be 0-based (i.e.: the first base pair position is called `0`) like in several Python tools such as pysam and the BED format.\n\nBy default V-pipe uses 1-based TSV file (position column starts with `1`), but this option change the behaviour.",
                     "examples": [0]
                 },
                 "id_separator": {
