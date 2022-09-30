@@ -756,6 +756,10 @@ def raw_data_file(wildcards, pair):
             ("R%u%s" % (pair, config.input["fastq_suffix"])) if pair else ""
         )
     )
+    # if directory was deleted: no input files to restart alignement
+    if not os.path.exists(indir):
+        return []
+    # otherwise, scan for .fastq files
     for p in os.listdir(indir):
         if rx_fq.search(p):
             list_output.append(os.path.join(indir, p))
