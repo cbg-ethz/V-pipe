@@ -1,0 +1,5 @@
+method_list: [lofreq_local_haplo, shorah_default, shorah_mfa_qualities_unique_uniform, shorah_mfa_s1_a0.000001_relaxConv_uniform]
+replicate_count: 1
+haplotype_generation: mutation_rate
+params_path: config_amplicon/params.csv
+master_seq_path: /Users/lfuhrmann/Documents/Projects/V-pipe/resources/hiv/HXB2.fasta

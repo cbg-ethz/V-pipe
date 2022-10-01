@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - samtools = 1.9
+  - bwa = 0.7.17
+  - primalscheme = 1.3
+  - flash = 1.2.11

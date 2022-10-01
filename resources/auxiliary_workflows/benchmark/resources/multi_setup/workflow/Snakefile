@@ -1,0 +1,71 @@
+from snakemake.io import load_configfile
+
+
+# onerror:
+#    # crashes are due to unpreventable cluster errors
+#    shell("./run_workflow.sh")
+
+
+# setup workflow
+def load_config(path):
+    config = load_configfile(path)
+    return config
+
+
+# import modules
+module distance_varycoverage:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_distance_varycoverage/config.yaml")
+    replace_prefix:
+        {"results/": "results/distance_varycoverage/"}
+
+
+use rule * from distance_varycoverage as distance_varycoverage_*
+
+
+module distance_varyparams:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_distance_varyparams/config.yaml")
+    replace_prefix:
+        {"results/": "results/distance_varyparams/"}
+
+
+use rule * from distance_varyparams as distance_varyparams_*
+
+
+module mutationrate:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_mutationrate/config.yaml")
+    replace_prefix:
+        {"results/": "results/mutationrate/"}
+
+
+use rule * from mutationrate as mutationrate_*
+
+
+module realdata:
+    snakefile:
+        "../../../workflow/Snakefile"
+    config:
+        load_config("config_realdata/config.yaml")
+    replace_prefix:
+        {"results/": "results/realdata/"}
+
+
+use rule * from realdata as realdata_*
+
+
+# define required output files
+rule all:
+    input:
+        rules.distance_varycoverage_all.input,
+        rules.distance_varyparams_all.input,
+        # rules.mutationrate_all.input,
+        rules.realdata_all.input,
+    default_target: True

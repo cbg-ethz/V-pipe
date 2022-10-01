@@ -1,0 +1,13 @@
+# `null` will execut all methods
+# list of strings will execute selected methods
+method_list: [haploclique, quasirecomb, predicthaplo, haploconduct, cliquesnv]
+
+replicate_count: 10
+
+haplotype_generation: distance  # distance or mutation_rate
+
+params_path: config/params.csv
+
+master_seq_path: null
+# if None, then generate MasterSequence by drawing bases
+# uniformly at random using the user-provided genome length

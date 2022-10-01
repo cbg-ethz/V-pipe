@@ -1,0 +1,10 @@
+# for distance mode:
+# haplos = n_group1,n_group2,d_group12,d_group1,d_group2,freq_dist,freq_param
+# for mutation mode:
+# haplos = mutation_rate,insertion_rate,deletion_rate,haplotype_pattern
+# parameters are seperated with "@"
+seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
+illumina,shotgun,,240,1000,100,5@5@20@10@6@geom@0.75
+# illumina,amplicon,400:100,200,1000,100,5@5@20@10@6@dirichlet@1:1:1:1:1:1:1:1:1:1
+# illumina,shotgun,,240,1000,100,0.1@0@0@0.6:0.4
+# illumina,amplicon,400:100,200,1000,100,0.1@0@0@0.6:0.4
