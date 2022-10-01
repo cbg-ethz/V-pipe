@@ -492,7 +492,7 @@ if config["output"]["trim_primers"]:
 
 if len(protocols) and (0 == sample_proto_count):
     LOGGER.warning(
-        "WARNING: protocols YAML look-up file <{}> specified, but no sample ever uses it: fourth column absent from samples TSV file.".fomret(
+        "WARNING: protocols YAML look-up file <{}> specified, but no sample ever uses it: fourth column absent from samples TSV file.".format(
             config["input"]["protocols_file"]
         )
     )

@@ -90,7 +90,7 @@ To deploy V-pipe, you can use the installation script with the following paramet
 
 ```bash
 curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
-bash quick_install.sh -p testing -w work
+bash quick_install.sh -p tutorial -w work
 ```
 
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
@@ -107,24 +107,28 @@ cd working_2
 
 ## Running V-pipe
 
-Copy the samples directory you created in the step Preparing a small dataset to this working directory. You can display the directory structure with tree samples or find samples3.
+Copy the samples directory you created in the step Preparing a small dataset to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
 
 ```bash
-mv ./samples ./testing/work/
+mv samples tutorial/work/
 ```
 
 Prepare V-pipe's configuration:
 
 ```bash
-cat <<EOT >> ./testing/work/config.yaml
+cat <<EOT > tutorial/work/config.yaml
 general:
     virus_base_config: 'sars-cov-2'
+
+input:
+    samples_file: samples.tsv
 
 output:
     snv: false
     local: false
     global: false
     visualization: false
+    diversity: false
     QA: false
 EOT
 ```
@@ -132,8 +136,9 @@ EOT
 Check what will be executed:
 
 ```bash
-cd ./testing/work/
+cd tutorial/work/
 ./vpipe --dryrun
+cd ../..
 ```
 
 As it is your first run of V-pipe, this will also generate the sample collection table. Check `samples.tsv` in your editor.
@@ -141,7 +146,7 @@ As it is your first run of V-pipe, this will also generate the sample collection
 Note that the demo files you downloaded have reads of length 150 only. V-pipe’s default parameters are optimized for reads of length 250; add the third column in the tab-separated file:
 
 ```bash
-cat <<EOT > ./testing/work/samples.tsv
+cat <<EOT > tutorial/work/samples.tsv
 SRR10903401	20200102	150
 SRR10903402	20200102	150
 EOT
@@ -155,7 +160,7 @@ You can safely delete it and re-run the `--dryrun` to regenerate it.
 Run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
-cd ./testing/work/
+cd tutorial/work/
 ./vpipe -p --cores 2
 ```
 

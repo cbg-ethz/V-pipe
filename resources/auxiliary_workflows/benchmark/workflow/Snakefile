@@ -278,6 +278,7 @@ rule provide_2_SARS_CoV_2_mix:
         fi
         """
 
+
 rule split:
     conda:
         "envs/split.yaml"
@@ -290,7 +291,6 @@ rule split:
         read_length="2-SARS-CoV-2-mix",
     shell:
         "samtools collate -O {input.fname_aln} | samtools fastq -1 {output.fname_fastq_R1} -2 {output.fname_fastq_R2} -"
-
 
 
 rule flash:

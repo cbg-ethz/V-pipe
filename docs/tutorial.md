@@ -35,22 +35,22 @@ At the second level, different datasets belonging to the same sample (e.g., from
 Inside the 2nd-level directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).
 Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
 
-```
-samples
-|───patient1
-│   └───date1
-│       └───raw_data
-│           |───reads_R1.fastq
-│           └───reads_R2.fastq
-└───patient2
-    |───date1
-    |   └───raw_data
-    |       |───reads_R1.fastq
-    |       └───reads_R2.fastq
-    └───date2
+```text
+📁samples
+|───📁patient1
+│   └───📁date1
+│       └───📁raw_data
+│           |───🧬reads_R1.fastq
+│           └───🧬reads_R2.fastq
+└───📁patient2
+    |───📁date1
+    |   └───📁raw_data
+    |       |───🧬reads_R1.fastq
+    |       └───🧬reads_R2.fastq
+    └───📁date2
         └───raw_data
-            |───reads_R1.fastq
-            └───reads_R2.fastq
+            |───🧬reads_R1.fastq
+            └───🧬reads_R2.fastq
 ```
 
 ## Preparing a small dataset
@@ -58,22 +58,22 @@ samples
 In the directory `example_HIV_data` you find a small test dataset that you can run on your workstation or laptop.
 The files will have the following structure:
 
-```
-samples
-|└───CAP217
-│   └───4390
-│       └───raw_data
-│           |───reads_R1.fastq
-│           └───reads_R2.fastq
-└───CAP188
-    |───4
-    |   └───raw_data
-    |       |───reads_R1.fastq
-    |       └───reads_R2.fastq
-    └───30
-        └───raw_data
-            |───reads_R1.fastq
-            └───reads_R2.fastq
+```text
+📁samples
+|└───📁CAP217
+│    └───📁4390
+│        └───📁raw_data
+│            |───🧬reads_R1.fastq
+│            └───🧬reads_R2.fastq
+└───📁CAP188
+    |───📁4
+    |   └───📁raw_data
+    |       |───🧬reads_R1.fastq
+    |       └───🧬reads_R2.fastq
+    └───📁30
+        └───📁raw_data
+            |───🧬reads_R1.fastq
+            └───🧬reads_R2.fastq
 ```
 
 ## Install V-pipe
@@ -115,10 +115,11 @@ cd working_2
 
 ## Preparation
 
-Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. You can display the directory structure with `tree sample`s or `find samples`.
+Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
 
 ```bash
-mv ./samples ./testing/work/resources/
+mkdir -p testing/work/resources
+mv example_HIV_data/samples testing/work/resources/
 ```
 
 ### Reference
@@ -126,20 +127,22 @@ If you have a reference sequences that you would like to use for read mapping an
 
 ### Preparing V-pipe's configuration
 
-In the `work`  directory you can find the file `config.yaml`. This is where the V-Pipe configuation should be specified. See [here] (https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration. In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty. Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
+In the `work`  directory you can find the file `config.yaml`. This is where the V-Pipe configuation should be specified. See [here](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
+In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty. Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
 
 ```bash
+cat <<EOT > ./testing/work/config.yaml
 general:
-    virus_base_config: ''
-    aligner: "bwa"
-    snv_caller: "shorah"
-    haplotype_reconstruction: "haploclique"
+    virus_base_config: ""
+    aligner: bwa
+    snv_caller: shorah
+    haplotype_reconstruction: haploclique
 
 input:
     reference: "{VPIPE_BASEDIR}/../resources/hiv/HXB2.fasta"
     metainfo_file: "{VPIPE_BASEDIR}/../resources/hiv/metainfo.yaml"
     gff_directory: "{VPIPE_BASEDIR}/../resources/hiv/gffs/"
-    datadir: "{VPIPE_BASEDIR}/../../work/resources/samples"
+    datadir: resources/samples/
     read_length: 301
     samples_file: samples.tsv
     paired: true
@@ -154,6 +157,7 @@ output:
     visualization: true
     QA: false
     diversity: true
+EOT
 ```
 
 Note: A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentation, but no tab. There are also online YAML file validators that you might want to use if your YAML file is wrongly formatted.
@@ -164,8 +168,9 @@ Note: A YAML files use spaces as indentation, you can use 2 or 4 spaces for inde
 Before running check what will be executed:
 
 ```bash
-cd ./testing/work/
+cd testing/work/
 ./vpipe --dryrun
+cd ../..
 ```
 
 As this is your first run of V-pipe, it will also generate the sample collection table. Check `samples.tsv` in your editor.
@@ -173,10 +178,11 @@ As this is your first run of V-pipe, it will also generate the sample collection
 Note that the samples you have downloaded have reads of length 301 only. V-pipe’s default parameters are optimized for reads of length 250. To adapt to the read length, add a third column in the tab-separated file as follows:
 
 ```bash
-cat ./testing/work/samples.tsv
+cat <<EOT > testing/work/samples.tsv
 CAP217	4390	301
 CAP188	4	301
 CAP188	30	301
+EOT
 ```
 
 Always check the content of the `samples.tsv` file.
@@ -187,14 +193,14 @@ You can safely delete it and re-run with option `--dry-run` to regenerate it.
 Finally, we can run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
-cd ./testing/work/
+cd testing/work/
 ./vpipe -p --cores 2
 ```
 
 
 ## Output
 
-The Wiki contains an overview of the output files. The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `samples/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `samples/​{hierarchy}​/variants/SNVs/snvs.csv`.
+The Wiki contains an overview of the output files. The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `results/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `results/​{hierarchy}​/variants/SNVs/snvs.csv`.
 
 
 ## Swapping component

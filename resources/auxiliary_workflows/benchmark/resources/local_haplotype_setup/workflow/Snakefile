@@ -31,6 +31,7 @@ module mutationrate:
 
 use rule * from mutationrate as mutationrate_*
 
+
 module longreads:
     snakefile:
         "../../../workflow/Snakefile"
@@ -81,6 +82,7 @@ rule all:
         "results/realdata/performance_measures/local/",
     default_target: True
 
+
 # distance rules
 use rule run_method_local from amplicon as amplicon_run_method_local_global with:
     output:
@@ -124,7 +126,6 @@ use rule performance_measures_local from amplicon as amplicon_performance_measur
             for params in amplicon.paramspace.instance_patterns
             for replicate in range(amplicon.config["replicate_count"])
         ],
-
 
 
 # distance rules
@@ -287,6 +288,7 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
             for replicate in range(mutationrate.config["replicate_count"])
         ],
 
+
 # longreads rate rules
 use rule run_method_local from longreads as longreads_run_method_local_global with:
     output:
@@ -383,6 +385,7 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
         mem_mb=10024,
         time_min=440,
 
+
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
     input:
         vcf_list=[
@@ -409,6 +412,7 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for params in realdata.paramspace.instance_patterns
             for replicate in range(realdata.config["replicate_count"])
         ],
+
 
 use rule performance_measures_global from realdata as realdata_performance_measures_global with:
     input:
