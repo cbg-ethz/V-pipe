@@ -119,7 +119,7 @@ Copy the samples directory you created in the step "Preparing a small dataset" t
 
 ```bash
 mkdir -p testing/work/resources
-mv example_HIV_data/samples testing/work/resources/
+mv testing/V-pipe/docs/example_HIV_data/samples testing/work/resources/samples
 ```
 
 ### Reference
