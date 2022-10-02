@@ -7,7 +7,7 @@ echo "current branch: ${branch}"
 if [[ "${1}" == "branch" ]]; then
 	if [[ "${branch}" != "${default}" ]]; then
 		echo "patching tutorials..."
-		sed -ri "s@(quick_install.sh) +(-[^b])@\1 -b ${branch} \2@g" ./*.md
+		sed -ri "s@(quick_install.sh) +(-[^b])@\1 -b ${branch} \2@g;s@(V-pipe)/${default}(/utils)@\1/${branch}\2@g" ./*.md
 		## example command to keep the output with errors
 		# jupytext --to ipynb --pipe-fmt ipynb --pipe 'jupyter nbconvert --to ipynb --execute --allow-errors --stdin --stdout' ./*.md
 	else
