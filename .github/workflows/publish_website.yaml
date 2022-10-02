@@ -31,7 +31,7 @@ jobs:
 
       - name: Build website
         working-directory: ./docs
-        run: ./convert.sh
+        run: ./convert.sh branch
 
       - uses: actions/upload-artifact@v2
         with:
