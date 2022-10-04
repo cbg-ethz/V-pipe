@@ -124,12 +124,15 @@ input:
     samples_file: samples.tsv
 
 output:
+    trim_primers: false
     snv: false
     local: false
     global: false
     visualization: false
     diversity: false
     QA: false
+    upload: false
+    dehumanized_raw_reads: false
 EOT
 ```
 

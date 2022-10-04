@@ -3,9 +3,13 @@ general:
     # e.g: 'hiv', 'sars-cov-2', or absent
 
 output:
+    trim_primers: false
+    # see: config/README.md#amplicon-protocols
     snv: false
     local: false
     global: false
     visualization: false
     diversity: false
     QA: false
+    upload: false
+    dehumanized_raw_reads: false
