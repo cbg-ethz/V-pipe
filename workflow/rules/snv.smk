@@ -49,7 +49,7 @@ rule coverage_intervals:
     resources:
         disk_mb=1250,
         mem_mb=config.coverage_intervals["mem"],
-        time_min=config.coverage_intervals["time"],
+        runtime=config.coverage_intervals["time"],
     threads: config.coverage_intervals["threads"]
     shell:
         """
@@ -113,7 +113,7 @@ rule snv:
     resources:
         disk_mb=1250,
         mem_mb=config.snv["mem"],
-        time_min=config.snv["time"],
+        runtime=config.snv["time"],
     threads: config.snv["threads"]
     shell:
         """
@@ -236,7 +236,7 @@ rule samtools_index:
     resources:
         disk_mb=2000,
         mem_mb=config.samtools_index["mem"],
-        time_min=config.samtools_index["time"],
+        runtime=config.samtools_index["time"],
     benchmark:
         "{file}_samtools_index.benchmark"
     shell:
@@ -284,7 +284,7 @@ rule lofreq:
     resources:
         disk_mb=2000,
         mem_mb=config.lofreq["mem"],
-        time_min=config.lofreq["time"],
+        runtime=config.lofreq["time"],
     shell:
         """
         # Add qualities to indels

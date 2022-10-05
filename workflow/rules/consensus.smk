@@ -42,7 +42,7 @@ rule consensus_bcftools:
     resources:
         disk_mb=1250,
         mem_mb=config.consensus_bcftools["mem"],
-        time_min=config.consensus_bcftools["time"],
+        runtime=config.consensus_bcftools["time"],
     threads: config.consensus_bcftools["threads"]
     shell:
         """
@@ -135,7 +135,7 @@ rule consensus_sequences:
     resources:
         disk_mb=1250,
         mem_mb=config.consensus_sequences["mem"],
-        time_min=config.consensus_sequences["time"],
+        runtime=config.consensus_sequences["time"],
     threads: 1
     shell:
         """
@@ -167,7 +167,7 @@ rule consseq_QA:
     resources:
         disk_mb=1250,
         mem_mb=config.consseq_QA["mem"],
-        time_min=config.consseq_QA["time"],
+        runtime=config.consseq_QA["time"],
     threads: 1
     shell:
         """
@@ -205,7 +205,7 @@ rule frameshift_deletions_checks:
     resources:
         disk_mb=1250,
         mem_mb=config.frameshift_deletions_checks["mem"],
-        time_min=config.frameshift_deletions_checks["time"],
+        runtime=config.frameshift_deletions_checks["time"],
     threads: 1
     shell:
         """

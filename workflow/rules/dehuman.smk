@@ -30,7 +30,7 @@ rule dh_reuse_alignreject:
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
+        runtime=config.bwa_align["time"],
     threads: config.bwa_align["threads"]
     shell:
         """
@@ -74,7 +74,7 @@ rule dh_redo_alignreject:
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
+        runtime=config.bwa_align["time"],
     threads: config.bwa_align["threads"]
     shell:
         """
@@ -137,7 +137,7 @@ rule dh_hostalign:
     resources:
         disk_mb=1250,
         mem_mb=config.dehuman["mem"],
-        time_min=config.dehuman["time"],
+        runtime=config.dehuman["time"],
     threads: config.dehuman["threads"]
     shell:
         # create index if not exists:
@@ -192,7 +192,7 @@ rule dh_filter:
     resources:
         disk_mb=1250,
         mem_mb=config.dehuman["mem"],
-        time_min=config.dehuman["time"],
+        runtime=config.dehuman["time"],
     threads: config.dehuman["threads"]
     shell:
         """
@@ -309,7 +309,7 @@ rule dehuman:
     resources:
         disk_mb=1250,
         mem_mb=config.dehuman["mem"],
-        time_min=config.dehuman["time"],
+        runtime=config.dehuman["time"],
     threads: config.dehuman["threads"]
     shell:
         """

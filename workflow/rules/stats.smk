@@ -37,7 +37,7 @@ rule alignment_coverage:
     resources:
         disk_mb=1250,
         mem_mb=config.alignment_coverage["mem"],
-        time_min=config.alignment_coverage["time"],
+        runtime=config.alignment_coverage["time"],
     threads: 1
     shell:
         """

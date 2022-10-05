@@ -3,7 +3,7 @@
 ![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
-[![Snakemake](https://img.shields.io/badge/snakemake-≥6.8.1-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥7.11.0-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
 [![Deploy Docker image](https://github.com/cbg-ethz/V-pipe/actions/workflows/deploy-docker.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
 [![Tests](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml/badge.svg)](https://github.com/cbg-ethz/V-pipe/actions/workflows/run_regression_tests.yaml)
 [![Mega-Linter](https://github.com/cbg-ethz/V-pipe/actions/workflows/mega-linter.yml/badge.svg)](https://github.com/cbg-ethz/V-pipe/actions/workflows/mega-linter.yml)

@@ -51,7 +51,7 @@ rule alignment_bias:
     resources:
         disk_mb=2000,
         mem_mb=config.alignment_bias["mem"],
-        time_min=config.alignment_bias["time"],
+        runtime=config.alignment_bias["time"],
     threads: 1
     shell:
         """
@@ -67,7 +67,7 @@ rule aggregate_alignment_bias:
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
-        time_min=config.aggregate["time"],
+        runtime=config.aggregate["time"],
     log:
         outfile="stats/alignment_bias.out.log",
         errfile="stats/alignment_bias.out.log",
@@ -87,7 +87,7 @@ rule aggregate_beforeSB:
     resources:
         disk_mb=1250,
         mem_mb=2000,
-        time_min=20,
+        runtime=20,
     log:
         outfile="{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
         errfile="{dataset}/variants/SNVs/aggregate_beforeSB.err.log",
@@ -141,7 +141,7 @@ rule test_snv:
     resources:
         disk_mb=2000,
         mem_mb=config.test_snv["mem"],
-        time_min=config.test_snv["time"],
+        runtime=config.test_snv["time"],
     threads: 1
     shell:
         """
@@ -224,7 +224,7 @@ rule compare_snv:
     resources:
         disk_mb=2000,
         mem_mb=config.test_snv["mem"],
-        time_min=config.test_snv["time"],
+        runtime=config.test_snv["time"],
     threads: 1
     shell:
         """
@@ -273,7 +273,7 @@ rule aggregate:
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
-        time_min=config.aggregate["time"],
+        runtime=config.aggregate["time"],
     log:
         outfile="variants/SNV_calling_performance.out.log",
         errfile="variants/SNV_calling_performance.out.log",
@@ -292,7 +292,7 @@ rule aggregate_kind:
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
-        time_min=config.aggregate["time"],
+        runtime=config.aggregate["time"],
     log:
         outfile="variants/SNV_calling_performance_{kind}.out.log",
         errfile="variants/SNV_calling_performance_{kind}.out.log",

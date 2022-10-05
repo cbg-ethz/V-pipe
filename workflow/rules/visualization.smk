@@ -76,7 +76,7 @@ rule generate_web_visualization:
     resources:
         disk_mb=2000,
         mem_mb=config.web_visualization["mem"],
-        time_min=config.web_visualization["time"],
+        runtime=config.web_visualization["time"],
     threads: 1
     shell:
         """

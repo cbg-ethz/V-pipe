@@ -53,7 +53,7 @@ rule primerstrim:
     resources:
         disk_mb=1250,
         mem_mb=config.primerstrim["mem"],
-        time_min=config.primerstrim["time"],
+        runtime=config.primerstrim["time"],
     threads: 1
     shell:
         """
@@ -95,7 +95,7 @@ rule ampliconclip:
     resources:
         disk_mb=1250,
         mem_mb=config.primerstrim["mem"],
-        time_min=config.primerstrim["time"],
+        runtime=config.primerstrim["time"],
     threads: 1
     shell:
         """

@@ -33,7 +33,7 @@ rule haploclique:
     resources:
         disk_mb=1250,
         mem_mb=config.haploclique["mem"],
-        time_min=config.haploclique["time"],
+        runtime=config.haploclique["time"],
     threads: 1
     shell:
         """
@@ -65,7 +65,7 @@ rule haploclique_visualization:
     resources:
         disk_mb=1250,
         mem_mb=config.haploclique_visualization["mem"],
-        time_min=config.haploclique_visualization["time"],
+        runtime=config.haploclique_visualization["time"],
     threads: 1
     shell:
         """
@@ -98,7 +98,7 @@ if config.input["paired"]:
         resources:
             disk_mb=1250,
             mem_mb=config.savage["mem"],
-            time_min=config.savage["time"],
+            runtime=config.savage["time"],
         threads: config.savage["threads"]
         shell:
             """
@@ -139,7 +139,7 @@ else:
         resources:
             disk_mb=1250,
             mem_mb=config.savage["mem"],
-            time_min=config.savage["time"],
+            runtime=config.savage["time"],
         threads: config.savage["threads"]
         shell:
             """
@@ -187,7 +187,7 @@ if config.input["paired"]:
         resources:
             disk_mb=1250,
             mem_mb=config.predicthaplo["mem"],
-            time_min=config.predicthaplo["time"],
+            runtime=config.predicthaplo["time"],
         threads: config.predicthaplo["threads"]
         shell:
             """

@@ -57,7 +57,7 @@ rule prepare_upload:
     resources:
         disk_mb=1000,
         mem_mb=config.upload["mem"],
-        time_min=config.upload["time"],
+        runtime=config.upload["time"],
     threads: config.upload["threads"]
     shell:
         """
@@ -91,7 +91,7 @@ rule unfiltered_cram:
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
-        time_min=config.bwa_align["time"],
+        runtime=config.bwa_align["time"],
     threads: config.bwa_align["threads"]
     shell:
         """
@@ -153,7 +153,7 @@ rule checksum:
     resources:
         disk_mb=10,
         mem_mb=config.checksum["mem"],
-        time_min=config.checksum["time"],
+        runtime=config.checksum["time"],
     threads: 1
     shell:
         """

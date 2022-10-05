@@ -40,7 +40,7 @@ rule initial_vicuna:
     resources:
         disk_mb=1000,
         mem_mb=config.initial_vicuna["mem"],
-        time_min=config.initial_vicuna["time"],
+        runtime=config.initial_vicuna["time"],
     threads: config.initial_vicuna["threads"]
     shell:
         """
@@ -153,7 +153,7 @@ rule initial_vicuna_msa:
     resources:
         disk_mb=1250,
         mem_mb=config.initial_vicuna_msa["mem"],
-        time_min=config.initial_vicuna_msa["time"],
+        runtime=config.initial_vicuna_msa["time"],
     threads: config.initial_vicuna_msa["threads"]
     shell:
         """
@@ -276,7 +276,7 @@ if config.general["aligner"] == "ngshmmalign":
         resources:
             disk_mb=1000,
             mem_mb=config.gunzip["mem"],
-            time_min=config.gunzip["time"],
+            runtime=config.gunzip["time"],
         threads: 1
         shell:
             """
@@ -309,7 +309,7 @@ if config.general["aligner"] == "ngshmmalign":
         resources:
             disk_mb=1250,
             mem_mb=config.hmm_align["mem"],
-            time_min=config.hmm_align["time"],
+            runtime=config.hmm_align["time"],
         threads: config.hmm_align["threads"]
         shell:
             """
@@ -359,7 +359,7 @@ rule msa:
     resources:
         disk_mb=1250,
         mem_mb=config.msa["mem"],
-        time_min=config.msa["time"],
+        runtime=config.msa["time"],
     threads: config.msa["threads"]
     shell:
         """
@@ -399,7 +399,7 @@ if config.general["aligner"] == "ngshmmalign":
         resources:
             disk_mb=1250,
             mem_mb=config.convert_to_ref["mem"],
-            time_min=config.convert_to_ref["time"],
+            runtime=config.convert_to_ref["time"],
         threads: 1
         shadow:
             "shallow"
@@ -434,7 +434,7 @@ rule sam2bam:
     resources:
         disk_mb=1250,
         mem_mb=config.sam2bam["mem"],
-        time_min=config.sam2bam["time"],
+        runtime=config.sam2bam["time"],
     threads: 1
     shell:
         """
@@ -468,7 +468,7 @@ rule ref_bwa_index:
     resources:
         disk_mb=1250,
         mem_mb=config.ref_bwa_index["mem"],
-        time_min=config.ref_bwa_index["time"],
+        runtime=config.ref_bwa_index["time"],
     threads: 1
     shell:
         """
@@ -514,7 +514,7 @@ if config.general["aligner"] == "bwa":
         resources:
             disk_mb=1250,
             mem_mb=config.bwa_align["mem"],
-            time_min=config.bwa_align["time"],
+            runtime=config.bwa_align["time"],
         threads: config.bwa_align["threads"]
         shell:
             """
@@ -545,7 +545,7 @@ elif config.general["aligner"] == "bowtie":
         resources:
             disk_mb=1250,
             mem_mb=config.ref_bowtie_index["mem"],
-            time_min=config.ref_bowtie_index["time"],
+            runtime=config.ref_bowtie_index["time"],
         threads: 1
         shell:
             """
@@ -583,7 +583,7 @@ elif config.general["aligner"] == "bowtie":
             resources:
                 disk_mb=1250,
                 mem_mb=config.bowtie_align["mem"],
-                time_min=config.bowtie_align["time"],
+                runtime=config.bowtie_align["time"],
             threads: config.bowtie_align["threads"]
             shell:
                 """
@@ -621,7 +621,7 @@ elif config.general["aligner"] == "bowtie":
             resources:
                 disk_mb=1250,
                 mem_mb=config.bowtie_align["mem"],
-                time_min=config.bowtie_align["time"],
+                runtime=config.bowtie_align["time"],
             threads: config.bowtie_align["threads"]
             shell:
                 """

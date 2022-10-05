@@ -21,7 +21,7 @@ rule simulate_master:
     resources:
         disk_mb=2000,
         mem_mb=config.simulate_master["mem"],
-        time_min=config.simulate_master["time"],
+        runtime=config.simulate_master["time"],
     shell:
         """
         {params.SIM_BENCH} -g {params.GENOME_LEN} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -o master > >(tee {log.outfile}) 2>&1
@@ -79,7 +79,7 @@ rule simulate_haplotypes:
     resources:
         disk_mb=2000,
         mem_mb=config.simulate_haplotypes["mem"],
-        time_min=config.simulate_haplotypes["time"],
+        runtime=config.simulate_haplotypes["time"],
     conda:
         config.simulate_haplotypes["conda"]
     shell:
@@ -137,7 +137,7 @@ if config.input["paired"]:
         resources:
             disk_mb=2000,
             mem_mb=config.simulate_reads["mem"],
-            time_min=config.simulate_reads["time"],
+            runtime=config.simulate_reads["time"],
         conda:
             config.simulate_reads["conda"]
         shell:
@@ -192,7 +192,7 @@ else:
         resources:
             disk_mb=2000,
             mem_mb=config.simulate_reads["mem"],
-            time_min=config.simulate_reads["time"],
+            runtime=config.simulate_reads["time"],
         shell:
             """
             {params.SIM_BENCH} -n {params.NUM_HAPLOTYPES} -c {params.COVERAGE} {params.NUM_READS} -l {params.READ_LEN} -m {params.FRAGMENT_SIZE} -d {params.FREQ_DSTR} {params.FREQ_PARAMS} {params.HIGH_QUAL} -art {params.ART} -s {params.SEED} -v -oh {params.OUTDIR_HAP} -or {params.OUTDIR_READS} -o reads > >(tee {log.outfile}) 2>&1

@@ -49,7 +49,8 @@ elif os.path.exists("config.yaml"):
 
 
 # NOTE the remote URL relies on snakemake sourcecache features (e.g.: infer_source_file) introduced in 6.8.1
-min_version("6.8.1")
+# NOTE runtime resources calculation introduced in 7.11.0
+min_version("7.11.0")
 
 
 def cacheopen(fname, mode="r", localsource=False):

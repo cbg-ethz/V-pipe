@@ -25,7 +25,7 @@ rule gunzip:
     resources:
         disk_mb=1000,
         mem_mb=config.gunzip["mem"],
-        time_min=config.gunzip["time"],
+        runtime=config.gunzip["time"],
     threads: 1
     shell:
         """
@@ -49,7 +49,7 @@ rule extract:
     resources:
         disk_mb=32768,  # for large files sort stores its temp data on disk
         mem_mb=config.extract["mem"],
-        time_min=config.extract["time"],
+        runtime=config.extract["time"],
     threads: 1
     shell:
         # TODO replace with better dedicated software
@@ -91,7 +91,7 @@ if config.input["paired"]:
         resources:
             disk_mb=20000,
             mem_mb=config.preprocessing["mem"],
-            time_min=config.preprocessing["time"],
+            runtime=config.preprocessing["time"],
         threads: 1
         shell:
             """
@@ -140,7 +140,7 @@ else:
         resources:
             disk_mb=10000,
             mem_mb=config.preprocessing["mem"],
-            time_min=config.preprocessing["time"],
+            runtime=config.preprocessing["time"],
         threads: 1
         shell:
             """
@@ -182,7 +182,7 @@ rule fastqc:
     resources:
         disk_mb=2000,
         mem_mb=config.fastqc["mem"],
-        time_min=config.fastqc["time"],
+        runtime=config.fastqc["time"],
     threads: config.fastqc["threads"]
     shell:
         """

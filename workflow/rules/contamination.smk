@@ -29,7 +29,7 @@ rule bwa_QA:
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_QA["mem"],
-        time_min=config.bwa_QA["time"],
+        runtime=config.bwa_QA["time"],
     threads: config.bwa_QA["threads"]
     shell:
         """
@@ -74,7 +74,7 @@ rule coverage_QA:
     resources:
         disk_mb=1250,
         mem_mb=config.coverage_QA["mem"],
-        time_min=config.coverage_QA["time"],
+        runtime=config.coverage_QA["time"],
     threads: 1
     shell:
         """

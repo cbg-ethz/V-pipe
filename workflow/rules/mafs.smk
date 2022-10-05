@@ -29,7 +29,7 @@ rule basecounts:
     resources:
         disk_mb=1250,
         mem_mb=config.basecounts["mem"],
-        time_min=config.basecounts["time"],
+        runtime=config.basecounts["time"],
     threads: 1
     shell:
         """
@@ -96,7 +96,7 @@ rule coverage:
     resources:
         disk_mb=1250,
         mem_mb=config.coverage["mem"],
-        time_min=config.coverage["time"],
+        runtime=config.coverage["time"],
     threads: config.coverage["threads"]
     shell:
         """
@@ -150,7 +150,7 @@ rule minor_variants:
     resources:
         disk_mb=1250,
         mem_mb=config.minor_variants["mem"],
-        time_min=config.minor_variants["time"],
+        runtime=config.minor_variants["time"],
     threads: config.minor_variants["threads"]
     shell:
         """
