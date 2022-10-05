@@ -192,22 +192,22 @@ V-pipe expects the input samples to be organized in a two-level directory hierar
 
 **For example:**
 
-```lang-none
-samples
-├── patient1
-│   ├── 20100113
-│   │   └──raw_data
-│   │      ├──patient1_20100113_R1.fastq
-│   │      └──patient1_20100113_R2.fastq
-│   └── 20110202
-│       └──raw_data
-│          ├──patient1_20100202_R1.fastq
-│          └──patient1_20100202_R2.fastq
-└── patient2
-    └── 20081130
-        └──raw_data
-           ├──patient2_20081130_R1.fastq.gz
-           └──patient2_20081130_R2.fastq.gz
+```text
+📁samples
+├──📁patient1
+│  ├──📁20100113
+│  │  └──📁raw_data
+│  │     ├──🧬patient1_20100113_R1.fastq
+│  │     └──🧬patient1_20100113_R2.fastq
+│  └──📁20110202
+│     └──📁raw_data
+│        ├──🧬patient1_20100202_R1.fastq
+│        └──🧬patient1_20100202_R2.fastq
+└──📁patient2
+   └──📁20081130
+      └──📁raw_data
+         ├──🧬patient2_20081130_R1.fastq.gz
+         └──🧬patient2_20081130_R2.fastq.gz
 ```
 
 The utils subdirectory contain [mass-importers tools](../utils/README.md#samples-mass-importers) to assist you in generating this hierarchy.

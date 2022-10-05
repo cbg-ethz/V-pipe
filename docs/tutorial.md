@@ -40,16 +40,16 @@ Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
 |───📁patient1
 │   └───📁date1
 │       └───📁raw_data
-│           |───🧬reads_R1.fastq
+│           ├───🧬reads_R1.fastq
 │           └───🧬reads_R2.fastq
 └───📁patient2
-    |───📁date1
-    |   └───📁raw_data
-    |       |───🧬reads_R1.fastq
-    |       └───🧬reads_R2.fastq
+    ├───📁date1
+    │   └───📁raw_data
+    │       ├───🧬reads_R1.fastq
+    │       └───🧬reads_R2.fastq
     └───📁date2
         └───raw_data
-            |───🧬reads_R1.fastq
+            ├───🧬reads_R1.fastq
             └───🧬reads_R2.fastq
 ```
 
@@ -63,16 +63,16 @@ The files will have the following structure:
 |└───📁CAP217
 │    └───📁4390
 │        └───📁raw_data
-│            |───🧬reads_R1.fastq
+│            ├───🧬reads_R1.fastq
 │            └───🧬reads_R2.fastq
 └───📁CAP188
-    |───📁4
-    |   └───📁raw_data
-    |       |───🧬reads_R1.fastq
-    |       └───🧬reads_R2.fastq
+    │───📁4
+    │   └───📁raw_data
+    │       ├───🧬reads_R1.fastq
+    │       └───🧬reads_R2.fastq
     └───📁30
         └───📁raw_data
-            |───🧬reads_R1.fastq
+            ├───🧬reads_R1.fastq
             └───🧬reads_R2.fastq
 ```
 
