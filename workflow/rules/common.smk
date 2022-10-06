@@ -720,7 +720,7 @@ def window_lengths(wildcards):
 def shifts(wildcards):
     shifts = []
     for s in sample_list:
-        read_len = sample_table[s]
+        read_len = sample_table[s].len
         aux = int((read_len * 4 / 5 + config.snv["shift"]) / config.snv["shift"])
         shifts.append(str(aux))
 
@@ -732,7 +732,7 @@ def get_maxins(wildcards):
         return config.bowtie_align["maxins"]
     else:
         s_rec = guess_sample(wildcards.dataset)
-        read_len = sample_table[s_rec]
+        read_len = sample_table[s_rec].len
         return 4 * read_len
 
 
