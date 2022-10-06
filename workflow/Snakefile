@@ -48,6 +48,11 @@ if config.output["trim_primers"]:
     include: "rules/primerstrim.smk"
 
 
+if 1:
+
+    include: "rules/signatures.smk"
+
+
 if config.output["snv"] or config.output["local"]:
 
     include: "rules/snv.smk"

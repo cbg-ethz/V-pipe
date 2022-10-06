@@ -669,14 +669,8 @@ if not VPIPE_BENCH:
 # TODO These shoudle eventually go into additional columns once we move to proper dataset
 
 
-def protocol_option(wildcards, option):
-    # skip if no sample ever has 4th column
-    if 0 == sample_proto_count:
-        return config.input[option]
-
-    s_rec = guess_sample(wildcards.dataset)
-    proto = sample_table[s_rec].protocol
-
+def protocol_proto_option(proto, option, s_rec=None):
+    """return specific option given the provided proto"""
     # no sample-specific protocol => use from config
     if not proto:
         return config.input[option]
@@ -685,9 +679,30 @@ def protocol_option(wildcards, option):
     try:
         return protocols[proto][option]
     except (KeyError, TypeError) as e:
-        raise (
+        raise KeyError(
             f"no {option} defined for protocol {proto} used by sample {s_rec.sample_id}-{s_rec.date}"
+            if s_rec
+            else f"no {option} defined for protocol {proto}"
         ) from e
+
+
+def get_sample_protocol(wildcards):
+    """get the 4th column (protocol) of the current sample"""
+    s_rec = guess_sample(wildcards.dataset)
+    proto = sample_table[s_rec].protocol
+
+    return proto
+
+
+def protocol_option(wildcards, option):
+    """get a per-protocol specific configuration option, depending on the current sample's 4th column"""
+    # skip if no sample ever has 4th column
+    if 0 == sample_proto_count:
+        return config.input[option]
+
+    proto = get_sample_protocol(wildcards)
+
+    return protocol_proto_option(proto, option)
 
 
 def ID(wildcards):

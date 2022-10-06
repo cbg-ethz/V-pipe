@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pysam >= 0.17
+  - python
+  - pandas
+  - numpy
+  - pyyaml
+  - strictyaml
+  - requests
+  - click
+  - poetry-core >= 1.0.8
