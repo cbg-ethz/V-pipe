@@ -158,11 +158,7 @@ if config.input["paired"]:
             fname_bam=alignment_wildcard,
             # NOTE  shorah and lofreq each have their independent option "consensus"
             fname_ref=(
-                os.path.join(
-                    config.output["datadir"],
-                    config.output["cohortdir"],
-                    "cohort_consensus.fasta",
-                )
+                cohortdir("cohort_consensus.fasta")
                 if config[
                     "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
                 ]["consensus"]

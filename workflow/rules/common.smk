@@ -306,6 +306,16 @@ def load_protocols(pyaml):
 protocols = load_protocols(config["input"]["protocols_file"])
 
 
+def cohortdir(fname):
+    return os.path.normpath(
+        os.path.join(
+            config.output["datadir"],
+            config.output["cohortdir"],
+            fname,
+        )
+    )
+
+
 ########################
 #   Samples TSV file   #
 ########################
@@ -612,13 +622,7 @@ if not config.output["snv"] and config.output["diversity"]:
     )
 
 if config.output["snv"] and config.output["diversity"]:
-    all_files.append(
-        os.path.join(
-            config.output["datadir"],
-            config.output["cohortdir"],
-            "aggregated_diversity.csv",
-        )
-    )
+    all_files.append(cohortdir("aggregated_diversity.csv"))
 
 
 IDs = ",".join(IDs)

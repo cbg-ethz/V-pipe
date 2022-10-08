@@ -32,22 +32,10 @@ rule aggregate_diversity:
             "{dataset}/variants/SNVs/position_shannon_entropy.csv", dataset=datasets
         ),
     benchmark:
-        os.path.join(
-            config.output["datadir"],
-            config.output["cohortdir"],
-            "diversity_measures.benchmark",
-        )
+        cohortdir("diversity_measures.benchmark")
     output:
-        diversity_csv=os.path.join(
-            config.output["datadir"],
-            config.output["cohortdir"],
-            "aggregated_diversity.csv",
-        ),
-        shannon_csv=os.path.join(
-            config.output["datadir"],
-            config.output["cohortdir"],
-            "aggregated_entropy.csv",
-        ),
+        diversity_csv=cohortdir("aggregated_diversity.csv"),
+        shannon_csv=cohortdir("aggregated_entropy.csv"),
     conda:
         config.diversity["conda"]
     script:

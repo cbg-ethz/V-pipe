@@ -75,11 +75,7 @@ def read_len(wildcards):
 rule snv:
     input:
         REF=(
-            os.path.join(
-                config.output["datadir"],
-                config.output["cohortdir"],
-                "cohort_consensus.fasta",
-            )
+            cohortdir("cohort_consensus.fasta")
             if config.snv["consensus"]
             else reference_file
         ),
@@ -248,20 +244,12 @@ rule samtools_index:
 rule lofreq:
     input:
         REF=(
-            os.path.join(
-                config.output["datadir"],
-                config.output["cohortdir"],
-                "cohort_consensus.fasta",
-            )
+            cohortdir("cohort_consensus.fasta")
             if config.lofreq["consensus"]
             else reference_file
         ),
         REF_IDX=(
-            os.path.join(
-                config.output["datadir"],
-                config.output["cohortdir"],
-                "cohort_consensus.fasta.fai",
-            )
+            cohortdir("cohort_consensus.fasta.fai")
             if config.lofreq["consensus"]
             else "%s.fai" % reference_file
         ),

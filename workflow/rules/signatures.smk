@@ -20,21 +20,17 @@ rule amplicons:
         vocs=all_vocs("references/voc/"),
         inserts=proto_inserts,
     output:
-        amplicons=os.path.join(
-            config.output["datadir"], config.output["cohortdir"], "amplicons.{proto}.yaml"),
+        amplicons=cohortdir("amplicons.{proto}.yaml"),
     params:
         COJAC="../cojac/cojac-wrapper",
         vocdir="references/voc/",
     log:
-        outfile=os.path.join(
-            config.output["datadir"], config.output["cohortdir"], "amplicons.{proto}.out.log"),
-        errfile=os.path.join(
-            config.output["datadir"], config.output["cohortdir"], "amplicons.{proto}.err.log"),
+        outfile=cohortdir("amplicons.{proto}.out.log"),
+        errfile=cohortdir("amplicons.{proto}.err.log"),
     conda:
         "../envs/cojac.yaml"
     benchmark:
-        os.path.join(
-            config.output["datadir"], config.output["cohortdir"], "amplicons.{proto}.benchmark")
+        cohortdir("amplicons.{proto}.benchmark")
     resources:
         disk_mb=1024,
         mem_mb=256,
@@ -48,7 +44,8 @@ rule amplicons:
 
 
 def get_sample_amplicons(wildcards):
-    return os.path.join(config.output["datadir"], config.output["cohortdir"], "amplicons.%s.yaml" % get_sample_protocol(wildcards))
+    return cohortdir("amplicons.%s.yaml" % get_sample_protocol(wildcards))
+
 
 rule cooc:
     input:

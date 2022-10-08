@@ -27,11 +27,7 @@ rule generate_web_visualization:
             config.input["phylogeny_data"] if config.input["phylogeny_data"] else []
         ),
         global_ref=(
-            os.path.join(
-                config.output["datadir"],
-                config.output["cohortdir"],
-                "cohort_consensus.fasta",
-            )
+            cohortdir("cohort_consensus.fasta")
             if config["lofreq" if config.general["snv_caller"] == "lofreq" else "snv"][
                 "consensus"
             ]
