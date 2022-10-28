@@ -163,7 +163,7 @@ Helper functions
 
 def build_outname(args):
     if args.outname is None:
-        args.outname = args.sample+'_mutations.txt'
+        args.outname = f"{args.sample}_{args.batch}_mutations.txt"
     return args
 
 def load_parser_table(args):
