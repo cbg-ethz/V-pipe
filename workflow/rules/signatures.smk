@@ -75,3 +75,69 @@ rule cooc:
         {params.COJAC} cooc-mutbamscan --alignments="{input.BAM}" --name="{params.name}" --in-amp="{input.amplicons}" --yaml="{output.cooc_yaml}"   2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" --multiindex --lines --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
+
+
+def get_s_rec(wildcards):
+    return guess_sample(wildcards.dataset)
+
+
+rule sigmut:
+    input:
+        basecnt="{dataset}/alignments/basecnt.tsv.gz",
+        mutlist="mutlist.txt",
+    output:
+        mut="{dataset}/signatures/mut.tsv.gz",
+    params:
+        getmutation=cachepath(
+            "../scripts/getmutation_from_sample.py",
+            executable=True,
+            localsource=True,
+        ),
+        s_rec=get_s_rec,
+    log:
+        outfile="{dataset}/signatures/mut.out.log",
+        errfile="{dataset}/signatures/mut.err.log",
+    conda:
+        "../envs/cojac.yaml"
+    benchmark:
+        "{dataset}/signatures/mut.benchmark"
+    resources:
+        disk_mb=1024,
+        mem_mb=1024,
+        runtime=15,
+    threads: 1
+    shell:
+        """
+        {params.getmutation} --outname {output.mut} --sample {params.s_rec.sample_id} --batch {params.s_rec.date} -m {input.mutlist} -- {input.basecnt} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        """
+
+
+rule timeline:
+    input:
+        "samples.wastewateronly.tsv",
+    output:
+        "timeline.tsv",
+    params:
+        locations="ww_locations.tsv",
+        regex="regex.yaml",
+        maketimeline=cachepath(
+            "../scripts/file_parser.py",
+            executable=True,
+            localsource=True,
+        ),
+    log:
+        outfile=cohortdir("timeline.out.log"),
+        errfile=cohortdir("timeline.err.log"),
+    conda:
+        "../envs/lollipop.yaml"
+    benchmark:
+        cohortdir("timeline.err.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=1024,
+        runtime=15,
+    threads: 1
+    shell:
+        """
+        {params.maketimeline} --regex-config {params.regex} --no-fallback --locations {params.locations} --output {output} -- {input} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        """

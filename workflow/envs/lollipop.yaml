@@ -1,0 +1,15 @@
+name: lollipop
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python
+  - numpy
+  - scipy
+  - pandas
+  - ruamel.yaml
+  - regex
+  - tqdm
+  - click
+  - poetry-core >= 1.0.8
