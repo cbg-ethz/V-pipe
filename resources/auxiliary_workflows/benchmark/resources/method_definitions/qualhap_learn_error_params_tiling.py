@@ -2,18 +2,7 @@
 # CONDA: boost = 1.77.0
 # CONDA: htslib = 1.14
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feature-new-inference
-
-
-"""
-Configuration:
-alpha = 0.00001
-relaxConv
-start 1 (not so random initialization, so one start should be sufficient)
-
---> purpose: compare if smaller alpha is better.
-
-"""
+# PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
 import subprocess
 from pathlib import Path
@@ -36,11 +25,13 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
 def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_result_haplos, dname_work):
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
-    alpha = 0.000001
+    alpha = 0.00001
+    inference_convergence_threshold = 1e-3
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
-    if fname_insert_bed == "":
+    dname_work.mkdir(parents=True, exist_ok=True)
+    if fname_insert_bed == []:
         # no insert file --> shotgun mode
         subprocess.run(
             [
@@ -50,14 +41,16 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 fname_bam.resolve(),
                 "-f",
                 fname_reference.resolve(),
-                "--inference",
-                "mean_field_approximation",
+                "--learn_error_params",
                 "--alpha",
                 str(alpha),
                 "--n_max_haplotypes",
                 str(n_max_haplotypes),
                 "--n_mfa_starts",
                 str(n_mfa_starts),
+                "--conv_thres",
+                str(inference_convergence_threshold),
+                "--non-unique_modus",
             ],
             cwd=dname_work,
         )
@@ -71,16 +64,18 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
                 fname_bam.resolve(),
                 "-f",
                 fname_reference.resolve(),
-                "--inference",
-                "mean_field_approximation",
+                "--learn_error_params",
                 "--alpha",
                 str(alpha),
                 "--n_max_haplotypes",
                 str(n_max_haplotypes),
                 "--n_mfa_starts",
                 str(n_mfa_starts),
+                "--conv_thres",
+                str(inference_convergence_threshold),
+                "--non-unique_modus",
                 "--insert-file",
-                fname_insert_bed.resolve(),
+                str(fname_insert_bed),
             ],
             cwd=dname_work,
         )
@@ -88,12 +83,11 @@ def main(fname_bam, fname_reference, fname_insert_bed, fname_results_snv, fname_
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
     open(fname_result_haplos, 'a').close()
 
-
 if __name__ == "__main__":
     main(
         Path(snakemake.input.fname_bam),
         Path(snakemake.input.fname_reference),
-        Path(snakemake.input.fname_insert_bed),
+        snakemake.input.fname_insert_bed,
         Path(snakemake.output.fname_result),
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),

@@ -1,6 +1,21 @@
 # `null` will execut all methods
 # list of strings will execute selected methods
-method_list: [haploclique, quasirecomb, predicthaplo, haploconduct, cliquesnv]
+method_list: [haploclique,
+              quasirecomb,
+              predicthaplo,
+              haploconduct,
+              cliquesnv,
+              lofreq_local_haplo,
+              shorah_default,
+              qualhap_use_quality_scores_unique_tiling,
+              qualhap_learn_error_params_unique_tiling,
+              qualhap_learn_error_params_tiling,
+              qualhap_use_quality_scores_tiling,
+              qualhap_use_quality_scores_unique,
+              qualhap_learn_error_params_unique,
+              qualhap_learn_error_params,
+              qualhap_use_quality_scores,
+              ]
 
 replicate_count: 10
 

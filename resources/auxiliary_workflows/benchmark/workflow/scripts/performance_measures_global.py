@@ -395,7 +395,7 @@ def mds_worker(index, df_pred_grpd, df_true, mds_dir):
     # plot result
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax)
+    sns.scatterplot(data=df, x="MDS0", y="MDS1", hue="method", ax=ax, style = "method", alpha=.5)
 
     fig.savefig(mds_dir / f"sequence_mds_{params}_{replicate}.pdf")
 
@@ -577,6 +577,7 @@ def main(
     runstatus_list,
     benchmark_list,
     dname_out,
+    quast = True,
 ):
     dname_out.mkdir(parents=True)
 
@@ -615,12 +616,13 @@ def main(
     plot_pr(df_pr, df_stats, dname_out)
     df_pr.to_csv(csv_dir / "pr_results.csv")
 
-    # quast stuff
-    df_quast = run_metaquast(
-        predicted_haplos_list, true_haplos_list, dname_out / "quast" / "run"
-    )
-    plot_quast(df_quast, dname_out / "quast" / "images")
-    df_quast.to_csv(csv_dir / "quast_results.csv")
+    if quast:
+        # quast stuff
+        df_quast = run_metaquast(
+            predicted_haplos_list, true_haplos_list, dname_out / "quast" / "run"
+        )
+        plot_quast(df_quast, dname_out / "quast" / "images")
+        df_quast.to_csv(csv_dir / "quast_results.csv")
 
     # MDS
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
@@ -644,4 +646,5 @@ if __name__ == "__main__":
         [Path(e) for e in snakemake.input.runstatus_list],
         [Path(e) for e in snakemake.input.benchmark_list],
         Path(snakemake.output.dname_out),
+        snakemake.params.quast,
     )

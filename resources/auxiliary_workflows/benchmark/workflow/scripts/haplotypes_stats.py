@@ -44,9 +44,11 @@ def population_nucleotide_diversity(df_mutations, length):
     for position_temp in list_polymorphic_sites(df_mutations, minor_allele_frequency=0):
         df_temp = df_mutations[df_mutations["position"] == position_temp]
         N = df_temp["coverage"].unique()[0]
-        position_pnd = 0
-        pi = df_temp["tvar"] * (df_temp["tvar"] - 1)
-        postion_pi = (N * (N - 1) - pi.sum()) / (N * (N - 1))
+        if N == 0:
+            continue
+        freq = df_temp["frequency"].to_numpy()
+        position_pnd = freq**2
+        postion_pi = ( 1 - position_pnd.sum() )
 
         pi += postion_pi
 
@@ -96,7 +98,10 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
 
     # Parse ground_truth
     df_snv = pd.read_csv(fname_snv_in)
-    df_snv["coverage"] = float(coverage)
+    try:
+        df_snv["coverage"] = float(coverage)
+    except:
+        df_snv["coverage"] = np.nan
     df_snv["frequency"] = pd.to_numeric(df_snv["frequency"], downcast="float")
     df_snv["tvar"] = df_snv["frequency"].apply(lambda x: int(x * float(coverage)))
 

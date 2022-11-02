@@ -77,6 +77,7 @@ def compute_performance(true_variants, predicted_variants):
 def performance_plots(vcf_list, groundtruth_list, dname_out):
     # compute performance
     tmp = []
+    fps_tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
         parts = str(fname_vcf).split("/")
 
@@ -87,6 +88,19 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
 
         true_variants = convert_groundtruth(fname_groundtruth)
         predicted_variants = convert_vcf(fname_vcf)
+
+        if len(true_variants) == 0:
+            # no true variants
+            # Goal: Count the false positives
+            fp = len(predicted_variants)
+            fps_tmp.append(
+                {   "fname_vcf": fname_vcf,
+                    "method": method,
+                    "params": params,
+                    "replicate": replicate,
+                    "fp": fp,
+                }
+            )
 
         precision, recall, f1 = compute_performance(true_variants, predicted_variants)
 
@@ -101,6 +115,12 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
             }
         )
     df_perf = pd.DataFrame(tmp)
+    if len(fps_tmp) > 0:
+        df_fps = pd.DataFrame(fps_tmp)
+        df_fps = pd.melt(df_fps, id_vars=["method", "params", "replicate"]).assign(
+            params=lambda x: x["params"].str.replace("_", "\n")
+        )
+        df_fps.to_csv(dname_out / "false_positives.csv")
 
     # plot overview
     df_long = pd.melt(df_perf, id_vars=["method", "params", "replicate"]).assign(
