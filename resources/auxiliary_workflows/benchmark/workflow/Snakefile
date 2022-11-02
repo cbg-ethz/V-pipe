@@ -242,6 +242,7 @@ rule amplicon_simulation:
     script:
         "scripts/amplicon_simulation.py"
 
+
 rule provide_curlcakes_ONT_data:
     output:
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
@@ -315,6 +316,7 @@ rule provide_2_SARS_CoV_2_mix:
         fi
         """
 
+
 rule split:
     conda:
         "envs/split.yaml"
@@ -327,7 +329,6 @@ rule split:
         read_length="2-SARS-CoV-2-mix",
     shell:
         "samtools collate -O {input.fname_aln} | samtools fastq -1 {output.fname_fastq_R1} -2 {output.fname_fastq_R2} -"
-
 
 
 rule flash:
@@ -381,7 +382,7 @@ rule provide_real_data:
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
     params:
-        path_ground_truth=f"resources/Five=Virus-Mix/ground_truth.csv"
+        path_ground_truth=f"resources/Five=Virus-Mix/ground_truth.csv",
     conda:
         "envs/real_data.yaml"
     resources:

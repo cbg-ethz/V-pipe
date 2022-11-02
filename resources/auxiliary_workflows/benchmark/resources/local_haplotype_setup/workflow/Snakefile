@@ -16,6 +16,7 @@ module curlcakes_ONT:
     replace_prefix:
         {"results/": "results/curlcakes_ONT/", "resources/": "resources/curlcakes_ONT/"}
 
+
 use rule * from curlcakes_ONT as curlcakes_ONT_*
 
 
@@ -26,6 +27,7 @@ module test:
         load_config("config_test/config.yaml")
     replace_prefix:
         {"results/": "results/test/", "resources/": "resources/test/"}
+
 
 use rule * from test as test_*
 
@@ -38,6 +40,7 @@ module distance:
         load_config("config_distance/config.yaml")
     replace_prefix:
         {"results/": "results/distance/", "resources/": "resources/distance/"}
+
 
 use rule * from distance as distance_*
 
@@ -52,6 +55,7 @@ module mutationrate:
 
 
 use rule * from mutationrate as mutationrate_*
+
 
 module longreads:
     snakefile:
@@ -95,9 +99,14 @@ module realdata_sarscov2:
     config:
         load_config("config_realdata_sarscov2/config.yaml")
     replace_prefix:
-        {"results/": "results/realdata_sarscov2/", "resources/": "resources/realdata_sarscov2/"}
+        {
+            "results/": "results/realdata_sarscov2/",
+            "resources/": "resources/realdata_sarscov2/",
+        }
+
 
 use rule * from realdata_sarscov2 as realdata_sarscov2_*
+
 
 # define required output files
 rule all:
@@ -116,6 +125,7 @@ rule all:
         "results/realdata_sarscov2/performance_measures/local/",
     default_target: True
 
+
 # curlcakes_ONT rules
 use rule run_method_local from curlcakes_ONT as curlcakes_ONT_run_method_local_global with:
     output:
@@ -129,7 +139,7 @@ use rule run_method_local from curlcakes_ONT as curlcakes_ONT_run_method_local_g
         ),
     params:
         script_path=lambda wildcards, input: input.script,
-        quast = False,
+        quast=False,
     benchmark:
         f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + curlcakes_ONT.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
@@ -178,7 +188,7 @@ use rule run_method_local from test as test_run_method_local_global with:
         ),
     params:
         script_path=lambda wildcards, input: input.script,
-        quast = False,
+        quast=False,
     benchmark:
         f"results/test/method_runs/{test.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + test.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
@@ -249,8 +259,6 @@ use rule performance_measures_global from test as test_performance_measures_glob
         quast=False,
 
 
-
-
 # realdata_SARS_CoV2 rules
 use rule run_method_local from realdata_sarscov2 as realdata_sarscov2_run_method_local_global with:
     output:
@@ -315,8 +323,7 @@ use rule run_method_local from amplicon as amplicon_run_method_local_global with
         script_path=lambda wildcards, input: input.script,
     benchmark:
         f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + amplicon.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
-    threads:
-        1
+    threads: 1
     resources:
         mem_mb=8024,
         time_min=440,
@@ -347,7 +354,6 @@ use rule performance_measures_local from amplicon as amplicon_performance_measur
             for params in amplicon.paramspace.instance_patterns
             for replicate in range(amplicon.config["replicate_count"])
         ],
-
 
 
 # distance rules
@@ -518,6 +524,7 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
         method_list_global=mutationrate.method_list_global,
         quast=False,
 
+
 # longreads rate rules
 use rule run_method_local from longreads as longreads_run_method_local_global with:
     output:
@@ -614,12 +621,13 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
         ),
     params:
         script_path=lambda wildcards, input: input.script,
-        quast = False,
+        quast=False,
     benchmark:
         f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
         mem_mb=10024,
         time_min=440,
+
 
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
     input:
