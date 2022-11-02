@@ -31,6 +31,8 @@ general:
 
 Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html) to learn more about the command-line options available when executing the workflow.
 
+Tutorials introducing usage of V-pipe are available in the [docs/](docs/README.md) subdirectory.
+
 ### Using quick install script
 
 To deploy V-pipe, use the [installation script](utils/README.md#quick-installer) with the following parameters:

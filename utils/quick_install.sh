@@ -178,6 +178,7 @@ sh ${MINICONDA} -b -p miniconda3
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
+conda config --set channel_priority strict
 # NOTE conda-forge *HAS TO* be higher than bioconda
 
 VPIPEENV=

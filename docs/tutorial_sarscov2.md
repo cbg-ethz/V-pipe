@@ -7,7 +7,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.13.1
+      jupytext_version: 1.14.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -218,11 +218,39 @@ The opensource platform SLURM by SchedMD is one of the popular systems you might
 The most user friendly way to submit jobs to the cluster is using a special _snakemake profile_.
 [smk-simple-slurm](https://github.com/jdblischak/smk-simple-slurm) is a profile that works well in our experience with SLURM (for other platforms see suggestions in [the snakemake-profil documentation](https://github.com/snakemake-profiles/doc)).
 
-```console
+```bash
 cd tutorial/
+# download the profile
 git clone https://github.com/jdblischak/smk-simple-slurm.git
+# edit simple/config.yaml and either comment out the partition and qos or adapt to your local HPC
+cat > smk-simple-slurm/simple/config.yaml <<EOT
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --job-name=smk-{rule}-{wildcards}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+  #--partition={resources.partition}
+  #--qos={resources.qos}
+default-resources:
+  #- partition=<name-of-default-partition>
+  #- qos=<name-of-quality-of-service>
+  - mem_mb=1000
+restart-times: 3
+max-jobs-per-second: 10
+max-status-checks-per-second: 1
+local-cores: 1
+latency-wait: 60
+jobs: 500
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+scheduler: greedy
+use-conda: True
+EOT
 cd work/
-./vpipe --dry-run --profile ../smk-simple-slurm --jobs 100
+./vpipe --dry-run --profile ../smk-simple-slurm/simple/ --jobs 100
 cd ../..
 ```
 
@@ -236,9 +264,12 @@ In addition, Snakemake has [parameters for conda](https://snakemake.readthedocs.
 - using `-conda-create-envs-only` enables to download the dependencies only without running the pipeline itself. This is very useful if the compute nodes of your cluster are not allowed internet access.
 - using `--conda-prefix=`_{DIR}_ stores the conda environments of dependencies in a common directory (thus possible to share and re-use between multiple instances of V-pipe).
 
-```console
+```bash
 cd tutorial/work/
+# First download all bioconda dependencies ahead of time
 ./vpipe --conda-prefix ../snake-envs --cores 1 --conda-create-envs-only
+# And then run on the cluster, the compute node will not need to download anything
+./vpipe --dry-run --conda-prefix ../snake-envs --profile ../smk-simple-slurm/simple/ --jobs 100
 cd ../..
 ```
 
