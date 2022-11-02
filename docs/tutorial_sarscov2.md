@@ -17,19 +17,19 @@ jupyter:
 
 # SARS-CoV-2 Tutorial
 
-This tutorial shows the basics of how to interact with V-pipe. A recording of our webinar covering the subject is available at the bottom of the current page.
+This tutorial shows the basics of how to interact with V-pipe. 
 
-For the purpose of this Tutorial, we will work with the sars-cov2 branch which is adapted for the SARS-CoV-2 virus.
+For the purpose of this Tutorial, we will work with the master branch of V-pipe and use the _sars-cov-2_ virus base config which is adapted for the SARS-CoV-2 virus.
 
 
 ## Organizing Data
 
 V-pipe expects the input samples to be organized in a two-level hierarchy:
 
-At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
-A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
-Inside that directory, the sub-directory raw_data holds the sequencing data in FASTQ format (optionally compressed with GZip).
-Paired-ended reads need to be in split files with _R1 and _R2 suffixes.
+- At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
+- A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
+- Inside that directory, the sub-directory raw_data holds the sequencing data in FASTQ format (optionally compressed with GZip).
+- Paired-ended reads need to be in split files with _R1 and _R2 suffixes.
 
 
 ## Preparing a small dataset
@@ -38,9 +38,7 @@ You can run the first test on your workstation or a good laptop.
 
 First, you need to prepare the data:
 
-* For that test, you need to download the following runs from SRA: SRR10903401 and SRR10903402
-
-If you have difficulties, check this shared directory. You can obtain there a copy of the .fastq files. More information on the steps necessary to generate the .fastq files from SRA can be found in the README.md file.
+* For that test, you need to download the following runs from SRA: [SRR10903401](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903401) and [SRR10903402](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903402)
 
 ```bash
 mkdir -p samples/SRR10903401/20200102/raw_data
@@ -66,7 +64,23 @@ mv samples/SRR10903402/20200102/raw_data/SRR10903402_1.fastq samples/SRR10903402
 mv samples/SRR10903402/20200102/raw_data/SRR10903402_2.fastq samples/SRR10903402/20200102/raw_data/SRR10903402_R2.fastq
 ```
 
-The downloaded files will have the following structure:
+The downloaded files should have the following structure:
+
+```text
+📁samples
+├───📁SRR10903401
+│   └───📁20200102
+│       └───📁raw_data
+│           ├───🧬SRR10903401_R1.fastq
+│           └───🧬SRR10903401_R2.fastq
+└───📁SRR10903402
+    └───📁20200102
+        └───📁raw_data
+            ├───🧬SRR10903402_R1.fastq
+            └───🧬SRR10903402_R2.fastq
+```
+
+You can display the directory structure with the following command on Linux (on Mac OS, use `find samples`)
 
 ```bash
 tree samples
@@ -77,14 +91,14 @@ tree samples
 
 V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is written using [Snakemake](https://snakemake.readthedocs.io/en/stable/).
 
-For advanced users: If your are fluent with these tools, you can:
-
-* directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
-* make sure to configure V-pipe to use the `sars-cov-2` virus-config
-* and start using V-pipe with them, using the --use-conda to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies.
-* please refer to the documentation for additional instructions.
-
-The present tutorial will show simplified commands that automate much of this process.
+> **For advanced users:** If your are fluent with these tools, you can:
+>
+> * directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
+> * make sure to configure V-pipe to use the `sars-cov-2` virus-config
+> * and start using V-pipe with them, using the --use-conda to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies.
+> * please refer to the [documentation](https://github.com/cbg-ethz/V-pipe/blob/master/README.md) for additional instructions.
+>
+> The present tutorial will show simplified commands that automate much of this process.
 
 To deploy V-pipe, you can use the installation script with the following parameters:
 
@@ -96,24 +110,24 @@ bash quick_install.sh -p tutorial -w work
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
 * using `-w` will create a working directory and populate it. It will copy over the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
 
-Tip: To create and populate other new working directories, you can call init_project.sh from within the new directory:
-
-```console
-mkdir -p working_2
-cd working_2
-../V-pipe/init_project.sh
-```
+> **Tip:** To create and populate other new working directories, you can call init_project.sh from within the new directory:
+> 
+> ```console
+> mkdir -p working_2
+> cd working_2
+> ../V-pipe/init_project.sh
+> ```
 
 
 ## Running V-pipe
 
-Copy the samples directory you created in the step Preparing a small dataset to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
+Copy the samples directory you created in the step [Preparing a small](#preparing-a-small-dataset) dataset to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
 
 ```bash
 mv samples tutorial/work/
 ```
 
-Prepare V-pipe's configuration:
+Prepare V-pipe's configuration. You can find more information in [the documentation](https://github.com/cbg-ethz/V-pipe/blob/master/config/README.md). In your local V-pipe installation, you will also find an exhaustive manual about all the configuration options inside `config/config.html`.
 
 ```bash
 cat <<EOT > tutorial/work/config.yaml
@@ -155,8 +169,7 @@ SRR10903402	20200102	150
 EOT
 ```
 
-Tip: Always check the content of the `samples.tsv` file.
-
+**Tip:** Always check the content of the `samples.tsv` file.
 If you didn’t use the correct structure, this file might end up empty or some entries might be missing.
 You can safely delete it and re-run the `--dryrun` to regenerate it.
 
@@ -170,7 +183,9 @@ cd tutorial/work/
 
 ## Output
 
-The Wiki contains an overview of the output files. The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `samples/​{hierarchy}​/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `samples/​{hierarchy}​/variants/SNVs/snvs.csv`.
+The section _output_ of the exhaustive configuration manual contains an overview of the output files.
+The output of the SNV calling is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `results/`_​{hierarchy}​_`/variants/SNVs/snvs.vcf`, you can open it with your favorite VCF tools for visualisation or downstream processing.
+It is also available in a tabular format in `results/​`_{hierarchy}​_`/variants/SNVs/snvs.csv`.
 
 ### Expected output
 
@@ -198,7 +213,34 @@ general:
 
 It is possible to ask snakemake to submit jobs on a cluster using the batch submission command-line interface of your cluster.
 
-The platform LSF by IBM is one of the popular systems you might find (Others include SLURM, Grid Engine).
+The opensource platform SLURM by SchedMD is one of the popular systems you might find on clusters (Others include LSF, Grid Engine).
 
+The most user friendly way to submit jobs to the cluster is using a special _snakemake profile_.
+[smk-simple-slurm](https://github.com/jdblischak/smk-simple-slurm) is a profile that works well in our experience with SLURM (for other platforms see suggestions in [the snakemake-profil documentation](https://github.com/snakemake-profiles/doc)).
 
-...TODO...
+```console
+cd tutorial/
+git clone https://github.com/jdblischak/smk-simple-slurm.git
+cd work/
+./vpipe --dry-run --profile ../smk-simple-slurm --jobs 100
+cd ../..
+```
+
+Snakemakes documentation [introduces the key concepts used in profile](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles). 
+Check also [the other options for running snakemake on clusters](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CLUSTER) if you need more advanced uses.
+
+### Dependencies downloading on the cluster
+
+In addition, Snakemake has [parameters for conda](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CONDA) that can help management of dependencies:
+
+- using `-conda-create-envs-only` enables to download the dependencies only without running the pipeline itself. This is very useful if the compute nodes of your cluster are not allowed internet access.
+- using `--conda-prefix=`_{DIR}_ stores the conda environments of dependencies in a common directory (thus possible to share and re-use between multiple instances of V-pipe).
+
+```console
+cd tutorial/work/
+./vpipe --conda-prefix ../snake-envs --cores 1 --conda-create-envs-only
+cd ../..
+```
+
+When using V-pipe in production environments, plan the installer's `-p` prefix and `-w` working and snakemake's `--conda-prefix` environments directories according to the cluster quotas and time limits.
+For example, consider using `${SCRATCH}` and only move the content of the `results/` directory to long-term storage.

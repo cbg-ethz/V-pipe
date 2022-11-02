@@ -21,7 +21,7 @@ V-pipe is a workflow designed for the analysis of next generation sequencing (NG
 
 ## Requirements
 
-V-pipe is optimized for Linux or Mac OS systems. Therefore, we recommend users with a Windows system to install WSL2 - this is not a full virtual machine but rather a way to run Windows and Linux cooperatively at the same time.  
+V-pipe is optimized for Linux or Mac OS systems. Therefore, we recommend users with a Windows system to [install WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) - this is not a full virtual machine but rather a way to run Windows and Linux cooperatively at the same time.
 
 
 ## Organizing Data
@@ -37,7 +37,7 @@ Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
 
 ```text
 📁samples
-|───📁patient1
+├───📁patient1
 │   └───📁date1
 │       └───📁raw_data
 │           ├───🧬reads_R1.fastq
@@ -48,7 +48,7 @@ Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
     │       ├───🧬reads_R1.fastq
     │       └───🧬reads_R2.fastq
     └───📁date2
-        └───raw_data
+        └───📁raw_data
             ├───🧬reads_R1.fastq
             └───🧬reads_R2.fastq
 ```
@@ -60,11 +60,11 @@ The files will have the following structure:
 
 ```text
 📁samples
-|└───📁CAP217
-│    └───📁4390
-│        └───📁raw_data
-│            ├───🧬reads_R1.fastq
-│            └───🧬reads_R2.fastq
+├───📁CAP217
+│   └───📁4390
+│       └───📁raw_data
+│           ├───🧬reads_R1.fastq
+│           └───🧬reads_R2.fastq
 └───📁CAP188
     │───📁4
     │   └───📁raw_data
@@ -115,12 +115,17 @@ cd working_2
 
 ## Preparation
 
-Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
+Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. (You can display the directory structure with `tree testing/work/resources/samples` or `find testing/work/resources/samples`.)
 
 ```bash
 mkdir -p testing/work/resources
 mv testing/V-pipe/docs/example_HIV_data/samples testing/work/resources/samples
 ```
+
+Note that:
+ - by default V-pipe expects its samples in a directory `samples` contained directly in the working directory - i.e. `testing/work/sample``
+ - in this tutorial we put them inside the `resources` subdirectory, and will set the config file accordingly.
+
 
 ### Reference
 If you have a reference sequences that you would like to use for read mapping and alignment, then add it to the `resources/reference/ref.fasta` directory. In our case, however, we will use the reference sequence HXB2 already provided by V-Pipe `V-pipe/resources/hiv/HXB2.fasta`.

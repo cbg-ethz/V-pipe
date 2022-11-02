@@ -18,4 +18,4 @@ elif [[ "${branch}" != "${default}" ]]; then
 fi
 
 # create Jupyter Notebooks for all Markdown files
-exec jupytext --set-formats ipynb,md --execute ./*.md
+exec jupytext --set-formats ipynb,md --execute ./tutorial*.md
