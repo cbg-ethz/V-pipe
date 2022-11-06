@@ -11,7 +11,7 @@ permalink: /pipeline/
 ## Dependencies
 
 - **[Conda](https://conda.io/docs/index.html)**
-  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://conda.io/miniconda.html)
+  [![Shell installer](https://img.shields.io/badge/bash-installer-lightgrey.svg?style=flat)](https://github.com/conda-forge/miniforge#mambaforge)
 
   Conda is an open source package management system and environment management system. V-pipe uses it to automatically obtain reproducible environments and simplify installation of the individual components of the pipeline, thanks to the [Bioconda channel](https://bioconda.github.io) - a distribution of bioinformatics software.
 
@@ -72,6 +72,12 @@ permalink: /pipeline/
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/bcftools.svg?label=Bioconda)](https://bioconda.github.io/recipes/bcftools/README.html)
 
   The Swiss Army knife of alignment postprocessing and diagnostics. bcftools is also used to generate consensus sequence with indels.
+  Samtools can also be used to trim primers.
+
+- **[iVar](https://andersen-lab.github.io/ivar/html/)**
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/ivar.svg?label=Bioconda)](https://bioconda.github.io/recipes/ivar/README.html)
+
+  iVar is used to trim primers.
 
 - **[ShoRAH](https://github.com/cbg-ethz/shorah)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/shorah.svg?label=Bioconda)](https://bioconda.github.io/recipes/shorah/README.html)
@@ -82,6 +88,11 @@ permalink: /pipeline/
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/lofreq.svg?label=Bioconda)](https://bioconda.github.io/recipes/lofreq/README.html)
 
   LoFreq (version 2) is SNVs and indels caller from next-generation sequencing data, and can be used as an alternative engine for SNV calling.
+
+- **[PredictHaplo](https://github.com/cbg-ethz/predicthaplo)**
+  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/predicthaplo.svg?label=Bioconda)](https://bioconda.github.io/recipes/predicthaplo/README.html)
+
+  Global haplotype inference using a propagating dirichlet process mixture model.
 
 - **[SAVAGE](https://bitbucket.org/jbaaijens/savage)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/savage.svg?label=Bioconda)](https://bioconda.github.io/recipes/savage/README.html)
@@ -101,11 +112,6 @@ permalink: /pipeline/
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/smallgenomeutilities.svg?label=Bioconda)](https://bioconda.github.io/recipes/smallgenomeutilities/README.html)
 
   We perform genomic liftovers to standardised reference genomes using our in-house developed python library of utilities for rewriting alignments.
-
-- **[Samtools](https://github.com/samtools/samtools)**
-  [![Bioconda package](https://img.shields.io/conda/dn/bioconda/samtools.svg?label=Bioconda)](https://bioconda.github.io/recipes/samtools/README.html)
-
-  The Swiss Army knife of alignment postprocessing and diagnostics.
 
 - **[picard](https://broadinstitute.github.io/picard/)**
   [![Bioconda package](https://img.shields.io/conda/dn/bioconda/picard.svg?label=Bioconda)](https://bioconda.github.io/recipes/picard/README.html)

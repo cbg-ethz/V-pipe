@@ -32,11 +32,7 @@ Technical requirements:
    All dependencies are automatically downloaded and installed by snakemake from [bioconda](https://bioconda.github.io/).
 
 
-The **tutorial** demonstrates [how to use V-pipe (specifically for SARS-CoV-2 data)]({{ "/tutorial/sars-cov2/" | relative_url }}).
-
-> **Note:** tutorial has been written written for the [older *sars-cov2* branch](https://github.com/cbg-ethz/V-pipe/tree/sars-cov2),
-> see [V-pipe's documentation](https://github.com/cbg-ethz/V-pipe/blob/master/config/README.md#legacy-v-pipe-1xx2xx-users)
-> to adapt to the current newer versions of V-pipe.
+The **tutorial** demonstrates [how to use V-pipe (specifically for SARS-CoV-2 data)](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_sarscov2.md).
 
 V-pipe is continuously updated with improvements and extensions,
 including on the visualization and reporting of results.

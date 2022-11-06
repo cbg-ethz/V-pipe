@@ -3,6 +3,10 @@ layout: default
 permalink: /tutorial/sars-cov2/
 ---
 
+
+> **Note:** this tutorial covers branches of the older version V-pipe 2.0, see [V-pipe's documentation](https://github.com/cbg-ethz/V-pipe/blob/master/config/README.md#legacy-v-pipe-1xx2xx-users) to adapt to the current newer versions of V-pipe.
+> A newer tutorial covering more recent versions of V-pipe is available [here and in the doc directory of your installtion]((https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_sarscov2.md))
+
 This tutorial shows the basics of how to interact with V-pipe.
 A [recording of our webinar](https://youtu.be/pIby1UooK94) covering the subject is available [at the bottom of the current page](#webinar-applying-v-pipe-to-sars-coronavirus-2-data).
 

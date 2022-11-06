@@ -6,20 +6,25 @@ permalink: /usage/
 
 ## Tutorials
 
-- [How to use V-pipe (specifically for SARS-CoV-2 data)]({{ "/tutorial/sars-cov2/" | relative_url }}).
-- [Webinar: Applying V-pipe to SARS-Coronavirus-2 data](https://youtu.be/pIby1UooK94).
+- Tutorials are now directly available in V-pipe's [docs directory](https://github.com/cbg-ethz/V-pipe/blob/master/docs/README.md)
+  - [tutorial_hiv.md](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_hiv.md): uses HIV test data
+  - [tutorial_sarscov2.md](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_sarscov2.md): uses SARS-CoV-2 data from a publication
+
+- Older tutorials built around V-pipe 2.0 and its branches are avilable here:
+  - [How to use V-pipe (specifically for SARS-CoV-2 data)]({{ "/tutorial/sars-cov2/" | relative_url }}).
+  - [Webinar: Applying V-pipe to SARS-Coronavirus-2 data](https://youtu.be/pIby1UooK94).
 
 ## Overview
 
 V-pipe is designed with hierarchically organised data in mind:
 
-```
-samples
-├── patient1
-│   ├── 20100113
-│   └── 20110202
-└── patient2
-    └── 20081130
+```text
+📁samples
+├──📁patient1
+│  ├──📁20100113
+│  └──📁20110202
+└──📁patient2
+   └──📁20081130
 ```
 
 Here, we have two samples from patient 1 and one sample from patient 2. All sample names should be unique such later mixups of different timepoints can be avoided.
@@ -28,8 +33,8 @@ V-pipe's parameters for the number of cores to use and the maximum memory is [sp
 `config.yaml`, for instance:
 
 ```yaml
-ngshmmalign:
-  number_cores: 24
+hmm_align:
+  threads: 24
   leave_tmp: true
 ```
 
@@ -63,7 +68,7 @@ In your local installation, the file `config/config.html` contains an exhaustive
 
 ### V-pipe as a benchmark tool
 
-V-pipe also provides an [unified benchmarking platform](https://github.com/cbg-ethz/V-pipe/wiki/benchmark), by incorporating two additional modules: a read simulator and a module to evaluate the accuracy of the results.
+A new benchmarking is being integrated into V-pipe ahead of version 3.0. You can find a preview of this up-coming feature in the [readme of the _benchmark_ auxiliary workflow](https://github.com/cbg-ethz/V-pipe/tree/master/resources/auxiliary_workflows/benchmark/README.md). The older benchmarking provided by V-pipe 2.0 is still documented on the [old wiki](https://github.com/cbg-ethz/V-pipe/wiki/benchmark).
 
 ### Snakemake rules
 

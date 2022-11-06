@@ -7,7 +7,7 @@ image: img/workflow_cartoon2.png
 
 V-pipe: A bioinformatics pipeline for viral sequencing data
 
-{% include flashNews.html urgent="0" msg="New version v2.99.2 of V-pipe <a href='https://github.com/cbg-ethz/V-pipe/releases'>has been released</a>" %}
+{% include flashNews.html urgent="0" msg="New version v2.99.3 of V-pipe <a href='https://github.com/cbg-ethz/V-pipe/releases'>has been released</a><br />includes primer trimming on cohorts with multiple different protocols" %}
 
 
 # Introduction
@@ -26,6 +26,7 @@ This genetic diversity is associated with viral pathogenesis, virulence, and dis
 [![bio.tools](https://img.shields.io/badge/bio-tools-orange.svg?style=flat)](https://bio.tools/V-Pipe)
 [![ExPASy](https://img.shields.io/badge/expasy-resource-red.svg?style=flat)](https://www.expasy.org/resources/v-pipe)
 [![SIB](https://img.shields.io/badge/sib-resource-red.svg?style=flat)](https://www.sib.swiss/research-infrastructure/database-software-tools/sib-resources#v-pipe)
+[![workflowhub](https://img.shields.io/badge/workflow-hub-teal.svg?style=flat)](https://workflowhub.eu/workflows/301)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
 
 ----
