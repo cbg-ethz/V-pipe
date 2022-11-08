@@ -86,7 +86,7 @@ rule sigmut:
         basecnt="{dataset}/alignments/basecnt.tsv.gz",
         mutlist="mutlist.txt",
     output:
-        mut="{dataset}/signatures/mut.tsv.gz",
+        mut="{dataset}/signatures/mut.tsv",
     params:
         getmutation=cachepath(
             "../scripts/getmutation_from_sample.py",
@@ -116,7 +116,7 @@ rule timeline:
     input:
         "samples.wastewateronly.tsv",
     output:
-        "timeline.tsv",
+        cohortdir("timeline.tsv"),
     params:
         locations="ww_locations.tsv",
         regex="regex.yaml",
@@ -131,7 +131,7 @@ rule timeline:
     conda:
         "../envs/lollipop.yaml"
     benchmark:
-        cohortdir("timeline.err.benchmark")
+        cohortdir("timeline.benchmark")
     resources:
         disk_mb=1024,
         mem_mb=1024,
@@ -141,3 +141,37 @@ rule timeline:
         """
         {params.maketimeline} --regex-config {params.regex} --no-fallback --locations {params.locations} --output {output} -- {input} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
+
+
+rule tallymut:
+    input:
+        muts=expand("{dataset}/signatures/mut.tsv", dataset=datasets),
+        times=cohortdir("timeline.tsv"),
+    output:
+        tallymut=cohortdir("tallymut.tsv.gz"),
+    params:
+        XSV="xsv",
+    log:
+        outfile=cohortdir("tallymut.out.log"),
+        errfile=cohortdir("tallymut.err.log"),
+    conda:
+        "../envs/xsv.yaml"
+    benchmark:
+        cohortdir("tallymut.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=1024,
+        runtime=15,
+    threads: 1
+    shell:
+        """
+        {params.XSV} join --right sample,batch {input.times} sample,batch \
+         <({params.XSV} cat rows --delimiter '\\t' {input.muts} ) \
+         | sed 's/,/\\t/g' \
+         | gzip -c6 > {output.tallymut} 2> >(tee -a {log.errfile} >&2)
+        """
+
+
+rule allCooc:
+    input:
+        expand("{dataset}/signatures/cooc.yaml", dataset=datasets),
