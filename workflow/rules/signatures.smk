@@ -77,6 +77,36 @@ rule cooc:
         """
 
 
+rule mutlist:
+    input:
+        vocs=all_vocs("references/voc/"),
+        gff="references/gffs/Genes_NC_045512.2.GFF3",
+    output:
+        mutlist=cohortdir("mutlist.tsv"),
+    params:
+        gen_mutlist=cachepath(
+            "../scripts/generate_mutlist.py",
+            executable=True,
+            localsource=True,
+        ),
+    log:
+        outfile=cohortdir("mutlist.out.log"),
+        errfile=cohortdir("mutlist.err.log"),
+    conda:
+        "../envs/lollipop.yaml"
+    benchmark:
+        cohortdir("mutlist.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=256,
+        runtime=10,
+    threads: 1
+    shell:
+        """
+        {params.gen_mutlist} --output {output.mutlist} --genes {input.gff} -- {input.vocs}
+        """
+
+
 def get_s_rec(wildcards):
     return guess_sample(wildcards.dataset)
 
@@ -84,7 +114,7 @@ def get_s_rec(wildcards):
 rule sigmut:
     input:
         basecnt="{dataset}/alignments/basecnt.tsv.gz",
-        mutlist="mutlist.txt",
+        mutlist=cohortdir("mutlist.tsv"),
     output:
         mut="{dataset}/signatures/mut.tsv",
     params:
@@ -114,12 +144,12 @@ rule sigmut:
 
 rule timeline:
     input:
-        "samples.wastewateronly.tsv",
+        samples_tsv=config.input["samples_file"],
+        locations="ww_locations.tsv",
+        regex="regex.yaml",
     output:
         cohortdir("timeline.tsv"),
     params:
-        locations="ww_locations.tsv",
-        regex="regex.yaml",
         maketimeline=cachepath(
             "../scripts/file_parser.py",
             executable=True,
@@ -139,7 +169,7 @@ rule timeline:
     threads: 1
     shell:
         """
-        {params.maketimeline} --regex-config {params.regex} --no-fallback --locations {params.locations} --output {output} -- {input} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.maketimeline} --regex-config {input.regex} --no-fallback --locations {input.locations} --output {output} -- {input.samples_tsv} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
@@ -148,9 +178,10 @@ rule tallymut:
         muts=expand("{dataset}/signatures/mut.tsv", dataset=datasets),
         times=cohortdir("timeline.tsv"),
     output:
-        tallymut=cohortdir("tallymut.tsv.gz"),
+        tallymut=cohortdir("tallymut.tsv.zst"),
     params:
         XSV="xsv",
+        ZSTD="zstd",
     log:
         outfile=cohortdir("tallymut.out.log"),
         errfile=cohortdir("tallymut.err.log"),
@@ -167,8 +198,8 @@ rule tallymut:
         """
         {params.XSV} join --right sample,batch {input.times} sample,batch \
          <({params.XSV} cat rows --delimiter '\\t' {input.muts} ) \
-         | sed 's/,/\\t/g' \
-         | gzip -c6 > {output.tallymut} 2> >(tee -a {log.errfile} >&2)
+         | {params.XSV} fmt --out-delimiter '\\t' \
+         | {params.ZSTD} -o {output.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

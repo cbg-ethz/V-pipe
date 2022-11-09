@@ -8,7 +8,9 @@ dependencies:
   - numpy
   - scipy
   - pandas
+  - bcbio-gff
   - ruamel.yaml
+  - strictyaml
   - regex
   - tqdm
   - click
