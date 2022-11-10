@@ -203,6 +203,35 @@ rule tallymut:
         """
 
 
+rule deconvolution:
+    input:
+        tallymut=cohortdir("tallymut.tsv.zst"),
+        deconv_conf="deconv_linear_wald.yaml",
+        var_conf="variant_config.yaml",
+        var_dates="var_dates.yaml",
+    output:
+        deconvoluted=cohortdir("deconvoluted.tsv.zst"),
+    params:
+        DECONV="../test/lollipop-wrapper",
+        seed="--seed=42",
+    log:
+        outfile=cohortdir("deconvoluted.out.log"),
+        errfile=cohortdir("deconvoluted.err.log"),
+    conda:
+        "../envs/lollipop.yaml"
+    benchmark:
+        cohortdir("deconvoluted.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=1024,
+        runtime=240,
+    threads: 8
+    shell:
+        """
+        {params.DECONV} --output={output.deconvoluted} --var={input.var_conf} --vd={input.var_dates} --dec={input.deconv_conf} {params.seed} {input.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        """
+
+
 rule allCooc:
     input:
         expand("{dataset}/signatures/cooc.yaml", dataset=datasets),

@@ -8,6 +8,7 @@ dependencies:
   - numpy
   - scipy
   - pandas
+  - zstandard
   - bcbio-gff
   - ruamel.yaml
   - strictyaml
