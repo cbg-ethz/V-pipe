@@ -133,7 +133,7 @@ rule sigmut:
         "{dataset}/signatures/mut.benchmark"
     resources:
         disk_mb=1024,
-        mem_mb=1024,
+        mem_mb=4096,
         runtime=15,
     threads: 1
     shell:
@@ -206,7 +206,7 @@ rule tallymut:
 rule deconvolution:
     input:
         tallymut=cohortdir("tallymut.tsv.zst"),
-        deconv_conf="deconv_linear_wald.yaml",
+        deconv_conf="deconv_linear_logit_quasi_strat.yaml",
         var_conf="variant_config.yaml",
         var_dates="var_dates.yaml",
     output:
