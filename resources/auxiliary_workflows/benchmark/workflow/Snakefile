@@ -308,7 +308,7 @@ rule provide_2_SARS_CoV_2_mix:
 
         mkdir -p "{output.dname_work}"
 
-        if [[ "$source" == "2-SARS-CoV-2-mix" ]]; then
+        if [[ "$source" == "Two-strain-SARS-CoV-2" ]]; then
             cp "$fname_cram" "{output.fname_cram}"
             cp "$fname_expected_variants" "{output.fname_groundtruth}"
             cp "$fname_reference" "{output.fname_reference}"
