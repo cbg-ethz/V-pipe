@@ -1,4 +1,5 @@
 from Bio import SeqIO
+from pathlib import Path
 
 def main(fname_reference, fname_insert_bed, genome_size):
 
