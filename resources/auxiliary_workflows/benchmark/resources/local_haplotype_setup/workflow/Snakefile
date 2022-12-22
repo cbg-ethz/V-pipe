@@ -196,7 +196,7 @@ use rule run_method_local from realdata_sarscov2 as realdata_sarscov2_run_method
         runtime=440,
 
 
-use rule performance_measures_local from realdata_sarscov2 as realdata_sarscov2_performance_measures_Two_strain_SARS_CoV2 with:
+use rule performance_measures_local from realdata_sarscov2 as realdata_sarscov2_performance_measures_local with:
     input:
         vcf_list=[
             f"results/realdata_sarscov2/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
@@ -221,6 +221,8 @@ use rule performance_measures_local from realdata_sarscov2 as realdata_sarscov2_
             for params in realdata_sarscov2.paramspace.instance_patterns
             for replicate in range(realdata_sarscov2.config["replicate_count"])
         ],
+    wildcard_constraints:
+        read_length=r"Two-strain-SARS-CoV-2",
 
 
 
@@ -269,6 +271,7 @@ use rule performance_measures_local from realdata_PVY as realdata_PVY_performanc
             for params in realdata_PVY.paramspace.instance_patterns
             for replicate in range(realdata_PVY.config["replicate_count"])
         ],
+
 
 
 # amplicon rules
