@@ -305,6 +305,7 @@ rule provide_Five_strain_PVY_mix:
         cp "$fname_bam" "{output.fname_bam}"
         cp "$fname_expected_variants" "{output.fname_groundtruth}"
         cp "$fname_reference" "{output.fname_reference}"
+        cp "$fname_insert_bed" "{output.fname_insert_bed}"
         """
 
 
