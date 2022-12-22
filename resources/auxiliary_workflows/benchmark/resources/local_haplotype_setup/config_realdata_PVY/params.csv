@@ -1,0 +1,3 @@
+seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
+nanopore,amplicon,real_data,,9698,Five_strain_PVY,,
+nanopore,shotgun,real_data,350,9698,Five_strain_PVY,,
