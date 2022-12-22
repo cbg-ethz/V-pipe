@@ -280,7 +280,7 @@ rule provide_curlcakes_ONT_data:
 
 rule provide_Five_strain_PVY_mix:
     output:
-        fname_cram=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.bam",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
         fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
@@ -291,7 +291,7 @@ rule provide_Five_strain_PVY_mix:
         mem_mb=5_000,
         runtime=60 * 4,
     wildcard_constraints:
-        coverage="Five_strain_PVY",
+        seq_mode_param="Five_strain_PVY",
     conda:
         "envs/real_data_PVY.yaml"
     shell:
@@ -421,13 +421,13 @@ rule provide_real_data:
         mem_mb=5_000,
         runtime=60 * 4,
     wildcard_constraints:
-        seq_mode="real_data",
+        seq_mode_param="5-virus-mix",
     shell:
         """
         tmp="{wildcards.seq_mode_param}"
         parts=(${{tmp//@/ }})
         source="${{parts[0]}}"
-        subsample_frac="${{parts[1]}}"
+        subsample_frac="{wildcards.coverage}"
         echo "Using $subsample_frac of $source"
 
         mkdir -p "{output.dname_work}"
