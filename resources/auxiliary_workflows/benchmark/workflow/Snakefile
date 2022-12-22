@@ -292,8 +292,6 @@ rule provide_Five_strain_PVY_mix:
         runtime=60 * 4,
     wildcard_constraints:
         seq_mode_param="Five_strain_PVY",
-    conda:
-        "envs/real_data_PVY.yaml"
     shell:
         """
         mkdir -p "{output.dname_work}"
