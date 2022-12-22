@@ -278,6 +278,37 @@ rule provide_curlcakes_ONT_data:
         fi
         """
 
+rule provide_Five_strain_PVY_mix:
+    output:
+        fname_cram=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
+        ),
+    resources:
+        mem_mb=5_000,
+        runtime=60 * 4,
+    wildcard_constraints:
+        coverage="Five_strain_PVY",
+    conda:
+        "envs/real_data_PVY.yaml"
+    shell:
+        """
+        mkdir -p "{output.dname_work}"
+
+        # this are the paths to run this rule from local_haplotype_setup
+        fname_bam="../../resources/experimental_data/Five-strain-PVY/all_reads.aln.filtered.sort.bam"
+        fname_expected_variants="../../resources/experimental_data/Five-strain-PVY/ground_truth.csv"
+        fname_reference="../../resources/experimental_data/Five-strain-PVY/reference.fasta"
+        fname_insert_bed="../../resources/experimental_data/Five-strain-PVY/scheme.insert.bed"
+
+        cp "$fname_bam" "{output.fname_bam}"
+        cp "$fname_expected_variants" "{output.fname_groundtruth}"
+        cp "$fname_reference" "{output.fname_reference}"
+        """
+
 
 rule provide_2_SARS_CoV_2_mix:
     output:
