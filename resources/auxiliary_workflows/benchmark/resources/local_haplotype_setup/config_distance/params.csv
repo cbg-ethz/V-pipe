@@ -1,9 +1,13 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-illumina,shotgun,,249,249,100,5@5@20@5@10@geom@0.75
-illumina,shotgun,,249,249,1000,5@5@20@5@10@geom@0.75
-illumina,shotgun,,249,249,3000,5@5@20@5@10@geom@0.75
-illumina,shotgun,,249,249,5000,5@5@20@5@10@geom@0.75
-illumina,shotgun,,249,249,100,5@20@10@5@5@geom@0.75
-illumina,shotgun,,249,249,1000,5@20@10@5@5@geom@0.75
-illumina,shotgun,,249,249,5000,5@20@10@5@5@geom@0.75
-illumina,shotgun,,249,249,3000,5@20@10@5@5@geom@0.75
+# Population 1 with different coverages
+illumina,shotgun,single_amplicon,201,201,100,5@5@20@6@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,1000,5@5@20@6@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,5000,5@5@20@6@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,10000,5@5@20@6@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,20000,5@5@20@6@12@geom@0.75
+# Population 2
+illumina,shotgun,single_amplicon,201,201,5000,2@5@20@5@10@geom@0.75
+illumina,shotgun,single_amplicon,201,201,10000,2@5@20@5@10@geom@0.75
+# Population 3
+illumina,shotgun,single_amplicon,201,201,5000,2@3@20@6@6@geom@0.75
+illumina,shotgun,single_amplicon,201,201,10000,2@3@20@6@6@geom@0.75
