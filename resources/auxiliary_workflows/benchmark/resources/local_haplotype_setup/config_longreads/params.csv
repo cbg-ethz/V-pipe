@@ -7,7 +7,7 @@ nanopore,shotgun,single_amplicon,9719,9719,100,5@5@1000@300@600@geom@0.75
 nanopore,shotgun,single_amplicon,9719,9719,1000,5@5@1000@300@600@geom@0.75
 nanopore,shotgun,single_amplicon,9719,9719,5000,5@5@1000@300@600@geom@0.75
 nanopore,shotgun,single_amplicon,9719,9719,10000,5@5@1000@300@600@geom@0.75
-pacbio,shotgun,single_amplicon,9719,9719,5000,5@5@1000@300@600@geom@0.75
+pacbio,shotgun,single_amplicon,9719,9719,5000,5@15@1000@300@600@geom@0.75
 pacbio,shotgun,single_amplicon,9719,9719,5000,2@5@1000@300@600@geom@0.75
-nanopore,shotgun,single_amplicon,9719,9719,5000,5@5@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,5000,5@15@1000@300@600@geom@0.75
 nanopore,shotgun,single_amplicon,9719,9719,5000,2@5@1000@300@600@geom@0.75
