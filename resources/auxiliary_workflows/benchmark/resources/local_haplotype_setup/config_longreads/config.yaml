@@ -1,9 +1,13 @@
 method_list: [lofreq_local_haplo,
               shorah_default,
-              qualhap_use_quality_scores_unique,
-              qualhap_learn_error_params_unique,
-              qualhap_learn_error_params,
-              qualhap_use_quality_scores,
+              master-copy-learn_error_params,
+              master-copy-use_quality_scores_local,
+              master-copy-use_quality_scores,
+              master-learn_error_params,
+              master-use_quality_scores,
+              shorah_mfa_qualities_unique_Aug11_insert_file,
+              cliquesnv_local_haplo,
+              cliquesnv_local_haplo_snv,
               ]
 replicate_count: 5
 haplotype_generation: distance
