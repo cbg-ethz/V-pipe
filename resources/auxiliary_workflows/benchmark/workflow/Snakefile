@@ -280,7 +280,7 @@ rule provide_curlcakes_ONT_data:
 
 rule provide_Five_strain_PVY_mix:
     output:
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.bam",
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
         fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
@@ -291,7 +291,7 @@ rule provide_Five_strain_PVY_mix:
         mem_mb=5_000,
         runtime=60 * 4,
     wildcard_constraints:
-        seq_mode_param="Five_strain_PVY",
+        read_length="Five_strain_PVY",
     shell:
         """
         mkdir -p "{output.dname_work}"
