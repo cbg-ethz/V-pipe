@@ -136,6 +136,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
         col="variable",
         kind="box",
     )
+    g.set_xticklabels(rotation=90, size=6)
     g.set(ylim=(0, 1))
     g.savefig(dname_out / "performance_boxplot.pdf")
 
