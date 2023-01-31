@@ -74,7 +74,7 @@ def simulate_pacbio(
         ]
     )
     # rename reads in fastq
-    suffix = fname_haplotype.split("_")[1
+    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
     corrected_file = str(art_prefix) + "_0001.cor.fastq"
     original_file = str(art_prefix) + "_0001.fastq"
     rename_reads(original_file, corrected_file, suffix)
@@ -126,7 +126,7 @@ def simulate_nanopore(
     )
 
     # rename reads in fastq
-    suffix = fname_haplotype.split("_")[1
+    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
     corrected_file = str(art_prefix) + "_0001.cor.fastq"
     original_file = str(art_prefix) + "_0001.fastq"
     rename_reads(original_file, corrected_file, suffix)
