@@ -644,7 +644,7 @@ rule performance_measures_local_realdata_sarscov2:
             for replicate in range(config["replicate_count"])
         ],
     output:
-        fname_out=f"results/performance_measures/local/performance_Two_strain_SARS-CoV-2.csv",
+        fname_out=f"results/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
     wildcard_constraints:
         read_length="Two-strain-SARS-CoV-2",
     conda:
