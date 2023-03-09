@@ -41,8 +41,8 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             dname_work / "output",
             "-threads",
             "1",
-            "-Xms512m",
-            "-Xmx20g",
+            "-Xms612m",
+            "-Xmx40g",
         ],
         check=True,
     )
