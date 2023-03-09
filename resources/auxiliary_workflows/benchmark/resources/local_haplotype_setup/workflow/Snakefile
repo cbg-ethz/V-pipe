@@ -285,11 +285,6 @@ use rule performance_measures_local from realdata_PVY as realdata_PVY_performanc
             for method in realdata_PVY.method_list
             for replicate in range(realdata_PVY.config["replicate_count"])
         ],
-        haplostats_list=[
-            f"results/realdata_PVY/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in realdata_PVY.paramspace.instance_patterns
-            for replicate in range(realdata_PVY.config["replicate_count"])
-        ],
 
 
 
