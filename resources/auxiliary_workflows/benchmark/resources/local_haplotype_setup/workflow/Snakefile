@@ -123,7 +123,7 @@ rule all:
         #"results/amplicon/performance_measures/local/",
         "results/realdata/performance_measures/local/",
         "results/realdata_sarscov2/performance_measures/local/",
-        "results/realdata_sarscov2/performance_measures/local/",
+        "results/realdata_sarscov2/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
         "results/realdata_PVY/performance_measures/local/",
     default_target: True
 
@@ -229,17 +229,19 @@ use rule performance_measures_local_realdata_sarscov2 from realdata_sarscov2 as 
     input:
         vcf_list=[
             f"results/realdata_sarscov2/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in paramspace.instance_patterns
-            for method in method_list_local
-            for replicate in range(config["replicate_count"])
+            for params in realdata_sarscov2.paramspace.instance_patterns
+            for method in realdata_sarscov2.method_list
+            for replicate in range(realdata_sarscov2.config["replicate_count"])
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
             f"results/realdata_sarscov2/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in paramspace.instance_patterns
-            for method in method_list_local
-            for replicate in range(config["replicate_count"])
+            for params in realdata_sarscov2.paramspace.instance_patterns
+            for method in realdata_sarscov2.method_list
+            for replicate in range(realdata_sarscov2.config["replicate_count"])
         ],
+    output:
+        fname_out=f"results/realdata_sarscov2/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
 
 
 
