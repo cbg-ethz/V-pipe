@@ -2,7 +2,6 @@ method_list: [lofreq_local_haplo,
               shorah_default,
               cliquesnv_local_haplo,
               cliquesnv_local_haplo_snv,
-              master-copy-use_quality_scores,
               ]
 replicate_count: 1
 haplotype_generation: null
