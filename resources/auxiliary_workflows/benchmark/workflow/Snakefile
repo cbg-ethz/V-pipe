@@ -628,6 +628,31 @@ rule performance_measures_local:
         "scripts/performance_measures_local.py"
 
 
+rule performance_measures_local_realdata_sarscov2:
+    input:
+        vcf_list=[
+            f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.vcf"
+            for params in paramspace.instance_patterns
+            for method in method_list_local
+            for replicate in range(config["replicate_count"])
+        ],
+        # we also include `method_list_local` to align with `vcf_list`
+        groundtruth_list=[
+            f"results/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in paramspace.instance_patterns
+            for method in method_list_local
+            for replicate in range(config["replicate_count"])
+        ],
+    output:
+        fname_out=f"results/performance_measures/local/performance_Two_strain_SARS-CoV-2.csv",
+    wildcard_constraints:
+        read_length="Two-strain-SARS-CoV-2",
+    conda:
+        "envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_Two-strain-SARS-CoV-2.py"
+
+
 rule performance_measures_global:
     input:
         predicted_haplos_list=[
