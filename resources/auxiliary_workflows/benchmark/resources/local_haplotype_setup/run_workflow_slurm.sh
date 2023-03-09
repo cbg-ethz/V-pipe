@@ -2,7 +2,7 @@
 
 sbatch \
   --mail-type=END \
-  --mem-per-cpu=5000 \
+  --mem-per-cpu=2000 \
   --time=120:00:00 \
   -o snake.out -e snake.err \
 snakemake \
