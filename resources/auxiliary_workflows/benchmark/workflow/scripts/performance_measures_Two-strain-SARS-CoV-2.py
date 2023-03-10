@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 from cyvcf2 import VCF
 
@@ -8,21 +10,23 @@ def convert_vcf(fname):
     for variant in VCF(fname):
         for base in variant.ALT:
             one_based_pos = variant.POS  # VCF is 1-based
-            freq = variant.AF
+            #freq = variant.AF
             variant_list.add(f"{one_based_pos}{base}")
             tmp.append(
-                "one_based_pos": one_based_pos,
-                "freq": freq,
+                {"one_based_pos": one_based_pos,
+                #"freq": freq,
                 "base": base,
+                }
             )
     df = pd.DataFrame(tmp)
     return variant_list, df
 
 def convert_groundtruth(fname):
     df = pd.read_csv(fname, index_col=0)
+    df["position"]+=1 # one-based position
     return set((df["position"].astype(str) + df["variant"]).tolist())
 
-def performance_evaluation(vcf_list, groundtruth_list, dname_out):
+def performance_evaluation(vcf_list, groundtruth_list, fname_out):
 
     #TODO: how to make sure that we are also catching the deletions
     # probably needs to be reported differnetlich in the ground_truth such that there is a match
@@ -47,7 +51,9 @@ def performance_evaluation(vcf_list, groundtruth_list, dname_out):
 
                 df = df_predicted[df_predicted['one_based_pos'] == position]
                 df = df[df['base']== base]
-                freq = df['freq'].values[0]
+                #freq = df['freq'].values[0]
+                freq = 1
+
 
             else:
                 freq = 0
@@ -58,21 +64,21 @@ def performance_evaluation(vcf_list, groundtruth_list, dname_out):
                     "position": position,
                     "variant": base,
                     "params": params,
+                    "method": method,
                     "replicate": replicate,
                     "freq": freq,
                 }
             )
 
     df_perf = pd.DataFrame(tmp)
-    df_long = pd.melt(df_perf, id_vars=["method", "params", "replicate"]).assign(
-        params=lambda x: x["params"].str.replace("_", "\n")
-    )
-    df_long.to_csv(fname_out)
+    #df_long = pd.melt(df_perf, id_vars=["method", "params", "replicate"]).assign(
+    #    params=lambda x: x["params"].str.replace("_", "\n")
+    #)
+    df_perf.to_csv(fname_out)
 
 
 def main(vcf_list, groundtruth_list, fname_out):
 
-    dname_out.mkdir(parents=True)
     performance_evaluation(vcf_list, groundtruth_list, fname_out)
 
 
