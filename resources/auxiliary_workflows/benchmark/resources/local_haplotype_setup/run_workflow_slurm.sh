@@ -6,7 +6,7 @@ sbatch \
   --time=120:00:00 \
   -o snake.out -e snake.err \
 snakemake \
-  --profile slurm \
+  --profile profile_simple/ \
   --rerun-incomplete \
   -pr \
   --cores 200 \
