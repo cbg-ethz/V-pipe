@@ -11,7 +11,9 @@
 9,mutation,27972,C,T,0.02
 10,mutation,28048,G,T,0.02
 11,mutation,28111,A,G,0.02
-12,mutation,28280,GAT,CTA,0.02
+12,mutation,28280,G,C,0.02
+12,mutation,28281,A,T,0.02
+12,mutation,28282,T,A,0.02
 13,mutation,28977,C,T,0.02
 14,deletion,11288,,-,0.02
 15,mutation,913,C,T,0.02
