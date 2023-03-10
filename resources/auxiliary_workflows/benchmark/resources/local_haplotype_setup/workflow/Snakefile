@@ -7,7 +7,7 @@ def load_config(path):
     return config
 
 
-# import modules
+# curlcakes_ONT
 module curlcakes_ONT:
     snakefile:
         "../../../workflow/Snakefile"
@@ -16,11 +16,10 @@ module curlcakes_ONT:
     replace_prefix:
         {"results/": "results/curlcakes_ONT/", "resources/": "resources/curlcakes_ONT/"}
 
-
 use rule * from curlcakes_ONT as curlcakes_ONT_*
 
 
-# import modules
+# distance
 module distance:
     snakefile:
         "../../../workflow/Snakefile"
@@ -28,7 +27,6 @@ module distance:
         load_config("config_distance/config.yaml")
     replace_prefix:
         {"results/": "results/distance/", "resources/": "resources/distance/"}
-
 
 use rule * from distance as distance_*
 
@@ -44,7 +42,7 @@ module mutationrate:
 
 use rule * from mutationrate as mutationrate_*
 
-
+"""
 module longreads:
     snakefile:
         "../../../workflow/Snakefile"
@@ -55,7 +53,7 @@ module longreads:
 
 
 use rule * from longreads as longreads_*
-
+"""
 
 module amplicon:
     snakefile:
@@ -80,7 +78,7 @@ module realdata:
 
 use rule * from realdata as realdata_*
 
-
+"""
 module realdata_sarscov2:
     snakefile:
         "../../../workflow/Snakefile"
@@ -107,7 +105,7 @@ module realdata_PVY:
         }
 
 use rule * from realdata_PVY as realdata_PVY_*
-
+"""
 
 
 # define required output files
@@ -118,13 +116,14 @@ rule all:
         #"results/mutationrate/performance_measures/local/",
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
-        "results/longreads/performance_measures/global/",
-        "results/longreads/performance_measures/local/",
+        #"results/longreads/performance_measures/global/",
+        #"results/longreads/performance_measures/local/",
         #"results/amplicon/performance_measures/local/",
         "results/realdata/performance_measures/local/",
-        "results/realdata_sarscov2/performance_measures/local/",
-        "results/realdata_sarscov2/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
-        "results/realdata_PVY/performance_measures/local/",
+        "results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
+        #"results/realdata_sarscov2/performance_measures/local/",
+        #"results/realdata_sarscov2/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
+        #"results/realdata_PVY/performance_measures/local/",
     default_target: True
 
 
@@ -176,7 +175,7 @@ use rule performance_measures_local from curlcakes_ONT as curlcakes_ONT_performa
             for replicate in range(curlcakes_ONT.config["replicate_count"])
         ],
 
-
+"""
 # realdata_SARS_CoV2 rules
 use rule run_method_local from realdata_sarscov2 as realdata_sarscov2_run_method_local_global with:
     output:
@@ -224,27 +223,27 @@ use rule performance_measures_local from realdata_sarscov2 as realdata_sarscov2_
         ],
     wildcard_constraints:
         read_length=r"Two-strain-SARS-CoV-2",
-
-use rule performance_measures_local_realdata_sarscov2 from realdata_sarscov2 as realdata_sarscov2_performance_measures_local_realdata_sarscov2 with:
+"""
+use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_performance_measures_local_realdata_sarscov2 with:
     input:
         vcf_list=[
-            f"results/realdata_sarscov2/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in realdata_sarscov2.paramspace.instance_patterns
-            for method in realdata_sarscov2.method_list
-            for replicate in range(realdata_sarscov2.config["replicate_count"])
+            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list
+            for replicate in range(realdata.config["replicate_count"])
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
-            f"results/realdata_sarscov2/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in realdata_sarscov2.paramspace.instance_patterns
-            for method in realdata_sarscov2.method_list
-            for replicate in range(realdata_sarscov2.config["replicate_count"])
+            f"results/realdata/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in realdata.paramspace.instance_patterns
+            for method in realdata.method_list
+            for replicate in range(realdata.config["replicate_count"])
         ],
     output:
-        fname_out=f"results/realdata_sarscov2/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
+        fname_out=f"results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
 
 
-
+"""
 # realdata_PVY rules
 use rule run_method_local from realdata_PVY as realdata_PVY_run_method_local_global with:
     output:
@@ -285,7 +284,7 @@ use rule performance_measures_local from realdata_PVY as realdata_PVY_performanc
             for method in realdata_PVY.method_list
             for replicate in range(realdata_PVY.config["replicate_count"])
         ],
-
+"""
 
 
 # amplicon rules
@@ -353,7 +352,7 @@ use rule run_method_local from distance as distance_run_method_local_global with
         f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + distance.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
         mem_mb=8024,
-        runtime=440,
+        runtime=8000,
 
 
 use rule performance_measures_local from distance as distance_performance_measures_local with:
@@ -504,7 +503,7 @@ use rule performance_measures_global from mutationrate as mutationrate_performan
         method_list_global=mutationrate.method_list_global,
         quast=False,
 
-
+"""
 # longreads rate rules
 use rule run_method_local from longreads as longreads_run_method_local_global with:
     output:
@@ -586,6 +585,7 @@ use rule performance_measures_global from longreads as longreads_performance_mea
     params:
         method_list_global=longreads.method_list_global,
         quast=False,
+"""
 
 
 # real data rules
@@ -630,8 +630,8 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
         ],
-        haplostats_list=[
-            f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in realdata.paramspace.instance_patterns
-            for replicate in range(realdata.config["replicate_count"])
-        ],
+        #haplostats_list=[
+        #    f"results/realdata/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+        #    for params in realdata.paramspace.instance_patterns
+        #    for replicate in range(realdata.config["replicate_count"])
+        #],
