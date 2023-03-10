@@ -1,13 +1,34 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
+#
 # Population 1 with different coverages
 illumina,shotgun,single_amplicon,201,201,100,5@5@20@6@12@geom@0.75
 illumina,shotgun,single_amplicon,201,201,1000,5@5@20@6@12@geom@0.75
 illumina,shotgun,single_amplicon,201,201,5000,5@5@20@6@12@geom@0.75
 illumina,shotgun,single_amplicon,201,201,10000,5@5@20@6@12@geom@0.75
 illumina,shotgun,single_amplicon,201,201,20000,5@5@20@6@12@geom@0.75
+#
 # Population 2
-illumina,shotgun,single_amplicon,201,201,5000,2@5@20@5@10@geom@0.75
-illumina,shotgun,single_amplicon,201,201,10000,2@5@20@5@10@geom@0.75
+illumina,shotgun,single_amplicon,201,201,5000,2@5@20@6@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,10000,2@5@20@6@12@geom@0.75
+#
 # Population 3
 illumina,shotgun,single_amplicon,201,201,5000,2@3@20@6@6@geom@0.75
 illumina,shotgun,single_amplicon,201,201,10000,2@3@20@6@6@geom@0.75
+#
+# long reads -- different coverages -- Population 1 [pacbio]
+pacbio,shotgun,single_amplicon,9719,9719,100,5@5@1000@300@600@geom@0.75
+pacbio,shotgun,single_amplicon,9719,9719,1000,5@5@1000@300@600@geom@0.75
+pacbio,shotgun,single_amplicon,9719,9719,5000,5@5@1000@300@600@geom@0.75
+pacbio,shotgun,single_amplicon,9719,9719,10000,5@5@1000@300@600@geom@0.75
+#
+# long reads -- different coverages -- Population 1
+nanopore,shotgun,single_amplicon,9719,9719,100,5@5@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,1000,5@5@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,5000,5@5@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,10000,5@5@1000@300@600@geom@0.75
+#
+# long reads -- same coverages -- Population 2 + 3
+pacbio,shotgun,single_amplicon,9719,9719,10000,5@15@1000@300@600@geom@0.75
+pacbio,shotgun,single_amplicon,9719,9719,10000,2@5@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,10000,5@15@1000@300@600@geom@0.75
+nanopore,shotgun,single_amplicon,9719,9719,10000,2@5@1000@300@600@geom@0.75
