@@ -199,6 +199,9 @@ def main(
         for record in SeqIO.parse(master_seq_path, "fasta"):
             master_name = record.id
             seq_master = record.seq
+            if len(seq_master)!=int(params["genome_size"]):
+                seq_master = seq_master[:int(params["genome_size"])]
+                
     master_name = "MasterSequence"
     fname_reference.write_text(f">{master_name}\n{seq_master}\n")
 
