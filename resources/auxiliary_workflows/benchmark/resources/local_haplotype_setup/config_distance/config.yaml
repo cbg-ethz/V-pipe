@@ -2,9 +2,9 @@ method_list: [lofreq_local_haplo,
               shorah_default,
               cliquesnv_local_haplo,
               cliquesnv_local_haplo_snv,
-              VILOCA_feat_WP1,
+              viloca,
               ]
-replicate_count: 3
+replicate_count: 2
 haplotype_generation: distance
 params_path: config_distance/params.csv
 master_seq_path: ../../../../hiv/HXB2.fasta
