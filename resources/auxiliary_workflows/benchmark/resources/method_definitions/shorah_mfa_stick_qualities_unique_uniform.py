@@ -11,9 +11,11 @@ from os.path import isfile, join
 from Bio import SeqIO
 import gzip
 
+
 def gunzip(source_filepath, dest_filepath, block_size=65536):
-    with gzip.open(source_filepath, 'rb') as s_file, \
-            open(dest_filepath, 'wb') as d_file:
+    with gzip.open(source_filepath, "rb") as s_file, open(
+        dest_filepath, "wb"
+    ) as d_file:
         while True:
             block = s_file.read(block_size)
             if not block:
@@ -22,8 +24,9 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
                 d_file.write(block)
 
 
-def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work):
-
+def main(
+    fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work
+):
     alpha = 0.01
     n_max_haplotypes = 100
     n_mfa_starts = 1
@@ -50,7 +53,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
     )
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
-    open(fname_result_haplos, 'a').close()
+    open(fname_result_haplos, "a").close()
 
 
 if __name__ == "__main__":

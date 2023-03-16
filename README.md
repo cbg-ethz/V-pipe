@@ -105,7 +105,7 @@ snakemake --use-conda --jobs 4 --printshellcmds --dry-run
 
 - **[VICUNA](https://www.broadinstitute.org/viral-genomics/vicuna)**
 
-  VICUNA is a *de novo* assembly software designed for populations with high mutation rates. It is used to build an initial reference for mapping reads with ngshmmalign aligner when a `references/cohort_consensus.fasta` file is not provided. Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) pages.
+  VICUNA is a _de novo_ assembly software designed for populations with high mutation rates. It is used to build an initial reference for mapping reads with ngshmmalign aligner when a `references/cohort_consensus.fasta` file is not provided. Further details can be found in the [wiki](https://github.com/cbg-ethz/V-pipe/wiki/getting-started#input-files) pages.
 
 ### Computational tools
 

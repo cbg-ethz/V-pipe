@@ -105,7 +105,6 @@ def hamming(chaine1, chaine2):
 
 
 def compute_pairwise_hamming(haplos_list, haplo_ids):
-
     n_haplos = len(haplos_list)
     dist = np.zeros((n_haplos, n_haplos))
     for i_seq, seq in enumerate(haplos_list):

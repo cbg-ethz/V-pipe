@@ -32,7 +32,6 @@ for i; do
         -h)
             printf "%s\\n" "$USAGE"
             exit 2
-            shift
             ;;
         --)
             shift

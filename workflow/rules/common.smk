@@ -42,7 +42,6 @@ if os.path.exists("config/config.yaml"):
 
     configfile: "config/config.yaml"
 
-
 elif os.path.exists("config.yaml"):
 
     configfile: "config.yaml"
@@ -122,7 +121,7 @@ def load_legacy_ini(ininame, schemaname):
     # - looping the whole configparser object
     # - applying types from the jsonschema
     # - fixing the case of keys
-    for (name, section) in cp.items():
+    for name, section in cp.items():
         if name == "DEFAULT":
             # configparser-specific, skip
             continue
@@ -135,7 +134,7 @@ def load_legacy_ini(ininame, schemaname):
         ini[name] = {}
         # configpasrer keys are not case-sensitive and stored in lowercase
         lcentries = {k.lower(): k for k in sch["properties"][name]["properties"].keys()}
-        for (entry, value) in section.items():
+        for entry, value in section.items():
             if entry not in lcentries:
                 raise ValueError(
                     "Invalid entry in section {sec} of {inif} :".format(
@@ -238,7 +237,7 @@ def process_config(config):
     validate(config, schema, set_default=True)
     # use general.threads entry as default for all affected sections
     # if not specified:
-    for (name, section) in config.items():
+    for name, section in config.items():
         if name == "general":
             continue
         if not isinstance(section, dict):
@@ -294,7 +293,7 @@ def load_protocols(pyaml):
 
     # interpolate some parameters
     # (currently only the base directory for resources packaged in V-pipe)
-    for (name, section) in py.items():
+    for name, section in py.items():
         if not isinstance(section, dict):
             continue
         for entry, value in section.items():
@@ -388,11 +387,8 @@ sample_row = typing.NamedTuple(
 
 
 if not os.path.isfile(config.input["samples_file"]):
-    LOGGER.warning(
-        f"WARNING: Sample list file {config.input['samples_file']} not found."
-    )
+    LOGGER.warning(f"WARNING: Sample list file {config.input['samples_file']} not found.")
 else:
-
     with open(config.input["samples_file"], newline="") as csvfile:
         spamreader = csv.reader(csvfile, delimiter="\t")
 
@@ -545,9 +541,7 @@ for srec in sample_list:
 
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
-        alignments.append(
-            os.path.join(sdir, "references/frameshift_deletions_check.tsv")
-        )
+        alignments.append(os.path.join(sdir, "references/frameshift_deletions_check.tsv"))
 
     trimmed_files.append(os.path.join(sdir, "preprocessed_data/R1.fastq.gz"))
     if config.input["paired"]:
@@ -582,9 +576,7 @@ for srec in sample_list:
                     os.path.join(sdir, "variants/global/predicthaplo_haplotypes.fasta")
                 )
             else:
-                raise NotImplementedError(
-                    "PredictHaplo only works with paired-end reads"
-                )
+                raise NotImplementedError("PredictHaplo only works with paired-end reads")
 
     # visualization
     if not config.output["snv"] and config.output["visualization"]:
@@ -630,6 +622,7 @@ if config.output["snv"] and config.output["diversity"]:
 
 
 IDs = ",".join(IDs)
+
 
 # 5. Locate reference and parse reference identifier
 def get_reference_name(reference_file):
@@ -767,9 +760,7 @@ def raw_data_file(wildcards, pair):
 
     if len(list_output) == 0:
         raise ValueError(
-            "Missing input files for sample in: {} - Unexpected file name?".format(
-                indir
-            )
+            "Missing input files for sample in: {} - Unexpected file name?".format(indir)
         )
 
     return list_output
@@ -777,7 +768,6 @@ def raw_data_file(wildcards, pair):
 
 # TODO replace with raw_data_file
 def construct_input_fastq(wildcards):
-
     indir = os.path.join(
         rebase_datadir(config.input["datadir"], wildcards.dataset), "raw_data"
     )
@@ -786,11 +776,7 @@ def construct_input_fastq(wildcards):
     )
     if config.input["paired"]:
         inferred_values = glob_wildcards(
-            indir
-            + "/{file}R"
-            + wildcards.pair
-            + config.input["fastq_suffix"]
-            + aux.ext[0]
+            indir + "/{file}R" + wildcards.pair + config.input["fastq_suffix"] + aux.ext[0]
         )
     else:
         inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])

@@ -14,10 +14,10 @@ jupyter:
     name: python3
 ---
 
-
+<!-- markdownlint-configure-file { "MD010": { "ignore_code_languages" : [ "tsv", "bash" ] } } -->
 # SARS-CoV-2 Tutorial
 
-This tutorial shows the basics of how to interact with V-pipe. 
+This tutorial shows the basics of how to interact with V-pipe.
 
 For the purpose of this Tutorial, we will work with the master branch of V-pipe and use the _sars-cov-2_ virus base config which is adapted for the SARS-CoV-2 virus.
 
@@ -29,7 +29,7 @@ V-pipe expects the input samples to be organized in a two-level hierarchy:
 - At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
 - A second level for distinction of datasets belonging to the same sample (e.g.: sample dates).
 - Inside that directory, the sub-directory raw_data holds the sequencing data in FASTQ format (optionally compressed with GZip).
-- Paired-ended reads need to be in split files with _R1 and _R2 suffixes.
+- Paired-ended reads need to be in split files with `_R1` and `_R2` suffixes.
 
 
 ## Preparing a small dataset
@@ -111,7 +111,7 @@ bash quick_install.sh -p tutorial -w work
 * using `-w` will create a working directory and populate it. It will copy over the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
 
 > **Tip:** To create and populate other new working directories, you can call init_project.sh from within the new directory:
-> 
+>
 > ```console
 > mkdir -p working_2
 > cd working_2
@@ -254,7 +254,7 @@ cd work/
 cd ../..
 ```
 
-Snakemakes documentation [introduces the key concepts used in profile](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles). 
+Snakemakes documentation [introduces the key concepts used in profile](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles).
 Check also [the other options for running snakemake on clusters](https://snakemake.readthedocs.io/en/stable/executing/cli.html#CLUSTER) if you need more advanced uses.
 
 ### Dependencies downloading on the cluster

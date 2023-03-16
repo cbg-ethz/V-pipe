@@ -302,7 +302,6 @@ if config.general["snv_caller"] == "shorah":
 
     ruleorder: snv > lofreq
 
-
 elif config.general["snv_caller"] == "lofreq":
 
     ruleorder: lofreq > snv

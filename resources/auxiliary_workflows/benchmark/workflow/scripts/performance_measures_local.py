@@ -82,7 +82,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
 
         if len(parts) == 7:
             _, _, params, method, _, replicate, _ = parts
-        elif len(parts) == 8: # for multi workflow
+        elif len(parts) == 8:  # for multi workflow
             _, _, _, params, method, _, replicate, _ = parts
 
         true_variants = convert_groundtruth(fname_groundtruth)
@@ -127,7 +127,7 @@ def runtime_plots(benchmark_list, dname_out):
         parts = str(fname).split("/")
         if len(parts) == 7:
             _, _, params, method, _, replicate, _ = parts
-        elif len(parts) == 8: # for multi workflow
+        elif len(parts) == 8:  # for multi workflow
             _, _, _, params, method, _, replicate, _ = parts
 
         df_tmp = pd.read_csv(fname, sep="\t")

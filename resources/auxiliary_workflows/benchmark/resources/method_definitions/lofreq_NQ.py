@@ -7,8 +7,8 @@ import subprocess
 from pathlib import Path
 import pysam
 
-def make_quality_scores_uninformative(fname_bam_in, fname_bam_out):
 
+def make_quality_scores_uninformative(fname_bam_in, fname_bam_out):
     bamfile = pysam.AlignmentFile(fname_bam_in, "r")
     new_head = bamfile.header.to_dict()
 
@@ -25,19 +25,17 @@ def make_quality_scores_uninformative(fname_bam_in, fname_bam_out):
             a.next_reference_id = read.next_reference_id
             a.next_reference_start = read.next_reference_start
             a.template_length = read.template_length
-            quality_not_stored = ''.join(len(read.query_qualities)*['*'])
+            quality_not_stored = "".join(len(read.query_qualities) * ["*"])
             a.query_qualities = pysam.qualitystring_to_array(quality_not_stored)
             a.tags = read.tags
             outf.write(a)
 
 
-
 def main(fname_bam, fname_reference, fname_result, fname_result_haplo, dname_work):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-
     fname_bam_in = fname_bam
-    fname_bam_out = fname_bam.resolve().split('.bam')[0]+'NQ.bam'
+    fname_bam_out = fname_bam.resolve().split(".bam")[0] + "NQ.bam"
     make_quality_scores_uninformative(fname_bam_in, fname_bam_out)
 
     subprocess.run(
@@ -54,7 +52,7 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplo, dname_wor
         check=True,
     )
 
-    open(fname_result_haplo.resolve(), 'a').close()
+    open(fname_result_haplo.resolve(), "a").close()
 
 
 if __name__ == "__main__":

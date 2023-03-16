@@ -14,7 +14,7 @@ jupyter:
     name: python3
 ---
 
-
+<!-- markdownlint-configure-file { "MD010": { "ignore_code_languages" : [ "tsv", "bash" ] } } -->
 # V-Pipe Tutorial
 
 V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (e.g., consensus sequences, SNV calls, local/global haplotypes). V-pipe is written using the Snakemake workflow management system.
@@ -123,8 +123,8 @@ mv testing/V-pipe/docs/example_HIV_data/samples testing/work/resources/samples
 ```
 
 Note that:
- - by default V-pipe expects its samples in a directory `samples` contained directly in the working directory - i.e. `testing/work/sample``
- - in this tutorial we put them inside the `resources` subdirectory, and will set the config file accordingly.
+- by default V-pipe expects its samples in a directory `samples` contained directly in the working directory - i.e. `testing/work/sample``
+- in this tutorial we put them inside the `resources` subdirectory, and will set the config file accordingly.
 
 
 ### Reference

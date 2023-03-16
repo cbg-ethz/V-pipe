@@ -114,7 +114,6 @@ if config.general["primers_trimmer"] == "ivar":
 
     ruleorder: primerstrim > ampliconclip
 
-
 elif config.general["primers_trimmer"] == "samtools":
 
     ruleorder: ampliconclip > primerstrim

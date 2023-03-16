@@ -101,9 +101,10 @@ def main(fname_snv_in, fname_reference, coverage, fname_out):
     df_snv["tvar"] = df_snv["frequency"].apply(lambda x: int(x * float(coverage)))
 
     # prepare dict collecting all the diversity measures
-    population_id = fname_reference.split('simulated_reads/')[1].split('/ref')[0].replace("/",'_')
-    out_dict = {"population": population_id,
-                "genome_length": ref_seq_length}
+    population_id = (
+        fname_reference.split("simulated_reads/")[1].split("/ref")[0].replace("/", "_")
+    )
+    out_dict = {"population": population_id, "genome_length": ref_seq_length}
 
     # number of mutations with different minor allele frequency
     out_dict.update(

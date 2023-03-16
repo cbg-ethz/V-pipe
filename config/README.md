@@ -1,5 +1,5 @@
 <!-- markdownlint-disable MD013 -->
-
+<!-- markdownlint-configure-file { "MD010": { "ignore_code_languages" : [ "tsv" ] } } -->
 # Configuring V-pipe
 
 In order to start using V-pipe, you need to provide three things:
@@ -51,7 +51,7 @@ Currently, the following _virus base config_ are available:
 
 - [hiv](hiv.yaml): provides HXB2 as a reference sequence for HIV, and sets the default aligner to _ngshmmalign_.
 - [sars-cov-2](sars-cov-2.yaml): provides NC\_045512.2 as a reference sequence for SARS-CoV-2, sets the default aligner to _bwa_ and sets the variant calling to be done against the reference instead of the cohort's consensus.
-  In addition, a look-up for the recent versions of ARTIC protocol is provided; this makes it possible to set per-sample protocol in the sample table, and to turn on amplicon trimming (see [amplicon protocols](#amplicon_protocols)).
+  In addition, a look-up for the recent versions of ARTIC protocol is provided; this makes it possible to set per-sample protocol in the sample table, and to turn on amplicon trimming (see [amplicon protocols](#amplicon-protocols)).
 
 ### configuration manual
 
@@ -169,11 +169,11 @@ In order to complete these steps, additional information needs to be provided, e
     input:
       protocols_file: references/primers.yaml
     ```
-  - The short name can now be referenced in the fourth column samples TSV table file: 
+  - The short name can now be referenced in the fourth column samples TSV table file:
     `config/samples.tsv`:
     ```tsv
-    sample_a  20211108  250 v3
-    sample_b  20220214  250 v4
+    sample_a	20211108	250	v3
+    sample_b	20220214	250	v4
     ```
 
   This is useful if multiple different amplicon schemes have been used of the lifetime of a long-running project, as new variants appear over time with SNVs that require adapting amplicons.

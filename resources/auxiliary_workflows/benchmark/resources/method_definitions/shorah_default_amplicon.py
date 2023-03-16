@@ -29,16 +29,16 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
     mypath = (dname_work).resolve()
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     for file in onlyfiles:
-        if file.endswith('reads-support.fas'):
+        if file.endswith("reads-support.fas"):
             fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-            (dname_work  / file).rename(fname_result_haplos)
+            (dname_work / file).rename(fname_result_haplos)
 
     # fix frequency information
 
     freq_list = []
     for record in SeqIO.parse(fname_result_haplos, "fasta"):
-        freq_list.append(float(record.description.split('ave_reads=')[-1]))
-    norm_freq_list = [float(i)/sum(freq_list) for i in freq_list]
+        freq_list.append(float(record.description.split("ave_reads=")[-1]))
+    norm_freq_list = [float(i) / sum(freq_list) for i in freq_list]
 
     record_list = []
     for idx, record in enumerate(SeqIO.parse(fname_result_haplos, "fasta")):

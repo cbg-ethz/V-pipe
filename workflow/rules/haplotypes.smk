@@ -114,7 +114,6 @@ if config.input["paired"]:
             {params.SAVAGE} -t {threads} --split {params.SPLIT} -p1 ${{R1}} -p2 ${{R2}} -o {params.OUTDIR} 2> >(tee -a {log.errfile} >&2)
             """
 
-
 else:
 
     rule savage_se:
@@ -163,9 +162,9 @@ if config.input["paired"]:
                     config.output["datadir"],
                     config.output["cohortdir"],
                     "cohort_consensus.fasta",
-            )
-            if config[
-            "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
+                )
+                if config[
+                    "lofreq" if config.general["snv_caller"] == "lofreq" else "snv"
                 ]["consensus"]
                 else reference_file
             ),
