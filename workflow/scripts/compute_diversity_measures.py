@@ -51,8 +51,11 @@ def population_nucleotide_diversity(df_mutations, length):
         if N == 0:
             continue
         freq = df_temp["frequency"].to_numpy()
+        ref_freq = 1 - freq.sum()
+
         position_pnd = freq**2
-        postion_pi = ( 1 - position_pnd.sum() )
+        postion_pi = (1 - (position_pnd.sum() + ref_freq**2)) * N / (N - 1)
+
         pi += postion_pi
 
     return float(pi / length)

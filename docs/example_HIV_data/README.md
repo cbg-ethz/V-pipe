@@ -13,9 +13,9 @@ cd samples/CAP188/4/
 fastq-dump -O raw_data --split-e  SRR9588828
 ```
 
-Using the `--split-e` option, we download the reads seperatled into forward and reverse reads. Here you can find some more information on `fastq-dump`: https://edwards.flinders.edu.au/fastq-dump/
+Using the `--split-e` option, we download the reads seperatled into forward and reverse reads. Here you can find some more information on `fastq-dump`: <https://edwards.flinders.edu.au/fastq-dump/>
 
-We aligned the reads to the HIV strain HXB2, retrieved reads covering the region HXB2:2453-3356, and further subsampled to have a feasible sized sample to run on a laptop. 
+We aligned the reads to the HIV strain HXB2, retrieved reads covering the region HXB2:2453-3356, and further subsampled to have a feasible sized sample to run on a laptop.
 
 ```bash
 samtools view REF_aln.bam -h "HXB2:2453-3356" > output_region.bam

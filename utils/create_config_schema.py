@@ -26,7 +26,6 @@ def import_config_default_smk():
 
 
 def create_schema():
-
     config_default = import_config_default_smk()
 
     type_map = {

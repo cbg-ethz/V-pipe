@@ -20,7 +20,8 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
         cwd=dname_work,
         check=True,
     )
-    open(fname_result_haplos, 'a').close()
+    open(fname_result_haplos, "a").close()
+
 
 if __name__ == "__main__":
     main(

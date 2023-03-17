@@ -116,7 +116,6 @@ if config.input["paired"]:
             gzip {wildcards.dataset}/preprocessed_data/R2.fastq
             """
 
-
 else:
 
     rule preprocessing_se:
@@ -161,8 +160,9 @@ else:
 
             gzip {wildcards.dataset}/preprocessed_data/R1.fastq
             """
-# 3. QC reports
 
+
+# 3. QC reports
 
 
 rule fastqc:

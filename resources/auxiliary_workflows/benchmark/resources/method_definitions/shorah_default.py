@@ -22,7 +22,8 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
     )
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_result)
 
-    open(fname_result_haplos, 'a').close()
+    open(fname_result_haplos, "a").close()
+
 
 if __name__ == "__main__":
     main(

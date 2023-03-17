@@ -18,3 +18,5 @@ FLAVOR_SUGGESTIONS: false
 PRINT_ALPACA: false
 SHOW_ELAPSED_TIME: true
 DEFAULT_BRANCH: master
+# any further fix to LICENSE.md will break licensee's detection scheme
+MARKDOWN_MARKDOWNLINT_FILTER_REGEX_EXCLUDE: LICENSE\.md

@@ -417,7 +417,6 @@ def target_snvs(start_region, end_region, start_locus, long_deletions, end_locus
 
 
 def main():
-
     args = parse_args()
 
     alphabet = ["-", "A", "C", "G", "T"]

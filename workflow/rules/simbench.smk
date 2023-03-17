@@ -150,7 +150,6 @@ if config.input["paired"]:
             mv {params.OUTDIR_READS}/*.aln {params.OUTDIR_READS}/reads
             """
 
-
 else:
 
     rule simulate_reads:

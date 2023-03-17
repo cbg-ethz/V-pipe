@@ -177,7 +177,6 @@ def parse_intervals(
         return intervals_merged
 
     def find_intersect(intervals_new, intervals_old):
-
         intervals_intersected = []
 
         for i_new in intervals_new:
@@ -251,7 +250,6 @@ def parse_intervals(
 
 
 def read_coverage_file(input_file, reference_file, window_len, window_shift):
-
     out_dict = {}
     idx = 0
     with open(input_file, "r") as infile:
@@ -271,7 +269,6 @@ def read_coverage_file(input_file, reference_file, window_len, window_shift):
 
 
 def write_output(output_file, intervals_dir):
-
     with open(output_file, "w") as outfile:
         for key, value in intervals_dir.items():
             if value[0] and value[1]:

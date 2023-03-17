@@ -97,9 +97,9 @@ class VpipeConfig:
         # for key, value in virus_config.items():
         # self.set_option("virus_config", key, value)
         config = {}
-        for (name, section) in self._vpipe_configfile.items():
+        for name, section in self._vpipe_configfile.items():
             config[name] = {}
-            for (entry, value) in section.items():
+            for entry, value in section.items():
                 # fix different spellings for boolean values
                 if value.lower() in ("true", "false"):
                     value = value.lower() == "true"
@@ -117,7 +117,7 @@ class VpipeConfig:
             raise ValueError(f"error on top level: {e.message}")
 
         # inherit threads from general section if not specified by user:
-        for (name, section) in config.items():
+        for name, section in config.items():
             if name == "general":
                 continue
             if "threads" not in section:

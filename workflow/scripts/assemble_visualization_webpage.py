@@ -217,7 +217,6 @@ def convert_coverage(fname, sample_name=None, based=0):
 
 
 def assemble_html_page(html_file_in, html_file_out, placeholder_replacement_map):
-
     # assemble webpage
     with open(html_file_in) as fd:
         raw_html = fd.read()
@@ -244,7 +243,6 @@ def assemble_snv_calling_visualization_webpage(
     metainfo_yaml,
     tsvbased=0,
 ):
-
     # parse the consensus sequence
     print(f'Parsing consensus: "{consensus_file}"')
     consensus = next(SeqIO.parse(consensus_file, "fasta")).seq.upper()
@@ -289,7 +287,6 @@ def assemble_snv_calling_visualization_webpage(
 def assemble_alignment_visualization_webpage(
     sample_name, nwk_file, reference_uri_file, bam_uri_file, html_file_in, html_file_out
 ):
-
     nwk_tree = ""
     if nwk_file:
         with open(nwk_file) as fd:

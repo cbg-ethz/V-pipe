@@ -331,8 +331,9 @@ if config.general["aligner"] == "ngshmmalign":
             mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
             mv {wildcards.dataset}/{{alignments,references}}/ref_majority.fasta
             """
-# 3. construct MSA from all patient files
 
+
+# 3. construct MSA from all patient files
 
 
 def construct_msa_input_files(wildcards):
@@ -407,8 +408,9 @@ if config.general["aligner"] == "ngshmmalign":
             """
             {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
             """
-# 2-4. Alternative: align reads using bwa or bowtie
 
+
+# 2-4. Alternative: align reads using bwa or bowtie
 
 
 rule sam2bam:
@@ -523,7 +525,6 @@ if config.general["aligner"] == "bwa":
             {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
             """
 
-
 elif config.general["aligner"] == "bowtie":
 
     rule ref_bowtie_index:
@@ -551,7 +552,6 @@ elif config.general["aligner"] == "bowtie":
             """
             {params.BOWTIE} {input} {input} 2> >(tee {log.errfile} >&2)
             """
-
 
     if config.input["paired"]:
 
@@ -592,7 +592,6 @@ elif config.general["aligner"] == "bowtie":
                 {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
                 """
 
-
     else:
 
         rule bowtie_align_se:
@@ -629,10 +628,9 @@ elif config.general["aligner"] == "bowtie":
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
                 {params.SAMTOOLS} view -h -F 4 -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
                 """
+
+
 # NOTE ngshmmalignb also generate consensus so check there too.
-
-
-
 # if config.general["aligner"] == "ngshmmalign":
 #
 #    ruleorder: convert_to_ref > sam2bam

@@ -1,0 +1,21 @@
+---
+name: MPXV
+
+general:
+    aligner: bwa
+    primers_trimmer: samtools
+    snv_caller: lofreq
+
+input:
+    reference: "{VPIPE_BASEDIR}/../resources/mpxv/MT903345.1.fasta"
+    primers_file: "{VPIPE_BASEDIR}/../resources/mpxv/primers/MPXV-primer_genome-positions_subset.tsv"
+    primers_bedfile: "{VPIPE_BASEDIR}/../resources/mpxv/primers/MPXV-primer_genome-positions_subset.bed"
+
+snv:
+    consensus: false
+
+lofreq:
+    consensus: false
+
+preprocessing:
+    extra: -ns_max_n 4 -min_qual_mean 20 -trim_qual_left 20 -trim_qual_right 20 -trim_qual_window 10

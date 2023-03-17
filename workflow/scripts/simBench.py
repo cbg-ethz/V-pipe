@@ -572,7 +572,6 @@ def sed(expr, target_file, verbose=False):
 
 
 def print_params(mutation_rate, deletion_rate, insertion_rate):
-
     if mutation_rate >= 1:
         print(f"Number of mutations: {int(mutation_rate)}")
     else:
@@ -825,7 +824,6 @@ def main():
             or args.freq_dstr == "dirichlet"
             or args.freq_dstr == "cust"
         ):
-
             if args.freq_dstr == "geom":
                 if len(coverage) > 1:
                     print(
