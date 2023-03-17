@@ -171,9 +171,9 @@ if config.input["paired"]:
         output:
             fname_sam=temp("{dataset}/variants/global/REF_aln.sam"),
             fname_out="{dataset}/variants/global/predicthaplo_haplotypes.fasta",
+            OUTPREFIX=directory("{dataset}/variants/global/predicthaplo"),
         params:
             read_min_length=config.predicthaplo["read_min_length"],
-            OUTPREFIX="{dataset}/variants/global/predicthaplo/",
             SAMTOOLS=config.applications["samtools"],
             PREDICTHAPLO=config.applications["predicthaplo"],
         log:
@@ -192,10 +192,11 @@ if config.input["paired"]:
             """
             {params.SAMTOOLS} sort -n {input.fname_bam} -o {output.fname_sam} 2> >(tee {log.errfile} >&2)
 
+            mkdir -p {output.OUTPREFIX}
             {params.PREDICTHAPLO} \
                 --sam {output.fname_sam} \
                 --reference {input.fname_ref} \
-                --prefix {params.OUTPREFIX} \
+                --prefix {output.OUTPREFIX}/ \
                 --have_true_haplotypes 0 \
                 --min_length {params.read_min_length} \
                 2> >(tee -a {log.errfile} >&2)
