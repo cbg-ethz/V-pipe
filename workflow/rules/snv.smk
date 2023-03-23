@@ -91,6 +91,7 @@ rule snv:
         COVERAGE=config.snv["coverage"],
         SHIFT=config.snv["shift"],
         KEEP_FILES="true" if config.snv["keep_files"] else "false",
+        seed="-R 42",
         WORK_DIR="{dataset}/variants/SNVs",
         LOCALSCRATCH=config.snv["localscratch"],
         SHORAH=config.applications["shorah"],
@@ -169,7 +170,7 @@ rule snv:
             fi
 
             # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
-            {params.SHORAH} -t {threads} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} -R 42 -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.SHORAH} -t {threads} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} {params.seed} -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
             if [[ -n "{params.LOCALSCRATCH}" ]]; then
                 # copyback from localscratch
                 rsync -auq "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}" "${{WORK_DIR}}"

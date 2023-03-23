@@ -316,6 +316,86 @@ def cohortdir(fname):
     )
 
 
+# handle Genes GFF
+if (
+    "genes_gff" in config.frameshift_deletions_checks
+    and config.frameshift_deletions_checks["genes_gff"]
+):
+    # HACK legacy behaviour
+    config.input["genes_gff"] = config.frameshift_deletions_checks["genes_gff"]
+    LOGGER.warning(
+        f"WARNING: Genes .gff file {config.input['genes_gff']} specified in section 'frameshift_deletions_checks'. This is a legacy option and will be deprecated in the future. Please move property to section 'input'."
+    )
+elif config.input["genes_gff"]:
+    LOGGER.info("Genes are specified using file %s" % config.input["genes_gff"])
+
+# HACK not specified, trying to pick one.
+if not config.input["genes_gff"] and config.input["gff_directory"]:
+    gtf_glob = ".[Gg][FfTt][Ff]*"
+    LOGGER.warning(
+        "WARNING: No genes .gff file specified in section 'input' property 'genes_gff'."
+    )
+    import glob
+
+    mf = (
+        load_protocols(config.input["metainfo_file"])
+        if config.input["metainfo_file"]
+        else None
+    )
+
+    if mf and "gff" in mf:
+        # HACK creative abuse of protocol loader
+        LOGGER.warning(f"Searching {config.input['metainfo_file']} metainfo_file...")
+
+        # Search for "gene" in the desciption
+        for fn, dsc in mf["gff"].items():
+            if "gene" in dsc.lower():
+                srch = glob.glob(
+                    os.path.join(config.input["gff_directory"], f"{fn}{gtf_glob}")
+                )
+                if len(srch) >= 1:
+                    config.input["genes_gff"] = srch[0]
+                    LOGGER.warning(
+                        f"WARNING: Autoselecting {config.input['genes_gff']} based on desciption <{dsc}>"
+                    )
+                    break
+
+    if not config.input["genes_gff"]:
+        LOGGER.warning(f"Searching gff_directory {config.input['gff_directory']}...")
+        srch = glob.glob(
+            os.path.join(config.input["gff_directory"], f"*[Gg]ene*{gtf_glob}")
+        )
+        if len(srch) >= 1:
+            srch.sort()
+            config.input["genes_gff"] = srch[0]
+            LOGGER.warning(
+                f"WARNING: Autoselecting {config.input['genes_gff']} based on file name."
+            )
+        elif mf and "gff" in mf:
+            fn, dsc = list(mf["gff"].items())[0]
+            srch = glob.glob(os.path.join(config.input["gff_directory"], f"{fn}{gtf_glob}"))
+            if len(srch) >= 1:
+                srch.sort()
+                config.input["genes_gff"] = srch[0]
+                LOGGER.warning(
+                    f"WARNING: Autoselecting {config.input['genes_gff']} <{dsc}> from directory."
+                )
+
+    if not config.input["genes_gff"]:
+        srch = glob.glob(os.path.join(config.input["gff_directory"], f"*{gtf_glob}"))
+        if len(srch) >= 1:
+            srch.sort()
+            config.input["genes_gff"] = srch[0]
+            LOGGER.warning(
+                f"WARNING: Autoselecting {config.input['genes_gff']} from directory."
+            )
+
+if not config.input["genes_gff"]:
+    LOGGER.warning(
+        f"WARNING: No genes .gff file specified in section 'input' property 'genes_gff'. Some reports will be degraded. Please provide one if possible to improve reporting."
+    )
+
+
 ########################
 #   Samples TSV file   #
 ########################

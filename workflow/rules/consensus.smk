@@ -186,11 +186,7 @@ rule frameshift_deletions_checks:
         BAM=alignment_wildcard,
         #REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
         REF_majority_dels="{dataset}/references/consensus.bcftools.fasta",
-        GENES_GFF=(
-            config.frameshift_deletions_checks["genes_gff"]
-            if config.frameshift_deletions_checks["genes_gff"]
-            else []
-        ),
+        GENES_GFF=(config.input["genes_gff"] if config.input["genes_gff"] else []),
     output:
         FRAMESHIFT_DEL_CHECK_TSV="{dataset}/references/frameshift_deletions_check.tsv",
     params:
