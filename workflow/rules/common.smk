@@ -446,8 +446,8 @@ sample_list = []
 sample_table = {}
 sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date", str)])
 sample_id_patchmap = {}
-sample_dir = {} # directory => samples record
-sample_paths = {} # sample record => dir
+sample_dir = {}  # directory => samples record
+sample_paths = {}  # sample record => dir
 sample_proto_count = 0
 sample_default_count = 0
 
@@ -648,7 +648,11 @@ for srec in sample_list:
         fastqc_files.append(os.path.join(sdir, "extracted_data/R2_fastqc.html"))
 
     datasets.append(sdir)
-    IDs.append(config.general["id_separator"].join([srec.sample_id, srec.date]) if srec.sample_id and srec.date else srec.sample_id or srec.date)
+    IDs.append(
+        config.general["id_separator"].join([srec.sample_id, srec.date])
+        if srec.sample_id and srec.date
+        else srec.sample_id or srec.date
+    )
 
     # SNV
     if config.output["snv"]:
@@ -799,7 +803,11 @@ def ID(wildcards):
     s_rec = guess_sample(wildcards.dataset)
     try:
         # normal two-level
-        return config.general["id_separator"].join(s_rec) if s_rec.sample_id and s_rec.date else s_rec.sample_id or s_rec.date
+        return (
+            config.general["id_separator"].join(s_rec)
+            if s_rec.sample_id and s_rec.date
+            else s_rec.sample_id or s_rec.date
+        )
     except TypeError:
         # HACK single-level
         return s_rec.sample_id or s_rec.date

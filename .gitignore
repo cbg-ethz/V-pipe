@@ -1,6 +1,9 @@
 # V-pipe configuration
 init_project.conf
 
+# test subdirectories
+work-test*/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

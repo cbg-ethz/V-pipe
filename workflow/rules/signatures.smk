@@ -78,7 +78,11 @@ rule cooc:
 
 
 def proto_datasets(wildcards):
-    return [ sample_paths[s_rec] for s_rec, s_row in sample_table.items() if s_row.protocol == wildcards.proto ]
+    return [
+        sample_paths[s_rec]
+        for s_rec, s_row in sample_table.items()
+        if s_row.protocol == wildcards.proto
+    ]
 
 
 def cohort_cooc_proto(wildcards):
@@ -87,7 +91,7 @@ def cohort_cooc_proto(wildcards):
 
 rule cohort_cooc:
     input:
-        cohort_cooc_proto
+        cohort_cooc_proto,
     output:
         cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
         cooc_csv=cohortdir("cohort_cooc.{proto}.csv"),
@@ -111,6 +115,7 @@ rule cohort_cooc:
         cat {input} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
         {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" --multiindex --lines --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
         """
+
 
 rule cohort_cooc_report:
     input:

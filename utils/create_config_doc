@@ -1,10 +1,10 @@
 #!/bin/bash
 
-scriptdir="$(dirname $(which $0))"
+scriptdir="$(dirname "$(which "$0")")"
 
 vpipe_basdir="${scriptdir}/.."
 
-usage() { echo -e "Usage: $0 [-b <basedir>] [ -s ]" 1>&2; (( $1 == 0 )) && echo $'\n\tThis utility generates the configuration documentation from the JSON schema.\n'; exit $1; }
+usage() { echo -e "Usage: $0 [-b <basedir>] [ -s ]" 1>&2; (( $1 == 0 )) && echo $'\n\tThis utility generates the configuration documentation from the JSON schema.\n'; exit "$1"; }
 
 while getopts "b:sh" o; do
 	case "${o}" in
@@ -20,7 +20,7 @@ while getopts "b:sh" o; do
 	esac
 done
 
-: ${validate:=0}
+: "${validate:=0}"
 
 config_dir="${vpipe_basdir}/config"
 schema_dir="${vpipe_basdir}/workflow/schemas"
