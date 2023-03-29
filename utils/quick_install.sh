@@ -139,40 +139,33 @@ fi
 
 ##################
 #                #
-#   Miniconda3   #
+#   Mambaforge   #
 #                #
 ##################
 
 MINICONDA=
-MINICONDAPATH="${PREFIX}/miniconda3"
+MINICONDAPATH="${PREFIX}/mambaforge"
 
-title 'installing Miniconda3'
+title 'installing Mambaforge'
 
 # Check if directory is free
-check_directory "${MINICONDAPATH}" 'Miniconda3 installation path'
+check_directory "${MINICONDAPATH}" 'Mambaforge installation path'
 
-# Check OS for OS-Spefic Miniconda3 installer
-if [[ "$OSTYPE" == linux* ]]; then
-	MINICONDA=Miniconda3-latest-Linux-x86_64.sh
-elif [[ "$OSTYPE" == darwin* ]]; then
-	MINICONDA=Miniconda3-latest-MacOSX-x86_64.sh
-else
-	fail 'I cannot detect OS. Only Linux and Mac OS X are supported' "manually override OSTYPE environment variable if needed, e.g.: OSTYPE=linux or OSTYPE=darwin"
-fi
+# Check OS for OS-Spefic Mambaforge installer
+MINICONDA="Mambaforge-$(uname)-$(uname -m).sh"
+message 'Using installer:' "${MINICONDA}"
 
-message 'Using installer:' ${MINICONDA}
-
-# Get and install Miniconda3
+# Get and install Mambaforge
 # shellcheck disable=SC2015
 mkdir -p "${PREFIX}" && cd "${PREFIX}" || fail "Could not create directory: ${PREFIX}"
-[[ -f ${MINICONDA} ]] && rm ${MINICONDA}
-${DOWNLOAD} https://repo.anaconda.com/miniconda/${MINICONDA}
-sh ${MINICONDA} -b -p miniconda3
+[[ -f "${MINICONDA}" ]] && rm "${MINICONDA}"
+${DOWNLOAD} "https://github.com/conda-forge/miniforge/releases/latest/download/${MINICONDA}"
+sh "${MINICONDA}" -b -p mambaforge
 # -b for batch (no question asked)
 
 
 # shellcheck source=/dev/null
-. miniconda3/bin/activate
+. mambaforge/bin/activate
 
 # set the channel precedence (lowest to highest)
 conda config --add channels defaults
@@ -182,14 +175,14 @@ conda config --set channel_priority strict
 # NOTE conda-forge *HAS TO* be higher than bioconda
 
 VPIPEENV=
-if conda install --yes snakemake-minimal mamba $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
+if mamba install --yes snakemake-minimal mamba $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
 	: # success!
 else
 	oops 'I cannot install snakemake in base environment. Conflicts ?'
 
 	VPIPEENV=V-pipe
 	# HACK Alternate to consider if we have have version conflicts
-	conda create --yes -n ${VPIPEENV} -c conda-forge -c bioconda snakemake-minimal mamba conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
+	mamba create --yes -n ${VPIPEENV} -c conda-forge -c bioconda snakemake-minimal mamba conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
 	conda activate ${VPIPEENV}
 fi
 
@@ -229,7 +222,21 @@ echo $'\n'
 #             #
 ###############
 
+
+title 'configuring init_project'
+
 INIT="$(pwd)/V-pipe${RELEASE:+-${RELEASE}}/init_project.sh"
+conf="${INIT%.sh}.conf"
+
+cat > "${conf}" <<EOF
+# configuration file for initializing V-pipe working folder
+
+#conda configuration
+vp_conda_path='${MINICONDAPATH}'
+${VPIPEENV:-#}vp_conda_env=${VPIPEENV:+"'${VPIPEENV}'"}
+EOF
+
+
 
 if [[ -z "${WORKDIR}" ]]; then
 	status 'Installation of V-pipe completed'

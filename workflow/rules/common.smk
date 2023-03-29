@@ -424,7 +424,9 @@ if not os.path.isfile(config.input["samples_file"]):
         c = 0
         with open(config.input["samples_file"], "w") as outfile:
             for i in set(sample_pairs.sample_date):
-                (sample, date) = [x.strip() for x in i.split("/") if x.strip()]
+                (sample, date) = (
+                    [x.strip() for x in i.split(os.path.sep) if x.strip()] + [""]
+                )[:2]
                 outfile.write("{}\t{}\n".format(sample, date))
                 c += 1
         LOGGER.info(f"{c} samples found in {config.input['datadir']}.")
@@ -444,7 +446,8 @@ sample_list = []
 sample_table = {}
 sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date", str)])
 sample_id_patchmap = {}
-sample_dir = {}
+sample_dir = {} # directory => samples record
+sample_paths = {} # sample record => dir
 sample_proto_count = 0
 sample_default_count = 0
 
@@ -611,8 +614,11 @@ alignment_wildcard = "{dataset}/" + alignment_file
 
 for srec in sample_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
-    sdir = os.path.join(config.output["datadir"], srec.sample_id, srec.date)
+    sdir = os.path.join(
+        config.output["datadir"], os.path.normpath(os.path.join(srec.sample_id, srec.date))
+    )
     sample_dir[sdir] = srec
+    sample_paths[srec] = sdir
 
     alignments.append(os.path.join(sdir, alignment_file))
     # if config.output["QA"]:
@@ -642,7 +648,7 @@ for srec in sample_list:
         fastqc_files.append(os.path.join(sdir, "extracted_data/R2_fastqc.html"))
 
     datasets.append(sdir)
-    IDs.append(config.general["id_separator"].join([srec.sample_id, srec.date]))
+    IDs.append(config.general["id_separator"].join([srec.sample_id, srec.date]) if srec.sample_id and srec.date else srec.sample_id or srec.date)
 
     # SNV
     if config.output["snv"]:
@@ -793,7 +799,7 @@ def ID(wildcards):
     s_rec = guess_sample(wildcards.dataset)
     try:
         # normal two-level
-        return config.general["id_separator"].join(s_rec)
+        return config.general["id_separator"].join(s_rec) if s_rec.sample_id and s_rec.date else s_rec.sample_id or s_rec.date
     except TypeError:
         # HACK single-level
         return s_rec.sample_id or s_rec.date

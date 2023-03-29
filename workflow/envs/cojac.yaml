@@ -3,12 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - pysam >= 0.17
-  - python
-  - pandas
-  - numpy
-  - pyyaml
-  - strictyaml
-  - requests
-  - click
-  - poetry-core >= 1.0.8
+  - cojac =0.9

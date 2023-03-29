@@ -77,6 +77,69 @@ rule cooc:
         """
 
 
+def proto_datasets(wildcards):
+    return [ sample_paths[s_rec] for s_rec, s_row in sample_table.items() if s_row.protocol == wildcards.proto ]
+
+
+def cohort_cooc_proto(wildcards):
+    return expand("{dataset}/signatures/cooc.yaml", dataset=proto_datasets(wildcards))
+
+
+rule cohort_cooc:
+    input:
+        cohort_cooc_proto
+    output:
+        cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
+        cooc_csv=cohortdir("cohort_cooc.{proto}.csv"),
+    params:
+        COJAC=config.applications["cojac"],
+        sep=config.general["id_separator"],
+    log:
+        outfile=cohortdir("cohort_cooc.{proto}.out.log"),
+        errfile=cohortdir("cohort_cooc.{proto}.err.log"),
+    conda:
+        config.cooc["conda"]
+    benchmark:
+        cohortdir("cohort_cooc.{proto}.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=config.cooc["mem"],
+        runtime=config.cooc["time"],
+    threads: config.cooc["threads"]
+    shell:
+        """
+        cat {input} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" --multiindex --lines --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
+        """
+
+rule cohort_cooc_report:
+    input:
+        cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
+        amplicons=cohortdir("amplicons.{proto}.yaml"),
+    output:
+        cooc_report_csv=cohortdir("cohort_cooc_report.{proto}.csv"),
+    params:
+        COJAC=config.applications["cojac"],
+        vocdir=config.input["variants_def_directory"],
+        sep=config.general["id_separator"],
+    log:
+        outfile=cohortdir("cohort_cooc_report.{proto}.out.log"),
+        errfile=cohortdir("cohort_cooc_report.{proto}.err.log"),
+    conda:
+        config.cooc["conda"]
+    benchmark:
+        cohortdir("cohort_cooc_report.{proto}.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=config.cooc["mem"],
+        runtime=config.cooc["time"],
+    threads: config.cooc["threads"]
+    shell:
+        """
+        {params.COJAC} cooc-pubmut --yaml="{input.cooc_yaml}" --amplicons="{input.amplicons}" --vocdir="{params.vocdir}" --output="{output.cooc_report_csv}" --batchname="{params.sep}" 2> >(tee {log.errfile} >&2)  > >(tee {log.outfile})
+        """
+
+
 rule mutlist:
     input:
         vocs=all_vocs(config.input["variants_def_directory"]),

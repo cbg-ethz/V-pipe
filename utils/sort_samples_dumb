@@ -78,10 +78,10 @@ while getopts "f:b:Dl:L:p:s:o:m:t:Tgqh" o; do
 done
 
 : "${fastq_dir:?missing mandatory input directory for fastq files, use option -f}"
-: "${batch_name:?missing mandatory batch name, use option -b}"
+[[ -z "${batch_name}" ]] && echo "warning: missing batch name (option -b). will generate 1-level sample tree instead" > /dev/stderr
 : "${out_dir:?missing mandatory output dir use option -o}"
 
-: "${tsv:=${out_dir}/samples.${batch_name}.tsv}"
+: "${tsv:=${out_dir}/samples.${batch_name:+${batch_name}.}tsv}"
 
 if (( staging )); then
 	staging_suffix=".staging"
@@ -238,6 +238,6 @@ if (( ! ALLOK )); then
 	exit 1
 fi
 
-(( staging )) && mv -v "${tsv}" "${tsv%%${staging_suffix}}"
+(( staging )) && mv -v "${tsv}" "${tsv%%"${staging_suffix}"}"
 info All Ok
 exit 0
