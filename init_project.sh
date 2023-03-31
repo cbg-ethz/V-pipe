@@ -10,17 +10,18 @@ fi
 USAGE="
 usage: $0 [options]
 
--m           bootstrap only a minimal set of files (vpipe_config.yaml and vpipe wrapper)
--n           disable auto-detection and management of conda environments
--c <PATH>    path where conda is installed
--e <ENV>     conda environment to use
--b           include wrappers for benchmark runs
--d           debug by dumping the conda search paths
--h           print this help message and exit
+-m         bootstrap only a minimal set of files (vpipe_config.yaml and vpipe wrapper)
+-n         disable auto-detection and management of conda environments
+-c <PATH>  path where conda is installed
+-e <ENV>   conda environment to use
+-d         debug by dumping the conda search paths
+-b         include wrappers for benchmark runs
+-o         overwrite config.yaml even if there is one existing
+-h         print this help message and exit
 "
 
-while getopts 'mnc:e:bdh' o; do
-    case "${o}" in
+while getopts 'mnc:e:bdoh' opt; do
+    case "${opt}" in
         m)
             MINIMAL=1;
             ;;
@@ -39,6 +40,9 @@ while getopts 'mnc:e:bdh' o; do
         d)
             debug=1
             ;;
+        o)
+            overwrite=1
+            ;;
         h)
             printf "%s\\n" "$USAGE"
             exit 0
@@ -51,7 +55,15 @@ while getopts 'mnc:e:bdh' o; do
 done
 
 PROJECT_DIR="$(pwd)"
-sed $'s@^output:@input:\\\n    samples_file: samples.tsv\\\n\\\noutput:\\\n    datadir: samples/\\\n@' "$VPIPE_DIR/config/config.yaml" > "$PROJECT_DIR/config.yaml"
+if [[ ! -e "$PROJECT_DIR/config.yaml" || -n "${overwrite}" ]]; then
+    if [[ -e "$PROJECT_DIR/config.yaml" ]]; then
+        echo "Warning: there is already a $PROJECT_DIR/config.yaml file. Backing up:" > /dev/stderr
+        mv -v "$PROJECT_DIR/config.yaml"{,.backup}
+    fi
+    sed $'s@^output:@input:\\\n    samples_file: samples.tsv\\\n\\\noutput:\\\n    datadir: samples/\\\n@' "$VPIPE_DIR/config/config.yaml" > "$PROJECT_DIR/config.yaml"
+else
+    echo "Warning: there is already a $PROJECT_DIR/config.yaml file. Use option '-o' to overwrite." > /dev/stderr
+fi
 
 # guess activation command
 ACTIVATE=
