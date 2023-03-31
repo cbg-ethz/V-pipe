@@ -66,7 +66,31 @@ def len_cutoff(wildcards):
     return len_cutoff
 
 
-if config.input["paired"]:
+if not config.general["preprocessor"] or config.general["preprocessor"] == "skip":
+
+    rule preprocessing_skip:
+        input:
+            temp_prefix("{dataset}/extracted_data/{pair}.fastq"),
+        output:
+            "{dataset}/preprocessed_data/{pair}.fastq.gz",
+        log:
+            outfile="{dataset}/preprocessed_data/skip-{pair}.out.log",
+            errfile="{dataset}/preprocessed_data/skip-{pair}.err.log",
+        benchmark:
+            "{dataset}/preprocessed_data/skip-{pair}.benchmark"
+        resources:
+            disk_mb=20000,
+            mem_mb=config.preprocessing["mem"],
+            runtime=config.preprocessing["time"],
+        threads: 1
+        shell:
+            """
+            echo "Skipping preprocessing and compressing merged/sorted fastq files as-is" > {log.outfile}
+
+            gzip -c {input} > {output} 2> >(tee {log.errfile} >&2)
+            """
+
+elif config.input["paired"]:
 
     rule preprocessing:
         input:

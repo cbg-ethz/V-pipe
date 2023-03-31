@@ -449,6 +449,7 @@ rule sam2bam:
 
 bwa_idx_ext = [".bwt", ".amb", ".ann", ".pac", ".sa"]
 bowtie_idx_ext = [".1.bt2", ".2.bt2", ".3.bt2", ".4.bt2", ".rev.1.bt2", ".rev.2.bt2"]
+minimap2_idx_ext = [".mmi"]
 
 
 rule ref_bwa_index:
@@ -635,7 +636,8 @@ elif config.general["aligner"] == "minimap":
         input:
             reference_file,
         output:
-            reference_file+'.mmi',
+            # multiext(reference_file,*minimap2_idx_ext)
+            reference_file + ".mmi",
         params:
             MINIMAP=config.applications["minimap"],
         log:
@@ -657,80 +659,40 @@ elif config.general["aligner"] == "minimap":
             {params.MINIMAP} -t {threads} -d {output} {input} 2> >(tee {log.errfile} >&2)
             """
 
-    if config.input["paired"]:
+    rule minimap_align:
+        input:
+            # INDEX=multiext(reference_file,*minimap2_idx_ext),
+            target=reference_file + ".mmi",
+            FASTQ=input_align_gz,
+        output:
+            REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
+            TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
+        params:
+            SEED="--seed 42",
+            EXTRA=config.minimap_align["extra"],
+            PRESET=config.minimap_align["preset"],
+            MINIMAP=config.applications["minimap"],
+            SAMTOOLS=config.applications["samtools"],
+        log:
+            outfile="{dataset}/alignments/minimap_align.log",
+            errfile="{dataset}/alignments/minimap_align.err.log",
+        conda:
+            config.minimap_align["conda"]
+        benchmark:
+            "{dataset}/alignments/minimap_align.benchmark"
+        group:
+            "align"
+        resources:
+            disk_mb=1250,
+            mem_mb=config.minimap_align["mem"],
+            runtime=config.minimap_align["time"],
+        threads: config.minimap_align["threads"]
+        shell:
+            """
+            {params.MINIMAP} -t "{threads}" -a {params.SEED} -x "{params.PRESET}" {params.EXTRA} -o "{output.TMP_SAM}" "{input.target}" {input.FASTQ} 2> >(tee {log.errfile} >&2)
+            {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
+            """
 
-        rule minimap_align:
-            input:
-                target=reference_file+'.mmi',
-                # FASTQ=input_align_gz,
-                R1="{dataset}/preprocessed_data/R1.fastq.gz",
-                R2="{dataset}/preprocessed_data/R2.fastq.gz",
-
-                # INDEX=multiext(reference_file,*bwa_idx_ext),
-            output:
-                REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
-                TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
-            params:
-                EXTRA=config.minimap_align["extra"],
-                PRESET=config.minimap_align["preset"],
-                MINIMAP=config.applications["minimap"],
-                SAMTOOLS=config.applications["samtools"],
-            log:
-                outfile="{dataset}/alignments/minimap_align.log",
-                errfile="{dataset}/alignments/minimap_align.err.log",
-            conda:
-                config.minimap_align["conda"]
-            benchmark:
-                "{dataset}/alignments/minimap_align.benchmark"
-            group:
-                "align"
-            resources:
-                disk_mb=1250,
-                mem_mb=config.minimap_align["mem"],
-                runtime=config.minimap_align["time"],
-            threads: config.minimap_align["threads"]
-            shell:
-                """
-                {params.MINIMAP} -t {threads} -a -x {params.PRESET} {input.target} {input.R1} {input.R2} > {output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
-                {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
-                """
-    else:
-
-            rule minimap_align_se:
-                input:
-                    target=reference_file+'.mmi',
-                    # FASTQ=input_align_gz,
-                    R1="{dataset}/preprocessed_data/R1.fastq.gz",
-                    # R2="{dataset}/preprocessed_data/R2.fastq.gz",
-
-                    # INDEX=multiext(reference_file,*bwa_idx_ext),
-                output:
-                    REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
-                    TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
-                params:
-                    EXTRA=config.minimap_align["extra"],
-                    PRESET=config.minimap_align["preset"],
-                    MINIMAP=config.applications["minimap"],
-                    SAMTOOLS=config.applications["samtools"],
-                log:
-                    outfile="{dataset}/alignments/minimap_align.log",
-                    errfile="{dataset}/alignments/minimap_align.err.log",
-                conda:
-                    config.minimap_align["conda"]
-                benchmark:
-                    "{dataset}/alignments/minimap_align.benchmark"
-                group:
-                    "align"
-                resources:
-                    disk_mb=1250,
-                    mem_mb=config.minimap_align["mem"],
-                    runtime=config.minimap_align["time"],
-                threads: config.minimap_align["threads"]
-                shell:
-                    """
-                    {params.MINIMAP} -t {threads} -a -x {params.PRESET} {params.EXTRA} {input.target} {input.R1} > {output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
-                    {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
-                    """
 
 # NOTE ngshmmalignb also generate consensus so check there too.
 # if config.general["aligner"] == "ngshmmalign":

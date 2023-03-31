@@ -14,12 +14,19 @@
                     "description": "We provide virus-specific base configuration files which contain handy defaults for, e.g., HIV and SARS-CoV-2. Check the git repository's [config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#virus_base_config) to learn about them.",
                     "examples": ["hiv","sars-cov-2"]
                 },
+                "preprocessor": {
+                    "type": "string",
+                    "enum": ["prinseq","skip", ""],
+                    "default": "prinseq",
+                    "description": "By default trimming and clipping of reads is performed by PRINSEQ [^10] -- a versatile raw read processor for short-reads with many customization options, that we use mostly for Illumina short-read sequencing.\nSome other sequencing platforms, e.g., Oxford Nanopore Technologies, are not compatible with this software and usually perform quality control during the fast5 basecalling and demultiplexing anyway, e.g., by Guppy. Use `skip` to avoid performing preprocessing such already quality-trimmed fastq files.\n\n[^10]:Schmieder, R. and Edwards, R. Quality control and preprocessing of metagenomic datasets. Bioinformatics. 2011.",
+                    "examples": ["skip"]
+                },
                 "aligner": {
                     "type": "string",
                     "enum": ["ngshmmalign","bwa","bowtie","minimap"],
                     "default": "ngshmmalign",
-                    "description": "There are three options for mapping reads, either using [`ngshmmalign`](https://github.com/cbg-ethz/ngshmmalign), [BWA MEM (`bwa`)](https://github.com/lh3/bwa) [^1], or [Bowtie 2 (`bowtie`)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [^2]. To use a different aligner than the default, indicate which aligner you want to use by setting the property aligner.\n\n[^1]: Li, H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. 2013.\n[^2]: Langmead, B. and Salzberg, S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012.\n\n**Note**: Some virus-specific base configuration specified in `virus_base_config` might change this option's default to a more appropriate aligner for that virus, e.g., depending on its usual diversity and mutation rate.\nYou are still free to override that default in your configuration shall the need arise.",
-                    "examples": ["bowtie"]
+                    "description": "There are three options for mapping reads, either using [`ngshmmalign`](https://github.com/cbg-ethz/ngshmmalign), [BWA MEM (`bwa`)](https://github.com/lh3/bwa) [^1], [Bowtie 2 (`bowtie`)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [^2], or [minimap2 (`minimap`)](https://lh3.github.io/minimap2/)[^11]. To use a different aligner than the default, indicate which aligner you want to use by setting the property aligner.\n\n[^1]: Li, H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. 2013.\n[^2]: Langmead, B. and Salzberg, S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012.\n[^11]: Li, H. Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics. 2018.\n\n**Note**: Some virus-specific base configuration specified in `virus_base_config` might change this option's default to a more appropriate aligner for that virus, e.g., depending on its usual diversity and mutation rate.\nYou are still free to override that default in your configuration shall the need arise.",
+                    "examples": ["minimap"]
                 },
                 "primers_trimmer": {
                     "type": "string",
@@ -824,7 +831,9 @@
                 "preset": {
                     "type": "string",
                     "default": "sr",
-                    "description": "Specify minimap2 presets."
+                    "enum": [ "map-ont", "map-hifi", "map-pb", "asm5", "asm10", "asm20", "splice", "splice:hq", "sr", "ava-pb", "ava-ont" ],
+                    "description": "Specify minimap2 preset options. See [minimape's documentation](https://lh3.github.io/minimap2/minimap2.html#8) for details about each of the presets.",
+                    "examples": ["map-ont"]
                 },
                 "conda": {
                     "type": "string",

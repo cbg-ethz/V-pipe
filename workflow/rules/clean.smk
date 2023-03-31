@@ -86,6 +86,20 @@ rule bowtieclean:
         """
 
 
+rule minimapclean:
+    input:
+        INDEX=multiext(reference_file, *minimap2_idx_ext),
+    params:
+        DIR=config.output["datadir"],
+    shell:
+        """
+        rm -f {input}
+        rm -rf {params.DIR}/*/*/alignments
+        rm -rf {params.DIR}/*/*/references/ref_ambig*.fasta
+        rm -rf {params.DIR}/*/*/references/ref_majority*.fasta
+        """
+
+
 rule snvclean:
     params:
         DIR=config.output["datadir"],

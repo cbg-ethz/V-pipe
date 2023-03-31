@@ -163,6 +163,7 @@ _Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/
 ## Contributions
 
 - [Ivan Topolsky\* ![orcid]](https://orcid.org/0000-0002-7561-0810), [![github]](https://github.com/dryak)
+- [Pelin Icer Baykal ![orcid]](https://orcid.org/0000-0002-9542-5292), [![github]](https://github.com/picerbaykal)
 - [Kim Philipp Jablonski ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
 - [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
 - [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
