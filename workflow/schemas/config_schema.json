@@ -1439,6 +1439,7 @@
             "type": "object"
         },
         "timeline": {
+            "description": "This section is used to set up a timeline of the samples. Some output, e.g., deconvolution of quasispecies mixture using LolliPop, need to have a time component. By default it calls a script that uses regular expressions and look-up tables to extract this information from the samples' own names. But by using the properties `script` and `options` and adapting the environment provided in property `conda`, it is possible to heavily customize the actions (e.g. it is possible to query an external database instead). For inspiration, see the default script `file_parser.py`.",
             "properties": {
                 "mem": {
                     "type": "integer",
@@ -1448,16 +1449,44 @@
                     "type": "integer",
                     "default": 15
                 },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/timeline.yaml",
+                    "description": "The default environment only provides regular expression functions (`python-reges`) but depending on your needs you would want to provide a custom environment with additional tools (e.g. drivers to query a databse, etc.)",
+                    "example": ["custom_envs/ftp.yaml"]
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Don't dispatch the timeline rule to the cluster for execution, run locally.",
+                    "examples": [false]
+                },
+                "script": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/scripts/file_parser.py",
+                    "description": "Script that sets up a timeline of the samples.\n\nIts purpose is to take the V-pipe's samples TSV file and add two columns:\n - _location_: location of the sampes\n - _date_: sampling date of the samples\n\nIt will receive the following parameters (in addition to what is specified in property _options_:\n - *--output &lt;OUTPUT&gt;*: the output TSV file that must be created by the script.\n - *&lt;SAMPLE_TSV&gt;*: the input samples TSV file\n\nFor an example, see the default script `file_parser.py`, it uses regular expressions (regex) to parse the first two columns (sample and batch names) and extract a date, and a location code that is further look-ed up in a table. It takes two additional parameters:\n - *--locations &lt;LOOKUP&gt;*: look-up TSV table mapping the code to full location names\n - *--regex_yaml &lt;YAML&gt;*: YAML file with regular expressions defining how the date and code are extracted.",
+                    "example": ["custom_scripts/uploader.py"]
+                },
+                "options": {
+                    "type": "string",
+                    "default": " --no-fallback",
+                    "description": "Additional options to be passed to the script, e.g. for an extra configuration file with database server information.\n\nBy default, passes an option to the default script to force always using the regex (do not fall back to copy-pasting columns).",
+                    "example": ["--config custom_scripts/timeline.yaml"]
+                },
                 "locations_table": {
                     "type": "string",
                     "default": "",
-                    "description": "TSV table that maps location codes (e.g. short alphanumeric codes) used in sample names to full names of locations (e.g. city names).\n\nFor example:\n```tsv\ncode\tlocation\n10\tZürich (ZH)\n16\tGenève (GE)\nBa\tBasel (BS)\n```",
+                    "description": "Option for the default script: TSV table that maps location codes (e.g. short alphanumeric codes) used in sample names to full names of locations (e.g. city names).\n\nFor example:\n```tsv\ncode\tlocation\n10\tZürich (ZH)\n16\tGenève (GE)\nBa\tBasel (BS)\n```",
                     "examples": [ "wastewater_plants.tsv" ]
                 },
                 "regex_yaml": {
                     "type": "string",
                     "default": "",
-                    "description": "YAML file the defines how to parse time series information out of the columns of _samples.tsv_, e.g.:\n\n```yaml\nsample: (?P<location>\\d+)_(?P<year>20\\d{2})_(?P<month>[01]?\\d)_(?P<day>[0-3]?\\d)\ndatefmt: \"%Y%m%d\"\n```\n\n- by default, _samples.tsv_'s first column (sample names) is used as-is for location codes and the second column (sequencing batch dates) is used for timeline's date point.\n- YAML's optional entry `sample` defines a regular expression to be applied on the first column (sample names)\n- YAML's optional entry `batch` defines a regular expression to be applied on the second column (sequencing batch dates)\n- regular expression **must** define the following [named capturing groups](https://www.regular-expressions.info/named.html):\n  - `location` used for the location codes\n  - `year`, `month`, `day` used for the dates of the timeline\n  - alternatively, if the date doesn't use a format with _year + month + day_ elements -- e.g., date uses week number of the year -- group `date` can be used to capture the whole date string\n- YAML's optional entry `datefmt` gives a [time format string](https://docs.python.org/3/library/time.html#time.strftime) to parse the `date` capturing group"
+                    "description": "Option for the default script: YAML file the defines how to parse time series information out of the columns of _samples.tsv_, e.g.:\n\n```yaml\nsample: (?P<location>\\d+)_(?P<year>20\\d{2})_(?P<month>[01]?\\d)_(?P<day>[0-3]?\\d)\ndatefmt: \"%Y%m%d\"\n```\n\n- by default, _samples.tsv_'s first column (sample names) is used as-is for location codes and the second column (sequencing batch dates) is used for timeline's date point.\n- YAML's optional entry `sample` defines a regular expression to be applied on the first column (sample names)\n- YAML's optional entry `batch` defines a regular expression to be applied on the second column (sequencing batch dates)\n- regular expression **must** define the following [named capturing groups](https://www.regular-expressions.info/named.html):\n  - `location` used for the location codes\n  - `year`, `month`, `day` used for the dates of the timeline\n  - alternatively, if the date doesn't use a format with _year + month + day_ elements -- e.g., date uses week number of the year -- group `date` can be used to capture the whole date string\n- YAML's optional entry `datefmt` gives a [time format string](https://docs.python.org/3/library/time.html#time.strftime) to parse the `date` capturing group"
                 }
             },
             "default": {},

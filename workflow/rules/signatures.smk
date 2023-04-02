@@ -151,12 +151,9 @@ rule mutlist:
         gff=config.input["genes_gff"],
     output:
         mutlist=cohortdir("mutlist.tsv"),
+        pagovars=cohortdir("variants_pangolin.yaml"),
     params:
-        gen_mutlist=cachepath(
-            "../scripts/generate_mutlist.py",
-            executable=True,
-            localsource=True,
-        ),
+        LOLLIPOP=config.applications["lollipop"],
     log:
         outfile=cohortdir("mutlist.out.log"),
         errfile=cohortdir("mutlist.err.log"),
@@ -171,7 +168,7 @@ rule mutlist:
     threads: 1
     shell:
         """
-        {params.gen_mutlist} --output {output.mutlist} --genes {input.gff} -- {input.vocs}
+        {params.LOLLIPOP} generate-mutlist --output {output.mutlist} --out-pangovars {output.pagovars} --genes {input.gff} -- {input.vocs}
         """
 
 
@@ -186,11 +183,7 @@ rule sigmut:
     output:
         mut="{dataset}/signatures/mut.tsv",
     params:
-        getmutation=cachepath(
-            "../scripts/getmutation_from_sample.py",
-            executable=True,
-            localsource=True,
-        ),
+        LOLLIPOP=config.applications["lollipop"],
         s_rec=get_s_rec,
     log:
         outfile="{dataset}/signatures/mut.out.log",
@@ -206,38 +199,49 @@ rule sigmut:
     threads: 1
     shell:
         """
-        {params.getmutation} --outname {output.mut} --sample {params.s_rec.sample_id} --batch {params.s_rec.date} -m {input.mutlist} -- {input.basecnt} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
+
+
+if config.timeline["local"]:
+
+    localrules:
+        timeline,
 
 
 rule timeline:
     input:
         samples_tsv=config.input["samples_file"],
-        locations=config.timeline["locations_table"],
-        regex=config.timeline["regex_yaml"],
+        locations=config.timeline["locations_table"]
+        if config.timeline["locations_table"]
+        else [],
+        regex=config.timeline["regex_yaml"] if config.timeline["regex_yaml"] else [],
     output:
         cohortdir("timeline.tsv"),
     params:
-        maketimeline=cachepath(
-            "../scripts/file_parser.py",
-            executable=True,
-            localsource=True,
-        ),
+        maketimeline=cachepath(config.timeline["script"], executable=True),
+        locations=f"--locations {config.timeline['locations_table']}"
+        if config.timeline["locations_table"]
+        else "",
+        regex=f"--regex-config {config.timeline['regex_yaml']}"
+        if config.timeline["regex_yaml"]
+        else "",
+        options=config.timeline["options"],
     log:
         outfile=cohortdir("timeline.out.log"),
         errfile=cohortdir("timeline.err.log"),
     conda:
-        config.deconvolution["conda"]
+        config.timeline["conda"]
     benchmark:
         cohortdir("timeline.benchmark")
     resources:
         disk_mb=1024,
         mem_mb=config.timeline["mem"],
         runtime=config.timeline["time"],
-    threads: 1
+    threads: config.timeline["threads"]
     shell:
         """
-        {params.maketimeline} --regex-config {input.regex} --no-fallback --locations {input.locations} --output {output} -- {input.samples_tsv} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.maketimeline} {params.regex} {params.locations} --output "{output}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
@@ -250,6 +254,7 @@ rule tallymut:
     params:
         XSV=config.applications["xsv"],
         ZSTD=config.applications["zstd"],
+        selector="sample,batch" if sample_2level_count else "sample",
     log:
         outfile=cohortdir("tallymut.out.log"),
         errfile=cohortdir("tallymut.err.log"),
@@ -264,7 +269,7 @@ rule tallymut:
     threads: 1
     shell:
         """
-        {params.XSV} join --right sample,batch {input.times} sample,batch \
+        {params.XSV} join --right {params.selector} {input.times} {params.selector} \
          <({params.XSV} cat rows --delimiter '\\t' {input.muts} ) \
          | {params.XSV} fmt --out-delimiter '\\t' \
          | {params.ZSTD} -o {output.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
@@ -280,7 +285,7 @@ rule deconvolution:
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
     params:
-        DECONV=config.applications["lollipop"],
+        LOLLIPOP=config.applications["lollipop"],
         seed="--seed=42",
     log:
         outfile=cohortdir("deconvoluted.out.log"),
@@ -296,7 +301,7 @@ rule deconvolution:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.DECONV} --output={output.deconvoluted} --var={input.var_conf} --vd={input.var_dates} --dec={input.deconv_conf} {params.seed} {input.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.LOLLIPOP} deconvolute --output={output.deconvoluted} --var={input.var_conf} --vd={input.var_dates} --dec={input.deconv_conf} {params.seed} {input.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

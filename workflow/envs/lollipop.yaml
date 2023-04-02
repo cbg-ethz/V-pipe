@@ -12,7 +12,8 @@ dependencies:
   - bcbio-gff
   - ruamel.yaml
   - strictyaml
-  - regex
+  #- regex
   - tqdm
   - click
+  - click-option-group
   - poetry-core >= 1.0.8

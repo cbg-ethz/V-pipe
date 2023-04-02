@@ -450,6 +450,10 @@ sample_dir = {}  # directory => samples record
 sample_paths = {}  # sample record => dir
 sample_proto_count = 0
 sample_default_count = 0
+sample_1level_count = 0
+sample_2level_count = 0
+sample_1level_line = 0
+sample_2level_line = 0
 
 
 def guess_sample(path):
@@ -504,6 +508,9 @@ else:
             )
 
             if not (sample_tuple.sample_id and sample_tuple.date):
+                if not sample_1level_count:
+                    sample_1level_line = spamreader.line_num
+                sample_1level_count += 1
                 # HACK to handle gracefully non two-level samples (e.g.: single level)
 
                 # guess_sample can return wrong guesses if there is only 1 level: the output directory will be assigned to sample_id
@@ -516,6 +523,10 @@ else:
                 )
                 # we keep track of such mis-haps so we can patch them.
                 sample_id_patchmap[patch_tuple] = sample_tuple
+            else:
+                if not sample_2level_count:
+                    sample_2level_line = spamreader.line_num
+                sample_2level_count += 1
 
             # defaults (if columns are missing in TSV)
             l = config.input[
@@ -584,6 +595,13 @@ if len(protocols) and (0 == sample_proto_count):
     LOGGER.warning(
         "WARNING: protocols YAML look-up file <{}> specified, but no sample ever uses it: fourth column absent from samples TSV file.".format(
             config["input"]["protocols_file"]
+        )
+    )
+
+if sample_1level_count and sample_2level_count:
+    LOGGER.warning(
+        "WARNING: samples TSV contains both {} samples with 2-level hierarchy (starting at line {}) and {} samples with 1-level hierarchy -- i.e. one of the two columns is empty (starting at line {}). Such mixing isn't thoroughly tested, consider it unsupported. All bugs encountered are features ;-)".format(
+            sample_2level_count, sample_2level_line, sample_1level_count, sample_1level_line
         )
     )
 
