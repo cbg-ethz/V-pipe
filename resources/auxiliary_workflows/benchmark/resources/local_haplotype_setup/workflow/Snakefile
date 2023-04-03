@@ -611,7 +611,7 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
     resources:
         mem_mb=18024,
         runtime=8000,
-        threads=10,
+        threads=100,
 
 
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
