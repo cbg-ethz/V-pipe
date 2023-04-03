@@ -224,18 +224,20 @@ use rule performance_measures_local from realdata_sarscov2 as realdata_sarscov2_
     wildcard_constraints:
         read_length=r"Two-strain-SARS-CoV-2",
 """
+realdata_sarscov2_params = [params for params in  realdata.paramspace.instance_patterns if params.split("read_length~")[1].split("__")[0]=="Two-strain-SARS-CoV-2"]
+
 use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_performance_measures_local_realdata_sarscov2 with:
     input:
         vcf_list=[
             f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in [params for params in  realdata.paramspace.instance_patterns if params.split("read_length~")[1].split("__")[0]=="Two-strain-SARS-CoV-2"]
+            for params in realdata_sarscov2_params
             for method in realdata.method_list
             for replicate in range(realdata.config["replicate_count"])
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
             f"results/realdata/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in realdata.paramspace.instance_patterns
+            for params in realdata_sarscov2_params
             for method in realdata.method_list
             for replicate in range(realdata.config["replicate_count"])
         ],
