@@ -228,7 +228,7 @@ use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_
     input:
         vcf_list=[
             f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in realdata.paramspace.instance_patterns
+            for params in [params for params in  realdata.paramspace.instance_patterns if params.split("read_length~")[1].split("__")[0]=="Two-strain-SARS-CoV-2"]
             for method in realdata.method_list
             for replicate in range(realdata.config["replicate_count"])
         ],
@@ -241,6 +241,8 @@ use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_
         ],
     output:
         fname_out=f"results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
+    wildcard_constraints:
+        read_length="Two-strain-SARS-CoV-2",
 
 
 """
@@ -605,8 +607,9 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
     benchmark:
         f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
-        mem_mb=10024,
-        runtime=440,
+        mem_mb=18024,
+        runtime=8000,
+        threads=10,
 
 
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
