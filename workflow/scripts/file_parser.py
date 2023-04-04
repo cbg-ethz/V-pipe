@@ -76,6 +76,13 @@ def parse_args():
         "-o", "--output", help="output file", dest="output", required=True
     )
 
+    parser.add_argument(
+        "--out-locations",
+        help="write list of found locations",
+        dest="out_loc",
+        default=None,
+    )
+
     return parser.parse_args()
 
 
@@ -256,6 +263,22 @@ def main():
     samples_info.set_index(["sample", "batch"]).to_csv(
         args.output, sep="\t", compression={"method": "infer"}
     )
+
+    if args.out_loc:
+        with open(args.out_loc, "w") as outf:
+            ruamel.yaml.round_trip_dump(
+                {
+                    "locations_list": list(
+                        set(
+                            samples_info[
+                                "location" if locations is not None else "location_code"
+                            ].unique()
+                        )
+                        - {"", np.nan}
+                    )
+                },
+                outf,
+            )
 
 
 if __name__ == "__main__":

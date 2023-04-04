@@ -58,6 +58,9 @@ rule cooc:
         COJAC=config.applications["cojac"],
         name=ID,
         sep=config.general["id_separator"],
+        out_format="--multiindex"
+        if config.cooc["out_format"] == "columns"
+        else "--multiindex --lines",
     log:
         outfile="{dataset}/signatures/cooc.out.log",
         errfile="{dataset}/signatures/cooc.err.log",
@@ -73,7 +76,7 @@ rule cooc:
     shell:
         """
         {params.COJAC} cooc-mutbamscan --alignments="{input.BAM}" --name="{params.name}" --in-amp="{input.amplicons}" --yaml="{output.cooc_yaml}"   2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" --multiindex --lines --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
@@ -98,6 +101,9 @@ rule cohort_cooc:
     params:
         COJAC=config.applications["cojac"],
         sep=config.general["id_separator"],
+        out_format="--multiindex"
+        if config.cooc["out_format"] == "columns"
+        else "--multiindex --lines",
     log:
         outfile=cohortdir("cohort_cooc.{proto}.out.log"),
         errfile=cohortdir("cohort_cooc.{proto}.err.log"),
@@ -113,7 +119,7 @@ rule cohort_cooc:
     shell:
         """
         cat {input} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" --multiindex --lines --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
         """
 
 
@@ -184,6 +190,7 @@ rule sigmut:
         mut="{dataset}/signatures/mut.tsv",
     params:
         LOLLIPOP=config.applications["lollipop"],
+        ARRAYBASED=config.general["tsvbased"],
         s_rec=get_s_rec,
     log:
         outfile="{dataset}/signatures/mut.out.log",
@@ -199,7 +206,7 @@ rule sigmut:
     threads: 1
     shell:
         """
-        {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" --based "{params.ARRAYBASED}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
@@ -217,7 +224,10 @@ rule timeline:
         else [],
         regex=config.timeline["regex_yaml"] if config.timeline["regex_yaml"] else [],
     output:
-        cohortdir("timeline.tsv"),
+        timeline=cohortdir("timeline.tsv"),
+        locations_list=cohortdir("locations_list.yaml")
+        if config.timeline["locations_table"]
+        else [],
     params:
         maketimeline=cachepath(config.timeline["script"], executable=True),
         locations=f"--locations {config.timeline['locations_table']}"
@@ -225,6 +235,9 @@ rule timeline:
         else "",
         regex=f"--regex-config {config.timeline['regex_yaml']}"
         if config.timeline["regex_yaml"]
+        else "",
+        out_locations=f"--out-locations {cohortdir('locations_list.yaml')}"
+        if config.timeline["locations_table"] or config.timeline["regex_yaml"]
         else "",
         options=config.timeline["options"],
     log:
@@ -241,14 +254,14 @@ rule timeline:
     threads: config.timeline["threads"]
     shell:
         """
-        {params.maketimeline} {params.regex} {params.locations} --output "{output}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.maketimeline} {params.regex} {params.locations} {params.out_locations} --output "{output.timeline}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
 rule tallymut:
     input:
         muts=expand("{dataset}/signatures/mut.tsv", dataset=datasets),
-        times=cohortdir("timeline.tsv"),
+        times=(config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")),
     output:
         tallymut=cohortdir("tallymut.tsv.zst"),
     params:
@@ -280,12 +293,20 @@ rule deconvolution:
     input:
         tallymut=cohortdir("tallymut.tsv.zst"),
         deconv_conf=config.deconvolution["deconvolution_config"],
-        var_conf=config.deconvolution["variants_config"],
-        var_dates=config.deconvolution["variants_dates"],
+        var_conf=config.deconvolution["variants_config"]
+        if config.deconvolution["variants_config"]
+        else cohortdir("variants_pangolin.yaml"),
+        var_dates=config.deconvolution["variants_dates"]
+        if config.deconvolution["variants_dates"]
+        else [],
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
+        deconv_json=cohortdir("deconvoluted_upload.json"),
     params:
         LOLLIPOP=config.applications["lollipop"],
+        out_format="--fmt-columns"
+        if config.deconvolution["out_format"] == "columns"
+        else "",
         seed="--seed=42",
     log:
         outfile=cohortdir("deconvoluted.out.log"),
@@ -301,7 +322,7 @@ rule deconvolution:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.LOLLIPOP} deconvolute --output={output.deconvoluted} --var={input.var_conf} --vd={input.var_dates} --dec={input.deconv_conf} {params.seed} {input.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" {params.out_format} {params.seed} "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

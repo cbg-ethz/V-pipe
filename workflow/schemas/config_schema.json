@@ -1405,6 +1405,13 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/cojac.yaml"
+                },
+                "out_format": {
+                    "type": "string",
+                    "enum": ["lines","columns"],
+                    "default": "lines",
+                    "description": "Format of the output CSV.\n- `lines`(default) - each amplicon a separate entry on a separate line.\n- `columns` - one column per amplicon",
+                    "examples": ["columns"]
                 }
             },
             "default": {},
@@ -1486,7 +1493,7 @@
                 "regex_yaml": {
                     "type": "string",
                     "default": "",
-                    "description": "Option for the default script: YAML file the defines how to parse time series information out of the columns of _samples.tsv_, e.g.:\n\n```yaml\nsample: (?P<location>\\d+)_(?P<year>20\\d{2})_(?P<month>[01]?\\d)_(?P<day>[0-3]?\\d)\ndatefmt: \"%Y%m%d\"\n```\n\n- by default, _samples.tsv_'s first column (sample names) is used as-is for location codes and the second column (sequencing batch dates) is used for timeline's date point.\n- YAML's optional entry `sample` defines a regular expression to be applied on the first column (sample names)\n- YAML's optional entry `batch` defines a regular expression to be applied on the second column (sequencing batch dates)\n- regular expression **must** define the following [named capturing groups](https://www.regular-expressions.info/named.html):\n  - `location` used for the location codes\n  - `year`, `month`, `day` used for the dates of the timeline\n  - alternatively, if the date doesn't use a format with _year + month + day_ elements -- e.g., date uses week number of the year -- group `date` can be used to capture the whole date string\n- YAML's optional entry `datefmt` gives a [time format string](https://docs.python.org/3/library/time.html#time.strftime) to parse the `date` capturing group"
+                    "description": "Option for the default script: YAML file the defines how to parse time series information out of the columns of _samples.tsv_, e.g.:\n\n```yaml\nsample: (?P<location>\\d+)_(?P<year>20\\d{2})_(?P<month>[01]?\\d)_(?P<day>[0-3]?\\d)\ndatefmt: \"%Y%m%d\"\n```\n\n- by default, _samples.tsv_'s first column (sample names) is used as-is for location codes and the second column (sequencing batch dates) is used for timeline's date point.\n- YAML's optional entry `sample` defines a regular expression to be applied on the first column (sample names)\n- YAML's optional entry `batch` defines a regular expression to be applied on the second column (sequencing batch dates)\n- regular expression **must** define the following [named capturing groups](https://www.regular-expressions.info/named.html):\n  - `location` used for the location codes\n  - `year`, `month`, `day` used for the dates of the timeline\n  - alternatively, if the date doesn't use a format with _year + month + day_ elements -- e.g., date uses week number of the year -- group `date` can be used to capture the whole date string\n- YAML's optional entry `datefmt` gives a [time format string](https://docs.python.org/3/library/time.html#time.strftime) to parse the `date` capturing group."
                 }
             },
             "default": {},
@@ -1505,6 +1512,12 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/xsv.yaml"
+                },
+                "timeline_file": {
+                    "type": "string",
+                    "default": "",
+                    "description": "If set, this user-provided TSV file (e.g.: generated with an external tool, prior of running V-pipe) will be used for obtaining locations and dates -- as needed by LolliPop -- instead of generating `results/timeline.tsv` with the rule timeline.\nThis follows the following format (similar to the output of rule timeline):\n\n```tsv\nsample\tbatch\treads\tproto\tlocation_code\tdate\tlocation\nA1_05_2023_04_12\t20230428_HNG5MDRX2\t250\tv41\t5\t2023-04-12\tLugano (TI)\nA2_10_2023_04_13\t20230428_HNG5MDRX2\t250\tv41\t10\t2023-04-13\tZürich (ZH)\nA3_16_2023_04_14\t20230428_HNG5MDRX2\t250\tv41\t16\t2023-04-14\tGenève (GE)\n…\n```\n\n- The extra columns _location_ and _data_ are **necessary** for LolliPop.\n- Columns _sample_, _batch_, _reads_ and  _proto_ are simply the fist four columns of `samples.tsv`\n  - V-pipe only needs column _sample_ and _batch_ for now.",
+                    "example": ["db_timeline.tsv"]
                 }
             },
             "default": {},
@@ -1546,6 +1559,13 @@
                     "default": "",
                     "description": "Variants to scan per periods (as determined with COJAC by leveraging the output of the cooc rule)",
                     "examples": [ "var_dates.yaml" ]
+                },
+                "out_format": {
+                    "type": "string",
+                    "enum": ["lines","columns"],
+                    "default": "lines",
+                    "description": "Format of the output CSV.\n- `lines`(default) - each variants a separate entry on a separate line.\n- `columns` - one column per variant",
+                    "examples": ["columns"]
                 }
             },
             "default": {},

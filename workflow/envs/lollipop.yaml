@@ -1,19 +1,6 @@
-name: lollipop
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - python
-  - numpy
-  - scipy
-  - pandas
-  - zstandard
-  - bcbio-gff
-  - ruamel.yaml
-  - strictyaml
-  #- regex
-  - tqdm
-  - click
-  - click-option-group
-  - poetry-core >= 1.0.8
+  - lollipop =0.3.0
