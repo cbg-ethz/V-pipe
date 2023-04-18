@@ -87,8 +87,8 @@ def get_generated_conda_env(wildcards, input):
 
     # format conda env file
     conda_env = """channels:
-  - hcc
-  - broad-viral
+ # - hcc
+ # - broad-viral
   - conda-forge
   - bioconda
   - defaults
@@ -101,7 +101,7 @@ dependencies:"""
             conda_env += "\n  - " + "\n  - ".join(conda_dep_list)
 
         if len(pip_dep_list) > 0:
-            conda_env += "\n  - python=3.9\n"
+            conda_env += "\n  - python=3.10.4\n"
             conda_env += "  - pip\n"
             conda_env += "  - pip:\n    - " + "\n    - ".join(pip_dep_list)
 
