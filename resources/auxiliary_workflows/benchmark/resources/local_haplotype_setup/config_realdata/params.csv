@@ -6,9 +6,16 @@ illumina,real_data,5-virus-mix,,,1,
 #
 # PVY-5-Strain-Mix
 nanopore,amplicon,real_data,Five_strain_PVY,,9698,
+# PVY-5-Strain-Mix
+pacbio,amplicon,real_data,Ten_strain_IAV,,2300,
 #
 # Two-Strain-SARS-CoV-2
 illumina,amplicon,real_data,Two-strain-SARS-CoV-2,C2_Wild_10_03,0.5,
 illumina,amplicon,real_data,Two-strain-SARS-CoV-2,E1_Wild_50_02,0.5,
 illumina,amplicon,real_data,Two-strain-SARS-CoV-2,G1_Wild_100_01,0.5,
 illumina,amplicon,real_data,Two-strain-SARS-CoV-2,H1_Wild_100_02,0.5,
+#
+#illumina,amplicon,real_data,Two-strain-SARS-CoV-2,C2_Wild_10_03,1,
+illumina,amplicon,real_data,Two-strain-SARS-CoV-2,E1_Wild_50_02,1,
+illumina,amplicon,real_data,Two-strain-SARS-CoV-2,G1_Wild_100_01,1,
+illumina,amplicon,real_data,Two-strain-SARS-CoV-2,H1_Wild_100_02,1,
