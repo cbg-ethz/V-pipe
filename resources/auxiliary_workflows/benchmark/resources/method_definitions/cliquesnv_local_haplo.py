@@ -65,7 +65,9 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
     SeqIO.write(record_list, fname_result_haplos , "fasta")
 
     # create empty vcf files
-    open(fname_results_snv, 'a').close()
+    f = open(fname_results_snv, 'a')
+    f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
+    f.close()
 
 
 if __name__ == "__main__":
