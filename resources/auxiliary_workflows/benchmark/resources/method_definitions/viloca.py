@@ -27,7 +27,13 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
     n_max_haplotypes = 100
     n_mfa_starts = 1
 
-    print(fname_insert_bed)
+    read_length =  str(fname_bam).split('read_length~')[1].split('__')[0]
+    if read_length == "Ten_strain_IAV":
+        sampler = "learn_error_params"
+    else:
+        sampler = "use_quality_scores"
+
+    print("read_length", read_length)
     dname_work.mkdir(parents=True, exist_ok=True)
     if fname_insert_bed == []:
         subprocess.run(
@@ -39,7 +45,7 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 "-f",
                 Path(fname_reference).resolve(),
                 "--sampler",
-                "use_quality_scores",
+                str(sampler),
                 "--alpha",
                 str(alpha),
                 "--n_max_haplotypes",
@@ -62,7 +68,7 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 "-z",
                 Path(fname_insert_bed).resolve(),
                 "--sampler",
-                "use_quality_scores",
+                str(sampler),
                 "--alpha",
                 str(alpha),
                 "--n_max_haplotypes",
