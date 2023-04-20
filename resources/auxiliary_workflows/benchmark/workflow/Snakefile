@@ -309,6 +309,41 @@ rule provide_Five_strain_PVY_mix:
         """
 
 
+rule provide_Ten_strain_IAV:
+    output:
+        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
+        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
+        fname_fasta=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/haplotypes.fasta",
+        dname_work=directory(
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
+        ),
+    resources:
+        mem_mb=5_000,
+        runtime=60 * 4,
+    wildcard_constraints:
+        read_length="Ten_strain_IAV",
+    shell:
+        """
+        mkdir -p "{output.dname_work}"
+
+        # this are the paths to run this rule from local_haplotype_setup
+        fname_bam="../../resources/experimental_data/Ten-strain-IAV/reads.bam"
+        fname_expected_variants="../../resources/experimental_data/Ten-strain-IAV/ground_truth.csv"
+        fname_reference="../../resources/experimental_data/Ten-strain-IAV/reference.fasta"
+        fname_insert_bed="../../resources/experimental_data/Ten-strain-IAV/scheme.insert.bed"
+        fname_fasta="../../resources/experimental_data/Ten-strain-IAV/haplotypes.fasta"
+
+        cp "$fname_bam" "{output.fname_bam}"
+        cp "$fname_expected_variants" "{output.fname_groundtruth}"
+        cp "$fname_reference" "{output.fname_reference}"
+        cp "$fname_insert_bed" "{output.fname_insert_bed}"
+        cp "$fname_fasta" "{output.fname_fasta}"
+        """
+
+
+
 rule provide_2_SARS_CoV_2_mix:
     output:
         fname_cram=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.cram",
