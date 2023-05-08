@@ -1383,6 +1383,12 @@
                 "time": {
                     "type": "integer",
                     "default": 10
+                },
+                "mincooc": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Minimal number of coocurrences to search for in amplicon. Lowering this property to 1 will make COJAC also look for amplicon with singleton mutations.",
+                    "examples": [ 1 ]
                 }
             },
             "default": {},

@@ -24,6 +24,7 @@ rule amplicons:
     params:
         COJAC=config.applications["cojac"],
         vocdir=config.input["variants_def_directory"],
+        mincooc=config.amplicons["mincooc"],
     log:
         outfile=cohortdir("amplicons.{proto}.out.log"),
         errfile=cohortdir("amplicons.{proto}.err.log"),
@@ -39,7 +40,7 @@ rule amplicons:
     shell:
         """
         vocs=( {input.vocs} )
-        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
