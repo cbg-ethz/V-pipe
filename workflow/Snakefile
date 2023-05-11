@@ -48,7 +48,7 @@ if config.output["trim_primers"]:
     include: "rules/primerstrim.smk"
 
 
-if config.output["snv"] or config.output["local"]:
+if config.output["snv"] or config.output["local"] or config.output["lofreq"]:
 
     include: "rules/snv.smk"
 
