@@ -7,6 +7,8 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 
 def all_vocs(dir):
+    if not dir:
+        return []
     (VOCS,) = glob_wildcards(os.path.join(dir, "{voc}.yaml"))
     return expand(os.path.join(dir, "{voc}.yaml"), voc=VOCS)
 
