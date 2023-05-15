@@ -185,7 +185,6 @@ def runtime_plots(benchmark_list, dname_out):
 def mutation_calls_details(vcf_list, groundtruth_list, dname_out):
     # compute performance
     tmp = []
-    fps_tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
         parts = str(fname_vcf).split("/")
 
@@ -238,6 +237,7 @@ def main(vcf_list, groundtruth_list, benchmark_list, dname_out):
     dname_out.mkdir(parents=True)
 
     performance_plots(vcf_list, groundtruth_list, dname_out)
+    mutation_calls_details(vcf_list, groundtruth_list, dname_out)
     runtime_plots(benchmark_list, dname_out)
 
 
