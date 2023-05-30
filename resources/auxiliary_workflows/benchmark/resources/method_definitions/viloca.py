@@ -26,10 +26,12 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
     alpha = 0.000001
     n_max_haplotypes = 300
     n_mfa_starts = 1
+    win_min_ext = 0.85
 
     read_length =  str(fname_bam).split('read_length~')[1].split('__')[0]
     if read_length == "Ten_strain_IAV":
         sampler = "learn_error_params"
+        win_min_ext =  0.5
     else:
         sampler = "use_quality_scores"
 
@@ -51,6 +53,8 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_max_haplotypes),
                 "--n_mfa_starts",
                 str(n_mfa_starts),
+                "--win_min_ext",
+                str(win_min_ext),
             ],
             cwd=dname_work,
         )
@@ -74,6 +78,8 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_max_haplotypes),
                 "--n_mfa_starts",
                 str(n_mfa_starts),
+                "--win_min_ext",
+                str(win_min_ext),
             ],
             cwd=dname_work,
         )
