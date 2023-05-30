@@ -198,7 +198,7 @@ def mutation_calls_details(vcf_list, groundtruth_list, dname_out):
         # iter through ground truth mutations
         for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
 
-            true_variant = gt_row["position"].astype(str) + gt_row["variant"]
+            true_variant = str(gt_row["position"]) + gt_row["variant"]
 
             if true_variant in predicted_variants:
                 tmp.append(
