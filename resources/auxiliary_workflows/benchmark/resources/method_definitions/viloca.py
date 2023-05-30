@@ -23,8 +23,8 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
 def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_result_haplos, dname_work):
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
-    alpha = 0.00001
-    n_max_haplotypes = 100
+    alpha = 0.000001
+    n_max_haplotypes = 300
     n_mfa_starts = 1
 
     read_length =  str(fname_bam).split('read_length~')[1].split('__')[0]
@@ -33,7 +33,6 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
     else:
         sampler = "use_quality_scores"
 
-    print("read_length", read_length)
     dname_work.mkdir(parents=True, exist_ok=True)
     if fname_insert_bed == []:
         subprocess.run(

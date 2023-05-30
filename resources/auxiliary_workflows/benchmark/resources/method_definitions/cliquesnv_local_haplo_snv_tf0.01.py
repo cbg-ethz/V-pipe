@@ -1,4 +1,4 @@
-# GROUP: global
+# GROUP: local
 # CONDA: cliquesnv = 2.0.3
 # CONDA: samtools = 1.15.1
 # CONDA: biopython = 1.79
@@ -21,11 +21,11 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
 
     cliquesnv_mode = None
     if seq_type == "illumina":
-        cliquesnv_mode = "snv-illumina"
+        cliquesnv_mode = "snv-illumina-vc"
     elif seq_type == "pacbio":
-        cliquesnv_mode = "snv-pacbio"
+        cliquesnv_mode = "snv-pacbio-vc"
     elif seq_type == "nanopore":
-        cliquesnv_mode = "snv-pacbio"
+        cliquesnv_mode = "snv-pacbio-vc"
     else:
         raise RuntimeError(f"Invalid sequence technology: {seq_type}")
 
@@ -40,7 +40,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "-outDir",
             dname_work / "output",
             "-tf", # parameter to detect low-frequent mutations
-            "0.001",
+            "0.01",
             "-tl", # maximal runtime parameter
             "428400", # 119h*60*60
             "-threads",
@@ -50,28 +50,10 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
         ],
         check=True,
     )
-    fname_cliquesnv = dname_work / "output" / "reads.fasta"
+    (dname_work / "output" / "reads.vcf").rename(fname_results_snv)
 
-    # fix frequency information
-    if fname_cliquesnv.exists():
-        record_list = []
-        for record in SeqIO.parse(fname_cliquesnv, "fasta"):
-            _, _, freq = record.id.split("_")
-            record.description = f"freq:{freq}"
-
-            seq_nodel = str(record.seq).replace("-", "")
-            record.seq = Seq(seq_nodel)
-
-            record_list.append(record)
-    else:
-        record_list = []
-
-    SeqIO.write(record_list, fname_result_haplos , "fasta")
-
-    # create empty vcf files
-    f = open(fname_results_snv, 'a')
-    f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
-    f.close()
+    # create empty haplotype files
+    open(fname_result_haplos, 'a').close()
 
 
 if __name__ == "__main__":
