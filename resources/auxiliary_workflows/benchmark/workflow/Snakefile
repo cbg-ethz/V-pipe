@@ -297,7 +297,7 @@ rule provide_Five_strain_PVY_mix:
         mkdir -p "{output.dname_work}"
 
         # this are the paths to run this rule from local_haplotype_setup
-        fname_bam="../Five-strain-PVY/all_reads.aln.filtered.sort.bam"
+        fname_bam="../experimental_data/Five-strain-PVY/all_reads.aln.filtered.sort.bam"
         fname_expected_variants="../experimental_data/Five-strain-PVY/ground_truth.csv"
         fname_reference="../experimental_data/Five-strain-PVY/reference.fasta"
         fname_insert_bed="../experimental_data/Five-strain-PVY/scheme.insert.bed"
@@ -367,10 +367,10 @@ rule provide_2_SARS_CoV_2_mix:
         sample="{wildcards.genome_size}"
         echo "Using $subsample_frac of $source of sample $sample"
 
-        fname_cram="resources/experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample".cram"
-        fname_expected_variants="resources/experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample"_expected_variants.csv"
-        fname_reference="resources/experimental_data/Two-strain-SARS-CoV-2/reference.fasta"
-        fname_insert_bed="resources/experimental_data/Two-strain-SARS-CoV-2/nCoV-2019.insert.bed"
+        fname_cram="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample".cram"
+        fname_expected_variants="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample"_expected_variants.csv"
+        fname_reference="../experimental_data/Two-strain-SARS-CoV-2/reference.fasta"
+        fname_insert_bed="../experimental_data/Two-strain-SARS-CoV-2/nCoV-2019.insert.bed"
 
         mkdir -p "{output.dname_work}"
 
