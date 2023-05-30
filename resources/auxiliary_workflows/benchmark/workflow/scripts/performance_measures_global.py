@@ -628,14 +628,15 @@ def main(
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
     df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
-    # subset MDS plot to show well-performing methods
-    sequence_embedding(
-        df_pred[
-            (df_pred["method"] != "haploclique") & (df_pred["method"] != "haploconduct")
-        ],
-        df_true,
-        dname_out / "subset",
-    )
+    if quast:
+        # subset MDS plot to show well-performing methods
+        sequence_embedding(
+            df_pred[
+                (df_pred["method"] != "haploclique") & (df_pred["method"] != "haploconduct")
+            ],
+            df_true,
+            dname_out / "subset",
+        )
 
 
 if __name__ == "__main__":
