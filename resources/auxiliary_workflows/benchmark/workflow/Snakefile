@@ -448,7 +448,7 @@ rule provide_real_data:
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
     params:
-        path_ground_truth=f"resources/Five-Virus-Mix/ground_truth.csv",
+        path_ground_truth=f"../experimental_data/Five-Virus-Mix/ground_truth.csv",
     conda:
         "envs/real_data.yaml"
     resources:
