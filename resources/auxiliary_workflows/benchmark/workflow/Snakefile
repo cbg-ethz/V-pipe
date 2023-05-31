@@ -363,9 +363,9 @@ rule provide_2_SARS_CoV_2_mix:
         tmp="{wildcards.read_length}"
         parts=(${{tmp//@/ }})
         source="{wildcards.read_length}"
-        subsample_frac="${wildcards.coverage}"
+        #subsample_frac="${wildcards.coverage}"
         sample="{wildcards.genome_size}"
-        echo "Using $subsample_frac of $source of sample $sample"
+        echo "$source of sample $sample"
 
         fname_cram="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample".cram"
         fname_expected_variants="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample"_expected_variants.csv"
