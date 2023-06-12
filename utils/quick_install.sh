@@ -162,6 +162,7 @@ mkdir -p "${PREFIX}" && cd "${PREFIX}" || fail "Could not create directory: ${PR
 ${DOWNLOAD} "https://github.com/conda-forge/miniforge/releases/latest/download/${MINICONDA}"
 sh "${MINICONDA}" -b -p mambaforge
 # -b for batch (no question asked)
+MINICONDAFULLPATH="$(pwd)/mambaforge"
 
 
 # shellcheck source=/dev/null
@@ -228,13 +229,18 @@ title 'configuring init_project'
 INIT="$(pwd)/V-pipe${RELEASE:+-${RELEASE}}/init_project.sh"
 conf="${INIT%.sh}.conf"
 
+message 'Conda path:' "${MINICONDAFULLPATH}"
+message 'Conda environment:' "${VPIPEENV}"
+
 cat > "${conf}" <<EOF
 # configuration file for initializing V-pipe working folder
 
 #conda configuration
-vp_conda_path='${MINICONDAPATH}'
+vp_conda_path='${MINICONDAFULLPATH}'
 ${VPIPEENV:-#}vp_conda_env=${VPIPEENV:+"'${VPIPEENV}'"}
 EOF
+
+echo $'\n'
 
 
 
