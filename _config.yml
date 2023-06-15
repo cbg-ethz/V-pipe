@@ -15,5 +15,9 @@ theme: minima
 # Google Analytics
 google_analytics: UA-126950686-1
 
+matomo:
+  url: matomo.sib.swiss
+  siteId: "59"
+
 plugins:
   - jekyll-sitemap
