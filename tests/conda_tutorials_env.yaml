@@ -1,0 +1,13 @@
+name: JupyText
+channels:
+  - conda-forge
+  - bioconda
+  #- defaults # see: https://github.com/conda-forge/status/issues/144
+dependencies:
+  - jupytext
+  - nbconvert
+  - ipykernel
+  #- snakemake-minimal
+
+  # used for some tutorials
+  - sra-tools

@@ -1,0 +1,54 @@
+name: Run tutorials
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build_n_push:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+            lfs: false
+
+      - name: Install conda environment dependencies
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+          python-version: "3.11"
+          mamba-version: "*"
+          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
+          channel-priority: strict
+          activate-environment: JupyText
+          auto-update-conda: true
+          environment-file: tests/conda_tutorials_env.yaml
+
+      - name: Setup Jupyter kernel
+        run: |
+          python -m ipykernel install --user
+
+      - name: Run notebooks
+        working-directory: ./docs
+        run: ./convert.sh branch
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: JupyterNotebooks
+          path: ./docs/*.ipynb
+      # - name: Publish
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./docs
