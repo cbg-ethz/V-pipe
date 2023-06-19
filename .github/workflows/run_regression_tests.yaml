@@ -4,16 +4,11 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
-  cancel-previous-jobs:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-
   static_tests:
     runs-on: ubuntu-latest
 
@@ -22,38 +17,45 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          python-version: "3.10"
+            lfs: false
+
+      - name: Install conda environment dependencies
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+          python-version: "3.11"
           mamba-version: "*"
-          channels: conda-forge,bioconda,defaults
+          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
           channel-priority: strict
           activate-environment: V-pipe
           auto-update-conda: true
-
-      - name: Install dependencies
-        run: mamba install --yes snakemake-minimal snakefmt
+          environment-file: tests/conda_lint_env.yaml
 
       - name: Code formatting
         run: snakefmt --check .
 
       - name: Setup project
         run: |
-          mkdir -p /tmp/project/hiv/  # virus does not matter
-          cd /tmp/project/hiv/
+          mkdir -p lintest/config  # virus does not matter
+          cd lintest/
           $GITHUB_WORKSPACE/init_project.sh -n
+          # dummy content so pipeline is configured properly
+          cp -vr $GITHUB_WORKSPACE/tests/data/hiv/ ./samples
+          sed -E 's/(#*virus_base_config:) .*$/\1 hiv/;s/false$/true/g;s/(trim_primers:) .*$/\1 false/' $GITHUB_WORKSPACE/config/config.yaml | tee ./config.yaml
 
-      - name: Linting
+      - name: Snakemake linting
         env:
           PYTHONUNBUFFERED: 1
-        uses: snakemake/snakemake-github-action@v1.19.0
+        uses: snakemake/snakemake-github-action@v1
         with:
-          directory: /tmp/project/hiv/
+          directory: lintest/
           snakefile: 'workflow/Snakefile'
           args: '--lint'
-        continue-on-error: true  # TODO: fix missing cohort consensus
+        continue-on-error: true  # HACK for now snakemake linting is considered non-critical
 
   runtime_tests:
     needs: static_tests
@@ -63,7 +65,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.10", "3.11"]
         virus: ["hiv", "sars-cov-2"]
 
     runs-on: ${{ matrix.os }}
@@ -73,19 +75,23 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v3
         with:
+            lfs: false
+            # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
+
+      - name: Install conda environment dependencies
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
           python-version: ${{ matrix.python-version }}
           mamba-version: "*"
-          channels: conda-forge,bioconda,defaults
+          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
           channel-priority: strict
           activate-environment: V-pipe
           auto-update-conda: true
-
-      - name: Install dependencies
-        run: mamba install --yes snakemake-minimal
+          environment-file: tests/conda_test_env.yaml
 
       - name: Setup project
         run: |
@@ -98,7 +104,7 @@ jobs:
         run: ./regression_tests.sh ${{ matrix.virus }}
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: regression test output and diffs
           path: |

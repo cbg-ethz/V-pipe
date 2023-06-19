@@ -124,6 +124,14 @@ CONFIG_TRIM
         --cores ${THREADS} \
         -p \
         --keep-going
+
+    echo
+    PYTHONUNBUFFERED=1 snakemake \
+        -s "${VPIPEROOT}/workflow/Snakefile" \
+        --configfile "${config_file[@]}" \
+        --config "input={datadir: ${data_root}${config_addendum}}" \
+        --lint || echo "(Linter unhappy)"
+
     popd
 }
 

@@ -1,0 +1,7 @@
+name: V-pipe
+channels:
+  - conda-forge
+  - bioconda
+  #- defaults # see: https://github.com/conda-forge/status/issues/144
+dependencies:
+  - snakemake-minimal
