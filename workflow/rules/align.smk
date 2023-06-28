@@ -466,8 +466,6 @@ rule ref_bwa_index:
         config.ref_bwa_index["conda"]
     benchmark:
         "{file}_bwa_index.benchmark"
-    group:
-        "align"
     resources:
         disk_mb=1250,
         mem_mb=config.ref_bwa_index["mem"],
@@ -542,8 +540,6 @@ elif config.general["aligner"] == "bowtie":
             config.ref_bowtie_index["conda"]
         benchmark:
             "references/ref_bowtie_index.benchmark"
-        group:
-            "align"
         resources:
             disk_mb=1250,
             mem_mb=config.ref_bowtie_index["mem"],
@@ -647,8 +643,6 @@ elif config.general["aligner"] == "minimap":
             config.ref_minimap_index["conda"]
         benchmark:
             "references/ref_minimap_index.benchmark"
-        group:
-            "align"
         resources:
             disk_mb=1250,
             mem_mb=config.ref_minimap_index["mem"],
