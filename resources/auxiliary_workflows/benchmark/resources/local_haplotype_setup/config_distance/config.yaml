@@ -8,6 +8,7 @@ method_list: [lofreq_local_haplo,
               viloca_envp,
               viloca_multi,
               viloca_envp_multi,
+              shorah_default_amplicon,
               ]
 replicate_count: 5
 haplotype_generation: distance
