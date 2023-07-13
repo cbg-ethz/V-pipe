@@ -5,6 +5,9 @@ method_list: [lofreq_local_haplo,
               cliquesnv_local_haplo_tf0.01,
               cliquesnv_local_haplo_snv_tf0.01,
               viloca,
+              viloca_envp,
+              viloca_multi,
+              viloca_envp_multi,
               ]
 replicate_count: 5
 haplotype_generation: distance
