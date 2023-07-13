@@ -14,7 +14,11 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
 
     if (read_length > genome_size) & seq_tech == 'illumina':
         open(fname_result_haplos, 'a').close()
-        open(fname_result, 'a').close()
+        # create empty vcf files
+        f = open(fname_result, 'a')
+        f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
+        f.close()
+        
     else:
 
         subprocess.run(
