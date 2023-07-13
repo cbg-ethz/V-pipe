@@ -519,8 +519,12 @@ rule samtools_index:
         f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
     output:
         f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
-    wrapper:
-        "v1.3.2/bio/samtools/index"
+    conda:
+        "envs/split.yaml"
+    shell:
+        """
+        samtools index {input} -o {output}
+        """
 
 
 rule read_statistics:
