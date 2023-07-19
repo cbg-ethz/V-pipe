@@ -42,7 +42,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "-tf", # parameter to detect low-frequent mutations
             "0.01",
             "-tl", # maximal runtime parameter
-            "428400", # 119h*60*60
+            "2*428400", # 2*119h*60*60
             "-threads",
             "1",
             "-Xms612m",
