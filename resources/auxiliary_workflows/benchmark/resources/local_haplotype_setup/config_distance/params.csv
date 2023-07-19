@@ -37,31 +37,21 @@ illumina,shotgun,single_amplicon,249,249,5000,10@15@30@20@20@geom@0.75
 illumina,shotgun,single_amplicon,249,249,10000,10@15@30@20@20@geom@0.75
 #
 # long reads -- population 1
-nanopore,shotgun,single_amplicon,5000,5000,700,2@3@240@40@120@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,700,2@3@240@40@120@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,2@3@240@40@120@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,2@3@240@40@120@geom@0.75
 #
 # long reads -- population 2
-nanopore,shotgun,single_amplicon,5000,5000,700,5@5@240@40@120@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,700,5@5@240@40@120@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@240@40@120@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@5@240@40@120@geom@0.75
 #
 # long reads -- population 3
-nanopore,shotgun,single_amplicon,5000,5000,700,5@10@240@40@120@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,700,5@10@240@40@120@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@10@240@40@120@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@10@240@40@120@geom@0.75
 #
 # long reads -- population 4
-nanopore,shotgun,single_amplicon,5000,5000,700,5@10@600@200@200@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,700,5@10@600@200@200@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@200@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@200@geom@0.75
 #
 # long reads -- population 5
-nanopore,shotgun,single_amplicon,5000,5000,700,15@10@240@40@120@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,700,15@10@240@40@120@geom@0.75
-nanopore,shotgun,single_amplicon,5000,5000,1000,15@10@240@40@120@geom@0.75
-pacbio,shotgun,single_amplicon,5000,5000,1000,15@10@240@40@120@geom@0.75
+nanopore,shotgun,single_amplicon,5000,5000,1000,15@10@600@200@200@geom@0.75
+pacbio,shotgun,single_amplicon,5000,5000,1000,15@10@600@200@200@geom@0.75
