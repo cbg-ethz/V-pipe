@@ -14,6 +14,7 @@ np.random.seed(RNG_SEED)
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
+    print("coverage_haplotype ", coverage_haplotype)
     subprocess.run(
         [
             "art_illumina",
@@ -53,6 +54,7 @@ def simulate_pacbio(
     diff_ratio = "6:50:54"  # --difference-ratio
     # run PBSIM2
     print("fname_haplotype ", fname_haplotype)
+    print("coverage_haplotype ", coverage_haplotype)
     subprocess.run(
         [
             "pbsim",
@@ -103,6 +105,7 @@ def simulate_nanopore(
 ):
     # --difference-ratio 23:31:46
     diff_ratio = "23:31:46"  # --difference-ratio
+    print("coverage_haplotype ", coverage_haplotype)
     # run PBSIM2
     subprocess.run(
         [
