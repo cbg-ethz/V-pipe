@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ page.title }}</title>
+  <link rel="stylesheet" href="{{ 'assets/css/main.css' | relative_url }}">
+</head>
+<body>
+  {% include navigation.html %}
+
+  {{ content }}
+
+  {% include footer.html %}
+</body>
+</html>

@@ -1,0 +1,13 @@
+<header class="sticky">
+  <div class="logo">
+    <!-- Replace this with your logo -->
+    <img src="assets/img/logo-vpipe.jpg" alt="Logo Vpipe">
+  </div>
+  <nav>
+    <ul>
+      {% for item in page.nav_items %}
+        <li><a href="{{ item.link }}">{{ item.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>

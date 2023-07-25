@@ -1,0 +1,11 @@
+# _config.yml
+remote_theme: null
+
+# Disable unwanted plugins if needed (e.g., jekyll-feed for a one-pager)
+# plugins:
+#   - jekyll-sass
+
+sass:
+  style: compressed
+
+# Add any other configurations or site-specific settings
