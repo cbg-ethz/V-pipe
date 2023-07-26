@@ -1,0 +1,84 @@
+name: Snakedeploy
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  snakedeploy_tests:
+    env:
+        THREADS: 5
+
+    strategy:
+      max-parallel: 5
+      fail-fast: false
+      matrix:
+         virus: ["hiv", "sars-cov-2"]
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout test data
+        uses: actions/checkout@v3
+        with:
+            sparse-checkout: |
+                tests
+            sparse-checkout-cone-mode: false
+            lfs: false
+            # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
+
+      - name: Install conda environment dependencies
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+          mamba-version: "*"
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          activate-environment: snakemake
+          auto-update-conda: true
+          environment-file: tests/conda_snakedeploy_env.yaml
+
+      - name: Snakedeploy
+        # snakedeploy will issue error message if workflow/ or config/ exist, i.e. if tests/ was not sparsely checked out
+        run: |
+            snakedeploy deploy-workflow "$(git remote get-url origin)" . --branch "$(git rev-parse HEAD)"
+
+      - name: Configure
+        run: |
+            tests/configure_for_virus.sh "${{ matrix.virus }}"
+
+      - name: Run test
+        run: |
+            PYTHONUNBUFFERED=1 snakemake \
+                --use-conda \
+                --cores "${THREADS}" \
+                --dry-run
+
+            echo
+            cat config/samples.tsv
+            echo
+
+            PYTHONUNBUFFERED=1 snakemake \
+                --use-conda \
+                --cores "${THREADS}" \
+                -p \
+                --keep-going
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_output
+          path: |
+            ./*
+            !./.git
+            !./.snakemake/conda/*/
+          if-no-files-found: ignore

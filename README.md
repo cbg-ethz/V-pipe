@@ -81,7 +81,7 @@ docker run --rm -it -v $PWD:/work ghcr.io/cbg-ethz/v-pipe:master --jobs 4 --prin
 First install [mamba](https://github.com/conda-forge/miniforge#mambaforge), then create and activate an environment with Snakemake and Snakedeploy:
 
 ```bash
-mamba create -c bioconda -c conda-forge --name snakemake snakemake snakedeploy
+mamba create -c conda-forge -c bioconda --name snakemake snakemake snakedeploy
 conda activate snakemake
 ```
 
