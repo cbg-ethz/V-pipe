@@ -31,6 +31,7 @@ jobs:
         with:
             sparse-checkout: |
                 tests
+                resources/*/gffs
             sparse-checkout-cone-mode: false
             lfs: false
             # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
@@ -56,9 +57,13 @@ jobs:
         run: |
             tests/configure_for_virus.sh "${{ matrix.virus }}"
 
+            # HACK: currently remote URL aren't supported as directories
+            cp -vrf "resources/${{ matrix.virus }}/gffs" ./
+
       - name: Run test
         run: |
             PYTHONUNBUFFERED=1 snakemake \
+                --config "input={gff_directory: 'gffs'}" \
                 --use-conda \
                 --cores "${THREADS}" \
                 --dry-run
@@ -68,6 +73,7 @@ jobs:
             echo
 
             PYTHONUNBUFFERED=1 snakemake \
+                --config "input={gff_directory: 'gffs'}" \
                 --use-conda \
                 --cores "${THREADS}" \
                 -p \
