@@ -12,13 +12,6 @@ LOGGER.info("VPIPE_BASEDIR = %s", VPIPE_BASEDIR)
 include: "rules/common.smk"
 
 
-functions = cachepath(
-    "scripts/functions.sh",
-    executable=True,
-    localsource=True,
-)
-
-
 # DUMMY RULES
 rule all:
     input:

@@ -948,3 +948,14 @@ def temp_prefix(p):
 
 def temp_with_prefix(p):
     return temp(temp_prefix(p))
+
+
+###############
+#   Globals   #
+###############
+
+functions = cachepath(
+    "../scripts/functions.sh",
+    executable=True,
+    localsource=True,
+)

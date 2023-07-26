@@ -17,7 +17,7 @@ re_trim_dataset = re.compile("(?P<dataset>.+)/alignments/REF_aln")
 def primers_file(wildcards):
     # skip if no sample ever has 4th column
     if 0 == sample_proto_count:
-        return config.input["primers_bedfile"]
+        return cachepath(config.input["primers_bedfile"])
 
     # file -> dataset
     ds = re_trim_dataset.match(wildcards.file)
@@ -26,7 +26,7 @@ def primers_file(wildcards):
 
     wc = UserDict(ds.groupdict())
     wc.__dict__.update(wc)
-    return protocol_option(wc, option="primers_bedfile")
+    return cachepath(protocol_option(wc, option="primers_bedfile"))
 
 
 rule primerstrim:

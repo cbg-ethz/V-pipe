@@ -10,7 +10,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 rule generate_web_visualization:
     input:
         consensus_file="{dataset}/references/ref_majority.fasta",
-        reference_file=config["input"]["reference"],
+        reference_file=reference_file,
         coverage_file="{dataset}/alignments/coverage.tsv.gz",
         vcf_file="{dataset}/variants/SNVs/snvs.vcf",
         bam_file=alignment_wildcard,
@@ -18,13 +18,19 @@ rule generate_web_visualization:
             config.input["gff_directory"] if config.input["gff_directory"] else []
         ),
         primers_file=(
-            config.input["primers_file"] if config.input["primers_file"] else []
+            cachepath(config.input["primers_file"])
+            if config.input["primers_file"]
+            else []
         ),
         metainfo_file=(
-            config.input["metainfo_file"] if config.input["metainfo_file"] else []
+            cachepath(config.input["metainfo_file"])
+            if config.input["metainfo_file"]
+            else []
         ),
         phylogeny_data=(
-            config.input["phylogeny_data"] if config.input["phylogeny_data"] else []
+            cachepath(config.input["phylogeny_data"])
+            if config.input["phylogeny_data"]
+            else []
         ),
         global_ref=(
             cohortdir("cohort_consensus.fasta")
