@@ -1,5 +1,0 @@
-seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-nanopore,shotgun,real_data,curlcakes_ONT,2242,curlcake1_rep1,
-nanopore,shotgun,real_data,curlcakes_ONT,2458,curlcake2_rep1,
-nanopore,shotgun,real_data,curlcakes_ONT,2591,curlcake3_rep1,
-nanopore,shotgun,real_data,curlcakes_ONT,2708,curlcake4_rep1,
