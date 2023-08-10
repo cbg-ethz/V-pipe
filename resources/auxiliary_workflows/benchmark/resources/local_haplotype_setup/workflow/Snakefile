@@ -68,8 +68,9 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
     benchmark:
         f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
-        mem_mb=8024,
-        runtime=8000,
+        mem_mb=20024,
+        runtime=4,
+        threads=10,
 
 
 use rule performance_measures_local from varyvilocaparams as varyvilocaparams_performance_measures_local with:
