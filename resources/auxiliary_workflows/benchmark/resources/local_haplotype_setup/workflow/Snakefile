@@ -7,19 +7,17 @@ def load_config(path):
     return config
 
 
-# curlcakes_ONT
-module curlcakes_ONT:
+module varyvilocaparams:
     snakefile:
         "../../../workflow/Snakefile"
     config:
-        load_config("config_curlcakes_ONT/config.yaml")
+        load_config("config_varyvilocaparams/config.yaml")
     replace_prefix:
-        {"results/": "results/curlcakes_ONT/", "resources/": "resources/curlcakes_ONT/"}
+        {"results/": "results/varyvilocaparams/", "resources/": "resources/varyvilocaparams/"}
 
-use rule * from curlcakes_ONT as curlcakes_ONT_*
+use rule * from varyvilocaparams as varyvilocaparams_*
 
 
-# distance
 module distance:
     snakefile:
         "../../../workflow/Snakefile"
@@ -31,18 +29,6 @@ module distance:
 use rule * from distance as distance_*
 
 
-module amplicon:
-    snakefile:
-        "../../../workflow/Snakefile"
-    config:
-        load_config("config_amplicon/config.yaml")
-    replace_prefix:
-        {"results/": "results/amplicon/", "resources/": "resources/amplicon/"}
-
-
-use rule * from amplicon as amplicon_*
-
-
 module realdata:
     snakefile:
         "../../../workflow/Snakefile"
@@ -51,69 +37,102 @@ module realdata:
     replace_prefix:
         {"results/": "results/realdata/", "resources/": "resources/realdata/"}
 
-
 use rule * from realdata as realdata_*
 
 
 # define required output files
 rule all:
     input:
-        #"results/curlcakes_ONT/performance_measures/local/",
+        "results/varyvilocaparams/performance_measures/local/",
+        "results/varyvilocaparams/performance_measures/global/",
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
-        #"results/amplicon/performance_measures/local/",
         "results/realdata/performance_measures/local/",
         "results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
     default_target: True
 
 
-# curlcakes_ONT rules
-use rule run_method_local from curlcakes_ONT as curlcakes_ONT_run_method_local_global with:
+# distance rules
+use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_local_global with:
     output:
-        fname_result_haplos=f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
-        fname_result=f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
+        fname_result_haplos=f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
         dname_work=directory(
-            f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
+            f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
         fname_status=touch(
-            f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + curlcakes_ONT.method_list)}}}/replicates/{{replicate}}/status_.txt"
+            f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/status_.txt"
         ),
     params:
         script_path=lambda wildcards, input: input.script,
-        quast=False,
     benchmark:
-        f"results/curlcakes_ONT/method_runs/{curlcakes_ONT.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + curlcakes_ONT.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+        f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
         mem_mb=8024,
-        runtime=440,
+        runtime=8000,
 
 
-use rule performance_measures_local from curlcakes_ONT as curlcakes_ONT_performance_measures_local with:
+use rule performance_measures_local from varyvilocaparams as varyvilocaparams_performance_measures_local with:
     input:
         vcf_list=[
-            f"results/curlcakes_ONT/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in curlcakes_ONT.paramspace.instance_patterns
-            for method in curlcakes_ONT.method_list
-            for replicate in range(curlcakes_ONT.config["replicate_count"])
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list
+            for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
-            f"results/curlcakes_ONT/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in curlcakes_ONT.paramspace.instance_patterns
-            for method in curlcakes_ONT.method_list
-            for replicate in range(curlcakes_ONT.config["replicate_count"])
+            f"results/varyvilocaparams/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list
+            for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         benchmark_list=[
-            f"results/curlcakes_ONT/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
-            for params in curlcakes_ONT.paramspace.instance_patterns
-            for method in curlcakes_ONT.method_list
-            for replicate in range(curlcakes_ONT.config["replicate_count"])
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list
+            for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         haplostats_list=[
-            f"results/curlcakes_ONT/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in curlcakes_ONT.paramspace.instance_patterns
-            for replicate in range(curlcakes_ONT.config["replicate_count"])
+            f"results/varyvilocaparams/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
+
+
+use rule performance_measures_global from varyvilocaparams as varyvilocaparams_performance_measures_global with:
+    input:
+        predicted_haplos_list=[
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list_global
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+        ],
+        true_haplos_list=[
+            f"results/varyvilocaparams/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+        ],
+        haplostats_list=[
+            f"results/varyvilocaparams/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+        ],
+        runstatus_list=[
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/status_.txt"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list_global
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+        ],
+        benchmark_list=[
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list_global
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+        ],
+    params:
+        method_list_global=varyvilocaparams.method_list_global,
+        quast=False,
 
 
 realdata_sarscov2_params = [params for params in  realdata.paramspace.instance_patterns if params.split("read_length~")[1].split("__")[0]=="Two-strain-SARS-CoV-2"]
@@ -138,53 +157,6 @@ use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_
     wildcard_constraints:
         read_length="Two-strain-SARS-CoV-2",
 
-
-# amplicon rules
-use rule run_method_local from amplicon as amplicon_run_method_local_global with:
-    output:
-        fname_result_haplos=f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
-        fname_result=f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs_.vcf",
-        dname_work=directory(
-            f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
-        ),
-        fname_status=touch(
-            f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + amplicon.method_list)}}}/replicates/{{replicate}}/status_.txt"
-        ),
-    params:
-        script_path=lambda wildcards, input: input.script,
-    benchmark:
-        f"results/amplicon/method_runs/{amplicon.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + amplicon.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
-    threads: 1
-    resources:
-        mem_mb=8024,
-        runtime=440,
-
-
-use rule performance_measures_local from amplicon as amplicon_performance_measures_local with:
-    input:
-        vcf_list=[
-            f"results/amplicon/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in amplicon.paramspace.instance_patterns
-            for method in amplicon.method_list
-            for replicate in range(amplicon.config["replicate_count"])
-        ],
-        groundtruth_list=[
-            f"results/amplicon/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in amplicon.paramspace.instance_patterns
-            for method in amplicon.method_list
-            for replicate in range(amplicon.config["replicate_count"])
-        ],
-        benchmark_list=[
-            f"results/amplicon/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
-            for params in amplicon.paramspace.instance_patterns
-            for method in amplicon.method_list
-            for replicate in range(amplicon.config["replicate_count"])
-        ],
-        haplostats_list=[
-            f"results/amplicon/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in amplicon.paramspace.instance_patterns
-            for replicate in range(amplicon.config["replicate_count"])
-        ],
 
 
 # distance rules
