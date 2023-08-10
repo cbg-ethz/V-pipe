@@ -1,0 +1,11 @@
+method_list: [
+              viloca_alpha,
+              #viloca_envp,
+              #viloca_multi,
+              #viloca_envp_multi,
+              #viloca_learn_error_params
+              ]
+replicate_count: 5
+haplotype_generation: distance
+params_path: config_varyvilocaparams/params.csv
+master_seq_path: ../../../../hiv/HXB2.fasta
