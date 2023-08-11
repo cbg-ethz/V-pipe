@@ -1,8 +1,8 @@
 method_list: [
-              viloca_alpha_0.0001.py,
-              viloca_alpha_0.00001.py,
-              viloca_alpha_0.000001.py,
-              viloca_alpha_0.0000001.py,
+              viloca_alpha_0.0001,
+              viloca_alpha_0.00001,
+              viloca_alpha_0.000001,
+              viloca_alpha_0.0000001,
               #viloca_envp,
               #viloca_multi,
               #viloca_envp_multi,
