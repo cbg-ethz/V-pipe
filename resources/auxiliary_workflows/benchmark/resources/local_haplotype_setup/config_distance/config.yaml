@@ -4,10 +4,7 @@ method_list: [lofreq_local_haplo,
               cliquesnv_local_haplo_snv,
               cliquesnv_local_haplo_tf0.01,
               cliquesnv_local_haplo_snv_tf0.01,
-              viloca,
-              viloca_envp,
-              viloca_multi,
-              viloca_envp_multi,
+              viloca_alpha_0.000001,
               shorah_default_amplicon,
               ]
 replicate_count: 5

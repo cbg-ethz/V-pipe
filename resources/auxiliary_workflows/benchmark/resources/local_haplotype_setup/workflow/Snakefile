@@ -69,7 +69,7 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
         f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
         mem_mb=20024,
-        runtime=4,
+        runtime=240,
         threads=10,
 
 
@@ -176,8 +176,9 @@ use rule run_method_local from distance as distance_run_method_local_global with
     benchmark:
         f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + distance.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
-        mem_mb=8024,
-        runtime=8000,
+        mem_mb=20024,
+        runtime=14400,
+        threads=25
 
 
 use rule performance_measures_local from distance as distance_performance_measures_local with:
@@ -260,9 +261,9 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
     benchmark:
         f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     resources:
-        mem_mb=18024,
+        mem_mb=60024,
         runtime=16000,
-        threads=120,
+        threads=30,
 
 
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
