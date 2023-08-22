@@ -44,4 +44,4 @@ This is a `csv`-file with the following columns:
 `coverage` Mean coverage per position in sample.     
 `haplos` There are two modes for the haplotype population as specified in the configuration file. Parameters are seperated with "@":  
 - For distance mode: haplos = n_group1,n_group2,d_group12,d_group1,d_group2,freq_dist,freq_param   
-- or mutation mode: haplos = mutation_rate,insertion_rate,deletion_rate,haplotype_pattern  
+- For mutation mode: haplos = mutation_rate,insertion_rate,deletion_rate,haplotype_pattern  
