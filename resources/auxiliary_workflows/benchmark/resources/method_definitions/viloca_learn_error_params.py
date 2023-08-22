@@ -25,21 +25,11 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.000001
     n_max_haplotypes = 500
-    n_mfa_starts = 50
+    n_mfa_starts = 1
     win_min_ext = 0.85
 
-    coverage=str(fname_bam).split('coverage~')[1].split('__')[0]
-    if float(coverage)>200:
-        exclude_non_var_pos_threshold = 2/float(coverage)
-    else:
-        exclude_non_var_pos_threshold = 1/float(coverage)
-
     read_length =  str(fname_bam).split('read_length~')[1].split('__')[0]
-    if read_length == "Ten_strain_IAV":
-        sampler = "learn_error_params"
-        win_min_ext =  0.5
-    else:
-        sampler = "use_quality_scores"
+    sampler = "learn_error_params"
 
     dname_work.mkdir(parents=True, exist_ok=True)
     if fname_insert_bed == []:
@@ -61,8 +51,6 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
-                "--exclude_non_var_pos_threshold",
-                str(exclude_non_var_pos_threshold),
             ],
             cwd=dname_work,
         )
@@ -88,8 +76,6 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
-                "--exclude_non_var_pos_threshold",
-                str(exclude_non_var_pos_threshold),
             ],
             cwd=dname_work,
         )

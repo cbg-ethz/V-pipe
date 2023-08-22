@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@feat-cavi-multi-start
+# PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
 import subprocess
 from pathlib import Path
@@ -24,8 +24,8 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.000001
-    n_max_haplotypes = 300
-    n_mfa_starts = 10
+    n_max_haplotypes = 500
+    n_mfa_starts = 50
     win_min_ext = 0.85
 
     read_length =  str(fname_bam).split('read_length~')[1].split('__')[0]
