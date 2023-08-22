@@ -4,8 +4,8 @@ illumina,shotgun,single_amplicon,249,249,1000,5@5@30@10@15@geom@0.75
 # Population 5
 illumina,shotgun,single_amplicon,249,249,1000,5@15@30@10@15@geom@0.75
 # Population 8 (ONT)
-nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@600@240@240@geom@0.75
+nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@600@200@300@geom@0.75
 # Population 10 (ONT)
-nanopore,shotgun,single_amplicon,5000,5000,1000,15@5@600@200@200@geom@0.75
+nanopore,shotgun,single_amplicon,5000,5000,1000,15@5@600@300@200@geom@0.75
 # amplicon mode
 #illumina,amplicon,400:100,249,9719,1000,5@5@1200@480@480@geom@0.75
