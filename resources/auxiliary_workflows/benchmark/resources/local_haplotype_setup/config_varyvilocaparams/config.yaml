@@ -3,10 +3,10 @@ method_list: [
               viloca_alpha_0.00001,
               viloca_alpha_0.000001,
               viloca_alpha_0.0000001,
-              #viloca_envp,
-              #viloca_multi,
-              #viloca_envp_multi,
-              #viloca_learn_error_params
+              viloca_envp,
+              viloca_multi,
+              viloca_envp_multi,
+              viloca_learn_error_params
               ]
 replicate_count: 5
 haplotype_generation: distance
