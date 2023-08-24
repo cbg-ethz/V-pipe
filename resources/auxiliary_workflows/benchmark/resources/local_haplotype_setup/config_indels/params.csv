@@ -1,0 +1,3 @@
+seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
+# Population 11
+illumina,amplicon,400:100,249,9719,1000,0.1@0.05@0.05@0.6:0.2:0.1:0.05:0.025:0.025

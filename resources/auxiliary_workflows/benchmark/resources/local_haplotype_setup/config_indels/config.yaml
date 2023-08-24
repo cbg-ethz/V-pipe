@@ -1,0 +1,8 @@
+method_list: [
+              viloca_alpha_0.000001,
+              viloca_uniform,
+              ]
+replicate_count: 5
+haplotype_generation: distance
+params_path: config_distance/params.csv
+master_seq_path: ../../../../hiv/HXB2.fasta
