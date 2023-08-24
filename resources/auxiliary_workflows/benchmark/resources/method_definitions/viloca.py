@@ -24,7 +24,7 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.000001
-    n_max_haplotypes = 300
+    n_max_haplotypes = 500
     n_mfa_starts = 1
     win_min_ext = 0.85
 
@@ -45,7 +45,7 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 fname_bam.resolve(),
                 "-f",
                 Path(fname_reference).resolve(),
-                "--sampler",
+                "--mode",
                 str(sampler),
                 "--alpha",
                 str(alpha),
@@ -70,7 +70,7 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 Path(fname_reference).resolve(),
                 "-z",
                 Path(fname_insert_bed).resolve(),
-                "--sampler",
+                "--mode",
                 str(sampler),
                 "--alpha",
                 str(alpha),
