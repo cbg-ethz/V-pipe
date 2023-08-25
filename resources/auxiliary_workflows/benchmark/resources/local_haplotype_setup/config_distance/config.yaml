@@ -8,6 +8,6 @@ method_list: [lofreq_local_haplo,
               shorah_default_amplicon,
               ]
 replicate_count: 5
-haplotype_generation: distance
+haplotype_generation: mutation_rate
 params_path: config_distance/params.csv
 master_seq_path: ../../../../hiv/HXB2.fasta
