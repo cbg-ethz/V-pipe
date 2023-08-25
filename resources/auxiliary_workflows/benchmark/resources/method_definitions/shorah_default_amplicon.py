@@ -12,7 +12,7 @@ from Bio import SeqIO
 def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_work,seq_tech, genome_size,read_length):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    if (read_length > genome_size) & (seq_tech == 'illumina'):
+    if (read_length > genome_size) & (seq_tech != 'illumina'):
         open(fname_result_haplos, 'a').close()
         # create empty vcf files
         f = open(fname_result, 'a')
