@@ -3,6 +3,6 @@ method_list: [
               viloca_uniform,
               ]
 replicate_count: 5
-haplotype_generation: distance
-params_path: config_distance/params.csv
+haplotype_generation: mutation_rate
+params_path: config_indels/params.csv
 master_seq_path: ../../../../hiv/HXB2.fasta
