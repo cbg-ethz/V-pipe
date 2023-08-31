@@ -10,7 +10,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 
-def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work, seq_type):
+def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work, seq_type, threads=1):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # prepare environment
@@ -44,7 +44,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             "-tl", # maximal runtime parameter
             "2*428400", # 119h*60*60
             "-threads",
-            "1",
+            str(threads),
             "-Xms612m",
             "-Xmx40g",
         ],
@@ -64,4 +64,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
         snakemake.wildcards.seq_tech,
+        snakemake.threads,
     )
