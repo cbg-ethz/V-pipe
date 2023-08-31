@@ -20,7 +20,7 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
             else:
                 d_file.write(block)
 
-def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_result_haplos, dname_work):
+def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_result_haplos, dname_work, threads=1):
 
     genome_size = str(fname_bam).split('genome_size~')[1].split('__coverage')[0]
     alpha = 0.000001
@@ -55,6 +55,8 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
+                "--threads",
+                str(threads),
             ],
             cwd=dname_work,
         )
@@ -80,6 +82,8 @@ def main(fname_bam, fname_reference,fname_insert_bed, fname_results_snv, fname_r
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
+                "--threads",
+                str(threads),
             ],
             cwd=dname_work,
         )
@@ -127,4 +131,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result),
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
+        snakemake.threads,
     )
