@@ -125,7 +125,7 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
         script_path=lambda wildcards, input: input.script,
     benchmark:
         f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
-    threads=10,
+    threads: 10,
     resources:
         mem_mb=20024,
         runtime=240,
