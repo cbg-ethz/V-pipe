@@ -79,3 +79,9 @@ if config.output["dehumanized_raw_reads"]:
 if config.output["upload"]:
 
     include: "rules/publish.smk"
+
+
+if config.output["dehumanized_raw_reads"] and config.output["upload"]:
+
+    # only if dehuman.smk and publish.smk are both included
+    ruleorder: dehuman > checksum
