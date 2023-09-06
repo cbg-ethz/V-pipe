@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - cojac =0.9
+  - cojac =0.9.1
