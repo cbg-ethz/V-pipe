@@ -1,6 +1,6 @@
 # Benchmarking module
 
-Benchmark Quasispecies assembly methods both on the level of SNVs as well as global haplotypes.
+Benchmarking module for diversity estimation methods from NGS data. This includes global and local haplotypes reconstruction, as well as mutation calling methods.
 
 ## Usage
 
@@ -24,10 +24,19 @@ Analogously, PIP packages can be added by writing `# PIP: <package name>`.
 Multiple packages can be added by repeating these lines.
 A conda environment will then be dynamically generated (when running Snakemake with `--use-conda`).
 
+## Example
+
+Global haplotype reconstruction benchmarking study: `resources/multi_setup/`.
+
+## Tutorial
+
+An simple tutorial on how to set-up your benchmarking study can be found in `docs/tutorial_benchmarking.md`.
 
 ## Configuring your benchmarking study
 
 ### Configuration file
+
+The configuration file is in `yaml` format with the following sections: 
 `method_list` List of methods that should be executed. Methods should be defined as described above.    
 `replicate_count` Number of replicates per line in `params.csv` that should be created.  
 `haplotype_generation` Either `distance` or `mutation_rate`. In `distance` haplotypes are generated based on distance pattern, in the mode `mutation_rate` haplotypes are based on mutation, deletion and insertion rates indicated in the column `haplos` in `params.csv`.  
