@@ -34,7 +34,8 @@ On your system you should have Python2 and Snakemake installed.
 
 In the directory `V-pipe/resources/auxiliary_workflows/benchmark/config` you find a two files:
 - config.yaml  
-- params.csv
+- params.csv  
+
 See `V-pipe/resources/auxiliary_workflows/benchmark/README.md` for a detailed description.
 
 In the configuration file `config.yaml` the methods that should be executed are specified. Note that the methods in `method_list` should have the same name as the Python file in `resources/method_definitions/` that is executing them. In the example below, we only apply two methods PredictHaplo and CliqueSNV.
