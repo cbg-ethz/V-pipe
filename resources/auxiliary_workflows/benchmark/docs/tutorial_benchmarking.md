@@ -60,7 +60,7 @@ An Illumina read sample is simulated consisting of two haplotypes.
 ```bash
 cat <<EOT > ./config/params.csv
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-illumina,shotgun,,249,9719,10000,0.1@0.05@0.05@0.6:0.4
+illumina,shotgun,,249,9719,1000,0.1@0.05@0.05@0.6:0.4
 
 EOT
 ```
