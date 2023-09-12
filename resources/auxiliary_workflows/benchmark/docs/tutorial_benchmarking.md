@@ -66,7 +66,7 @@ EOT
 ```
 
 
-## Running V-pipe
+## Running your benchmarking study
 
 Before running check what will be executed:
 ```bash
