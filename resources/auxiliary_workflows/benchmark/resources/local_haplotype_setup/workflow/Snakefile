@@ -59,6 +59,7 @@ rule all:
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
         "results/realdata/performance_measures/local/",
+        "results/realdata/performance_measures/global/",
         "results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
     default_target: True
 
