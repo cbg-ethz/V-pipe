@@ -136,20 +136,20 @@ use rule performance_measures_local from varyvilocaparams as varyvilocaparams_pe
         vcf_list=[
             f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
             for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list
+            for method in varyvilocaparams.method_list if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
             f"results/varyvilocaparams/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
             for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list
+            for method in varyvilocaparams.method_list if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         benchmark_list=[
             f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
             for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list
+            for method in varyvilocaparams.method_list if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(varyvilocaparams.config["replicate_count"])
         ],
         haplostats_list=[
