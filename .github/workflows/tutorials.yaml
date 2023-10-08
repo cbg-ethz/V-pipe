@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  build_n_push:
+  installer:
     runs-on: ubuntu-latest
 
     defaults:
@@ -20,6 +20,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+            sparse-checkout: |
+                docs
+                tests
+            sparse-checkout-cone-mode: false
             lfs: false
 
       - name: Install conda environment dependencies
@@ -29,7 +33,7 @@ jobs:
           miniforge-variant: Mambaforge
           python-version: "3.11"
           mamba-version: "*"
-          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
+          channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: JupyText
           auto-update-conda: true
@@ -39,14 +43,28 @@ jobs:
         run: |
           python -m ipykernel install --user
 
-      - name: Run notebooks
+      - name: Run installation notebooks
         working-directory: ./docs
-        run: ./convert.sh branch
+        run: ./convert.sh --branch *_install.md
 
-      - uses: actions/upload-artifact@v3
+      - name: Create V-pipe installation archive
+        # HACK this acceleraters upload while preserving Unix-specifics (case sensitivity, file attributes).
+        run: tar -cvf vpipeinstallation.tar ./docs/vp-analysis
+
+      - name: Keep installation
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPipeInstallation
+          path: vpipeinstallation.tar
+          if-no-files-found: error
+
+      - name: Save notebooks
+        uses: actions/upload-artifact@v3
         with:
           name: JupyterNotebooks
           path: ./docs/*.ipynb
+
+
       # - name: Publish
       #   uses: peaceiris/actions-gh-pages@v3
       #   with:
