@@ -21,6 +21,24 @@ This tutorial shows the basics of how to interact with V-pipe.
 
 For the purpose of this Tutorial, we will work with the master branch of V-pipe and use the _sars-cov-2_ virus base config which is adapted for the SARS-CoV-2 virus.
 
+## Requirements
+
+The tutorial assumes that you have [installed V-pipe using the installation tutorial](tutorial_0_install.md), and that the workflow is setup with the following structure:
+
+```text
+📁 [HOME]
+└───📁vp-analysis
+    ├───📁V-pipe      # V-pipe checked out from Github
+    ├───📁Miniforge3  # bioconda + conda-forge + mamba + Snakemake
+    ├───📁work        # work directories
+    ├───📁work-tests  #  …
+    └───📁 …          #  …
+```
+
+- `vp-analysis` is the main directory where we installed everything in the previous tutorial
+- `Miniforge3` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
+- `V-pipe` is the directory with V-pipe's own code
+- and for this tutorial we will create a directory like `work…`, which will hold the configuration and the sequencing data for our analysis.
 
 ## Organizing Data
 
@@ -89,34 +107,20 @@ tree samples
 
 ## Install V-pipe
 
-V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is written using [Snakemake](https://snakemake.readthedocs.io/en/stable/).
+## Install V-pipe
 
-> **For advanced users:** If your are fluent with these tools, you can:
->
-> * directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
-> * make sure to configure V-pipe to use the `sars-cov-2` virus-config
-> * and start using V-pipe with them, using the --use-conda to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies.
-> * please refer to the [documentation](https://github.com/cbg-ethz/V-pipe/blob/master/README.md) for additional instructions.
->
-> The present tutorial will show simplified commands that automate much of this process.
-
-To deploy V-pipe, you can use the installation script with the following parameters:
+After [having installed V-pipe using the installation tutorial](tutorial_0_install.md), create a new working directory for this analysis:
 
 ```bash
-curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
-bash quick_install.sh -p tutorial -w work
+cd vp-analysis
+
+# create a new directory and initialise it
+mkdir -p work_sarscov2
+cd work_sarscov2
+../V-pipe/init_project.sh
+
+cd ../..
 ```
-
-* using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
-* using `-w` will create a working directory and populate it. It will copy over the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
-
-> **Tip:** To create and populate other new working directories, you can call init_project.sh from within the new directory:
->
-> ```console
-> mkdir -p working_2
-> cd working_2
-> ../V-pipe/init_project.sh
-> ```
 
 
 ## Running V-pipe
@@ -124,13 +128,13 @@ bash quick_install.sh -p tutorial -w work
 Copy the samples directory you created in the step [Preparing a small](#preparing-a-small-dataset) dataset to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
 
 ```bash
-mv samples tutorial/work/
+mv samples vp-analysis/work_sarscov2/
 ```
 
 Prepare V-pipe's configuration. You can find more information in [the documentation](https://github.com/cbg-ethz/V-pipe/blob/master/config/README.md). In your local V-pipe installation, you will also find an exhaustive manual about all the configuration options inside `config/config.html`.
 
 ```bash
-cat <<EOT > tutorial/work/config.yaml
+cat <<EOT > vp-analysis/work_sarscov2/config.yaml
 general:
     virus_base_config: 'sars-cov-2'
 
@@ -139,6 +143,7 @@ input:
 
 output:
     trim_primers: false
+    # NOTE: set "snv" to "true" to run the tutorial. We left "false" so automated test doesn't take too much time on GitHub.
     snv: false
     local: false
     global: false
@@ -153,7 +158,7 @@ EOT
 Check what will be executed:
 
 ```bash
-cd tutorial/work/
+cd vp-analysis/work_sarscov2/
 ./vpipe --dryrun
 cd ../..
 ```
@@ -163,7 +168,7 @@ As it is your first run of V-pipe, this will also generate the sample collection
 Note that the demo files you downloaded have reads of length 150 only. V-pipe’s default parameters are optimized for reads of length 250; add the third column in the tab-separated file:
 
 ```bash
-cat <<EOT > tutorial/work/samples.tsv
+cat <<EOT > vp-analysis/work_sarscov2/samples.tsv
 SRR10903401	20200102	150
 SRR10903402	20200102	150
 EOT
@@ -176,7 +181,7 @@ You can safely delete it and re-run the `--dryrun` to regenerate it.
 Run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
 
 ```bash
-cd tutorial/work/
+cd vp-analysis/work_sarscov2/
 ./vpipe -p --cores 2
 ```
 
@@ -219,7 +224,7 @@ The most user friendly way to submit jobs to the cluster is using a special _sna
 [smk-simple-slurm](https://github.com/jdblischak/smk-simple-slurm) is a profile that works well in our experience with SLURM (for other platforms see suggestions in [the snakemake-profil documentation](https://github.com/snakemake-profiles/doc)).
 
 ```bash
-cd tutorial/
+cd vp-analysis/
 # download the profile
 git clone https://github.com/jdblischak/smk-simple-slurm.git
 # edit simple/config.yaml and either comment out the partition and qos or adapt to your local HPC
@@ -249,7 +254,7 @@ printshellcmds: True
 scheduler: greedy
 use-conda: True
 EOT
-cd work/
+cd work_sarscov2/
 ./vpipe --dry-run --profile ../smk-simple-slurm/simple/ --jobs 100
 cd ../..
 ```
@@ -265,7 +270,7 @@ In addition, Snakemake has [parameters for conda](https://snakemake.readthedocs.
 - using `--conda-prefix=`_{DIR}_ stores the conda environments of dependencies in a common directory (thus possible to share and re-use between multiple instances of V-pipe).
 
 ```bash
-cd tutorial/work/
+cd  vp-analysis/work_sarscov2/
 # First download all bioconda dependencies ahead of time
 ./vpipe --conda-prefix ../snake-envs --cores 1 --conda-create-envs-only
 # And then run on the cluster, the compute node will not need to download anything
