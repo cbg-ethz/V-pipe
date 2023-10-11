@@ -612,9 +612,12 @@ def main(
     benchmark_plots(df_bench, dname_out)
 
     # precision/recall
-    df_pr = compute_pr(df_pred, df_true)
+    df_pr = compute_pr(df_pred, df_true, thres=0.005)
+    df_pr.to_csv(csv_dir / "pr_results_thres0.005.csv")
+    df_pr = compute_pr(df_pred, df_true, thres=0.01)
     plot_pr(df_pr, df_stats, dname_out)
     df_pr.to_csv(csv_dir / "pr_results.csv")
+
 
     if quast:
         # quast stuff
