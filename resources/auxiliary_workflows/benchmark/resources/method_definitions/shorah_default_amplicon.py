@@ -9,18 +9,26 @@ from os.path import isfile, join
 from Bio import SeqIO
 
 
-def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_work,seq_tech, genome_size,read_length):
+def main(
+    fname_bam,
+    fname_reference,
+    fname_result,
+    fname_result_haplos,
+    dname_work,
+    seq_tech,
+    genome_size,
+    read_length,
+):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    if (read_length > genome_size) & (seq_tech != 'illumina'):
-        open(fname_result_haplos, 'a').close()
+    if (read_length > genome_size) & (seq_tech != "illumina"):
+        open(fname_result_haplos, "a").close()
         # create empty vcf files
-        f = open(fname_result, 'a')
+        f = open(fname_result, "a")
         f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
         f.close()
 
     else:
-
         subprocess.run(
             [
                 "shorah",
@@ -39,16 +47,16 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
         mypath = (dname_work).resolve()
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for file in onlyfiles:
-            if file.endswith('reads-support.fas'):
+            if file.endswith("reads-support.fas"):
                 fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-                (dname_work  / file).rename(fname_result_haplos)
+                (dname_work / file).rename(fname_result_haplos)
 
         # fix frequency information
 
         freq_list = []
         for record in SeqIO.parse(fname_result_haplos, "fasta"):
-            freq_list.append(float(record.description.split('ave_reads=')[-1]))
-        norm_freq_list = [float(i)/sum(freq_list) for i in freq_list]
+            freq_list.append(float(record.description.split("ave_reads=")[-1]))
+        norm_freq_list = [float(i) / sum(freq_list) for i in freq_list]
 
         record_list = []
         for idx, record in enumerate(SeqIO.parse(fname_result_haplos, "fasta")):

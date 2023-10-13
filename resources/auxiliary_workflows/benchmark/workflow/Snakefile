@@ -217,9 +217,9 @@ rule simulate_scheme:
     params:
         params=paramspace.instance,
     wildcard_constraints:
-        seq_mode='amplicon',
+        seq_mode="amplicon",
         #seq_mode=r"(?!real_data).*",
-        seq_mode_param=r"(?!real_data).*", #or r"(?!single_amplicon).*",
+        seq_mode_param=r"(?!real_data).*",  #or r"(?!single_amplicon).*",
     script:
         "scripts/simulate_scheme.py"
 
@@ -277,6 +277,7 @@ rule provide_curlcakes_ONT_data:
             cp "$fname_reference" "{output.fname_reference}"
         fi
         """
+
 
 rule provide_Five_strain_PVY_mix:
     output:
@@ -341,7 +342,6 @@ rule provide_Ten_strain_IAV:
         cp "$fname_insert_bed" "{output.fname_insert_bed}"
         cp "$fname_fasta" "{output.fname_fasta}"
         """
-
 
 
 rule provide_2_SARS_CoV_2_mix:
@@ -540,17 +540,19 @@ rule read_statistics:
     script:
         "scripts/read_statistics.py"
 
+
 rule bed_file_single_amplicon:
     input:
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
     output:
-        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
+        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
     wildcard_constraints:
         seq_mode_param="single_amplicon",
     conda:
         "envs/simulate_reads.yaml"
     script:
         "scripts/bed_file_single_amplicon.py"
+
 
 rule run_method_local:
     input:
@@ -561,7 +563,8 @@ rule run_method_local:
         fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
         fname_insert_bed=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
-        if wildcards.seq_mode == "amplicon" or wildcards.seq_mode_param == "single_amplicon"
+        if wildcards.seq_mode == "amplicon"
+        or wildcards.seq_mode_param == "single_amplicon"
         else [],
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",

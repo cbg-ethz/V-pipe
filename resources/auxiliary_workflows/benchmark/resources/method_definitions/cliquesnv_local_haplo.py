@@ -10,7 +10,15 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 
-def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work, seq_type, threads=1):
+def main(
+    fname_bam,
+    fname_reference,
+    fname_results_snv,
+    fname_result_haplos,
+    dname_work,
+    seq_type,
+    threads=1,
+):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # prepare environment
@@ -39,10 +47,10 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             dname_work / "reads.sam",
             "-outDir",
             dname_work / "output",
-            "-tf", # parameter to detect low-frequent mutations
+            "-tf",  # parameter to detect low-frequent mutations
             "0.001",
-            "-tl", # maximal runtime parameter
-            "2*428400", # 119h*60*60
+            "-tl",  # maximal runtime parameter
+            "2*428400",  # 119h*60*60
             "-threads",
             str(threads),
             "-Xms612m",
@@ -66,10 +74,10 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
     else:
         record_list = []
 
-    SeqIO.write(record_list, fname_result_haplos , "fasta")
+    SeqIO.write(record_list, fname_result_haplos, "fasta")
 
     # create empty vcf files
-    f = open(fname_results_snv, 'a')
+    f = open(fname_results_snv, "a")
     f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
     f.close()
 

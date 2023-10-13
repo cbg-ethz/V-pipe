@@ -10,7 +10,15 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 
-def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dname_work, seq_type, threads=1):
+def main(
+    fname_bam,
+    fname_reference,
+    fname_results_snv,
+    fname_result_haplos,
+    dname_work,
+    seq_type,
+    threads=1,
+):
     dname_work.mkdir(parents=True, exist_ok=True)
 
     # prepare environment
@@ -39,10 +47,10 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
             dname_work / "reads.sam",
             "-outDir",
             dname_work / "output",
-            "-tf", # parameter to detect low-frequent mutations
+            "-tf",  # parameter to detect low-frequent mutations
             "0.01",
-            "-tl", # maximal runtime parameter
-            "2*428400", # 2*119h*60*60
+            "-tl",  # maximal runtime parameter
+            "2*428400",  # 2*119h*60*60
             "-threads",
             str(threads),
             "-Xms612m",
@@ -53,7 +61,7 @@ def main(fname_bam, fname_reference, fname_results_snv, fname_result_haplos, dna
     (dname_work / "output" / "reads.vcf").rename(fname_results_snv)
 
     # create empty haplotype files
-    open(fname_result_haplos, 'a').close()
+    open(fname_result_haplos, "a").close()
 
 
 if __name__ == "__main__":

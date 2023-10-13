@@ -39,13 +39,15 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
         ]
     )
 
+
 def rename_reads(original_file, corrected_file, suffix):
-    with open(original_file) as original, open(corrected_file, 'w') as corrected:
-        records = SeqIO.parse(original_file, 'fastq')
+    with open(original_file) as original, open(corrected_file, "w") as corrected:
+        records = SeqIO.parse(original_file, "fastq")
         for record in records:
             record.description = record.description + "_" + str(suffix)
-            record.id=record.description
-            SeqIO.write(record, corrected, 'fastq')
+            record.id = record.description
+            SeqIO.write(record, corrected, "fastq")
+
 
 def simulate_pacbio(
     fname_haplotype, coverage_haplotype, read_length, art_prefix, pbsim2_model
@@ -76,7 +78,7 @@ def simulate_pacbio(
         ]
     )
     # rename reads in fastq
-    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
+    suffix = str(fname_haplotype).split("/")[-1].split(".")[0]
     corrected_file = str(art_prefix) + "_0001.cor.fastq"
     original_file = str(art_prefix) + "_0001.fastq"
     rename_reads(original_file, corrected_file, suffix)
@@ -129,7 +131,7 @@ def simulate_nanopore(
     )
 
     # rename reads in fastq
-    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
+    suffix = str(fname_haplotype).split("/")[-1].split(".")[0]
     corrected_file = str(art_prefix) + "_0001.cor.fastq"
     original_file = str(art_prefix) + "_0001.fastq"
     rename_reads(original_file, corrected_file, suffix)

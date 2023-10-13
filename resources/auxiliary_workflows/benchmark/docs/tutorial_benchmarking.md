@@ -97,4 +97,7 @@ The module creates a `results` directory of the following structure:
 └───📁performance_measures
 ```
 
-In `simulated_reads` you find the simulated read samples, in `method_runs` are the directories for each sample and method with the corresponding output files of the executed method. In `haplo_stats` are some summary statistics of the simulated haplotype populations. In the directory `performance_measures` are the performance comparison tables of the methods. In our case, where we evaluate the global haplotype reconstruction methods, these are precision, recall and N50 score.
+In `simulated_reads` you find the simulated read samples, in `method_runs` are the directories for each sample and method with the corresponding output files of the executed method.
+In `haplo_stats` are some summary statistics of the simulated haplotype populations.
+In the directory `performance_measures` are the performance comparison tables of the methods.
+In our case, where we evaluate the global haplotype reconstruction methods, these are precision, recall and N50 score.

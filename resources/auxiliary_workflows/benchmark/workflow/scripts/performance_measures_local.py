@@ -191,14 +191,13 @@ def mutation_calls_details(vcf_list, groundtruth_list, dname_out):
 
         if len(parts) == 7:
             _, _, params, method, _, replicate, _ = parts
-        elif len(parts) == 8: # for multi workflow
+        elif len(parts) == 8:  # for multi workflow
             _, _, _, params, method, _, replicate, _ = parts
 
         predicted_variants = convert_vcf(fname_vcf)
 
         # iter through ground truth mutations
         for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
-
             true_variant = str(gt_row["position"]) + gt_row["variant"]
 
             if true_variant in predicted_variants:
