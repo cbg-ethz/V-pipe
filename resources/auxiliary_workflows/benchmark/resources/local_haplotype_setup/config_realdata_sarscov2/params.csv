@@ -1,5 +1,0 @@
-seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-illumina,amplicon,real_data,Two-strain-SARS-CoV-2,C2_Wild_10_03,0.25,
-illumina,amplicon,real_data,Two-strain-SARS-CoV-2,E1_Wild_50_02,0.25,
-illumina,amplicon,real_data,Two-strain-SARS-CoV-2,G1_Wild_100_01,0.25,
-illumina,amplicon,real_data,Two-strain-SARS-CoV-2,H1_Wild_100_02,0.25,

@@ -15,6 +15,7 @@ method_list: [haploclique,
               qualhap_learn_error_params_unique,
               qualhap_learn_error_params,
               qualhap_use_quality_scores,
+              viloca,
               ]
 
 replicate_count: 10

@@ -5,6 +5,7 @@
 # parameters are seperated with "@"
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
 illumina,shotgun,,240,1000,100,5@5@20@10@6@geom@0.75
+illumina,shotgun,single_amplicon,240,240,100,5@5@20@10@6@geom@0.75
 # illumina,amplicon,400:100,200,1000,100,5@5@20@10@6@dirichlet@1:1:1:1:1:1:1:1:1:1
 # illumina,shotgun,,240,1000,100,0.1@0@0@0.6:0.4
 # illumina,amplicon,400:100,200,1000,100,0.1@0@0@0.6:0.4

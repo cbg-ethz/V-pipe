@@ -137,6 +137,7 @@ def performance_plots(vcf_list, groundtruth_list, dname_out):
         col="variable",
         kind="box",
     )
+    g.set_xticklabels(rotation=90, size=6)
     g.set(ylim=(0, 1))
     g.savefig(dname_out / "performance_boxplot.pdf")
 
@@ -182,10 +183,62 @@ def runtime_plots(benchmark_list, dname_out):
     g.savefig(dname_out / "runtime_boxplot.pdf")
 
 
+def mutation_calls_details(vcf_list, groundtruth_list, dname_out):
+    # compute performance
+    tmp = []
+    for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
+        parts = str(fname_vcf).split("/")
+
+        if len(parts) == 7:
+            _, _, params, method, _, replicate, _ = parts
+        elif len(parts) == 8: # for multi workflow
+            _, _, _, params, method, _, replicate, _ = parts
+
+        predicted_variants = convert_vcf(fname_vcf)
+
+        # iter through ground truth mutations
+        for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
+
+            true_variant = str(gt_row["position"]) + gt_row["variant"]
+
+            if true_variant in predicted_variants:
+                tmp.append(
+                    {
+                        "method": method,
+                        "params": params,
+                        "replicate": replicate,
+                        "true_positive": 1,
+                        "false_negative": 0,
+                        "haplotype": gt_row["haplotype"],
+                        "frequency": gt_row["frequency"],
+                        "position": gt_row["position"],
+                        "variant": gt_row["variant"],
+                    }
+                )
+            else:
+                # true variant was not found
+                tmp.append(
+                    {
+                        "method": method,
+                        "params": params,
+                        "replicate": replicate,
+                        "true_positive": 0,
+                        "false_negative": 1,
+                        "haplotype": gt_row["haplotype"],
+                        "frequency": gt_row["frequency"],
+                        "position": gt_row["position"],
+                        "variant": gt_row["variant"],
+                    }
+                )
+
+    pd.DataFrame(tmp).to_csv(dname_out / "performance_mutation_calls_detailed.csv")
+
+
 def main(vcf_list, groundtruth_list, benchmark_list, dname_out):
     dname_out.mkdir(parents=True)
 
     performance_plots(vcf_list, groundtruth_list, dname_out)
+    mutation_calls_details(vcf_list, groundtruth_list, dname_out)
     runtime_plots(benchmark_list, dname_out)
 
 

@@ -5,7 +5,7 @@ import fileinput
 import subprocess
 from pathlib import Path
 import math
-
+from Bio import SeqIO
 import numpy as np
 
 
@@ -14,6 +14,7 @@ np.random.seed(RNG_SEED)
 
 
 def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_prefix):
+    print("coverage_haplotype ", coverage_haplotype)
     subprocess.run(
         [
             "art_illumina",
@@ -38,6 +39,13 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
         ]
     )
 
+def rename_reads(original_file, corrected_file, suffix):
+    with open(original_file) as original, open(corrected_file, 'w') as corrected:
+        records = SeqIO.parse(original_file, 'fastq')
+        for record in records:
+            record.description = record.description + "_" + str(suffix)
+            record.id=record.description
+            SeqIO.write(record, corrected, 'fastq')
 
 def simulate_pacbio(
     fname_haplotype, coverage_haplotype, read_length, art_prefix, pbsim2_model
@@ -46,6 +54,7 @@ def simulate_pacbio(
     diff_ratio = "6:50:54"  # --difference-ratio
     # run PBSIM2
     print("fname_haplotype ", fname_haplotype)
+    print("coverage_haplotype ", coverage_haplotype)
     subprocess.run(
         [
             "pbsim",
@@ -66,6 +75,12 @@ def simulate_pacbio(
             art_prefix,
         ]
     )
+    # rename reads in fastq
+    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
+    corrected_file = str(art_prefix) + "_0001.cor.fastq"
+    original_file = str(art_prefix) + "_0001.fastq"
+    rename_reads(original_file, corrected_file, suffix)
+
     # align reads
     subprocess.run(
         [
@@ -74,7 +89,7 @@ def simulate_pacbio(
             "map-pb",
             "--secondary=no",
             fname_haplotype,
-            str(art_prefix) + "_0001.fastq",
+            corrected_file,
             "-o",
             str(art_prefix) + ".sam",
         ]
@@ -90,6 +105,7 @@ def simulate_nanopore(
 ):
     # --difference-ratio 23:31:46
     diff_ratio = "23:31:46"  # --difference-ratio
+    print("coverage_haplotype ", coverage_haplotype)
     # run PBSIM2
     subprocess.run(
         [
@@ -111,6 +127,13 @@ def simulate_nanopore(
             art_prefix,
         ]
     )
+
+    # rename reads in fastq
+    suffix = str(fname_haplotype).split("/")[-1].split('.')[0]
+    corrected_file = str(art_prefix) + "_0001.cor.fastq"
+    original_file = str(art_prefix) + "_0001.fastq"
+    rename_reads(original_file, corrected_file, suffix)
+
     # align reads
     subprocess.run(
         [
@@ -119,7 +142,7 @@ def simulate_nanopore(
             "map-ont",
             "--secondary=no",
             fname_haplotype,
-            str(art_prefix) + "_0001.fastq",
+            corrected_file,
             "-o",
             str(art_prefix) + ".sam",
         ]

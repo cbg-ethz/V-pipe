@@ -1,3 +1,0 @@
-seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-pacbio,shotgun,,9719,9719,500,0.1@0@0@0.7:0.2:0.05:0.05
-nanopore,shotgun,,9719,9719,1000,0.1@0@0@0.7:0.2:0.05:0.05

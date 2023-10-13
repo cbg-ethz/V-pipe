@@ -1,8 +1,0 @@
-method_list: [shorah_test_use_quality_scores_unique,
-              shorah_test_learn_error_params_unique,
-              shorah_test_learn_error_params,
-              shorah_test_use_quality_scores]
-replicate_count: 1
-haplotype_generation: mutation_rate
-params_path: config_test/params.csv
-master_seq_path: ../../../../hiv/HXB2.fasta

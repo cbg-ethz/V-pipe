@@ -614,9 +614,12 @@ def main(
     benchmark_plots(df_bench, dname_out)
 
     # precision/recall
-    df_pr = compute_pr(df_pred, df_true)
+    df_pr = compute_pr(df_pred, df_true, thres=0.005)
+    df_pr.to_csv(csv_dir / "pr_results_thres0.005.csv")
+    df_pr = compute_pr(df_pred, df_true, thres=0.01)
     plot_pr(df_pr, df_stats, dname_out)
     df_pr.to_csv(csv_dir / "pr_results.csv")
+
 
     if quast:
         # quast stuff
@@ -630,14 +633,15 @@ def main(
     df_mds = sequence_embedding(df_pred, df_true, dname_out)
     df_mds.to_csv(csv_dir / "mds_results.csv.gz")
 
-    # subset MDS plot to show well-performing methods
-    sequence_embedding(
-        df_pred[
-            (df_pred["method"] != "haploclique") & (df_pred["method"] != "haploconduct")
-        ],
-        df_true,
-        dname_out / "subset",
-    )
+    if quast:
+        # subset MDS plot to show well-performing methods
+        sequence_embedding(
+            df_pred[
+                (df_pred["method"] != "haploclique") & (df_pred["method"] != "haploconduct")
+            ],
+            df_true,
+            dname_out / "subset",
+        )
 
 
 if __name__ == "__main__":
