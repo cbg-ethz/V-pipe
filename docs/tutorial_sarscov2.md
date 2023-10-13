@@ -107,8 +107,6 @@ tree samples
 
 ## Install V-pipe
 
-## Install V-pipe
-
 After [having installed V-pipe using the installation tutorial](tutorial_0_install.md), create a new working directory for this analysis:
 
 ```bash
