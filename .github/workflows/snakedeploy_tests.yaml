@@ -41,6 +41,7 @@ jobs:
         with:
           miniforge-version: latest
           miniforge-variant: Mambaforge
+          python-version: "3.11" # temporary fix for snakemake issue #2480
           mamba-version: "*"
           channels: conda-forge,bioconda
           channel-priority: strict

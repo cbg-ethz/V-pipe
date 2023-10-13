@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
+  - python <3.12 # temporary fix for snakemake issue #2480
   - snakemake-minimal
   - snakedeploy
   - go-yq
