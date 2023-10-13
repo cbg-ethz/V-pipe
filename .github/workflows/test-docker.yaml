@@ -1,11 +1,10 @@
-name: Deploy Docker image
+name: Test Docker image 
 
 on:
   push:
     branches:
-      - master
-    tags:
-      - 'v*'
+      - '*'
+      - '!master'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,24 +28,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        if: contains(github.ref, 'master') || startsWith(github.ref, 'refs/tags')
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push
+      - name: Build and save
         id: docker_build
         uses: docker/build-push-action@v5
         with:
-          push: ${{ contains(github.ref, 'master') || startsWith(github.ref, 'refs/tags') }}
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=docker,dest=/tmp/vpipe-docker.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        if: "( !contains(github.ref, 'master') && !startsWith(github.ref, 'refs/tags') )"
+        with:
+          name: vpipe-docker
+          path: /tmp/vpipe-docker.tar
