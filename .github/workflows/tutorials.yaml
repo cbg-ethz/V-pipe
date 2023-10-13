@@ -17,6 +17,12 @@ jobs:
         shell: bash -l {0}
 
     steps:
+      - name: Free space
+        # HACK fixes 'No space left on device'
+        # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
+        # NOTE we don't use those, we use conda for everything anyway
+        run: rm -rf /opt/hostedtoolcache
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -31,7 +37,6 @@ jobs:
         with:
           miniforge-version: latest
           miniforge-variant: Mambaforge
-          python-version: "3.11"
           mamba-version: "*"
           channels: conda-forge,bioconda
           channel-priority: strict
@@ -81,6 +86,12 @@ jobs:
         shell: bash -l {0}
 
     steps:
+      - name: Free space
+        # HACK fixes 'No space left on device'
+        # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
+        # NOTE we don't use those, we use conda for everything anyway
+        run: rm -rf /opt/hostedtoolcache
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:

@@ -22,6 +22,12 @@ jobs:
       packages: write
 
     steps:
+      - name: Free space
+        # HACK fixes 'No space left on device'
+        # see: https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
+        # NOTE we don't use those, we run everything inside Docker, anyway
+        run: rm -rf /opt/hostedtoolcache
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -41,11 +47,11 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=docker,dest=/tmp/vpipe-docker.tar
+          outputs: type=docker,dest=./vpipe-docker.tar.zst,compression=zstd,compression-level=6
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         if: "( !contains(github.ref, 'master') && !startsWith(github.ref, 'refs/tags') )"
         with:
           name: vpipe-docker
-          path: /tmp/vpipe-docker.tar
+          path: ./vpipe-docker.tar.zst
