@@ -4,8 +4,8 @@ method_list: [
               viloca_alpha_0.000001,
               viloca_alpha_0.0000001,
               viloca_envp,
-              viloca_multi,
-              viloca_envp_multi,
+              #viloca_multi, for those two I had problems with the core allocation on the cluster
+              #viloca_envp_multi,
               viloca_learn_error_params
               ]
 replicate_count: 5
