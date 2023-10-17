@@ -41,7 +41,7 @@ def main(
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]
     if read_length == "Ten_strain_IAV":
         sampler = "learn_error_params"
-        win_min_ext = 0.5
+        win_min_ext = 0.7
     else:
         sampler = "use_quality_scores"
 
