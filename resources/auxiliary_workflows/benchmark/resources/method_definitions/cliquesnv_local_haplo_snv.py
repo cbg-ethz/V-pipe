@@ -58,7 +58,18 @@ def main(
         ],
         check=True,
     )
-    (dname_work / "output" / "reads.vcf").rename(fname_results_snv)
+    # Note: often CliqueSNV is not terminating within the ggiven runtime,
+    # then no file is outputed in this case we produce an empty one 
+
+    # check if vcf was created
+    if (dname_work / "output" / "reads.vcf").is_file():
+        # file exists
+        (dname_work / "output" / "reads.vcf").rename(fname_results_snv)
+    else:
+        # create empty vcf files
+        f = open(fname_results_snv, 'a')
+        f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
+        f.close()
 
     # create empty haplotype files
     open(fname_result_haplos, "a").close()
