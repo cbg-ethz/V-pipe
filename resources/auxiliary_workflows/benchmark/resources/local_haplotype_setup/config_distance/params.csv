@@ -3,6 +3,7 @@ seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
 illumina,shotgun,single_amplicon,249,249,1000,2@3@30@20@20@geom@0.75
 # Population 2
 illumina,shotgun,single_amplicon,249,249,1000,5@5@20@4@12@geom@0.75
+illumina,shotgun,single_amplicon,201,201,1000,5@5@20@4@12@geom@0.75
 # Population 3 (vary covverage)
 illumina,shotgun,single_amplicon,249,249,100,5@5@30@10@15@geom@0.75
 illumina,shotgun,single_amplicon,249,249,500,5@5@30@10@15@geom@0.75
@@ -11,13 +12,19 @@ illumina,shotgun,single_amplicon,249,249,1000,5@5@30@10@15@geom@0.75
 illumina,shotgun,single_amplicon,249,249,5000,5@5@30@10@15@geom@0.75
 illumina,shotgun,single_amplicon,249,249,10000,5@5@30@10@15@geom@0.75
 # Population 4
+illumina,shotgun,single_amplicon,201,201,1000,5@10@30@10@10@geom@0.75
+illumina,shotgun,single_amplicon,249,249,1000,5@10@30@10@10@geom@0.75
 illumina,shotgun,single_amplicon,249,249,1000,5@10@30@10@15@geom@0.75
 # Population 5
 illumina,shotgun,single_amplicon,249,249,1000,5@15@30@10@15@geom@0.75
 # Population 6
+#nanopore,shotgun,single_amplicon,5000,5000,800,2@3@600@400@400@geom@0.75
+#nanopore,shotgun,single_amplicon,5000,5000,5000,2@3@600@400@400@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,2@3@600@400@400@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,2@3@600@400@400@geom@0.75
 # Population 7
+#nanopore,shotgun,single_amplicon,5000,5000,800,5@5@400@80@240@geom@0.75
+#nanopore,shotgun,single_amplicon,5000,5000,5000,5@5@400@80@240@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@400@80@240@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@5@400@80@240@geom@0.75
 # Population 8 (vary coverage)
@@ -34,8 +41,12 @@ pacbio,shotgun,single_amplicon,5000,5000,800,5@5@600@200@300@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@5@600@200@300@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,5000,5@5@600@200@300@geom@0.75
 # Population 9
+#nanopore,shotgun,single_amplicon,5000,5000,800,5@10@600@200@300@geom@0.75
+#nanopore,shotgun,single_amplicon,5000,5000,5000,5@10@600@200@300@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@300@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@300@geom@0.75
 # Population 10
+#nanopore,shotgun,single_amplicon,5000,5000,800,15@5@600@300@200@geom@0.75 --> coverage_haplotype  0
+#nanopore,shotgun,single_amplicon,5000,5000,5000,15@5@600@300@200@geom@0.75
 nanopore,shotgun,single_amplicon,5000,5000,1000,15@5@600@300@200@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,15@5@600@300@200@geom@0.75
