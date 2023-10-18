@@ -1,9 +1,12 @@
 BIBS = $(wildcard *.bib)
 HTMLS = $(patsubst %.bib, ../_includes/literature-%.html, $(BIBS))
 
-.phony: test all
+.phony: test all clean
 
 all: $(HTMLS)
+
+clean:
+	rm -v $(HTMLS)
 
 $(HTMLS): ref.md
 

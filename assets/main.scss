@@ -138,7 +138,7 @@
 	background-color: #EACDCD;
 	color: #333;
       }
-      div.references[role=doc-bibliography] div {
+      div.references[role=list] div[role=listitem] {
         display: list-item;
         margin-left: 30px;
       }
