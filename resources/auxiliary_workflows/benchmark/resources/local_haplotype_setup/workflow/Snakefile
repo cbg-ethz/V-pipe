@@ -253,7 +253,7 @@ use rule run_method_local from distance as distance_run_method_local_global with
     threads: 30
     resources:
         mem_mb=60024,
-        runtime=14400,
+        runtime=10*24*60,
 
 
 use rule performance_measures_local from distance as distance_performance_measures_local with:
@@ -341,7 +341,7 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
     threads: 30
     resources:
         mem_mb=60024,
-        runtime=15400,
+        runtime=15*24*60,
 
 
 use rule performance_measures_local from realdata as realdata_performance_measures_local with:
