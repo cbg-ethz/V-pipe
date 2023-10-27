@@ -1,10 +1,10 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
 #
 # HIV-5-Virus-Mix
-illumina,real_data,5-virus-mix,,,1,0.5 
+illumina,real_data,5-virus-mix,,,1,0.5
 #
 # PVY-5-Strain-Mix
-nanopore,amplicon,real_data,Five_strain_PVY,,9698,
+nanopore,real,real_data,Five_strain_PVY,,9698,
 # IAV- 10 strain mix
 pacbio,amplicon,real_data,Ten_strain_IAV,,2300,
 #
