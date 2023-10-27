@@ -61,7 +61,7 @@ use rule * from realdata as realdata_*
 # define required output files
 rule all:
     input:
-        "results/indels/performance_measures/local/",
+        #"results/indels/performance_measures/local/",
         "results/varyvilocaparams/performance_measures/local/",
         "results/varyvilocaparams/performance_measures/global/",
         "results/distance/performance_measures/global/",
@@ -139,7 +139,7 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
     threads: 10
     resources:
         mem_mb=20024,
-        runtime=240,
+        runtime=240, # 10 days
 
 
 use rule performance_measures_local from varyvilocaparams as varyvilocaparams_performance_measures_local with:
