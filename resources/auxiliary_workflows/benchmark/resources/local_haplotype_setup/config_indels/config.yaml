@@ -1,6 +1,7 @@
 method_list: [
               viloca_alpha_0.000001_extended_window_mode,
               viloca_uniform_extended_window_mode,
+              lofreq_local_haplo
               ]
 replicate_count: 5
 haplotype_generation: mutation_rate
