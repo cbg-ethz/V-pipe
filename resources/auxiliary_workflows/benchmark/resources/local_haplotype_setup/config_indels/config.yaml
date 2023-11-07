@@ -1,6 +1,6 @@
 method_list: [
-              viloca_alpha_0.000001_extended_window_mode,
-              viloca_uniform_extended_window_mode,
+              viloca_ewm,
+              viloca_ewm_uni,
               lofreq_local_haplo
               ]
 replicate_count: 5
