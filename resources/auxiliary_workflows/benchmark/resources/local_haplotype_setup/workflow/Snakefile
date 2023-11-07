@@ -61,7 +61,7 @@ use rule * from realdata as realdata_*
 # define required output files
 rule all:
     input:
-        #"results/indels/performance_measures/local/",
+        "results/indels/performance_measures/local/",
         "results/varyvilocaparams/performance_measures/local/",
         "results/varyvilocaparams/performance_measures/global/",
         "results/distance/performance_measures/global/",
