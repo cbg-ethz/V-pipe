@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/LaraFuhrmann/shorah@b2w-multi-threads
 
 import subprocess
 from pathlib import Path
