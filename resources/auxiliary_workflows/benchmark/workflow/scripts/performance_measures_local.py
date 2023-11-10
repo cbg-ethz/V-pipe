@@ -16,6 +16,11 @@ def duration_fmt(x, pos):
 def convert_vcf(fname):
     # TODO: check what happens with indels
     variant_list = set()
+    try:
+        vcf = VCF(fname)
+    except OSError:
+        return set()
+        
     for variant in VCF(fname):
         for base in variant.ALT:
             zero_based_pos = variant.POS - 1  # VCF is 1-based
