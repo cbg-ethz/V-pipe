@@ -1,5 +1,6 @@
 # GROUP: global
 # CONDA: libshorah
+# CONDA: pyvcf
 # CONDA: biopython = 1.79
 # PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
@@ -9,6 +10,8 @@ from os import listdir
 from os.path import isfile, join
 from Bio import SeqIO
 import gzip
+from fuc import pyvcf
+import pandas as pd
 
 
 def gunzip(source_filepath, dest_filepath, block_size=65536):
@@ -21,6 +24,14 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
                 break
             else:
                 d_file.write(block)
+
+def filter_snvs(fname_vcf_viloca, fname_results_snv, posterior_threshold):
+    vf = pyvcf.VcfFrame.from_file(fname_vcf_viloca)
+    info_strings = '{"' + vf.df.INFO.str.split(';').str.join('","').str.replace('=','":"').str.replace("\"\",", "") + '"}'
+    info_df = pd.json_normalize(info_strings.apply(eval))
+    filter_out = info_df["Post1"].astype(float)>posterior_threshold
+    vf.df = vf.df[filter_out]
+    vf.to_file(fname_results_snv)
 
 
 def main(
@@ -37,6 +48,7 @@ def main(
     n_max_haplotypes = 500
     n_mfa_starts = 1
     win_min_ext = 0.85
+    viloca_posterior_threshold = 0.0
 
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]
     if read_length == "Ten_strain_IAV":
@@ -65,6 +77,8 @@ def main(
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
+                "--threshold",
+                str(viloca_posterior_threshold),
             ],
             cwd=dname_work,
         )
@@ -90,11 +104,17 @@ def main(
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
+                "--threshold",
+                str(viloca_posterior_threshold),
             ],
             cwd=dname_work,
         )
 
-    (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
+    # here are all snvs regardless their posterior: (dname_work / "snv" / "SNVs_0.010000_final.vcf")
+
+    # filter out snvs with low posterior, threshold = 0.9 as default in shorah
+    fname_vcf_viloca = (dname_work / "snv" / "SNVs_0.010000_final.vcf").resolve()
+    filter_snvs(fname_vcf_viloca, fname_results_snv, posterior_threshold = 0.9)
 
     mypath = (dname_work / "support").resolve()
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
