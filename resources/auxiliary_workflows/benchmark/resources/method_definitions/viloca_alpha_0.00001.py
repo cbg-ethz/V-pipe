@@ -30,6 +30,7 @@ def main(
     fname_results_snv,
     fname_result_haplos,
     dname_work,
+    threads =1
 ):
     genome_size = str(fname_bam).split("genome_size~")[1].split("__coverage")[0]
     alpha = 0.00001
@@ -111,18 +112,20 @@ def main(
 
             elif file.endswith(".fas"):
                 fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-                (dname_work / "support" / file).rename(fname_result_haplos)
+                (dname_work / "support" / file).copy(fname_result_haplos)
 
     # fix frequency information
 
     freq_list = []
+    post_list = []
     for record in SeqIO.parse(fname_result_haplos, "fasta"):
         freq_list.append(float(record.description.split("ave_reads=")[-1]))
+        post_list.append(float(record.description.split("posterior=")[-1].split(" ave_")[0]))
     norm_freq_list = [float(i) / sum(freq_list) for i in freq_list]
 
     record_list = []
     for idx, record in enumerate(SeqIO.parse(fname_result_haplos, "fasta")):
-        record.description = f"freq:{norm_freq_list[idx]}"
+        record.description = f"posterior:{post_list[idx]}|freq:{norm_freq_list[idx]}"
         record_list.append(record)
     SeqIO.write(record_list, fname_result_haplos, "fasta")
 
