@@ -39,6 +39,11 @@ def read_fasta_files(fasta_files, with_method=True):
 
             # extract properties
             freq = props.get("freq")
+            if "posterior" in props:
+                posterior = props.get("posterior")
+            else:
+                posterior = np.nan
+
 
             if freq is None:
                 freq = props.get("Freq")
@@ -51,6 +56,7 @@ def read_fasta_files(fasta_files, with_method=True):
                     "replicate": replicate,
                     "sequence": str(record.seq),
                     "frequency": float(freq),
+                    "posterior": float(posterior),
                 }
             )
 
