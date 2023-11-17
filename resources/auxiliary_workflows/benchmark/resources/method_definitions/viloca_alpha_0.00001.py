@@ -2,6 +2,7 @@
 # CONDA: libshorah
 # CONDA: pyvcf
 # CONDA: biopython = 1.79
+# PIP: pandas
 # PIP: git+https://github.com/LaraFuhrmann/shorah@master
 
 import subprocess
@@ -12,6 +13,7 @@ from Bio import SeqIO
 import gzip
 from fuc import pyvcf
 import pandas as pd
+import shutil
 
 
 def gunzip(source_filepath, dest_filepath, block_size=65536):
@@ -132,7 +134,7 @@ def main(
 
             elif file.endswith(".fas"):
                 fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-                (dname_work / "support" / file).copy(fname_result_haplos)
+                shutil.copy((dname_work / "support" / file).resolve(), fname_result_haplos)
 
     # fix frequency information
 
