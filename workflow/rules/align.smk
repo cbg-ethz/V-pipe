@@ -566,6 +566,7 @@ elif config.general["aligner"] == "bowtie":
                 PRESET=config.bowtie_align["preset"],
                 MAXINS=get_maxins,
                 EXTRA=config.bowtie_align["extra"],
+                FILTER="-f 2",
                 BOWTIE=config.applications["bowtie"],
                 SAMTOOLS=config.applications["samtools"],
             log:
@@ -586,7 +587,7 @@ elif config.general["aligner"] == "bowtie":
                 """
                 {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} -X {params.MAXINS} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) keep only reads mapped in proper pairs, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
                 """
 
     else:
@@ -603,6 +604,7 @@ elif config.general["aligner"] == "bowtie":
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
                 EXTRA=config.bowtie_align["extra"],
+                FILTER="-F 4",
                 BOWTIE=config.applications["bowtie"],
                 SAMTOOLS=config.applications["samtools"],
             log:
@@ -623,7 +625,7 @@ elif config.general["aligner"] == "bowtie":
                 """
                 {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h -F 4 -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
                 """
 
 elif config.general["aligner"] == "minimap":
@@ -665,6 +667,7 @@ elif config.general["aligner"] == "minimap":
             SEED="--seed 42",
             EXTRA=config.minimap_align["extra"],
             PRESET=config.minimap_align["preset"],
+            FILTER="-f 2" if config.input["paired"] else "-F 4",
             MINIMAP=config.applications["minimap"],
             SAMTOOLS=config.applications["samtools"],
         log:
@@ -684,7 +687,7 @@ elif config.general["aligner"] == "minimap":
         shell:
             """
             {params.MINIMAP} -t "{threads}" -a {params.SEED} -x "{params.PRESET}" {params.EXTRA} -o "{output.TMP_SAM}" "{input.target}" {input.FASTQ} 2> >(tee {log.errfile} >&2)
-            {params.SAMTOOLS} view -h -f 2 -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
+            {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
             """
 
 
