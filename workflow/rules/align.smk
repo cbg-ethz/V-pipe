@@ -667,6 +667,9 @@ elif config.general["aligner"] == "minimap":
             SEED="--seed 42",
             EXTRA=config.minimap_align["extra"],
             PRESET=config.minimap_align["preset"],
+            SECONDARY="--secondary=yes --secondary-seq"
+            if config.minimap_align["secondary"]
+            else "--secondary=no",
             FILTER="-f 2" if config.input["paired"] else "-F 4",
             MINIMAP=config.applications["minimap"],
             SAMTOOLS=config.applications["samtools"],
@@ -686,7 +689,7 @@ elif config.general["aligner"] == "minimap":
         threads: config.minimap_align["threads"]
         shell:
             """
-            {params.MINIMAP} -t "{threads}" -a {params.SEED} -x "{params.PRESET}" {params.EXTRA} -o "{output.TMP_SAM}" "{input.target}" {input.FASTQ} 2> >(tee {log.errfile} >&2)
+            {params.MINIMAP} -t "{threads}" -a {params.SEED} -x "{params.PRESET}" {params.SECONDARY} {params.EXTRA} -o "{output.TMP_SAM}" "{input.target}" {input.FASTQ} 2> >(tee {log.errfile} >&2)
             {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
             """
 

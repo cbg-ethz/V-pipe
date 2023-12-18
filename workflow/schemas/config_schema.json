@@ -835,6 +835,12 @@
                     "description": "Specify minimap2 preset options. See [minimape's documentation](https://lh3.github.io/minimap2/minimap2.html#8) for details about each of the presets.",
                     "examples": ["map-ont"]
                 },
+                "secondary": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "By default V-pipe ignores Minimap2's secondary alignment(s) and only considers the primary one (A secondary alignment occurs when a given read could align reasonably well to more than one place). This flags turns back on Minimap2's secondary alignments, and also includes their sequences in the output BAM file.",
+                    "examples": [ true ]
+                },
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/minimap_align.yaml"
