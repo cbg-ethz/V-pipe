@@ -202,11 +202,8 @@ def main():
     datefmt = None
     if args.config_file:
         with open(args.config_file, "r") as stream:
-            try:
-                reg_data = ruamel.yaml.load(stream, Loader=ruamel.yaml.Loader)
-            except yaml.YAMLError as exc:
-                print(exc)
-                sys.exit(1)
+            yaml = ruamel.yaml.YAML(typ='rt')
+            reg_data = yaml.load(stream)
         if "sample" in reg_data:
             rxsam = regex.compile(reg_data.get("sample"))
         if "batch" in reg_data:
@@ -266,7 +263,8 @@ def main():
 
     if args.out_loc:
         with open(args.out_loc, "w") as outf:
-            ruamel.yaml.round_trip_dump(
+            yaml = ruamel.yaml.YAML()
+            yaml.dump(
                 {
                     "locations_list": list(
                         set(
