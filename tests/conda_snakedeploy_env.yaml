@@ -4,6 +4,6 @@ channels:
   - bioconda
 dependencies:
   - python <3.12 # temporary fix for snakemake issue #2480
-  - snakemake-minimal
+  - snakemake-minimal <8 # HACK Snakemake v8 has breaking changes
   - snakedeploy
   - go-yq

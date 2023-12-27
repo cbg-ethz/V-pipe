@@ -4,4 +4,4 @@ channels:
   - bioconda
   #- defaults # see: https://github.com/conda-forge/status/issues/144
 dependencies:
-  - snakemake-minimal
+  - snakemake-minimal <8 # HACK Snakemake v8 has breaking changes

@@ -12,7 +12,8 @@ ARG vpipe_path=${install_path}/V-pipe
 ARG envs_path=${install_path}/conda_envs
 ARG test_data=/test-data
 ARG virus_download_list
-ARG snaketag=stable
+# HACK Snakemake v8 has breaking changes
+ARG snaketag=v7.32.4
 
 ###
 ### Stage 0: download conda environments

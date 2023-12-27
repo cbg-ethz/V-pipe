@@ -176,7 +176,8 @@ conda config --set channel_priority strict
 # NOTE conda-forge *HAS TO* be higher than bioconda
 
 VPIPEENV=
-if mamba install --yes snakemake-minimal mamba $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
+# HACK Snakemake v8 has breaking changes
+if mamba install --yes 'snakemake-minimal<8' mamba $GIT; then	# NOTE Mac OS X and some Linux dockers don't have git out of the box
 	: # success!
 else
 	oops 'I cannot install snakemake in base environment. Conflicts ?'
