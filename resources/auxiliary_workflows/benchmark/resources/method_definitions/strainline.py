@@ -35,6 +35,12 @@ def main(fname_bam,
          seq_type,
          threads,):
 
+
+    # create empty vcf files
+    f = open(fname_results_snv, "a")
+    f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
+    f.close()
+
     if seq_type == "illumina":
         # strainline doesn't work for illumina
         # create fake files such that snakemake is happy
@@ -42,12 +48,9 @@ def main(fname_bam,
         # create empty haplotype files
         open(fname_result_haplos, "a").close()
 
-        # create empty vcf files
-        f = open(fname_results_snv, "a")
-        f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO")
-        f.close()
     else:
         # run strainline
+        path_to_strainline = "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup//Strainline/src/strainline.sh"
 
         if seq_type == "pacbio":
             seq_platform = "pb"
@@ -64,7 +67,7 @@ def main(fname_bam,
         # execute tool
         subprocess.run(
             [
-                "strainline.sh",
+                path_to_strainline,
                 "-i",
                 fname_reads_fasta,
                 "-o",
@@ -76,6 +79,8 @@ def main(fname_bam,
             ],
             check=True,
         )
+
+        # adapt haplotype output
 
 
 
