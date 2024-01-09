@@ -29,7 +29,7 @@ def fastq_to_fasta(input_file, output_file):
 
 def main(fname_bam,
          fname_reference,
-         fname_result,
+         fname_results_snv,
          fname_result_haplos,
          dname_work,
          seq_type,
