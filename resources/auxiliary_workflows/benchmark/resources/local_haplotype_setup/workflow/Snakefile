@@ -1,4 +1,5 @@
 from snakemake.io import load_configfile
+import os
 
 
 # setup workflow
@@ -68,7 +69,6 @@ rule all:
         "results/distance/performance_measures/local/",
         "results/realdata/performance_measures/local/",
         "results/realdata/performance_measures/global/",
-        "results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
     default_target: True
 
 
@@ -205,35 +205,6 @@ use rule performance_measures_global from varyvilocaparams as varyvilocaparams_p
         quast=False,
 
 
-realdata_sarscov2_params = [
-    params
-    for params in realdata.paramspace.instance_patterns
-    if params.split("read_length~")[1].split("__")[0] == "Two-strain-SARS-CoV-2"
-]
-
-
-use rule performance_measures_local_realdata_sarscov2 from realdata as realdata_performance_measures_local_realdata_sarscov2 with:
-    input:
-        vcf_list=[
-            f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
-            for params in realdata_sarscov2_params
-            for method in realdata.method_list
-            if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-        # we also include `method_list_local` to align with `vcf_list`
-        groundtruth_list=[
-            f"results/realdata/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in realdata_sarscov2_params
-            for method in realdata.method_list
-            if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
-            for replicate in range(realdata.config["replicate_count"])
-        ],
-    output:
-        fname_out=f"results/realdata/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
-    wildcard_constraints:
-        read_length="Two-strain-SARS-CoV-2",
-
 
 # distance rules
 use rule run_method_local from distance as distance_run_method_local_global with:
@@ -264,6 +235,7 @@ use rule performance_measures_local from distance as distance_performance_measur
             for method in distance.method_list
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
@@ -272,6 +244,7 @@ use rule performance_measures_local from distance as distance_performance_measur
             for method in distance.method_list
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         benchmark_list=[
             f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
@@ -279,11 +252,13 @@ use rule performance_measures_local from distance as distance_performance_measur
             for method in distance.method_list
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         haplostats_list=[
             f"results/distance/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
             for params in distance.paramspace.instance_patterns
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv")
         ],
 
 
@@ -294,28 +269,33 @@ use rule performance_measures_global from distance as distance_performance_measu
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
         true_haplos_list=[
             f"results/distance/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
             for params in distance.paramspace.instance_patterns
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta")
         ],
         haplostats_list=[
             f"results/distance/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
             for params in distance.paramspace.instance_patterns
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv")
         ],
         runstatus_list=[
             f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/status_.txt"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
         benchmark_list=[
             f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list_global
             for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
     params:
         method_list_global=distance.method_list_global,
@@ -352,6 +332,7 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
@@ -360,6 +341,7 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         benchmark_list=[
             f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
@@ -367,6 +349,7 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
 
 
@@ -379,6 +362,7 @@ use rule performance_measures_global from realdata as realdata_performance_measu
             == "seq_tech~pacbio__seq_mode~amplicon__seq_mode_param~real_data__read_length~Ten_strain_IAV__genome_size~NA__coverage~2300__haplos~NA"
             for method in realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
         true_haplos_list=[
             f"results/realdata/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
@@ -401,6 +385,7 @@ use rule performance_measures_global from realdata as realdata_performance_measu
             == "seq_tech~pacbio__seq_mode~amplicon__seq_mode_param~real_data__read_length~Ten_strain_IAV__genome_size~NA__coverage~2300__haplos~NA"
             for method in realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
         benchmark_list=[
             f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
@@ -409,6 +394,7 @@ use rule performance_measures_global from realdata as realdata_performance_measu
             == "seq_tech~pacbio__seq_mode~amplicon__seq_mode_param~real_data__read_length~Ten_strain_IAV__genome_size~NA__coverage~2300__haplos~NA"
             for method in realdata.method_list_global
             for replicate in range(realdata.config["replicate_count"])
+            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta")
         ],
     params:
         method_list_global=realdata.method_list_global,
