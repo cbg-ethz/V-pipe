@@ -286,11 +286,63 @@ rule lofreq:
         {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
+rule viloca:
+    input:
+        REF=(
+            cohortdir("cohort_consensus.fasta")
+            if config.lofreq["consensus"]
+            else reference_file
+        ),
+        BAM=alignment_wildcard,
+    output:
+        SNVs="{dataset}/variants/SNVs/snvs.vcf",
+        CSV="{dataset}/variants/SNVs/snv/cooccurring_mutations.csv",
+    params:
+        READ_LEN=read_len,
+        INSERT_FILE=config.viloca["insert_bedfile"],
+        MODE=config.viloca["mode"],
+        SHIFT=config.viloca["shift"],
+        OUTDIR="{dataset}/variants/SNVs",
+        EXTRA=config.viloca["extra"],
+        VILOCA=config.applications["viloca"],
+    log:
+        outfile="{dataset}/variants/SNVs/viloca.out.log",
+        errfile="{dataset}/variants/SNVs/viloca.err.log",
+    conda:
+        config.viloca["conda"]
+    benchmark:
+        "{dataset}/variants/SNVs/viloca.benchmark"
+    threads: config.viloca["threads"]
+    resources:
+        disk_mb=2000,
+        mem_mb=config.viloca["mem"],
+        runtime=config.viloca["time"],
+    shell:
+        """
+        let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
+        let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
+
+        # Run VILOCA
+        echo "Running VILOCA" >> {log.outfile}
+        if [[ "{params.INSERT_FILE}" == "None" ]]; then
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -w ${{WINDOW_LEN}} -s {params.SHIFT} -f {input.REF} -b {input.BAM}  >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        else
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -z {params.INSERT_FILE} -f {input.REF} -b {input.BAM}  >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        fi
+
+        # rename viloca output  snv/SNVs_0.010000_final.vcf --> snvs.vcf
+        cp "${params.OUTDIR}/snv/SNVs_0.010000_final.vcf" {output.SNVs}
+        """
+
 
 if config.general["snv_caller"] == "shorah":
 
-    ruleorder: snv > lofreq
+    ruleorder: snv > lofreq > viloca
 
 elif config.general["snv_caller"] == "lofreq":
 
-    ruleorder: lofreq > snv
+    ruleorder: lofreq > snv > viloca
+
+elif config.general["snv_caller"] == "viloca":
+
+    ruleorder: viloca > lofreq > snv
