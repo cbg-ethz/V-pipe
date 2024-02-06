@@ -290,7 +290,7 @@ rule viloca:
     input:
         REF=(
             cohortdir("cohort_consensus.fasta")
-            if config.lofreq["consensus"]
+            if config.viloca["consensus"]
             else reference_file
         ),
         BAM=alignment_wildcard,
@@ -305,6 +305,7 @@ rule viloca:
         OUTDIR="{dataset}/variants/SNVs",
         EXTRA=config.viloca["extra"],
         VILOCA=config.applications["viloca"],
+        WORK_DIR="{dataset}/variants/SNVs",
     log:
         outfile="{dataset}/variants/SNVs/viloca.out.log",
         errfile="{dataset}/variants/SNVs/viloca.err.log",
@@ -321,17 +322,38 @@ rule viloca:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
         let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
+        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" > {log.outfile}
+        echo "The window length is: ${{WINDOW_LEN}} bp" >> {log.outfile}
+
+        # Get absolute path for input files
+        CWD=${{PWD}}
+        BAM=${{PWD}}/{input.BAM}
+        REF={input.REF}; [[ ${{REF}} =~ ^/ ]] || REF=${{PWD}}/${{REF}}
+        OUTFILE=${{PWD}}/{log.outfile}
+        ERRFILE=${{PWD}}/{log.errfile}
+        WORK_DIR=${{PWD}}/{params.WORK_DIR}
+
+        # Create directory for running VILOCA
+        DIR=${{WORK_DIR}}
+        if [[ ! -d "${{DIR}}" ]]; then
+            echo "Creating directory ${{DIR}}" >> $OUTFILE
+            mkdir -p ${{DIR}}
+        fi
+        # Change to the directory where VILOCA is to be executed
+        cd ${{DIR}}
 
         # Run VILOCA
-        echo "Running VILOCA" >> {log.outfile}
+        echo "Running VILOCA" >> $OUTFILE
         if [[ "{params.INSERT_FILE}" == "None" ]]; then
-            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -w ${{WINDOW_LEN}} -s {params.SHIFT} -f {input.REF} -b {input.BAM}  >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -w ${{WINDOW_LEN}} -s {params.SHIFT} -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
         else
-            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -z {params.INSERT_FILE} -f {input.REF} -b {input.BAM}  >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+            INSERTFILE=${{CWD}}/{params.INSERT_FILE}
+            echo "Insert file used ${{CWD}}/{params.INSERT_FILE}" >> $OUTFILE
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -z ${{INSERTFILE}} -b ${{BAM}} -f ${{REF}}  >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
         fi
 
         # rename viloca output  snv/SNVs_0.010000_final.vcf --> snvs.vcf
-        cp "${params.OUTDIR}/snv/SNVs_0.010000_final.vcf" {output.SNVs}
+        cp "${{WORK_DIR}}/snv/SNVs_0.010000_final.vcf" "${{WORK_DIR}}/snvs.vcf"
         """
 
 
