@@ -1,6 +1,6 @@
 ---
 title: Documentation
-image: /assets/img/ic-documentation.svg
+image: assets/img/ic-documentation.svg
 heading: Documentation
 links:
   - subject: Subject Heading 1
