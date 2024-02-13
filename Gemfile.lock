@@ -65,7 +65,6 @@ PLATFORMS
 
 DEPENDENCIES
   jekyll (~> 4.3)
-  jekyll-sass-converter
 
 BUNDLED WITH
    2.4.17

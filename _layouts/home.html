@@ -3,9 +3,21 @@
 <head>
   <title>{{ page.title }}</title>
   <link rel="stylesheet" href="{{ 'assets/css/main.css' | relative_url }}">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  {% include navigation.html %}
+<body><!-- home layout that currently is being used by the index.md homepage -->
+  
+  <header>
+    {% include navigation.html %}
+    {% include carousel.html %}
+  </header>
+
+  {% include fp_columns.html %}
+
+  {% include vpipe_numbers.html %}
+
+  {% include why_vpipe.html %}
 
   {{ content }}
 

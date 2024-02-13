@@ -2,9 +2,281 @@
 # the main.scss file needs front matter to be valid, dashes are enough.
 ---
 
+$sibRed: #e30613;
+$vpipeBlue: #3368ED;
+
+$mainRadius: 20px;
+$smallRadius: 10px;
+
+@font-face {
+  font-family: 'CabinetGrotesk-Variable';
+  src: url('../fonts/CabinetGrotesk-Variable.woff2') format('woff2'),
+       url('../fonts/CabinetGrotesk-Variable.woff') format('woff'),
+       url('../fonts/CabinetGrotesk-Variable.ttf') format('truetype');
+       font-weight: 100 900;
+       font-display: swap;
+       font-style: normal;
+}
+
 body{
-  background:purple;color:white;
-  a {
-    color: white;
+  background:white;color:black;
+  font: {
+    family: "Inter", sans-serif;
   }
+  h1, h2 {
+    font: {
+      family: "CabinetGrotesk-Variable", sans-serif;
+    }
+  }
+  h1 {
+    font: {
+      size: 2.2em;
+      weight: 400;
+    }
+    span {
+      font: {
+        weight: 700;
+      }
+    }
+  }
+  .container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  header {
+    margin: 30px;
+    padding: 20px;
+    position: relative;
+    background: rgb(255,244,244);
+    background: linear-gradient(328deg, rgba(255,244,244,1) 0%, rgba(231,238,245,1) 100%);
+    border-radius: $mainRadius;
+    .container {
+      padding: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .logo, .logo-vpipe {
+        width: 33%;
+        img {
+          width: 120px;
+        }
+      }
+      .logo-vpipe {
+        text-align: center;
+        img {
+          width: 180px;
+        }
+      }
+      nav {
+        width: 33%;
+        display: flex;
+        justify-content: end;
+        ul {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          li {
+            list-style: none;
+            a {
+              padding: 0 10px;
+              color: black;
+              text-decoration: none;
+            }
+          }
+        }
+      }
+    }
+    .container {
+      .hero-carousel {
+        width: 100%;
+        margin: 40px 0;
+        position: relative;
+        overflow: hidden;
+        .slide {
+          display: none;
+          color: black;
+          &.active {
+            display: flex;
+          }
+          .image {
+            flex: 1;
+            img {
+              width: 100%;
+              max-width: 650px;
+              height: auto;
+              border-radius: 10px;
+            }
+          }
+          .content {
+            width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: start;
+            flex: 1;
+            h2 {
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            p {
+              font-size: 16px;
+              margin-bottom: 20px;
+            }
+            .cta {
+              width: auto;
+              display: inline-flex;
+              flex-grow: 0;
+              padding: 10px 20px;
+              background-color: $sibRed;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+              transition: background-color 0.3s ease;
+              &:hover {
+                background-color: $sibRed;
+              }
+            }
+          }
+        }
+      }
+    
+      .slide-indicators {
+        display: flex;
+        padding: 8px;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border-radius: 10px;
+        .indicator {
+          display: inline-block;
+          width: 30px;
+          height: 8px;
+          background-color: #ccc;
+          border-radius: 10px;
+          margin: 0 5px;
+          cursor: pointer;
+          &.active {
+            background-color: $sibRed;
+          }
+        }
+      }
+   }
+  }
+
+  #four-columns {
+    margin: 70px 0;
+    h1 {
+      padding: 20px 0;
+      text-align: center;
+    }
+    .container {
+      justify-content: space-between;
+      .homepage-columns {
+        display: flex;
+        justify-content: space-evenly;
+        gap: 10px;
+        .column {
+          width: 25%;
+          padding: 20px;
+          background: rgba(226,6,19,0.04);
+          border-radius: 20px;
+          .column-heading {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            img {
+              height: 45px;
+            }
+            h2 {
+              margin: 0;
+              font: {
+                weight: 400;
+              }
+            }
+          }
+          h4 {
+            display: inline-block;
+            margin: 20px 0 0;
+            padding: 2px 5px;
+            font: {
+              size: 1em;
+              weight: 300;
+            }
+            background: $sibRed;
+            color: white;
+            border-radius: 10px;
+          }
+          ul {
+            padding: 0 0 0 20px;
+            li {
+              margin: 5px 0;
+              list-style-image: url(../img/ic-list-style.svg);
+              a {
+                color: black;
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  #vpipe-numbers {
+    width: 100%;
+    margin: 150px 0 70px;
+    position: relative;
+    text-align: center;
+    .dna-txt {
+      width: 48%;
+      overflow: hidden;
+      position: absolute;
+      top: -40px;
+      left: -16px;
+      // color: $sibRed;
+      background: linear-gradient(to right, rgba(226,6,19,.2) 0%, rgba(226,6,19,0) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font: {
+        family: "Courier";
+        size: 1.2em;
+      }
+      &:nth-child(2) {
+        left: auto;
+        top: 0px;
+        right: -16px;
+        // color: $vpipeBlue;
+        background: linear-gradient(to left, rgba(51,104,237,.7) 0%, rgba(51,104,237,0) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: .2;
+      }
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      margin: 80px auto;
+      padding: 80px 20px;
+      background: rgb(255,244,244);
+      background: linear-gradient(328deg, rgba(255,244,244,1) 0%, rgba(231,238,245,1) 100%);
+      border-radius: $mainRadius;
+      .column-numbers {
+        width: 33%;
+        background: rgba(255,255,255,0.4);
+        border-radius: $smallRadius;
+      }
+    }
+  }
+
+  #why-vpipe {
+    text-align: center;
+  }
+
 }

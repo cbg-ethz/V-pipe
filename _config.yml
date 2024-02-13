@@ -9,3 +9,9 @@ sass:
   style: compressed
 
 # Add any other configurations or site-specific settings
+
+collections:
+  hero_carousel:
+    output: true
+  fp_4columns:
+    output: true
