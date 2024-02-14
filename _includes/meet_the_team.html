@@ -1,0 +1,13 @@
+<section id="meet-the-team">
+    <h1>Meet the <span>V-pipe team</span></h1>
+    <div class="container">
+        <div class="column">
+            <h2>Events</h2>
+            <ul>
+                {% for event in site.data.events %}
+                    <li>{{ event.date | date: "%B %d, %Y" }} - {{ event.location }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>

@@ -11,7 +11,9 @@ sass:
 # Add any other configurations or site-specific settings
 
 collections:
-  hero_carousel:
+  fp_heroCarousel:
     output: true
-  fp_4columns:
+  fp_getStartedColumns:
+    output: true
+  fp_whyVpipe:
     output: true

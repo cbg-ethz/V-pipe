@@ -1,6 +1,13 @@
 <section id="why-vpipe">
     <h1>Why <span>choose V-Pipe</span></h1>
     <div class="container">
-        <div class=""
+        {% for column in site.fp_whyVpipe %}
+        <div class="column">
+            <div class="img-container">
+                <img src="{{ column.image }}" alt="{{ column.title }}">
+            </div>
+            <h2>{{ column.title }}</h2>
+        </div>
+        {% endfor %}
     </div>
 </section>
