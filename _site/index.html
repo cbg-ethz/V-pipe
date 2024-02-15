@@ -16,6 +16,11 @@
   <div class="logo logo-vpipe">
     <img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe">
   </div>
+  <button>
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
   <nav>
     <ul>
       
@@ -40,27 +45,27 @@
         <div class="slide active">
             
             <div class="image">
-            <img src="assets/img/slide1.jpg" alt="Slide 1">
+                <img src="assets/img/virus-1.webp" alt="Get Started">
             </div>
             
             <div class="content">
-            <h2>Slide 1</h2>
-            <p>This is the first slide</p>
+                <h1>Get Started</h1>
+                <p>Virus populations exist as heterogeneous ensembles of genomes within their hosts. This genetic diversity is associated with viral pathogenesis, virulence, and disease progression, and it can be probed using high-throughput sequencing technologies.</p>
             
-                <a href="/page1.html" class="cta">Learn More</a>
+                <a href="/get-started.html" class="cta">Get Started</a>
             
             </div>
         </div>
         
         <div class="slide">
             
-            <div class="image">
-            <img src="assets/img/slide2.jpg" alt="Slide 2">
+            <div class="video">
+                <iframe src="https://www.youtube.com/embed/pIby1UooK94" title="" frameborder="0" allowfullscreen></iframe>
             </div>
             
             <div class="content">
-            <h2>Slide 2</h2>
-            <p>This is the second slide</p>
+                <h1>Applying V-pipe to SARS-Coronavirus-2 data</h1>
+                <p>This short webinar explains — and demonstrates — the use of V-pipe, an end-to-end bioinformatics pipeline that integrates various computational tools for the analysis of SARS-Coronavirus-2 high-throughput sequencing data. It supports the reproducible analysis of genomic diversity in intra-host virus populations for both basic research and medical diagnostics.</p>
             
                 <a href="/page2.html" class="cta">Learn More</a>
             
@@ -70,12 +75,12 @@
         <div class="slide">
             
             <div class="image">
-            <img src="assets/img/slide3.jpg" alt="Slide 3">
+                <img src="assets/img/virus-2.webp" alt="Slide 3">
             </div>
             
             <div class="content">
-            <h2>Slide 3</h2>
-            <p>This is the third slide</p>
+                <h1>Slide 3</h1>
+                <p>This is the third slide</p>
             
                 <a href="/page3.html" class="cta">Learn More</a>
             
@@ -85,12 +90,12 @@
         <div class="slide">
             
             <div class="image">
-            <img src="assets/img/slide4.jpg" alt="Slide 4">
+                <img src="assets/img/virus-3.webp" alt="Slide 4">
             </div>
             
             <div class="content">
-            <h2>Slide 4</h2>
-            <p>This is the fourth slide</p>
+                <h1>Slide 4</h1>
+                <p>This is the fourth slide</p>
             
                 <a href="/page4.html" class="cta">Learn More</a>
             
@@ -118,7 +123,7 @@
         var slides = document.querySelectorAll('.hero-carousel .slide');
         var indicators = document.querySelectorAll('.slide-indicators .indicator');
         var currentSlide = 0;
-        var slideInterval = setInterval(nextSlide, 5000);
+        var slideInterval = setInterval(nextSlide, 50000);
 
         function nextSlide() {
             if (slides[currentSlide] && indicators[currentSlide]) {
@@ -139,7 +144,7 @@
                 currentSlide = index;
                 slides[currentSlide].classList.add('active');
                 indicators[currentSlide].classList.add('active');
-                slideInterval = setInterval(nextSlide, 5000);
+                slideInterval = setInterval(nextSlide, 50000);
             }
             });
         });
@@ -150,157 +155,89 @@
 
   <section id="four-columns">
 
-    <h1>Get <span>started</span> with <span>V-Pipe</span></h1>
+    <h1>Get <span>started</span> with <span>V-pipe</span></h1>
     
     <div class="container">
 
         <div class="homepage-columns">
             
-                <div class="column" id="column-1">
+                <div class="column" id="box-1">
                 <div class="column-heading" id="column-heading-1">
-                    <img src="assets/img/ic-what-is-vpipe.svg" alt="What is V-Pipe">
-                    <h2>What is V-Pipe</h2>
+                    <img src="assets/img/ic-what-is-vpipe.svg" alt="What is V-pipe">
+                    <h2>What is V-pipe</h2>
                 </div>
                 
                     
-                    <h4>Subject Heading 1</h4>
-                    
                     <ul>
                     
-                        <li><a href="/link1">Link 1</a></li>
+                        <li><a href="/our-impact">Our impact</a></li>
                     
-                        <li><a href="/link2">Link 2</a></li>
+                        <li><a href="/what-can-vpipe-do-with-my-data">What can V-pipe do with my data?</a></li>
                     
-                    </ul>
-                
+                        <li><a href="/vpipe-in-the-community">V-pipe in the community</a></li>
                     
-                    <ul>
+                        <li><a href="/vpipe-vs-competitors">V-pipe vs Competitors</a></li>
                     
-                        <li><a href="/link3">Link 3</a></li>
-                    
-                        <li><a href="/link4">Link 4</a></li>
-                    
-                    </ul>
-                
-                    
-                    <h4>Subject Heading 2</h4>
-                    
-                    <ul>
-                    
-                        <li><a href="/link5">Link 5</a></li>
+                        <li><a href="/contact-us">Contact us</a></li>
                     
                     </ul>
                 
                 </div>
             
-                <div class="column" id="column-2">
+                <div class="column" id="box-2">
                 <div class="column-heading" id="column-heading-2">
-                    <img src="assets/img/ic-how-to-use-vpipe.svg" alt="How to use V-Pipe">
-                    <h2>How to use V-Pipe</h2>
+                    <img src="assets/img/ic-how-to-use-vpipe.svg" alt="How to use V-pipe">
+                    <h2>How to use V-pipe</h2>
                 </div>
                 
                     
-                    <h4>Subject Heading 1</h4>
-                    
                     <ul>
                     
-                        <li><a href="/link1">Link 1</a></li>
+                        <li><a href="/hardware-requirements">Hardware requirements</a></li>
                     
-                        <li><a href="/link2">Link 2</a></li>
+                        <li><a href="/software-requirements">Software requirements</a></li>
                     
-                    </ul>
-                
-                    
-                    <ul>
-                    
-                        <li><a href="/link3">Link 3</a></li>
-                    
-                        <li><a href="/link4">Link 4</a></li>
-                    
-                        <li><a href="/link5">Link 5</a></li>
-                    
-                    </ul>
-                
-                    
-                    <h4>Subject Heading 2</h4>
-                    
-                    <ul>
-                    
-                        <li><a href="/link6">Link 6</a></li>
+                        <li><a href="/how-to-cite-us">How to cite us?</a></li>
                     
                     </ul>
                 
                 </div>
             
-                <div class="column" id="column-3">
+                <div class="column" id="box-3">
                 <div class="column-heading" id="column-heading-3">
-                    <img src="assets/img/ic-how-to-get-vpipe.svg" alt="How to get V-Pipe">
-                    <h2>How to get V-Pipe</h2>
+                    <img src="assets/img/ic-how-to-get-vpipe.svg" alt="How to get V-pipe?">
+                    <h2>How to get V-pipe?</h2>
                 </div>
                 
                     
-                    <h4>Subject Heading 1</h4>
-                    
                     <ul>
                     
-                        <li><a href="/link1">Link 1</a></li>
+                        <li><a href="/getting-started">Getting started</a></li>
                     
-                        <li><a href="/link2">Link 2</a></li>
+                        <li><a href="/available-in-github-gitlab-docker">Available in GitHub/GitLab/Docker</a></li>
                     
-                    </ul>
-                
-                    
-                    <ul>
-                    
-                        <li><a href="/link3">Link 3</a></li>
-                    
-                        <li><a href="/link4">Link 4</a></li>
-                    
-                    </ul>
-                
-                    
-                    <h4>Subject Heading 2</h4>
-                    
-                    <ul>
-                    
-                        <li><a href="/link5">Link 5</a></li>
+                        <li><a href="/license">License</a></li>
                     
                     </ul>
                 
                 </div>
             
-                <div class="column" id="column-4">
+                <div class="column" id="box-4">
                 <div class="column-heading" id="column-heading-4">
                     <img src="assets/img/ic-documentation.svg" alt="Documentation">
                     <h2>Documentation</h2>
                 </div>
                 
                     
-                    <h4>Subject Heading 1</h4>
-                    
                     <ul>
                     
-                        <li><a href="/link1">Link 1</a></li>
+                        <li><a href="/tutorials">Tutorials</a></li>
                     
-                        <li><a href="/link2">Link 2</a></li>
+                        <li><a href="/general-information">General information</a></li>
                     
-                    </ul>
-                
+                        <li><a href="/configuration">Configuration</a></li>
                     
-                    <ul>
-                    
-                        <li><a href="/link3">Link 3</a></li>
-                    
-                        <li><a href="/link4">Link 4</a></li>
-                    
-                    </ul>
-                
-                    
-                    <h4>Subject Heading 2</h4>
-                    
-                    <ul>
-                    
-                        <li><a href="/link5">Link 5</a></li>
+                        <li><a href="/how-to-benchmark-tools">How to benchmark tools</a></li>
                     
                     </ul>
                 
@@ -313,7 +250,7 @@
 </section>
 
   <section id="vpipe-numbers">
-    <h1><span>V-Pipe</span> in <span>Numbers</span></h1>
+    <h1><span>V-pipe</span> in <span>Numbers</span></h1>
     <div class="dna-txt">
         <span>ATGACGGATGCCGGAATTGGCATGACGGATGCCGGAATTGGCACATAACAAGTACTGCTCGGTCCTTAAGCTGTATTGCACCATATGACGG</span>
         <span>ATGCCGGAATTGGCACATAACAAGTACTGCCTCGGTCCTTAAGCTGTATTGCACCATATGACGGATGCCGGAATTGGCACATAACAAGTAC</span>
@@ -329,20 +266,20 @@
     <div class="bg-full-width">
         <div class="container">
             <div class="column-numbers" id="downloads-num">
-                <h1><span>1237862</span> Downloads</h1>
+                <h1><span>1237862</span><br>Downloads</h1>
             </div>
             <div class="column-numbers" id="uni-num">
-                <h1><span>66558</span> Users in <span>5</span> University hospitals</h1>
+                <h1><span>66558</span> Users<br>in <span>5</span> University hospitals</h1>
             </div>
             <div class="column-numbers" id="citing-num">
-                <h1><span>982</span> Citing papers</h1>
+                <h1><span>982</span><br>Citing papers</h1>
             </div>
         </div>
     </div>
 </section>
 
   <section id="why-vpipe">
-    <h1>Why <span>choose V-Pipe</span></h1>
+    <h1>Why <span>choose V-pipe</span></h1>
     <div class="container">
         
         <div class="column">
@@ -380,20 +317,184 @@
     <h1>Meet the <span>V-pipe team</span></h1>
     <div class="container">
         <div class="column">
-            <h2>Upcoming Events</h2>
+            <h2><span>Upcoming</span> Events</h2>
             <ul>
                 
-                    <li> - </li>
+                    
+                    
+                    
+                        <li>
+                            <span class="date">March 01, 2024</span>
+                            <span class="location">London, UK</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">April 15, 2024</span>
+                            <span class="location">Paris, France</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">May 10, 2024</span>
+                            <span class="location">Berlin, Germany</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">June 20, 2024</span>
+                            <span class="location">Madrid, Spain</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">July 15, 2024</span>
+                            <span class="location">Rome, Italy</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">August 05, 2024</span>
+                            <span class="location">Athens, Greece</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
                 
             </ul>
         </div>
         <div class="column">
-            <h2>Past Events</h2>
+            <h2><span>Past</span> Events</h2>
             <ul>
                 
-                    <li> - </li>
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">December 15, 2023</span>
+                            <span class="location">New York, USA</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">November 20, 2023</span>
+                            <span class="location">Los Angeles, USA</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">October 25, 2023</span>
+                            <span class="location">Toronto, Canada</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">September 30, 2023</span>
+                            <span class="location">Tokyo, Japan</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">August 15, 2023</span>
+                            <span class="location">Sydney, Australia</span>
+                        </li>
+                    
+                
+                    
+                    
+                    
+                        <li>
+                            <span class="date">July 01, 2023</span>
+                            <span class="location">Cape Town, South Africa</span>
+                        </li>
+                    
                 
             </ul>
+        </div>
+    </div>
+</section>
+
+  <section id="funding">
+    <h1><span>V-pipe</span> funding</h1>
+    <div class="container">
+        <div class="column">
+            <img src="assets/img/logo-sib.svg" alt="Logo SIB" />
+        </div>
+        <div class="column">
+            <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" />
         </div>
     </div>
 </section>
@@ -401,25 +502,79 @@
   
 
 
-  <footer>
-  <section class="footer-columns">
-    <div class="column">
+  <section id="footer">
+  <div class="container">
+    <div class="row">
       
-
-    </div>
-    <div class="column">
+          <div class="column">
+              <h3>Documentation</h3>
+              <ul>
+                  
+                      <li><a href="/tutorials">Tutorials</a></li>
+                  
+                      <li><a href="/general-information">General information</a></li>
+                  
+                      <li><a href="/configuration-files">Configuration files</a></li>
+                  
+                      <li><a href="/how-to-benchmark-tools">How to benchmark tools?</a></li>
+                  
+              </ul>
+          </div>
       
-
-    </div>
-    <div class="column">
+          <div class="column">
+              <h3>Literature</h3>
+              <ul>
+                  
+                      <li><a href="/how-to-cite-us">How to cite us</a></li>
+                  
+                      <li><a href="/use-of-vpipe">Use of V-pipe</a></li>
+                  
+                      <li><a href="/vpipe-vs-competitors">V-pipe vs competitors</a></li>
+                  
+              </ul>
+          </div>
       
-
-    </div>
-    <div class="column">
+          <div class="column">
+              <h3>About</h3>
+              <ul>
+                  
+                      <li><a href="/funding">Funding</a></li>
+                  
+                      <li><a href="/team">Team</a></li>
+                  
+                      <li><a href="/license-and-privacy">License and privacy</a></li>
+                  
+              </ul>
+          </div>
       
-
+          <div class="column">
+              <h3>Contact</h3>
+              <ul>
+                  
+                      <li><a href="/chat-with-us">Chat with us</a></li>
+                  
+                      <li><a href="/submit-an-issue">Submit an issue</a></li>
+                  
+                      <li><a href="/email-us">E-mail us</a></li>
+                  
+                      <li><a href="/subscribe-to-our-mailing-list">Subscribe to our mailing list</a></li>
+                  
+              </ul>
+          </div>
+      
     </div>
-  </section>
-</footer>
+    <div class="row">
+      <div class="column">
+        <h1>1</h1>
+      </div>
+      <div class="column">
+        <h1>2</h1>
+      </div>
+    </div>
+    <div class="row">
+      <p>&copy;2024 V-pipe</p>
+    </div>
+  </div>
+</section>
 </body>
 </html>

@@ -17,3 +17,5 @@ collections:
     output: true
   fp_whyVpipe:
     output: true
+  footer:
+    output: true

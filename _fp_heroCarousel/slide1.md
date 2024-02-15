@@ -1,10 +1,10 @@
 ---
-title: Slide 1
-description: This is the first slide
-image: assets/img/slide1.jpg
+title: Get Started
+description: Virus populations exist as heterogeneous ensembles of genomes within their hosts. This genetic diversity is associated with viral pathogenesis, virulence, and disease progression, and it can be probed using high-throughput sequencing technologies.
+image: assets/img/virus-1.webp
 cta:
-  text: Learn More
-  link: /page1.html
+  text: Get Started
+  link: /get-started.html
 ---
 
 Content of the first slide goes here.

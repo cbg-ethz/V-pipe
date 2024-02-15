@@ -1,16 +1,27 @@
-<footer>
-  <section class="footer-columns">
-    <div class="column">
-      {{ page['footer_column1_title'] | markdownify }}
+<section id="footer">
+  <div class="container">
+    <div class="row">
+      {% for column in site.footer %}
+          <div class="column">
+              <h3>{{ column.heading }}</h3>
+              <ul>
+                  {% for link in column.links %}
+                      <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                  {% endfor %}
+              </ul>
+          </div>
+      {% endfor %}
     </div>
-    <div class="column">
-      {{ page['footer_column2_title'] | markdownify }}
+    <div class="row">
+      <div class="column">
+        <h1>1</h1>
+      </div>
+      <div class="column">
+        <h1>2</h1>
+      </div>
     </div>
-    <div class="column">
-      {{ page['footer_column3_title'] | markdownify }}
+    <div class="row">
+      <p>&copy;2024 V-pipe</p>
     </div>
-    <div class="column">
-      {{ page['footer_column4_title'] | markdownify }}
-    </div>
-  </section>
-</footer>
+  </div>
+</section>

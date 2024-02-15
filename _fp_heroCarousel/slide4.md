@@ -1,7 +1,7 @@
 ---
 title: Slide 4
 description: This is the fourth slide
-image: assets/img/slide4.jpg
+image: assets/img/virus-3.webp
 cta:
   text: Learn More
   link: /page4.html
