@@ -29,6 +29,9 @@ body{
   font: {
     family: "Inter", sans-serif;
   }
+  a {
+    color: black;
+  }
   h1, h2 {
     font: {
       family: "CabinetGrotesk-Variable", sans-serif;
@@ -197,8 +200,8 @@ body{
    }
   }
 
-  #four-columns {
-    margin: 70px 0;
+  #get-started {
+    margin: 160px 0;
     h1 {
       padding: 20px 0;
       text-align: center;
@@ -313,7 +316,7 @@ body{
   }
 
   #why-vpipe {
-    padding: 40px 0;
+    padding: 160px 0;
     text-align: center;
     .container {
       display: flex;
@@ -341,8 +344,10 @@ body{
   }
 
   #meet-the-team {
-    padding: 40px 0;
+    padding: 160px 0;
+    position: relative;
     text-align: center;
+    overflow: hidden;
     .container {
       display: flex;
       justify-content: space-evenly;
@@ -380,15 +385,27 @@ body{
           }
         }
         &:last-child {
-          background: #78e0c236;
+          background: #78e0c2d5;
           color: $vpipeDarkBlue;
+          -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
         }
+      }
+    }
+    .blue-abstract-circle {
+      position: absolute;
+      top: 0;
+      right: -250px;
+      z-index: -1;
+      img {
+        width: 800px;
+        height: 800px;
       }
     }
   }
 
   #funding {
-    margin: 80px 0;
+    margin: 160px 0;
     h1 {
       text-align: center;
     }
@@ -412,20 +429,28 @@ body{
   }
 
   #footer {
-    margin: 120px 0 0;
-    padding: 80px 0 20px;
+    margin: 160px 0 0;
+    padding: 0 0 20px;
     background: $sibSpringGreen;
     border-radius: $mainRadiusTop;
     .container {
+      padding: 80px 0 0;
       .row {
         display: flex;
         justify-content: space-between;
         gap: 20px;
         .column {
+          padding: 20px;
+          h1 {
+            font: {
+              size: 1.4em;
+              weight: 700;
+            }
+          }
           ul {
             padding: 0 0 0 10px;
             li {
-              margin: 5px 0;
+              margin: 8px 0;
               a {
                 color: black;
                 text-decoration: none;
@@ -437,14 +462,31 @@ body{
           };
         }
         &:nth-child(2) {
-          margin: 120px 0;
+          margin: 80px 0;
           .column {
             width: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 1px solid black;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.2);
             border-radius: $mainRadius;
+            h1 {
+              margin-top: 0;
+            }
+            .social-container {
+              display: flex;
+              a {width: 40px;
+                height: 40px;
+                margin: 0 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: $smallRadius;
+              }
+            }
           }
         }
         &:last-child {
