@@ -54,7 +54,7 @@ body{
     margin: 0 auto;
   }
   header {
-    min-height: 775px;
+    min-height: 745px;
     padding: 20px;
     position: relative;
     background: rgb(255,244,244);
@@ -511,6 +511,7 @@ body{
           flex-direction: column;
           background: none;
           border: none;
+          cursor: pointer;
           span {
             width: 35px;
             height: 5px;
