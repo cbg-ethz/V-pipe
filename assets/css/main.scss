@@ -73,7 +73,8 @@ body{
         }
       }
       .logo-vpipe {
-        text-align: center;
+        // text-align: center;
+        text-align: start;
         img {
           width: 180px;
         }
@@ -83,26 +84,81 @@ body{
         display: none;
       }
       nav {
-        width: 33%;
+        // width: 33%;
+        width: 50%;
         display: flex;
         justify-content: end;
+      
         ul {
+          padding: 0;
           display: flex;
           align-items: center;
           justify-content: center;
+          list-style: none;
+      
           li {
-            list-style: none;
+            position: relative;
+            margin: 0 5px;
+            padding: 10px 0;
+
+            span {
+              position: absolute;
+              top: 6px;
+              right: -2px;
+            }
+
             a {
-              padding: 0 10px;
+              padding: 10px;
               color: black;
               text-decoration: none;
+      
               &:hover {
                 color: $sibElectricBlue;
               }
             }
+
+            ul {
+              min-width: 225px;
+              padding: 20px 10px;
+              display: none;
+              position: absolute;
+              top: 100%;
+              left: 10px;
+              z-index: 100;
+              background: white;
+              border-radius: $smallRadius;
+              box-shadow: 0 15px 20px -25px rgba(0,0,0,0.6);
+              li {
+                padding: 0;
+                a {
+                  display: block;
+                  padding: 10px 5px;
+                  color: black;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  &:hover {
+                    background: $sibSpringGreen;
+                    color: black;
+                  }
+                }
+              }
+            }
+      
+            &:hover {
+              ul {
+                display: block;
+              }
+            }
+
+            &:last-child, &:nth-last-child(2) {
+              ul {
+                left: auto;
+                right: 0;
+              }
+            }
           }
         }
-      }
+      }            
     }
     .container {
       .hero-carousel {
@@ -530,6 +586,35 @@ body{
       .container {
         nav {
           display: none;
+          &.show{
+            display: block;
+            width: 85%;
+            position: absolute;
+            top: 140px;
+            left: 20px;
+            z-index: 9999;
+            background: white;
+            box-shadow: 0 0 20px -10px rgba(0,0,0,0.6);
+            border-radius: $smallRadius;
+            ul {
+              display: block;
+              li {
+                span {
+                  display: none;
+                }
+                ul {
+                  display: block;
+                  position: unset;
+                  box-shadow: none;
+                  li {
+                    a {
+                      padding: 5px;
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
         button {
           display: flex;
@@ -580,12 +665,22 @@ body{
             display: block;
             .content {
               width: 100%;
+              padding-left: 0;
             }
+            .video {
+              padding-bottom: 56%;
+            }
+          }
+        }
+        .logo-vpipe {
+          img {
+            width: 120px;
           }
         }
       }
     }
     #get-started {
+      margin-top: 80px;
       .container {
         .homepage-columns {
           display: grid;
@@ -599,8 +694,11 @@ body{
             .column-heading {
               h2 {
                 font: {
-                  size: 1.4em;
+                  size: 1.2em;
                 }
+              }
+              img {
+                height: 45px;
               }
             }
           }
@@ -631,6 +729,9 @@ body{
       .blue-abstract-circle {
         opacity: .2;
       }
+    }
+    #funding {
+      margin-top: 0;
     }
     #footer {
       .container {

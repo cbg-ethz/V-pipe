@@ -1,20 +1,41 @@
 <div class="container">
-  <div class="logo logo-sib">
+  <!-- <div class="logo logo-sib">
     <img src="assets/img/logo-sib.svg" alt="Logo SIB">
-  </div>
+  </div> -->
   <div class="logo logo-vpipe">
     <img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe">
   </div>
-  <button>
+  <button id="toggle-nav-btn">
     <span></span>
     <span></span>
     <span></span>
   </button>
-  <nav>
+  <nav id="main-nav">
     <ul>
       {% for item in page.nav_items %}
-        <li><a href="{{ item.link }}">{{ item.name }}</a></li>
+        <li>
+          <a href="{{ item.link }}">{{ item.name }}</a>
+          {% if item.sub_items %}
+          <span>&#8964;</span>
+          <ul>
+            {% for sub_item in item.sub_items %}
+                <li><a href="{{ sub_item.link }}">{{ sub_item.name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
   </nav>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const toggleNavBtn = document.getElementById("toggle-nav-btn");
+    const mainNav = document.getElementById("main-nav");
+    function toggleNav() {
+      mainNav.classList.toggle("show");
+    }
+    toggleNavBtn.addEventListener("click", toggleNav);
+  });
+</script>
