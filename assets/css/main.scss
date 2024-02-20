@@ -50,15 +50,16 @@ body{
   }
   .container {
     width: 100%;
-    max-width: 1500px;
+    max-width: calc(100% - 80px);
     margin: 0 auto;
+    padding: 0 40px;
   }
   header {
     min-height: 745px;
     padding: 20px;
     position: relative;
     background: rgb(255,244,244);
-    background: linear-gradient(328deg, rgba(255,244,244,1) 0%, rgba(231,238,245,1) 100%);
+    background: linear-gradient(328deg, rgba(231,238,245,1) 0%, rgba(255,237,237,1) 100%);
     border-radius: $mainRadiusBottom;
     .container {
       padding: 20px 0;
@@ -214,7 +215,8 @@ body{
         gap: 10px;
         .column {
           width: 25%;
-          padding: 20px;
+          padding: 20px 20px 80px 20px;
+          position: relative;
           background: rgba(226,6,19,0.04);
           border-radius: 20px;
           .column-heading {
@@ -257,6 +259,19 @@ body{
                 }
               }
             }
+          }
+          &:after {
+            content: '';
+            width: 100px;
+            height: 8px;
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            background: $sibRed;
+            border-radius: $smallRadius;
           }
         }
       }
@@ -448,7 +463,7 @@ body{
             }
           }
           ul {
-            padding: 0 0 0 10px;
+            padding: 0 0 0 17px;
             li {
               margin: 8px 0;
               a {
@@ -498,7 +513,18 @@ body{
 
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (min-width: 1500px) {
+  body {
+    .container {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+  }
+}
+
+@media screen and (max-width: 1218px) {
   body {
     header {
       .container {
@@ -514,16 +540,112 @@ body{
           cursor: pointer;
           span {
             width: 35px;
-            height: 5px;
+            height: 2px;
             display: block;
             background: $sibRed;
-            margin: 2px 0;
+            margin: 4px 0;
             border-radius: $smallRadius;
             &:nth-child(2) {
               position: relative;
               left: 5px;
             }
           }
+        }
+      }
+    }
+    #get-started {
+      .container {
+        .homepage-columns {
+          .column {
+            .column-heading {
+              h2 {
+                font: {
+                  size: 1em;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  body {
+    header {
+      .container {
+        .hero-carousel {
+          .slide.active {
+            display: block;
+            .content {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+    #get-started {
+      .container {
+        .homepage-columns {
+          display: grid;
+          grid-template-columns: 50% 50%;
+          grid-row: auto auto;
+          grid-column-gap: 20px;
+          grid-row-gap: 20px;
+          justify-content: space-around;
+          .column {
+            width: auto;
+            .column-heading {
+              h2 {
+                font: {
+                  size: 1.4em;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    #vpipe-numbers {
+      .bg-full-width {
+        .container {
+          .column-numbers {
+            h1 {
+              font: {
+                size: 1.5em;
+              }
+            }
+          }
+        }
+      }
+    }
+    #meet-the-team {
+      .container {
+        display: block;
+        .column {
+          width: auto;
+          margin: 20px 0;
+        }
+      }
+      .blue-abstract-circle {
+        opacity: .2;
+      }
+    }
+    #footer {
+      .container {
+        .row, .row:nth-child(2) {
+          display: grid;
+          grid-template-columns: 50% 50%;
+          grid-column-gap: 20px;
+          grid-row-gap: 20px;
+          justify-content: space-around;
+          .column {
+            width: auto;
+          }
+        }
+        .row:last-child {
+          display: flex;
         }
       }
     }
