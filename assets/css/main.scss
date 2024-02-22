@@ -256,6 +256,7 @@ body{
       }
    }
    &:not(.home) {
+    min-height: auto;
     padding: 0;
     border-radius: 0;
    }
@@ -278,7 +279,7 @@ body{
           padding: 20px 20px 80px 20px;
           position: relative;
           // background: rgba(226,6,19,0.04);
-          background: $sibSpringGreen;
+          background: #c0fbea;
           border-radius: 20px;
           .column-heading {
             padding: 20px;

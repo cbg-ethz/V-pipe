@@ -46,7 +46,7 @@ nav_items:
         link: "/contact/subscribe-to-mailing-list"
 ---
 
-# Documentation
+# About
 
 I really like using Markdown.
 
