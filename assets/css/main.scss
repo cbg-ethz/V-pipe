@@ -255,6 +255,10 @@ body{
         }
       }
    }
+   &:not(.home) {
+    padding: 0;
+    border-radius: 0;
+   }
   }
 
   #get-started {

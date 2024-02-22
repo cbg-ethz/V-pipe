@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation of V-pipe</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Cabin+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="container">
+  <!-- <div class="logo logo-sib">
+    <img src="assets/img/logo-sib.svg" alt="Logo SIB">
+  </div> -->
+  <div class="logo logo-vpipe">
+    <img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe">
+  </div>
+  <button id="toggle-nav-btn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <nav id="main-nav">
+    <ul>
+      
+        <li>
+          <a href="/index">Home</a>
+          
+        </li>
+      
+        <li>
+          <a href="/documentation">Documentation</a>
+          
+          <span>&#8964;</span>
+          <ul>
+            
+                <li><a href="/documentation/tutorials">Tutorials</a></li>
+            
+                <li><a href="/documentation/general-info">General Info</a></li>
+            
+                <li><a href="/documentation/config-files">Config Files</a></li>
+            
+                <li><a href="/documentation/how-to-benchmark-tools">How to Benchmark Tools?</a></li>
+            
+          </ul>
+          
+        </li>
+      
+        <li>
+          <a href="/literature">Literature</a>
+          
+          <span>&#8964;</span>
+          <ul>
+            
+                <li><a href="/literature/how-to-cite-us">How to Cite Us</a></li>
+            
+                <li><a href="/literature/use-of-v-pipe">Use of V-pipe</a></li>
+            
+                <li><a href="/literature/v-pipe-vs-competitors">V-pipe vs Competitors</a></li>
+            
+          </ul>
+          
+        </li>
+      
+        <li>
+          <a href="/about">About</a>
+          
+          <span>&#8964;</span>
+          <ul>
+            
+                <li><a href="/about/funding">Funding</a></li>
+            
+                <li><a href="/about/team">Team</a></li>
+            
+                <li><a href="/about/license-privacy-policy">License and Privacy Policy</a></li>
+            
+          </ul>
+          
+        </li>
+      
+        <li>
+          <a href="/contact">Contact</a>
+          
+          <span>&#8964;</span>
+          <ul>
+            
+                <li><a href="/contact/chat-with-us">Chat with Us</a></li>
+            
+                <li><a href="/contact/submit-an-issue">Submit an Issue</a></li>
+            
+                <li><a href="/contact/e-mail-us">E-mail Us</a></li>
+            
+                <li><a href="/contact/subscribe-to-mailing-list">Subscribe to our Mailing List</a></li>
+            
+          </ul>
+          
+        </li>
+      
+    </ul>
+  </nav>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const toggleNavBtn = document.getElementById("toggle-nav-btn");
+  const mainNav = document.getElementById("main-nav");
+
+  function toggleNav(event) {
+    event.stopPropagation();
+    mainNav.classList.toggle("show");
+  }
+
+  toggleNavBtn.addEventListener("click", toggleNav);
+
+  document.addEventListener("click", function(event) {
+    const target = event.target;
+    if (target !== toggleNavBtn && !mainNav.contains(target)) {
+      mainNav.classList.remove("show");
+    }
+  });
+});
+
+</script>
+    </header>
+    <div class="container">
+      <h1 id="heading-level-1">Heading level 1</h1>
+
+<p>I really like using Markdown.</p>
+
+<p>I think I’ll use it to format all of my documents from now on.</p>
+
+<p>I just love <strong>bold text</strong>.</p>
+
+<blockquote>
+  <p>Dorothy followed her through many of the beautiful rooms in her castle.</p>
+
+  <blockquote>
+    <p>The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</p>
+  </blockquote>
+</blockquote>
+
+<ol>
+  <li>First item</li>
+  <li>Second item</li>
+  <li>Third item
+    <ol>
+      <li>Indented item</li>
+      <li>Indented item</li>
+    </ol>
+  </li>
+  <li>Fourth item</li>
+</ol>
+
+    </div>
+    <section id="funding">
+    <h1><span>V-pipe</span> funding</h1>
+    <div class="container">
+        <div class="column">
+            <img src="assets/img/logo-sib.svg" alt="Logo SIB" />
+        </div>
+        <div class="column">
+            <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" />
+        </div>
+    </div>
+</section>
+    <section id="footer">
+  <div class="container">
+    <div class="row">
+      
+          <div class="column">
+              <h3>Documentation</h3>
+              <ul>
+                  
+                      <li><a href="/tutorials">Tutorials</a></li>
+                  
+                      <li><a href="/general-information">General information</a></li>
+                  
+                      <li><a href="/configuration-files">Configuration files</a></li>
+                  
+                      <li><a href="/how-to-benchmark-tools">How to benchmark tools?</a></li>
+                  
+              </ul>
+          </div>
+      
+          <div class="column">
+              <h3>Literature</h3>
+              <ul>
+                  
+                      <li><a href="/how-to-cite-us">How to cite us</a></li>
+                  
+                      <li><a href="/use-of-vpipe">Use of V-pipe</a></li>
+                  
+                      <li><a href="/vpipe-vs-competitors">V-pipe vs competitors</a></li>
+                  
+              </ul>
+          </div>
+      
+          <div class="column">
+              <h3>About</h3>
+              <ul>
+                  
+                      <li><a href="/funding">Funding</a></li>
+                  
+                      <li><a href="/team">Team</a></li>
+                  
+                      <li><a href="/license-and-privacy">License and privacy</a></li>
+                  
+              </ul>
+          </div>
+      
+          <div class="column">
+              <h3>Contact</h3>
+              <ul>
+                  
+                      <li><a href="/chat-with-us">Chat with us</a></li>
+                  
+                      <li><a href="/submit-an-issue">Submit an issue</a></li>
+                  
+                      <li><a href="/email-us">E-mail us</a></li>
+                  
+                      <li><a href="/subscribe-to-our-mailing-list">Subscribe to our mailing list</a></li>
+                  
+              </ul>
+          </div>
+      
+    </div>
+    <div class="row">
+      <div class="column">
+        <h1>Follow us</h1>
+        <div class="social-container">
+          <a href="#"><img src="assets/img/ic-newsletter.svg" alt="YouTube Icon" /></a>
+          <a href="#"><img src="assets/img/ic-youtube.svg" alt="YouTube Icon" /></a>
+          <a href="#"><img src="assets/img/ic-rss.svg" alt="YouTube Icon" /></a>
+        </div>
+      </div>
+      <div class="column">
+        <h1>Enquiries</h1>
+        <a href="mailto:v-pipe@bsse.ethz.ch">v-pipe@bsse.ethz.ch</a>
+      </div>
+    </div>
+    <div class="row">
+      <p>&copy;2024 V-pipe</p>
+    </div>
+  </div>
+</section>
+  </body>
+</html>

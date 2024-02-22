@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.title }}</title>
-  <link rel="stylesheet" href="{{ 'assets/css/main.css' | relative_url }}">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body><!-- home layout that currently is being used by the index.md homepage -->
-  
-  <header>
-    {% include navigation.html %}
-    {% include carousel.html %}
-  </header>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ 'assets/css/main.css' | relative_url }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+  <body><!-- home layout that currently is being used by the index.md homepage -->
+    
+    <header class="home">
+      {% include navigation.html %}
+      {% include carousel.html %}
+    </header>
 
-  {% include get_started_columns.html %}
+    {% include get_started_columns.html %}
 
-  {% include vpipe_numbers.html %}
+    {% include vpipe_numbers.html %}
 
-  {% include why_vpipe.html %}
-  
-  {% include meet_the_team.html %}
+    {% include why_vpipe.html %}
+    
+    {% include meet_the_team.html %}
 
-  {% include funding.html %}
+    {% include funding.html %}
 
-  {{ content }}
+    {{ content }}
 
-  {% include footer.html %}
-</body>
+    {% include footer.html %}
+  </body>
 </html>
