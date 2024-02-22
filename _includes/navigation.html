@@ -30,12 +30,23 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const toggleNavBtn = document.getElementById("toggle-nav-btn");
-    const mainNav = document.getElementById("main-nav");
-    function toggleNav() {
-      mainNav.classList.toggle("show");
+document.addEventListener("DOMContentLoaded", function() {
+  const toggleNavBtn = document.getElementById("toggle-nav-btn");
+  const mainNav = document.getElementById("main-nav");
+
+  function toggleNav(event) {
+    event.stopPropagation();
+    mainNav.classList.toggle("show");
+  }
+
+  toggleNavBtn.addEventListener("click", toggleNav);
+
+  document.addEventListener("click", function(event) {
+    const target = event.target;
+    if (target !== toggleNavBtn && !mainNav.contains(target)) {
+      mainNav.classList.remove("show");
     }
-    toggleNavBtn.addEventListener("click", toggleNav);
   });
+});
+
 </script>
