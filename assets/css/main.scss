@@ -26,6 +26,18 @@ body{
   padding: 0;
   box-sizing: border-box;
   background:white;color:black;
+  &:not(.homebody) {
+    .container {
+      max-width: calc(100% - 150px);
+    }
+    header {
+      &:not(.home) {
+        .container {
+          max-width: calc(100% - 80px);
+        }
+      }
+    }
+  }
   font: {
     family: "Inter", sans-serif;
   }
@@ -66,17 +78,15 @@ body{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      .logo, .logo-vpipe {
-        width: 33%;
-        img {
-          width: 120px;
-        }
-      }
-      .logo-vpipe {
-        // text-align: center;
-        text-align: start;
+      .logos {
         img {
           width: 180px;
+          padding-right: 12px;
+          &:last-child {
+            width: 64px;
+            padding-left: 20px;
+            border-left: 1px solid #0000002b;
+          }
         }
       }
       button {
@@ -257,8 +267,10 @@ body{
    }
    &:not(.home) {
     min-height: auto;
+    margin: 40px;
     padding: 0;
-    border-radius: 0;
+    background: #dffff8;
+    border-radius: $mainRadius;
    }
   }
 
@@ -605,12 +617,11 @@ body{
             background: white;
             box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.6);
             border-radius: $smallRadius;
-          
             &:before {
               content: "";
               position: absolute;
-              top: -20px;
-              right: 25px;
+              top: -10px;
+              right: -10px;
               transform: translateX(-50%);
               border-left: 20px solid transparent;
               border-right: 20px solid transparent;
@@ -679,6 +690,10 @@ body{
 
 @media screen and (max-width: 1024px) {
   body {
+    .container {
+      max-width: calc(100% - 10px);
+      padding: 0;
+    }
     header {
       .container {
         .hero-carousel {
@@ -693,9 +708,14 @@ body{
             }
           }
         }
-        .logo-vpipe {
+        .logos {
           img {
             width: 120px;
+            padding-right: 5px;
+            &:last-child {
+              width: 40px;
+              padding-left: 10px;
+            }
           }
         }
       }
@@ -732,8 +752,25 @@ body{
           .column-numbers {
             h1 {
               font: {
-                size: 1.5em;
+                size: 1.4em;
               }
+            }
+          }
+        }
+      }
+    }
+    #why-vpipe {
+      .container {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        grid-column-gap: 20px;
+        grid-row-gap: 20px;
+        justify-content: space-around;
+        .column {
+          width: auto;
+          h2 {
+            font: {
+              size: 1.2em;
             }
           }
         }
@@ -752,9 +789,18 @@ body{
       }
     }
     #funding {
-      margin-top: 0;
+      margin: 80px 0;
+      padding: 40px 0 0;
+      .container {
+        .column {
+          img {
+            width: 120px;
+          }
+        }
+      }
     }
     #footer {
+      margin: 100px 0 0;
       .container {
         .row, .row:nth-child(2) {
           display: grid;
@@ -764,10 +810,78 @@ body{
           justify-content: space-around;
           .column {
             width: auto;
+            .social-container {
+              a {
+                width: 20px;
+                height: 20px;
+                img {
+                  width: 18px;
+                }
+              }
+            }
           }
         }
         .row:last-child {
           display: flex;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    #get-started {
+      .container {
+        .homepage-columns {
+          display: grid;
+          grid-template-columns: 100%;
+          grid-row: auto;
+          .column {
+            width: auto;
+            .column-heading {
+              h2 {
+                font: {
+                  size: 1.2em;
+                }
+              }
+              img {
+                height: 45px;
+              }
+            }
+          }
+        }
+      }
+    }
+    #why-vpipe {
+      .container {
+        display: block;
+        .column {
+          margin: 20px 0;
+        }
+      }
+    }
+    #meet-the-team {
+      .container {
+        .column {
+          ul {
+            li {
+              font: {
+                size: .85em;
+              }
+            }
+          }
+        }
+      }
+    }
+    #footer {
+      .container {
+        padding: 30px 0 0;
+        .row, .row:nth-child(2) {
+          display: block;
+          .column {
+            margin: 10px 0;
+          }
         }
       }
     }

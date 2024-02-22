@@ -8,15 +8,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   </head>
-  <body><!-- home layout that currently is being used by the index.md homepage -->
+  <body class="homebody"><!-- home layout that currently is being used by the index.md homepage -->
     
     <header class="home">
       <div class="container">
-  <!-- <div class="logo logo-sib">
-    <img src="assets/img/logo-sib.svg" alt="Logo SIB">
-  </div> -->
-  <div class="logo logo-vpipe">
+  <div class="logos">
     <img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe">
+    <img src="assets/img/logo-sib.svg" alt="Logo SIB">
   </div>
   <button id="toggle-nav-btn">
     <span></span>
@@ -210,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var slides = document.querySelectorAll('.hero-carousel .slide');
         var indicators = document.querySelectorAll('.slide-indicators .indicator');
         var currentSlide = 0;
-        var slideInterval = setInterval(nextSlide, 50000);
+        var slideInterval = setInterval(nextSlide, 5000);
 
         function nextSlide() {
             if (slides[currentSlide] && indicators[currentSlide]) {
@@ -581,7 +579,7 @@ document.addEventListener("DOMContentLoaded", function() {
     <h1><span>V-pipe</span> funding</h1>
     <div class="container">
         <div class="column">
-            <img src="assets/img/logo-sib.svg" alt="Logo SIB" />
+            <img src="assets/img/logo-sib-full.svg" alt="Logo SIB" />
         </div>
         <div class="column">
             <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" />
