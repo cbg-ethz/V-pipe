@@ -845,9 +845,10 @@ body{
       }
       header {
         &:not(.home) {
-          margin: 10px;
+          margin: 20px 10px 10px 10px;
           .container {
             max-width: calc(100% - 40px);
+            padding: 10px 0;
           }
         }
       }
@@ -864,6 +865,11 @@ body{
                 }
               }
             }
+          }
+        }
+        nav {
+          &.show {
+            top: 95px;
           }
         }
       }
