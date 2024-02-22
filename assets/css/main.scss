@@ -831,7 +831,37 @@ body{
 
 @media screen and (max-width: 768px) {
   body {
+    &:not(.homebody) {
+      .container {
+        max-width: calc(100% - 60px);
+      }
+      header {
+        &:not(.home) {
+          margin: 10px;
+          .container {
+            max-width: calc(100% - 40px);
+          }
+        }
+      }
+    }
+    header {
+      .container {
+        .hero-carousel {
+          margin: 0 0 40px;
+          .slide {
+            .content {
+              h1 {
+                font: {
+                  size: 1.8em;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     #get-started {
+      margin: 50px 15px 0;
       .container {
         .homepage-columns {
           display: grid;
@@ -853,7 +883,21 @@ body{
         }
       }
     }
+    #vpipe-numbers {
+      margin: 80px 0 70px;
+      .bg-full-width {
+        .container {
+          display: block;
+          padding: 50px 0;
+          .column-numbers {
+            width: 90%;
+            margin: 20px auto;
+          }
+        }
+      }
+    }
     #why-vpipe {
+      padding: 0;
       .container {
         display: block;
         .column {
@@ -862,6 +906,7 @@ body{
       }
     }
     #meet-the-team {
+      padding: 160px 0 0;
       .container {
         .column {
           ul {
@@ -873,6 +918,9 @@ body{
           }
         }
       }
+    }
+    #funding {
+      padding: 0;
     }
     #footer {
       .container {
