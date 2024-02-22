@@ -79,13 +79,17 @@ body{
       justify-content: space-between;
       align-items: center;
       .logos {
-        img {
-          width: 150px;
-          padding-right: 12px;
+        a {
+          img {
+            width: 150px;
+            padding-right: 12px;
+          }
           &:last-child {
-            width: 52px;
-            padding-left: 20px;
-            border-left: 1px solid #0000002b;
+            img {
+              width: 52px;
+              padding-left: 20px;
+              border-left: 1px solid #0000002b;
+            }
           }
         }
       }
@@ -709,12 +713,14 @@ body{
           }
         }
         .logos {
-          img {
-            width: 120px;
-            padding-right: 5px;
-            &:last-child {
-              width: 40px;
-              padding-left: 10px;
+          a {
+            img {
+              width: 120px;
+              padding-right: 5px;
+              &:last-child {
+                width: 40px;
+                padding-left: 10px;
+              }
             }
           }
         }
