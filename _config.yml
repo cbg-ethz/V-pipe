@@ -5,6 +5,8 @@ remote_theme: null
 # plugins:
 #   - jekyll-sass
 
+baseurl: "/vpipe"
+
 sass:
   style: compressed
 
