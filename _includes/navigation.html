@@ -12,18 +12,19 @@
     <ul>
       {% for item in page.nav_items %}
         <li>
-          <a href="{{ item.link }}">{{ item.name }}</a>
+          <a href="{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
           {% if item.sub_items %}
           <span>&#8964;</span>
           <ul>
             {% for sub_item in item.sub_items %}
-                <li><a href="{{ sub_item.link }}">{{ sub_item.name }}</a></li>
+              <li><a href="{{ site.baseurl }}{{ sub_item.link }}">{{ sub_item.name }}</a></li>
             {% endfor %}
           </ul>
           {% endif %}
         </li>
       {% endfor %}
     </ul>
+    
   </nav>
 </div>
 
