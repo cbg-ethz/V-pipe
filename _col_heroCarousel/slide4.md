@@ -4,7 +4,7 @@ description:  Consectetur adipiscing elit pellentesque habitant morbi tristique 
 image: assets/img/virus-3.webp
 cta:
   text: Learn More
-  link: /page4.html
+  link: /get-started
 ---
 
 Content of the fourth slide goes here.

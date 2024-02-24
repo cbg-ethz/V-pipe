@@ -4,7 +4,7 @@ description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiu
 image: assets/img/virus-2.webp
 cta:
   text: Learn More
-  link: /page3.html
+  link: /get-started
 ---
 
 Content of the third slide goes here.
