@@ -71,7 +71,9 @@ body{
     padding: 20px;
     position: relative;
     background: rgb(255,244,244);
-    background: linear-gradient(328deg, rgba(231,238,245,1) 0%, rgba(255,237,237,1) 100%);
+    background: linear-gradient(328deg, rgba(231,238,245,.9) 0%, rgba(255,237,237,.9) 100%);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     border-radius: $mainRadiusBottom;
     .container {
       padding: 20px 0;
@@ -280,6 +282,25 @@ body{
 
   #get-started {
     margin: 160px 0;
+    position: relative;
+    .metaball {
+      position: absolute;
+      right: 50px;
+      top: -275px;
+      z-index: -1;
+      img {
+        width: 250px;
+      }
+      &:first-child {
+        left: 10px;
+        transform: rotate(85deg);
+        right: auto;
+        top: -290px;
+        img {
+          width: 200px;
+        }
+      }
+    }
     h1 {
       padding: 20px 0;
       text-align: center;
@@ -367,7 +388,7 @@ body{
       top: -40px;
       left: 0;
       // color: $sibRed;
-      background: linear-gradient(to right, rgba(226,6,19,.2) 0%, rgba(226,6,19,0) 100%);
+      background: linear-gradient(to right, rgba(226,6,19,.5) 0%, rgba(226,6,19,0) 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -379,11 +400,10 @@ body{
         left: auto;
         top: 0px;
         right: 0;
-        background: linear-gradient(to left, rgba(51,104,237,.7) 0%, rgba(51,104,237,0) 100%);
+        background: linear-gradient(to left, rgba(51,104,237,.5) 0%, rgba(51,104,237,0) 100%);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        opacity: .2;
       }
     }
     .bg-full-width {
