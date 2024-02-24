@@ -1,8 +1,8 @@
 <div class="container">
 
     <div class="hero-carousel">
-        {% assign slide_count = site.fp_heroCarousel | size %}
-        {% for slide in site.fp_heroCarousel %}
+        {% assign slide_count = site.col_heroCarousel | size %}
+        {% for slide in site.col_heroCarousel %}
         <div class="slide{% if forloop.index == 1 %} active{% endif %}">
             {% if slide.video %}
             <div class="video">

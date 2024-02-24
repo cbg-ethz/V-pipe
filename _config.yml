@@ -13,11 +13,11 @@ sass:
 # Add any other configurations or site-specific settings
 
 collections:
-  fp_heroCarousel:
+  col_heroCarousel:
     output: true
-  fp_getStartedColumns:
+  col_getStartedColumns:
     output: true
-  fp_whyVpipe:
+  col_whyVpipe:
     output: true
   footer:
     output: true
