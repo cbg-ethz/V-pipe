@@ -19,7 +19,7 @@
           {% endif %}
           <ul>
           {% for link in link_group.links %}
-            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a></li>
           {% endfor %}
           </ul>
         {% endfor %}
