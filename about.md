@@ -48,11 +48,11 @@ nav_items:
 
 # About
 
-I really like using Markdown.
+We really like using Markdown.
 
-I think I'll use it to format all of my documents from now on.
+We think we'll use it to format all of my documents from now on.
 
-I just love **bold text**.
+We just love **bold text**.
 
 > Dorothy followed her through many of the beautiful rooms in her castle.
 >
