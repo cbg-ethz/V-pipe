@@ -6,9 +6,9 @@ links:
   - subject:
     links:
       - title: Hardware requirements
-        url: /hardware-requirements
+        url: /how-to-use-vpipe#hardware-requirements
       - title: Software requirements
-        url: /software-requirements
+        url: /how-to-use-vpipe#software-requirements
       - title: How to cite us?
-        url: /how-to-cite-us
+        url: /how-to-use-vpipe#how-to-cite-us
 ---
