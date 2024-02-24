@@ -4,7 +4,7 @@ description: Virus populations exist as heterogeneous ensembles of genomes withi
 image: assets/img/virus-1.webp
 cta:
   text: Get Started
-  link: /get-started
+  link: /documentation
 ---
 
 Content of the first slide goes here.

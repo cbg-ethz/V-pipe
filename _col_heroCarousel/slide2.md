@@ -4,7 +4,7 @@ description: This short webinar explains — and demonstrates — the use of V-p
 video: https://www.youtube.com/embed/pIby1UooK94
 cta:
   text: Learn More
-  link: /get-started
+  link: /documentation
 ---
 
 Content of the second slide goes here.
