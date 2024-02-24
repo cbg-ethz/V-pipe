@@ -114,7 +114,7 @@ body{
       
           li {
             position: relative;
-            margin: 0 5px;
+            margin: 0 20px;
             padding: 10px 0;
 
             span {
@@ -145,6 +145,7 @@ body{
               border-radius: $smallRadius;
               box-shadow: 0 15px 20px -25px rgba(0,0,0,0.6);
               li {
+                margin: 0 5px;
                 padding: 0;
                 a {
                   display: block;
@@ -288,16 +289,41 @@ body{
       right: 50px;
       top: -275px;
       z-index: -1;
+      animation: fadeInMoveDown 2s ease-in-out forwards;
+      opacity: 0;
       img {
         width: 250px;
       }
       &:first-child {
         left: 10px;
-        transform: rotate(85deg);
         right: auto;
         top: -290px;
+        animation: fadeInMoveUp 2s ease-in-out forwards;
         img {
           width: 200px;
+        }
+      }
+      @keyframes fadeInMoveUp {
+        from {
+          opacity: 0;
+          transform: translateY(-100px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          transform: rotate(85deg);
+        }
+      }
+      
+      @keyframes fadeInMoveDown {
+        from {
+          opacity: 0;
+          transform: translateY(100px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          transform: rotate(180deg);
         }
       }
     }
@@ -315,14 +341,13 @@ body{
           width: 25%;
           padding: 20px 20px 80px 20px;
           position: relative;
-          // background: rgba(226,6,19,0.04);
           background: #c0fbea;
-          border-radius: 20px;
+          border-radius: $smallRadius;
           .column-heading {
             padding: 20px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: $smallRadius;
             img {
               height: 55px;
             }
@@ -437,20 +462,24 @@ body{
       margin: 70px auto;
       .column {
         width: 25%;
+        padding: 60px 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        border: 1px solid #eee;
+        border-radius: $smallRadius;
         .img-container {
+          height: 80px;
           display: flex;
           align-items: end;
           justify-items: center;
-          height: 80px
         }
         h2 {
           font: {
             weight: 300;
           }
+          margin-bottom: 0;
         }
       }
     }
@@ -470,7 +499,7 @@ body{
         padding: 40px;
         background: $sibElectricBlue;
         color: white;
-        border-radius: $mainRadius;
+        border-radius: $smallRadius;
         h2 {
           margin-top: 0;
           text-transform: uppercase;
@@ -533,7 +562,7 @@ body{
         align-items: center;
         padding: 40px 0;
         border: 1px solid #ddd;
-        border-radius: $mainRadius;
+        border-radius: $smallRadius;
         img {
           width: 200px;
         }
@@ -583,7 +612,7 @@ body{
             align-items: center;
             flex-direction: column;
             border: 1px solid rgba(0, 0, 0, 0.2);
-            border-radius: $mainRadius;
+            border-radius: $smallRadius;
             h1 {
               margin-top: 0;
             }
