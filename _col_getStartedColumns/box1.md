@@ -6,13 +6,13 @@ links:
   - subject: 
     links:
       - title: Our impact
-        url: /our-impact
+        url: /impact
       - title: What can V-pipe do with my data?
-        url: /what-can-vpipe-do-with-my-data
+        url: /impact#what-can-vpipe-do-with-my-data
       - title: V-pipe in the community
-        url: /vpipe-in-the-community
+        url: /impact#vpipe-in-the-community
       - title: V-pipe vs Competitors
-        url: /vpipe-vs-competitors
+        url: /impact#vpipe-vs-competitors
       - title: Contact us
-        url: /contact-us
+        url: /impact#contact-us
 ---

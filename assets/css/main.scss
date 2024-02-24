@@ -26,7 +26,7 @@ body{
   padding: 0;
   box-sizing: border-box;
   color:black;
-  overflow-x: hidden !important;
+  overflow-x: hidden;
   &:not(.homebody) {
     .container {
       max-width: calc(100% - 150px);
@@ -290,44 +290,49 @@ body{
       right: 50px;
       top: -275px;
       z-index: -1;
-      animation: fadeInMoveDown 2s ease-in-out forwards;
       opacity: 0;
+      animation: fadeInMoveDown 2s ease-in-out forwards;
+  
       img {
         width: 250px;
       }
+    
       &:first-child {
         left: 10px;
         right: auto;
         top: -290px;
-        animation: fadeInMoveUp 2s ease-in-out forwards;
+        animation: fadeInMoveUp 1s ease-in-out forwards;
+        animation-delay: 1s;
+
         img {
           width: 200px;
         }
-      }
-      @keyframes fadeInMoveUp {
-        from {
-          opacity: 0;
-          transform: translateY(-100px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-          transform: rotate(85deg);
-        }
-      }
-      
-      @keyframes fadeInMoveDown {
-        from {
-          opacity: 0;
-          transform: translateY(100px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-          transform: rotate(180deg);
-        }
+
       }
     }
+    
+    @keyframes fadeInMoveUp {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) rotate(90deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotate(90deg);
+      }
+    }
+    
+    @keyframes fadeInMoveDown {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }    
+    
     h1 {
       padding: 20px 0;
       text-align: center;
@@ -337,12 +342,13 @@ body{
       .homepage-columns {
         display: flex;
         justify-content: space-evenly;
-        gap: 10px;
+        gap: 20px;
         .column {
           width: 25%;
           padding: 20px 20px 80px 20px;
           position: relative;
-          background: #c0fbea;
+          // background: #c0fbea;
+          background: #fff4f4;
           border-radius: $smallRadius;
           .column-heading {
             padding: 20px;
@@ -395,7 +401,8 @@ body{
             right: 0;
             margin-left: auto;
             margin-right: auto;
-            background: rgba(0, 0, 0, 0.148);
+            // background: rgba(0, 0, 0, 0.148);
+            background: #ff00001a;
             border-radius: $smallRadius;
           }
         }
@@ -404,7 +411,7 @@ body{
   }
 
   #vpipe-numbers {
-    margin: 150px 0 70px;
+    margin: 220px 0 70px;
     position: relative;
     text-align: center;
     .dna-txt {
@@ -460,7 +467,7 @@ body{
     .container {
       display: flex;
       gap: 20px;
-      margin: 70px auto;
+      margin: 20px auto;
       .column {
         width: 25%;
         padding: 60px 0;
@@ -594,6 +601,8 @@ body{
             padding: 0 0 0 17px;
             li {
               margin: 8px 0;
+              padding: 5px 0;
+              list-style-image: url(../img/ic-list-style.svg);
               a {
                 color: black;
                 text-decoration: none;
@@ -651,6 +660,20 @@ body{
     }
     header {
       min-height: 750px;
+    }
+  }
+}
+
+@media screen and (max-width: 1350px) {
+  body {
+    #meet-the-team {
+      .container {
+        display: grid;
+        .column {
+          width: auto;
+          margin: 10px 0;
+        }
+      }
     }
   }
 }

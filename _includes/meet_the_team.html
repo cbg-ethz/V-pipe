@@ -9,7 +9,7 @@
                     {% assign now = "now" | date: "%Y-%m-%d" %}
                     {% if event_date > now %}
                         <li>
-                            <span class="date">{{ event.date | date: "%B %d, %Y" }}</span>
+                            <span class="date">{{ event.date | date: "%b %d, %Y" }}</span>
                             <span class="location">{{ event.location }}</span>
                         </li>
                     {% endif %}
@@ -24,7 +24,7 @@
                     {% assign now = "now" | date: "%Y-%m-%d" %}
                     {% if event_date <= now %}
                         <li>
-                            <span class="date">{{ event.date | date: "%B %d, %Y" }}</span>
+                            <span class="date">{{ event.date | date: "%b %d, %Y" }}</span>
                             <span class="location">{{ event.location }}</span>
                         </li>
                     {% endif %}
