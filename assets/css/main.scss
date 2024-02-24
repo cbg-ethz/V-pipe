@@ -896,6 +896,24 @@ body{
     }
     #get-started {
       margin: 50px 15px 0;
+      position: relative;
+      z-index: -1;
+      .metaball {
+        display: none;
+        position: absolute;
+        z-index: -1;
+        img {
+          width: 150px;
+        }
+        &:first-child {
+          display: block;
+          left: -40px;
+          top: -200px;
+          img {
+            width: 200px;
+          }
+        }
+      }
       .container {
         .homepage-columns {
           display: grid;
