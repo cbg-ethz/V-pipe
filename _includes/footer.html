@@ -3,7 +3,7 @@
     <div class="row">
       {% for column in site.footer %}
           <div class="column">
-              <h3>{{ column.heading }}</h3>
+              <h1>{{ column.heading }}</h1>
               <ul>
                   {% for link in column.links %}
                       <li><a href="{{ link.url }}">{{ link.title }}</a></li>
