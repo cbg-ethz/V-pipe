@@ -628,7 +628,8 @@ body{
             }
             .social-container {
               display: flex;
-              a {width: 40px;
+              a {
+                width: 40px;
                 height: 40px;
                 margin: 0 10px;
                 display: flex;
@@ -637,6 +638,10 @@ body{
                 padding: 10px;
                 background: rgba(255, 255, 255, 0.3);
                 border-radius: $smallRadius;
+                transition: background .3s ease;
+                &:hover {
+                  background: white;
+                }
               }
             }
           }
