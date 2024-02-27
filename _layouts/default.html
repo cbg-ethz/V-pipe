@@ -18,13 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <header>
-      {% include navigation.html %}
-    </header>
+    
+    {% include navigation.html %}
+    
     <div class="container">
       {{ content }}
     </div>
+
     {% include funding.html %}
     {% include footer.html %}
+    
   </body>
 </html>

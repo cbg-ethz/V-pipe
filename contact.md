@@ -9,10 +9,10 @@ nav_items:
     sub_items:
       - name: Tutorials
         link: "/documentation#tutorials"
-      - name: General Info
-        link: "/documentation#general-info"
-      - name: Config Files
-        link: "/documentation#config-files"
+      - name: General information
+        link: "/documentation#general-information"
+      - name: Configuration Files
+        link: "/documentation#configuration-files"
       - name: How to Benchmark Tools?
         link: "/documentation#how-to-benchmark-tools"
   - name: Literature

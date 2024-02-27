@@ -18,158 +18,246 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <header>
-      <div class="container">
-  <div class="logos">
-    <a href=""><img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe"></a>
-    <a href="https://sib.swiss" target="_blank"><img src="assets/img/logo-sib.svg" alt="Logo SIB"></a>
-  </div>
-  <button id="toggle-nav-btn">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  <nav id="main-nav">
-    <ul>
-      
-        <li>
-          <a href="/index">Home</a>
-          
-        </li>
-      
-        <li>
-          <a href="/documentation">Documentation</a>
-          
-          <span>&#8964;</span>
-          <ul>
-            
-              <li><a href="/documentation#tutorials">Tutorials</a></li>
-            
-              <li><a href="/documentation#general-info">General Info</a></li>
-            
-              <li><a href="/documentation#config-files">Config Files</a></li>
-            
-              <li><a href="/documentation#how-to-benchmark-tools">How to Benchmark Tools?</a></li>
-            
-          </ul>
-          
-        </li>
-      
-        <li>
-          <a href="/literature">Literature</a>
-          
-          <span>&#8964;</span>
-          <ul>
-            
-              <li><a href="/literature#how-to-cite-us">How to Cite Us</a></li>
-            
-              <li><a href="/literature#use-of-v-pipe">Use of V-pipe</a></li>
-            
-              <li><a href="/literature#v-pipe-vs-competitors">V-pipe vs Competitors</a></li>
-            
-          </ul>
-          
-        </li>
-      
-        <li>
-          <a href="/about">About</a>
-          
-          <span>&#8964;</span>
-          <ul>
-            
-              <li><a href="/about#funding">Funding</a></li>
-            
-              <li><a href="/about#team">Team</a></li>
-            
-              <li><a href="/about#license-privacy-policy">License and Privacy Policy</a></li>
-            
-          </ul>
-          
-        </li>
-      
-        <li>
-          <a href="/contact">Contact</a>
-          
-          <span>&#8964;</span>
-          <ul>
-            
-              <li><a href="/contact#chat-with-us">Chat with Us</a></li>
-            
-              <li><a href="/contact#submit-an-issue">Submit an Issue</a></li>
-            
-              <li><a href="/contact#e-mail-us">E-mail Us</a></li>
-            
-              <li><a href="/contact#subscribe-to-mailing-list">Subscribe to our Mailing List</a></li>
-            
-          </ul>
-          
-        </li>
-      
-    </ul>
     
-  </nav>
-</div>
+    <section id="nav-container">
+
+  <div class="container">
+    
+    <div class="logos">
+      <a href=""><img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe"></a>
+      <a href="https://sib.swiss" target="_blank"><img src="assets/img/logo-sib.svg" alt="Logo SIB"></a>
+    </div>
+    
+    <button id="toggle-nav-btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <nav id="main-nav">
+      <ul>
+        
+          <li>
+            <a href="/index">Home</a>
+            
+          </li>
+        
+          <li>
+            <a href="/documentation">Documentation</a>
+            
+            <span>&#8964;</span>
+            <ul>
+              
+                <li><a href="/documentation#tutorials">Tutorials</a></li>
+              
+                <li><a href="/documentation#general-information">General information</a></li>
+              
+                <li><a href="/documentation#configuration-files">Configuration Files</a></li>
+              
+                <li><a href="/documentation#how-to-benchmark-tools">How to Benchmark Tools?</a></li>
+              
+            </ul>
+            
+          </li>
+        
+          <li>
+            <a href="/literature">Literature</a>
+            
+            <span>&#8964;</span>
+            <ul>
+              
+                <li><a href="/literature#how-to-cite-us">How to Cite Us</a></li>
+              
+                <li><a href="/literature#use-of-v-pipe">Use of V-pipe</a></li>
+              
+                <li><a href="/literature#v-pipe-vs-competitors">V-pipe vs Competitors</a></li>
+              
+            </ul>
+            
+          </li>
+        
+          <li>
+            <a href="/about">About</a>
+            
+            <span>&#8964;</span>
+            <ul>
+              
+                <li><a href="/about#funding">Funding</a></li>
+              
+                <li><a href="/about#team">Team</a></li>
+              
+                <li><a href="/about#license-privacy-policy">License and Privacy Policy</a></li>
+              
+            </ul>
+            
+          </li>
+        
+          <li>
+            <a href="/contact">Contact</a>
+            
+            <span>&#8964;</span>
+            <ul>
+              
+                <li><a href="/contact#chat-with-us">Chat with Us</a></li>
+              
+                <li><a href="/contact#submit-an-issue">Submit an Issue</a></li>
+              
+                <li><a href="/contact#e-mail-us">E-mail Us</a></li>
+              
+                <li><a href="/contact#subscribe-to-mailing-list">Subscribe to our Mailing List</a></li>
+              
+            </ul>
+            
+          </li>
+        
+      </ul>  
+    </nav>
+
+  </div>
+
+</section>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const toggleNavBtn = document.getElementById("toggle-nav-btn");
-  const mainNav = document.getElementById("main-nav");
+  document.addEventListener("DOMContentLoaded", function() {
+    const toggleNavBtn = document.getElementById("toggle-nav-btn");
+    const mainNav = document.getElementById("main-nav");
 
-  function toggleNav(event) {
-    event.stopPropagation();
-    mainNav.classList.toggle("show");
-  }
+    function toggleNav(event) {
+      event.stopPropagation();
+      mainNav.classList.toggle("show");
+    }
 
-  toggleNavBtn.addEventListener("click", toggleNav);
+    toggleNavBtn.addEventListener("click", toggleNav);
 
-  document.addEventListener("click", function(event) {
-    const target = event.target;
-    if (target !== toggleNavBtn && !mainNav.contains(target)) {
-      mainNav.classList.remove("show");
+    document.addEventListener("click", function(event) {
+      const target = event.target;
+      if (target !== toggleNavBtn && !mainNav.contains(target)) {
+        mainNav.classList.remove("show");
+      }
+    });
+  });
+
+  // Scroll Event
+  window.addEventListener("scroll", function () {
+    var selectNav = document.getElementById("nav-container");
+    var scroll = window.scrollY;
+    if (scroll >= 120) {
+      selectNav.classList.add("navScrolled");
+    } else {
+      selectNav.classList.remove("navScrolled");
     }
   });
-});
-
 </script>
-    </header>
+    
     <div class="container">
       <h1 id="documentation">Documentation</h1>
 
-<p>We really like using Markdown.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+  <li><a href="#tutorials">Tutorials</a></li>
+  <li><a href="#general-information">General Information</a></li>
+  <li><a href="#configuration-files">Configuration Files</a></li>
+  <li><a href="#how-to-benchmark-tools">How to Benchmark Tools</a></li>
+</ul>
 
-<p>We think we’ll use it to format all of my documents from now on.</p>
+<hr />
 
-<p>We just love <strong>bold text</strong>.</p>
+<h2 id="tutorials">Tutorials</h2>
+<p>This section contains tutorials on how to use our software.</p>
 
-<blockquote>
-  <p>Dorothy followed her through many of the beautiful rooms in her castle.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.</p>
 
-  <blockquote>
-    <p>The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</p>
-  </blockquote>
-</blockquote>
+<h3 id="getting-started">Getting Started</h3>
+<ul>
+  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+  <li>Sed fringilla velit at sapien rutrum.</li>
+  <li>Nec malesuada turpis aliquet.</li>
+</ul>
 
+<h3 id="advanced-usage">Advanced Usage</h3>
+<ul>
+  <li>Fusce ut libero nec mauris lobortis consectetur.</li>
+  <li>Integer at mauris nec sapien sodales ullamcorper.</li>
+  <li>Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.</li>
+</ul>
+
+<hr />
+
+<h2 id="general-information">General Information</h2>
+<p>Here you’ll find general information about our software.</p>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.</p>
+
+<h3 id="features">Features</h3>
+<ul>
+  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+  <li>Sed fringilla velit at sapien rutrum.</li>
+  <li>Nec malesuada turpis aliquet.</li>
+</ul>
+
+<h3 id="system-requirements">System Requirements</h3>
+<ul>
+  <li>Fusce ut libero nec mauris lobortis consectetur.</li>
+  <li>Integer at mauris nec sapien sodales ullamcorper.</li>
+  <li>Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.</li>
+</ul>
+
+<hr />
+
+<h2 id="configuration-files">Configuration Files</h2>
+<p>Learn how to configure our software with the help of configuration files.</p>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.</p>
+
+<h3 id="basic-configuration">Basic Configuration</h3>
 <ol>
-  <li>First item</li>
-  <li>Second item</li>
-  <li>Third item
-    <ol>
-      <li>Indented item</li>
-      <li>Indented item</li>
-    </ol>
-  </li>
-  <li>Fourth item</li>
+  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+  <li>Sed fringilla velit at sapien rutrum.</li>
+  <li>Nec malesuada turpis aliquet.</li>
 </ol>
 
+<h3 id="advanced-configuration">Advanced Configuration</h3>
+<ul>
+  <li>Fusce ut libero nec mauris lobortis consectetur.</li>
+  <li>Integer at mauris nec sapien sodales ullamcorper.</li>
+  <li>Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.</li>
+</ul>
+
+<hr />
+
+<h2 id="how-to-benchmark-tools">How to Benchmark Tools</h2>
+<p>This section provides guidance on benchmarking tools and techniques.</p>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.</p>
+
+<h3 id="benchmarking-software">Benchmarking Software</h3>
+<ul>
+  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+  <li>Sed fringilla velit at sapien rutrum.</li>
+  <li>Nec malesuada turpis aliquet.</li>
+</ul>
+
+<h3 id="best-practices">Best Practices</h3>
+<ul>
+  <li>Fusce ut libero nec mauris lobortis consectetur.</li>
+  <li>Integer at mauris nec sapien sodales ullamcorper.</li>
+  <li>Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.</li>
+</ul>
+
     </div>
+
     <section id="funding">
     <h1><span>V-pipe</span> funding</h1>
     <div class="container">
         <div class="column">
+          <a href="https://sib.swiss/" target="_blank">
             <img src="assets/img/logo-sib-full.svg" alt="Logo SIB" />
+          </a>
         </div>
         <div class="column">
+          <a href="https://ethz.ch/" target="_blank">
             <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" />
+          </a>
         </div>
     </div>
 </section>
@@ -253,5 +341,6 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
   </div>
 </section>
+    
   </body>
 </html>

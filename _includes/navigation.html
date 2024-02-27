@@ -1,51 +1,68 @@
-<div class="container">
-  <div class="logos">
-    <a href="{{ site.baseurl }}"><img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe"></a>
-    <a href="https://sib.swiss" target="_blank"><img src="assets/img/logo-sib.svg" alt="Logo SIB"></a>
-  </div>
-  <button id="toggle-nav-btn">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  <nav id="main-nav">
-    <ul>
-      {% for item in page.nav_items %}
-        <li>
-          <a href="{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
-          {% if item.sub_items %}
-          <span>&#8964;</span>
-          <ul>
-            {% for sub_item in item.sub_items %}
-              <li><a href="{{ site.baseurl }}{{ sub_item.link }}">{{ sub_item.name }}</a></li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+<section id="nav-container">
+
+  <div class="container">
     
-  </nav>
-</div>
+    <div class="logos">
+      <a href="{{ site.baseurl }}"><img src="assets/img/logo-vpipe.svg" alt="Logo V-pipe"></a>
+      <a href="https://sib.swiss" target="_blank"><img src="assets/img/logo-sib.svg" alt="Logo SIB"></a>
+    </div>
+    
+    <button id="toggle-nav-btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <nav id="main-nav">
+      <ul>
+        {% for item in page.nav_items %}
+          <li>
+            <a href="{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
+            {% if item.sub_items %}
+            <span>&#8964;</span>
+            <ul>
+              {% for sub_item in item.sub_items %}
+                <li><a href="{{ site.baseurl }}{{ sub_item.link }}">{{ sub_item.name }}</a></li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>  
+    </nav>
+
+  </div>
+
+</section>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const toggleNavBtn = document.getElementById("toggle-nav-btn");
-  const mainNav = document.getElementById("main-nav");
+  document.addEventListener("DOMContentLoaded", function() {
+    const toggleNavBtn = document.getElementById("toggle-nav-btn");
+    const mainNav = document.getElementById("main-nav");
 
-  function toggleNav(event) {
-    event.stopPropagation();
-    mainNav.classList.toggle("show");
-  }
+    function toggleNav(event) {
+      event.stopPropagation();
+      mainNav.classList.toggle("show");
+    }
 
-  toggleNavBtn.addEventListener("click", toggleNav);
+    toggleNavBtn.addEventListener("click", toggleNav);
 
-  document.addEventListener("click", function(event) {
-    const target = event.target;
-    if (target !== toggleNavBtn && !mainNav.contains(target)) {
-      mainNav.classList.remove("show");
+    document.addEventListener("click", function(event) {
+      const target = event.target;
+      if (target !== toggleNavBtn && !mainNav.contains(target)) {
+        mainNav.classList.remove("show");
+      }
+    });
+  });
+
+  // Scroll Event
+  window.addEventListener("scroll", function () {
+    var selectNav = document.getElementById("nav-container");
+    var scroll = window.scrollY;
+    if (scroll >= 120) {
+      selectNav.classList.add("navScrolled");
+    } else {
+      selectNav.classList.remove("navScrolled");
     }
   });
-});
-
 </script>
