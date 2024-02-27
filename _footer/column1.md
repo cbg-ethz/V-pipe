@@ -2,11 +2,11 @@
 heading: Documentation
 links:
   - title: Tutorials
-    url: /tutorials
+    url: documentation#tutorials
   - title: General information
-    url: /general-information
+    url: documentation#general-information
   - title: Configuration files
-    url: /configuration-files
+    url: documentation#configuration-files
   - title: How to benchmark tools?
-    url: /how-to-benchmark-tools
+    url: documentation#how-to-benchmark-tools
 ---

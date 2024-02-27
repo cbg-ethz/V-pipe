@@ -48,19 +48,58 @@ nav_items:
 
 # Literature
 
-We really like using Markdown.
+## Table of Contents
+- [How to cite us](#how-to-cite-us)
+- [Use of V-pipe](#use-of-v-pipe)
+- [V-pipe vs competitors](#v-pipe-vs-competitors)
 
-We think we'll use it to format all of my documents from now on.
+---
 
-We just love **bold text**.
+## How to cite us
+This section provides guidelines on how to cite our work.
 
-> Dorothy followed her through many of the beautiful rooms in her castle.
->
->> The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-1. First item
-2. Second item
-3. Third item
-    1. Indented item
-    2. Indented item
-4. Fourth item
+### APA Style
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### MLA Style
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## Use of V-pipe
+Learn how to use V-pipe for your research projects.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Installation
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+2. Sed fringilla velit at sapien rutrum.
+3. Nec malesuada turpis aliquet.
+
+### Usage
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## V-pipe vs competitors
+Compare V-pipe with other similar tools and software available in the market.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Feature Comparison
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Performance Analysis
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.

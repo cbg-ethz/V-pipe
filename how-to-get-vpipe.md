@@ -48,19 +48,63 @@ nav_items:
 
 # How to get V-pipe
 
-We really like using Markdown.
+## Table of Contents
+- [Getting started](#getting-started)
+- [Available in Github/Gitlab/Docker](#available-in-github-gitlab-docker)
+- [License](#license)
 
-We think we'll use it to format all of my documents from now on.
+---
 
-We just love **bold text**.
+## Getting started
+Get started with V-pipe by following these steps.
 
-> Dorothy followed her through many of the beautiful rooms in her castle.
->
->> The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-1. First item
-2. Second item
-3. Third item
-    1. Indented item
-    2. Indented item
-4. Fourth item
+### Installation
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Configuration
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## Available in Github-Gitlab-Docker
+Discover where you can find V-pipe for download and usage.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### GitHub
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### GitLab
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+### Docker
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## License
+Understand the licensing terms associated with V-pipe.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Open Source License
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Commercial License
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.

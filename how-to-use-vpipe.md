@@ -48,19 +48,58 @@ nav_items:
 
 # How to use V-pipe
 
-We really like using Markdown.
+## Table of Contents
+- [Hardware requirements](#hardware-requirements)
+- [Software requirements](#software-requirements)
+- [How to cite us](#how-to-cite-us)
 
-We think we'll use it to format all of my documents from now on.
+---
 
-We just love **bold text**.
+## Hardware requirements
+Learn about the hardware requirements for using V-pipe.
 
-> Dorothy followed her through many of the beautiful rooms in her castle.
->
->> The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-1. First item
-2. Second item
-3. Third item
-    1. Indented item
-    2. Indented item
-4. Fourth item
+### Minimum Requirements
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Recommended Configuration
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## Software requirements
+Explore the software requirements for running V-pipe.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Supported Platforms
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Dependencies
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## How to cite us
+This section provides guidelines on how to cite our work.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Citation Formats
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Examples
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.

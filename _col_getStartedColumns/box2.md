@@ -1,7 +1,7 @@
 ---
 title: How to use V-pipe
 image: assets/img/ic-how-to-use-vpipe.svg
-heading: How to use V-pipe
+heading: How to use V-pipe?
 links:
   - subject:
     links:
