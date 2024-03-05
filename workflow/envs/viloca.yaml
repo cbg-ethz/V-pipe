@@ -7,5 +7,4 @@ dependencies:
   - python=3.10.4
   - pip
   - pip:
-    - pandas
     - git+https://github.com/cbg-ethz/VILOCA@master

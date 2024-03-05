@@ -1225,12 +1225,13 @@
                 "mode": {
                     "type": "string",
                     "default": "use_quality_scores",
+                    "enum": ["shorah","learn_error_params","use_quality_scores"],
                     "description": "Mode in which to run VILOCA: shorah,  learn_error_params, use_quality_scores. If quality scores are available, we recommend this option"
                 },
                 "extra": {
                     "type": "string",
                     "default": "",
-                    "description": "Pass additional options to run `lofreq call`"
+                    "description": "Pass additional options to run `viloca`"
                 }
             },
             "default": {},
