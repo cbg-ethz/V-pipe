@@ -724,30 +724,4 @@ body {
     }
   }
 
-  #funding {
-    margin: 160px 0;
-    h1 {
-      text-align: center;
-    }
-    .container {
-      display: flex;
-      justify-content: space-evenly;
-      gap: 20px;
-      .column {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 0;
-        border: 1px solid #ddd;
-        border-radius: $smallRadius;
-        a {
-          img {
-            width: 200px;
-          }
-        }
-      }
-    }
-  }
-
 }
