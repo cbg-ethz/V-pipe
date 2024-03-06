@@ -1,67 +1,67 @@
 <div class="container">
-
-    <div class="hero-carousel">
-        {% assign slide_count = site.col_heroCarousel | size %}
-        {% for slide in site.col_heroCarousel %}
-        <div class="slide{% if forloop.index == 1 %} active{% endif %}">
-            {% if slide.video %}
-            <div class="video">
-                <iframe src="{{ slide.video }}" title="" frameborder="0" allowfullscreen></iframe>
-            </div>
-            {% else %}
-            <div class="image">
-                <img src="{{ slide.image }}" alt="{{ slide.title }}">
-            </div>
-            {% endif %}
-            <div class="content">
-                <h1>{{ slide.title }}</h1>
-                <p>{{ slide.description }}</p>
-            {% if slide.cta %}
-                <a href="{{ site.baseurl }}/{{ slide.cta.link }}" class="cta">{{ slide.cta.text }}</a>
-            {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>  
-
-    <div class="slide-indicators">
-        {% for i in (1..slide_count) %}
-        <span class="indicator{% if forloop.index == 1 %} active{% endif %}" data-slide-index="{{ forloop.index }}"></span>
-        {% endfor %}
-    </div>
-
+  <div class="hero-carousel">
+      {% for slide in site.col_heroCarousel %}
+      <div class="slide">
+          {% if slide.video %}
+          <div class="video">
+              <iframe width="730" height="438" src="{{ slide.video }}" title="" frameborder="0" allowfullscreen></iframe>
+          </div>
+          {% else %}
+          <div class="image">
+              <img src="{{ slide.image }}" alt="{{ slide.title }}">
+          </div>
+          {% endif %}
+          <div class="content">
+              <h1>{{ slide.title }}</h1>
+              <p>{{ slide.description }}</p>
+              {% if slide.cta %}
+              <a href="{{ site.baseurl }}/{{ slide.cta.link }}" class="cta">{{ slide.cta.text }}</a>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
   </div>
+</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var slides = document.querySelectorAll('.hero-carousel .slide');
-        var indicators = document.querySelectorAll('.slide-indicators .indicator');
-        var currentSlide = 0;
-        var slideInterval = setInterval(nextSlide, 10000);
+<script>
+  $(function () {
 
-        function nextSlide() {
-            if (slides[currentSlide] && indicators[currentSlide]) {
-            slides[currentSlide].classList.remove('active');
-            indicators[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-            indicators[currentSlide].classList.add('active');
-            }
-        }
-
-        indicators.forEach(function(indicator, index) {
-            indicator.addEventListener('click', function() {
-            clearInterval(slideInterval);
-            if (slides[currentSlide] && indicators[currentSlide]) {
-                slides[currentSlide].classList.remove('active');
-                indicators[currentSlide].classList.remove('active');
-                currentSlide = index;
-                slides[currentSlide].classList.add('active');
-                indicators[currentSlide].classList.add('active');
-                slideInterval = setInterval(nextSlide, 50000);
-            }
-            });
-        });
+    let autoplaySpeed = 5000;
+    let adjustedAutoplaySpeed = autoplaySpeed + 500;
+    
+    $(".hero-carousel").slick({
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      autoplay: true,
+      fade: true,
+      autoplaySpeed: autoplaySpeed,
+      dots: true,
+      arrows: false,
+      draggable: false,
+      pauseOnFocus: false,
+      pauseOnDotsHover: true,
+      dotsClass: "slider-dots"
     });
-    </script>
-  
+
+    document.documentElement.style.setProperty('--autoplay-speed', adjustedAutoplaySpeed + 'ms');
+
+    function updateAutoplaySpeed(speed) {
+      autoplaySpeed = speed;
+      adjustedAutoplaySpeed = autoplaySpeed + 500;
+      document.documentElement.style.setProperty('--autoplay-speed', adjustedAutoplaySpeed + 'ms');
+      $(".slider").slick('slickSetOption', 'autoplaySpeed', autoplaySpeed);
+    }
+    
+    $('.hero-carousel').on('mouseenter', function(){
+      $('.slick-active button').addClass('resetTimer');
+    }).on('mouseleave', function(){
+      $('.slick-active button').removeClass('resetTimer');
+    });
+    
+    $('.slider-dots button').on('click', function() {
+      $('.slick-active button').removeClass('resetTimer');
+    });
+    
+
+  });
+</script>

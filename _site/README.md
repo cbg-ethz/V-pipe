@@ -5,7 +5,8 @@ Vpipe Jekyll custom site draft version
 Currently each md file has their own navigation structure in front-matter, the display logic is in navigation.html located in the _includes folder.
 
 ## Hero carousel
-Content can be added/edited in the heroCarousel collection
+Content can be added/edited in the heroCarousel collection. 
+* Ideally, images should be sized at 1460x872 (in a 5:3 aspect ratio) to optimize for retina displays, with a minimum size of 730x438.
 
 ## Get started with V-pipe
 Content can be added/edited in the getStartedColumns collection

@@ -31,7 +31,7 @@ nav_items:
         link: "/about#funding"
       - name: Team
         link: "/about#team"
-      - name: License and Privacy Policy
+      - name: License and privacy policy Policy
         link: "/about#license-privacy-policy"
   - name: Contact
     link: "/contact"
@@ -51,7 +51,7 @@ nav_items:
 ## Table of Contents
 - [Funding](#funding)
 - [Team](#team)
-- [License and privacy](#license-and-privacy)
+- [License and privacy policy](#license-and-privacy)
 
 ---
 
@@ -89,7 +89,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 
 ---
 
-## License and privacy
+## License and privacy policy
 Details about the licensing terms and privacy policies associated with V-pipe.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.

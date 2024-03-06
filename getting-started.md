@@ -31,7 +31,7 @@ nav_items:
         link: "/about#funding"
       - name: Team
         link: "/about#team"
-      - name: License and Privacy Policy
+      - name: License and privacy policy Policy
         link: "/about#license-privacy-policy"
   - name: Contact
     link: "/contact"

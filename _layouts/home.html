@@ -16,6 +16,15 @@
     <link rel="stylesheet" href="{{ 'assets/css/main.css' | relative_url }}">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+    <script src="https://rawgit.com/kenwheeler/slick/master/slick/slick.js"></script>
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick-theme.css" rel="stylesheet"/>
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick.css" rel="stylesheet"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
   </head>
   <body class="homebody">
     
@@ -36,6 +45,8 @@
     {% include funding.html %}
 
     {% include footer.html %}
+
+    <a id="btn-getting-started" href="how-to-get-vpipe#getting-started">Getting started <img src="assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /></a>
     
   </body>
 </html>
