@@ -663,4 +663,91 @@ body {
       }
     }
   }
+
+  #meet-the-team {
+    padding: 160px 0;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+    .container {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 20px;
+      .column {
+        width: 50%;
+        padding: 40px;
+        background: $vpipeOffBlack;
+        color: white;
+        border-radius: $smallRadius;
+        h2 {
+          margin-top: 0;
+          text-transform: uppercase;
+          font: {
+            weight: 400;
+          }
+          span {
+            font: {
+              weight: 700;
+            }
+          }
+        }
+        ul {
+          padding: 0;
+          text-align: start;
+          li {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            span {
+              &:first-child {
+                padding: 0 20px 0 0;
+              }
+            }
+          }
+        }
+        &:last-child {
+          background: rgb(217 232 241 / 83%);
+          color: black;
+          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+        }
+      }
+    }
+    .abstract-covid {
+      position: absolute;
+      top: 100px;
+      right: -250px;
+      z-index: -1;
+      img {
+        width: 490px;
+      }
+    }
+  }
+
+  #funding {
+    margin: 160px 0;
+    h1 {
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 20px;
+      .column {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+        border: 1px solid #ddd;
+        border-radius: $smallRadius;
+        a {
+          img {
+            width: 200px;
+          }
+        }
+      }
+    }
+  }
+
 }
