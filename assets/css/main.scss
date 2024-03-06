@@ -1,7 +1,27 @@
 ---
 ---
 
-body {
+$sibRed: #e30613;
+$vpipeCyan: #06e3d6;
+$vpipeLightBlue: #e5ebf6;
+$vpipeLightRed: #feeaeb;
+$vpipeOffBlack: #111111;
+$mainRadius: 20px;
+$mainRadiusTop: 30px 30px 0 0;
+$mainRadiusBottom: 0 0 30px 30px;
+$smallRadius: 10px;
+
+@font-face {
+  font-family: 'CabinetGrotesk-Variable';
+  src: url('../fonts/CabinetGrotesk-Variable.woff2') format('woff2'),
+       url('../fonts/CabinetGrotesk-Variable.woff') format('woff'),
+       url('../fonts/CabinetGrotesk-Variable.ttf') format('truetype');
+       font-weight: 100 900;
+       font-display: swap;
+       font-style: normal;
+}
+
+body{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -50,13 +70,13 @@ body {
   }
   h1, h2 {
     font: {
-      family: "Hanken Grotesk", sans-serif;
+      family: "CabinetGrotesk-Variable", sans-serif;
     }
   }
   h1 {
     font: {
       size: 2.2em;
-      weight: 300;
+      weight: 400;
     }
     span {
       font: {
@@ -157,7 +177,7 @@ body {
             text-decoration: none;
     
             &:hover {
-              color: #e30613;
+              color: $sibRed;
             }
           }
 
@@ -170,7 +190,7 @@ body {
             left: 10px;
             z-index: 100;
             background: white;
-            border-radius: 10px;
+            border-radius: $smallRadius;
             box-shadow: 0 0 30px -5px rgba(0,0,0,0.25);
             li {
               margin: 0 5px;
@@ -183,7 +203,7 @@ body {
                 text-decoration: none;
                 border-radius: 5px;
                 &:hover {
-                  background: #111111;
+                  background: $vpipeOffBlack;
                   color: white;
                 }
               }
@@ -211,7 +231,7 @@ body {
       .container {
         background: rgba(255, 255, 255, 0.9);
         box-shadow: 0 0 20px -10px #00000054;
-        border-radius: 20px;
+        border-radius: $mainRadius;
       }
     }
   }
@@ -224,7 +244,7 @@ body {
     background: linear-gradient(328deg, rgba(231,238,245,.9) 0%, rgba(255,237,237,.9) 100%);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
-    border-radius: 0 0 30px 30px;
+    border-radius: $mainRadiusBottom;
     .container {
       .hero-carousel {
         width: 100%;
@@ -255,7 +275,7 @@ body {
               left: 0;
               width: 100%;
               height: 100%;
-              border-radius: 10px;
+              border-radius: $smallRadius;
             }
           }
           .content {
@@ -287,13 +307,13 @@ body {
               display: inline-flex;
               flex-grow: 0;
               padding: 15px 30px;
-              background: #e30613;
+              background: $sibRed;
               color: #fff;
               text-decoration: none;
               border-radius: 5px;
               transition: background 0.3s ease;
               &:hover {
-                background: #111111;
+                background: $vpipeOffBlack;
               }
             }
           }
@@ -307,7 +327,7 @@ body {
         text-align: center;
         list-style: none;
         background: white;
-        border-radius: 20px;
+        border-radius: $mainRadius;
         
         li {
           display: inline-block;
@@ -403,7 +423,7 @@ body {
       //     margin: 0 5px;
       //     cursor: pointer;
       //     &.active {
-      //       background: #e30613;
+      //       background: $sibRed;
       //     }
       //   }
       // }
@@ -413,7 +433,7 @@ body {
       margin: 40px;
       padding: 0;
       background: #dffff8;
-      border-radius: 20px;
+      border-radius: $mainRadius;
     }
   }
 
@@ -483,14 +503,14 @@ body {
           padding: 20px 20px 80px 20px;
           position: relative;
           // background: #c0fbea;
-          background: rgba(254,234,235,1);
+          background: $vpipeLightRed;
           background: linear-gradient(119deg, rgba(254,234,235,1) 0%, rgba(235,220,221,1) 100%);
-          border-radius: 10px;
+          border-radius: $smallRadius;
           .column-heading {
             padding: 20px;
             text-align: center;
             background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
+            border-radius: $smallRadius;
             img {
               height: 55px;
             }
@@ -509,7 +529,7 @@ body {
               size: 1em;
               weight: 300;
             }
-            background: #e30613;
+            background: $sibRed;
             color: white;
             border-radius: 10px;
           }
@@ -522,7 +542,7 @@ body {
                 color: black;
                 text-decoration: none;
                 &:hover {
-                  color: #e30613;
+                  color: $sibRed;
                 }
               }
             }
@@ -539,7 +559,7 @@ body {
             margin-right: auto;
             // background: rgba(0, 0, 0, 0.148);
             background: #ff00001a;
-            border-radius: 10px;
+            border-radius: $smallRadius;
           }
         }
       }
@@ -556,7 +576,7 @@ body {
       position: absolute;
       top: -40px;
       left: 0;
-      // color: #e30613;
+      // color: $sibRed;
       background: linear-gradient(to right, rgba(226,6,19,.5) 0%, rgba(226,6,19,0) 100%);
       -webkit-background-clip: text;
       background-clip: text;
@@ -580,7 +600,7 @@ body {
       background: linear-gradient(328deg, rgba(255, 244, 244, 0.7) 0%, rgba(231, 238, 245, 0.7) 100%);
       -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
-      border-radius: 20px;
+      border-radius: $mainRadius;
       .container {
         display: flex;
         gap: 20px;
@@ -593,7 +613,7 @@ body {
           justify-content: center;
           align-items: center;
           background: rgba(255,255,255,0.4);
-          border-radius: 10px;
+          border-radius: $smallRadius;
         }
       }
     }
@@ -627,7 +647,7 @@ body {
         -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
         border: 1px solid #eee;
-        border-radius: 10px;
+        border-radius: $smallRadius;
         .img-container {
           height: 80px;
           display: flex;
@@ -656,9 +676,9 @@ body {
       .column {
         width: 50%;
         padding: 40px;
-        background: #111111;
+        background: $vpipeOffBlack;
         color: white;
-        border-radius: 10px;
+        border-radius: $smallRadius;
         h2 {
           margin-top: 0;
           text-transform: uppercase;
@@ -720,7 +740,7 @@ body {
         align-items: center;
         padding: 40px 0;
         border: 1px solid #ddd;
-        border-radius: 10px;
+        border-radius: $smallRadius;
         a {
           img {
             width: 200px;
@@ -735,7 +755,7 @@ body {
     padding: 0 0 20px;
     background: rgba(30, 118, 173, .169);
     background: linear-gradient(119deg, rgba(217,232,241,1) 42%, rgba(235,220,221,1) 100%);
-    border-radius: 30px 30px 0 0;
+    border-radius: $mainRadiusTop;
     .container {
       padding: 80px 0 0;
       .row {
@@ -760,7 +780,7 @@ body {
                 color: black;
                 text-decoration: none;
                 &:hover {
-                  color: #e30613;
+                  color: $sibRed;
                 }
               }
             }
@@ -775,10 +795,10 @@ body {
             align-items: center;
             flex-direction: column;
             border: 1px solid rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
+            border-radius: $smallRadius;
             a {
               &:hover {
-                color: #e30613;
+                color: $sibRed;
               }
             }
             h1 {
@@ -795,7 +815,7 @@ body {
                 align-items: center;
                 padding: 10px;
                 background: rgba(255, 255, 255, 1);
-                border-radius: 10px;
+                border-radius: $smallRadius;
                 transition: box-shadow .3s ease;
                 &:hover {
                   box-shadow: 0 0 40px -20px black;
@@ -903,7 +923,7 @@ body {
             z-index: 9999;
             background: white;
             box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.6);
-            border-radius: 10px;
+            border-radius: $smallRadius;
             &:before {
               content: "";
               position: absolute;
@@ -950,9 +970,9 @@ body {
             width: 35px;
             height: 2px;
             display: block;
-            background: #e30613;
+            background: $sibRed;
             margin: 4px 0;
-            border-radius: 10px;
+            border-radius: $smallRadius;
             &:nth-child(2) {
               position: relative;
               left: 5px;
