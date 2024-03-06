@@ -1,26 +1,6 @@
 ---
 ---
 
-$sibRed: #e30613;
-$vpipeCyan: #06e3d6;
-$vpipeLightBlue: #e5ebf6;
-$vpipeLightRed: #feeaeb;
-$vpipeOffBlack: #111111;
-$mainRadius: 20px;
-$mainRadiusTop: 30px 30px 0 0;
-$mainRadiusBottom: 0 0 30px 30px;
-$smallRadius: 10px;
-
-@font-face {
-  font-family: 'CabinetGrotesk-Variable';
-  src: url('../fonts/CabinetGrotesk-Variable.woff2') format('woff2'),
-    url('../fonts/CabinetGrotesk-Variable.woff') format('woff'),
-    url('../fonts/CabinetGrotesk-Variable.ttf') format('truetype');
-    font-weight: 100 900;
-    font-display: swap;
-    font-style: normal;
-}
-
 body {
 
   margin: 0;
@@ -72,7 +52,7 @@ body {
   }
   h1, h2 {
     font: {
-      family: "CabinetGrotesk-Variable", sans-serif;
+      family: "Inter", sans-serif;
     }
   }
   h1 {
@@ -179,7 +159,7 @@ body {
             text-decoration: none;
     
             &:hover {
-              color: $sibRed;
+              color: #e30613;
             }
           }
 
@@ -192,7 +172,7 @@ body {
             left: 10px;
             z-index: 100;
             background: white;
-            border-radius: $smallRadius;
+            border-radius: 10px;
             box-shadow: 0 0 30px -5px rgba(0,0,0,0.25);
             li {
               margin: 0 5px;
@@ -205,7 +185,7 @@ body {
                 text-decoration: none;
                 border-radius: 5px;
                 &:hover {
-                  background: $vpipeOffBlack;
+                  background: #111111;
                   color: white;
                 }
               }
@@ -233,7 +213,7 @@ body {
       .container {
         background: rgba(255, 255, 255, 0.9);
         box-shadow: 0 0 20px -10px #00000054;
-        border-radius: $mainRadius;
+        border-radius: 20px;
       }
     }
   }
@@ -246,7 +226,7 @@ body {
     background: linear-gradient(328deg, rgba(231,238,245,.9) 0%, rgba(255,237,237,.9) 100%);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
-    border-radius: $mainRadiusBottom;
+    border-radius: 0 0 30px 30px;
     .container {
       .hero-carousel {
         width: 100%;
@@ -277,7 +257,7 @@ body {
               position: absolute;
               top: 0;
               left: 0;
-              border-radius: $smallRadius;
+              border-radius: 10px;
             }
           }
           .content {
@@ -309,13 +289,13 @@ body {
               display: inline-flex;
               flex-grow: 0;
               padding: 15px 30px;
-              background: $sibRed;
+              background: #e30613;
               color: #fff;
               text-decoration: none;
               border-radius: 5px;
               transition: background 0.3s ease;
               &:hover {
-                background: $vpipeOffBlack;
+                background: #111111;
               }
             }
           }
@@ -329,7 +309,7 @@ body {
         text-align: center;
         list-style: none;
         background: white;
-        border-radius: $mainRadius;
+        border-radius: 20px;
         
         li {
           width: calc(25% - 8px);
@@ -425,7 +405,7 @@ body {
       //     margin: 0 5px;
       //     cursor: pointer;
       //     &.active {
-      //       background: $sibRed;
+      //       background: #e30613;
       //     }
       //   }
       // }
@@ -435,7 +415,7 @@ body {
       margin: 40px;
       padding: 0;
       background: #dffff8;
-      border-radius: $mainRadius;
+      border-radius: 20px;
     }
   }
 
@@ -505,14 +485,14 @@ body {
           padding: 20px 20px 80px 20px;
           position: relative;
           // background: #c0fbea;
-          background: $vpipeLightRed;
+          background: #feeaeb;
           background: linear-gradient(119deg, rgba(254,234,235,1) 0%, rgba(235,220,221,1) 100%);
-          border-radius: $smallRadius;
+          border-radius: 10px;
           .column-heading {
             padding: 20px;
             text-align: center;
             background: rgba(255, 255, 255, 0.8);
-            border-radius: $smallRadius;
+            border-radius: 10px;
             img {
               height: 55px;
             }
@@ -531,7 +511,7 @@ body {
               size: 1em;
               weight: 300;
             }
-            background: $sibRed;
+            background: #e30613;
             color: white;
             border-radius: 10px;
           }
@@ -544,7 +524,7 @@ body {
                 color: black;
                 text-decoration: none;
                 &:hover {
-                  color: $sibRed;
+                  color: #e30613;
                 }
               }
             }
@@ -561,7 +541,7 @@ body {
             margin-right: auto;
             // background: rgba(0, 0, 0, 0.148);
             background: #ff00001a;
-            border-radius: $smallRadius;
+            border-radius: 10px;
           }
         }
       }
@@ -578,7 +558,7 @@ body {
       position: absolute;
       top: -40px;
       left: 0;
-      // color: $sibRed;
+      // color: #e30613;
       background: linear-gradient(to right, rgba(226,6,19,.5) 0%, rgba(226,6,19,0) 100%);
       -webkit-background-clip: text;
       background-clip: text;
@@ -602,7 +582,7 @@ body {
       background: linear-gradient(328deg, rgba(255, 244, 244, 0.7) 0%, rgba(231, 238, 245, 0.7) 100%);
       -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
-      border-radius: $mainRadius;
+      border-radius: 20px;
       .container {
         display: flex;
         gap: 20px;
@@ -615,7 +595,7 @@ body {
           justify-content: center;
           align-items: center;
           background: rgba(255,255,255,0.4);
-          border-radius: $smallRadius;
+          border-radius: 10px;
         }
       }
     }
@@ -649,7 +629,7 @@ body {
         -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
         border: 1px solid #eee;
-        border-radius: $smallRadius;
+        border-radius: 10px;
         .img-container {
           height: 80px;
           display: flex;
@@ -678,9 +658,9 @@ body {
       .column {
         width: 50%;
         padding: 40px;
-        background: $vpipeOffBlack;
+        background: #111111;
         color: white;
-        border-radius: $smallRadius;
+        border-radius: 10px;
         h2 {
           margin-top: 0;
           text-transform: uppercase;
@@ -742,7 +722,7 @@ body {
         align-items: center;
         padding: 40px 0;
         border: 1px solid #ddd;
-        border-radius: $smallRadius;
+        border-radius: 10px;
         a {
           img {
             width: 200px;
@@ -757,7 +737,7 @@ body {
     padding: 0 0 20px;
     background: rgba(30, 118, 173, .169);
     background: linear-gradient(119deg, rgba(217,232,241,1) 42%, rgba(235,220,221,1) 100%);
-    border-radius: $mainRadiusTop;
+    border-radius: 30px 30px 0 0;
     .container {
       padding: 80px 0 0;
       .row {
@@ -782,7 +762,7 @@ body {
                 color: black;
                 text-decoration: none;
                 &:hover {
-                  color: $sibRed;
+                  color: #e30613;
                 }
               }
             }
@@ -797,10 +777,10 @@ body {
             align-items: center;
             flex-direction: column;
             border: 1px solid rgba(0, 0, 0, 0.2);
-            border-radius: $smallRadius;
+            border-radius: 10px;
             a {
               &:hover {
-                color: $sibRed;
+                color: #e30613;
               }
             }
             h1 {
@@ -817,7 +797,7 @@ body {
                 align-items: center;
                 padding: 10px;
                 background: rgba(255, 255, 255, 1);
-                border-radius: $smallRadius;
+                border-radius: 10px;
                 transition: box-shadow .3s ease;
                 &:hover {
                   box-shadow: 0 0 40px -20px black;
@@ -925,7 +905,7 @@ body {
             z-index: 9999;
             background: white;
             box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.6);
-            border-radius: $smallRadius;
+            border-radius: 10px;
             &:before {
               content: "";
               position: absolute;
@@ -972,9 +952,9 @@ body {
             width: 35px;
             height: 2px;
             display: block;
-            background: $sibRed;
+            background: #e30613;
             margin: 4px 0;
-            border-radius: $smallRadius;
+            border-radius: 10px;
             &:nth-child(2) {
               position: relative;
               left: 5px;
