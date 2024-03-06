@@ -648,17 +648,32 @@ body {
         backdrop-filter: blur(4px);
         border: 1px solid #eee;
         border-radius: $smallRadius;
+        text-decoration: none;
+        transition: all .3s;
         .img-container {
           height: 80px;
           display: flex;
           align-items: end;
           justify-items: center;
+          img {
+            transition: transform .3s;
+          }
         }
         h2 {
           font: {
             weight: 300;
           }
           margin-bottom: 0;
+        }
+        &:hover {
+          background: $vpipeOffBlack;
+          color: white;
+          border-color: $vpipeOffBlack;
+          .img-container {
+            img {
+              transform: scale(1.05);
+            }
+          }
         }
       }
     }
@@ -985,8 +1000,8 @@ body {
       padding-top: 130px;
       .container {
         .hero-carousel {
-          .slide.active {
-            display: block;
+          .slide {
+            display: block !important;
             .content {
               width: 100%;
               padding-left: 0;

@@ -53,6 +53,7 @@ nav_items:
 - [What can V-pipe do with my data?](#what-can-v-pipe-do-with-my-data)
 - [V-pipe in the community](#v-pipe-in-the-community)
 - [V-pipe vs Competitors](#v-pipe-vs-competitors)
+- [Customisation](#customisation)
 - [Contact us](#contact-us)
 
 ---
@@ -119,6 +120,23 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 - Nec malesuada turpis aliquet.
 
 ### Performance Analysis
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## Customisation
+Connect with us for inquiries or collaboration opportunities.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Customisation Information
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Customisation response Time
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
