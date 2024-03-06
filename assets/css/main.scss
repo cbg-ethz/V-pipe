@@ -14,19 +14,21 @@ $smallRadius: 10px;
 @font-face {
   font-family: 'CabinetGrotesk-Variable';
   src: url('../fonts/CabinetGrotesk-Variable.woff2') format('woff2'),
-       url('../fonts/CabinetGrotesk-Variable.woff') format('woff'),
-       url('../fonts/CabinetGrotesk-Variable.ttf') format('truetype');
-       font-weight: 100 900;
-       font-display: swap;
-       font-style: normal;
+    url('../fonts/CabinetGrotesk-Variable.woff') format('woff'),
+    url('../fonts/CabinetGrotesk-Variable.ttf') format('truetype');
+    font-weight: 100 900;
+    font-display: swap;
+    font-style: normal;
 }
 
-body{
+body {
+
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   color:black;
   overflow-x: hidden;
+
   &:not(.homebody) {
     padding-top: 130px;
     .container {
@@ -104,8 +106,8 @@ body{
       transition: all .4s ease-in-out;
     }
     img {
-      display: none;
       width: 20px;
+      display: none;
       margin: 0 0 0 8px;
     }
   }
@@ -264,17 +266,17 @@ body{
             }
           }
           .video {
+            width: 100%;
             flex: 1;
             position: relative;
-            width: 100%;
             padding-bottom: 29.2%;
             overflow: hidden;
             iframe {
+              width: 100%;
+              height: 100%;
               position: absolute;
               top: 0;
               left: 0;
-              width: 100%;
-              height: 100%;
               border-radius: $smallRadius;
             }
           }
@@ -330,8 +332,8 @@ body{
         border-radius: $mainRadius;
         
         li {
-          display: inline-block;
           width: calc(25% - 8px);
+          display: inline-block;
           margin: 0 2px;
         }
         
@@ -349,13 +351,13 @@ body{
             background-color: #999;
           }
           &:after {
+            width: 0%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
             content: '';
             display: block;
-            width: 0%;
-            height: 100%;
             border-radius: 5px;
           }
         }
