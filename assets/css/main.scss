@@ -607,13 +607,25 @@ body {
         margin: 80px auto;
         padding: 180px 0;
         .column-numbers {
-          width: 33%;
+          width: 25%;
           padding: 40px 0;
           display: flex;
           justify-content: center;
-          align-items: center;
+          align-items: start;
           background: rgba(255,255,255,0.4);
           border-radius: $smallRadius;
+          h1 {
+            font: {
+              size: 1.2em;
+            }
+            span {
+              display: block;
+              padding-top: 10px;
+              font: {
+                size: 2.2em;
+              }
+            }
+          }
         }
       }
     }

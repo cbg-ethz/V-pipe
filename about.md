@@ -51,7 +51,7 @@ nav_items:
 ## Table of Contents
 - [Funding](#funding)
 - [Team](#team)
-- [License and privacy policy](#license-and-privacy)
+- [License and privacy policy](#license-and-privacy-policy)
 
 ---
 
@@ -99,7 +99,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 - Sed fringilla velit at sapien rutrum.
 - Nec malesuada turpis aliquet.
 
-### Privacy Policy
+### License and privacy policy
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
