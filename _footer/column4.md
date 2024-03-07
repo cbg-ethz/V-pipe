@@ -7,7 +7,7 @@ links:
     - title: Submit an issue
       url: contact#submit-an-issue
     - title: E-mail us
-      url: contact#email-us
+      url: contact#e-mail-us
     - title: Subscribe to our mailing list
       url: contact#subscribe-to-our-mailing-list
 ---

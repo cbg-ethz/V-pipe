@@ -6,7 +6,7 @@ links:
   - subject:
     links:
       - title: Getting started
-        url: getting-started
+        url: /getting-started
       - title: License
         url: /about#license-and-privacy-policy
       - title: Available in GitHub/GitLab/Docker
