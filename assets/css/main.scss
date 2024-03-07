@@ -938,6 +938,11 @@ body {
             }
           }
         }
+        ul {
+          li {
+            line-height: 20px;
+          }
+        }
         nav {
           display: none;
           &.show {
@@ -945,7 +950,7 @@ body {
             width: auto;
             position: absolute;
             top: 80px;
-            right: 20px;
+            right: 25px;
             z-index: 9999;
             background: white;
             box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.6);
@@ -987,6 +992,7 @@ body {
         }
         button {
           display: flex;
+          margin: 0 8px 0 0;
           align-items: end;
           flex-direction: column;
           background: none;
@@ -1144,11 +1150,6 @@ body {
       .container {
         max-width: calc(100% - 60px);
       }
-      #nav-container {
-        .container {
-          padding: 20px 0;
-        }
-      }
       header {
         &:not(.home) {
           margin: 20px 10px 10px 10px;
@@ -1158,6 +1159,9 @@ body {
           }
         }
       }
+    }
+    #nav-container {
+      top: 30px;
     }
     header {
       .container {
@@ -1299,6 +1303,9 @@ body {
           }
         }
       }
+    }
+    .abstract-adeno-virus {
+      display: none;
     }
   }
 }
