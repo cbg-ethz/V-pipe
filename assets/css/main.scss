@@ -136,13 +136,13 @@ body {
             width: 150px;
             padding-right: 12px;
           }
-          &:last-child {
-            img {
-              width: 52px;
-              padding-left: 20px;
-              border-left: 1px solid #0000002b;
-            }
-          }
+          // &:last-child {
+          //   img {
+          //     width: 52px;
+          //     padding-left: 20px;
+          //     border-left: 1px solid #0000002b;
+          //   }
+          // }
         }
       }
       button {
@@ -930,12 +930,12 @@ body {
               width: 120px;
               padding-right: 5px;
             }
-            &:last-child {
-              img {
-                width: 40px;
-                padding-left: 10px;
-              }
-            }
+            // &:last-child {
+            //   img {
+            //     width: 40px;
+            //     padding-left: 10px;
+            //   }
+            // }
           }
         }
         ul {
