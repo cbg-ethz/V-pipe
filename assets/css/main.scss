@@ -678,9 +678,9 @@ body {
           margin-bottom: 0;
         }
         &:hover {
-          background: $vpipeOffBlack;
+          background: rgba(1,1,1,0.9);
           color: white;
-          border-color: $vpipeOffBlack;
+          border-color: rgba(1,1,1,0.9);
           .img-container {
             img {
               transform: scale(1.05);
