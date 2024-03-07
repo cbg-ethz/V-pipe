@@ -6,9 +6,9 @@ links:
   - subject:
     links:
       - title: Getting started
-        url: /how-to-get-vpipe#getting-started
-      - title: Available in GitHub/GitLab/Docker
-        url: /how-to-get-vpipe#available-in-github-gitlab-docker
+        url: getting-started
       - title: License
-        url: /how-to-get-vpipe#license
+        url: /about#license-and-privacy-policy
+      - title: Available in GitHub/GitLab/Docker
+        url: #
 ---

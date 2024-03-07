@@ -49,17 +49,16 @@ nav_items:
 # What is V-pipe?
 
 ## Table of Contents
-- [Impact](#impact)
+- [What is V-pipe?](#what-is-v-pipe)
 - [What can V-pipe do with my data?](#what-can-v-pipe-do-with-my-data)
-- [V-pipe in the community](#v-pipe-in-the-community)
-- [V-pipe vs Competitors](#v-pipe-vs-competitors)
-- [Customisation](#customisation)
-- [Contact us](#contact-us)
+- [How does V-pipe work?](#how-does-v-pipe-work)
+- [Can I build my own pipeline?](#can-i-build-my-own-pipeline)
+- [How can I use V-pipe?](#how-can-i-use-v-pipe)
 
 ---
 
-## Impact
-Explore the impact of V-pipe on your data.
+## What is V-pipe?
+Learn more about V-pipe.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
@@ -76,7 +75,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 ---
 
 ## What can V-pipe do with my data?
-Explore the impact of V-pipe on your data.
+What can V-pipe do with my data?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
@@ -92,8 +91,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 
 ---
 
-## V-pipe in the community
-Discover how V-pipe is utilized in the community.
+## How does V-pipe work?
+How does V-pipe work?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
@@ -109,8 +108,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 
 ---
 
-## V-pipe vs Competitors
-Compare V-pipe with other similar tools and software available in the market.
+## Can I build my own pipeline?
+Can I build my own pipeline?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
@@ -126,8 +125,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 
 ---
 
-## Customisation
-Connect with us for inquiries or collaboration opportunities.
+## How can I use V-pipe?
+How can I use V-pipe?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
@@ -137,23 +136,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 - Nec malesuada turpis aliquet.
 
 ### Customisation response Time
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
-
----
-
-## Contact us
-Connect with us for inquiries or collaboration opportunities.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Contact Information
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Response Time
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.

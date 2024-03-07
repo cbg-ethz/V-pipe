@@ -48,53 +48,58 @@ nav_items:
 
 # Impact
 
+## Table of Contents
+- [Impact stories](#impact-stories)
+- [Press](#press)
+- [SIB news and profiles](#SIB-news-and-profiles)
+
 ---
 
-## Hardware requirements
-Learn about the hardware requirements for using V-pipe.
+## Impact stories
+Learn about impact stories.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-### Minimum Requirements
+### List 1
 - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 - Sed fringilla velit at sapien rutrum.
 - Nec malesuada turpis aliquet.
 
-### Recommended Configuration
+### List 2
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
 
 ---
 
-## Software requirements
+## Press
 Explore the software requirements for running V-pipe.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-### Supported Platforms
+### Lorem ipsum
 - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 - Sed fringilla velit at sapien rutrum.
 - Nec malesuada turpis aliquet.
 
-### Dependencies
+### Dolor sit amet
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
 
 ---
 
-## How to cite us
-This section provides guidelines on how to cite our work.
+## SIB news and profiles
+This section is about SIB news and profiles.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-### Citation Formats
+### News
 - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 - Sed fringilla velit at sapien rutrum.
 - Nec malesuada turpis aliquet.
 
-### Examples
+### Profiles
 - Fusce ut libero nec mauris lobortis consectetur.
 - Integer at mauris nec sapien sodales ullamcorper.
 - Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.

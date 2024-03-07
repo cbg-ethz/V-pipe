@@ -4,6 +4,7 @@
 $sibRed: #e30613;
 $vpipeLightRed: #feeaeb;
 $vpipeOffBlack: #111111;
+$bgNavArticles: #e5d2d2db;
 $mainRadius: 20px;
 $mainRadiusTop: 30px 30px 0 0;
 $mainRadiusBottom: 0 0 30px 30px;
@@ -39,19 +40,17 @@ body {
       }
     }
     #nav-container {
-      top: 0;
-      background: #d80c0c0f;
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
       &.navScrolled {
-        background: #d80c0c0f;
         .container {
-          background: transparent;
-          box-shadow: none;
+          background: $bgNavArticles;
+          box-shadow: 0 0 20px -10px #00000054;
+          border-radius: $mainRadius;
         }
       }
       .container {
-        padding: 10px 0;
+        background: $bgNavArticles;
+        box-shadow: 0 0 20px -10px #00000054;
+        border-radius: $mainRadius;
       }
     }
     header {
@@ -226,8 +225,8 @@ body {
       }
     }
     &.navScrolled {
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
       .container {
         background: rgba(255, 255, 255, 0.9);
         box-shadow: 0 0 20px -10px #00000054;
@@ -692,7 +691,7 @@ body {
   }
 
   #meet-the-team {
-    padding: 160px 0;
+    padding: 120px 0 160px 0;
     position: relative;
     text-align: center;
     overflow: hidden;

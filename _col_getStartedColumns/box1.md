@@ -11,6 +11,8 @@ links:
         url: /what-is-vpipe#what-can-vpipe-do-with-my-data
       - title: V-pipe in the community
         url: /
+      - title: Use of V-pipe in literature
+        url: literature#use-of-v-pipe
       - title: V-pipe vs Competitors
         url: what-is-vpipe##vpipe-vs-competitors
       - title: Contact us

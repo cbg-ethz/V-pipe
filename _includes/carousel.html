@@ -39,7 +39,7 @@
       arrows: false,
       draggable: false,
       pauseOnFocus: false,
-      pauseOnDotsHover: true,
+      pauseOnDotsHover: false,
       dotsClass: "slider-dots"
     });
 
@@ -52,7 +52,7 @@
       $(".slider").slick('slickSetOption', 'autoplaySpeed', autoplaySpeed);
     }
     
-    $('.hero-carousel').on('mouseenter', function(){
+    $('.slide').on('mouseenter', function(){
       $('.slick-active button').addClass('resetTimer');
     }).on('mouseleave', function(){
       $('.slick-active button').removeClass('resetTimer');

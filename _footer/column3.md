@@ -7,5 +7,5 @@ links:
     - title: Team
       url: about#team
     - title: License and privacy policy
-      url: about#license-and-privacy
+      url: about#license-and-privacy-policy
 ---
