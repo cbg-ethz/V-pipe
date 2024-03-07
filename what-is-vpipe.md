@@ -54,6 +54,7 @@ nav_items:
 - [How does V-pipe work?](#how-does-v-pipe-work)
 - [Can I build my own pipeline?](#can-i-build-my-own-pipeline)
 - [How can I use V-pipe?](#how-can-i-use-v-pipe)
+- [Customisation](#customisation)
 
 ---
 
@@ -127,6 +128,23 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at 
 
 ## How can I use V-pipe?
 How can I use V-pipe?
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+
+### Customisation Information
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sed fringilla velit at sapien rutrum.
+- Nec malesuada turpis aliquet.
+
+### Customisation response Time
+- Fusce ut libero nec mauris lobortis consectetur.
+- Integer at mauris nec sapien sodales ullamcorper.
+- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+---
+
+## Customisation
+How can I customize V-pipe?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 

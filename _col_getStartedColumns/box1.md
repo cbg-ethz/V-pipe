@@ -13,8 +13,8 @@ links:
         url: /
       - title: Use of V-pipe in literature
         url: literature#use-of-v-pipe
-      - title: V-pipe vs Competitors
-        url: what-is-vpipe##vpipe-vs-competitors
+      - title: V-pipe vs competitors
+        url: literature#v-pipe-vs-competitors
       - title: Contact us
-        url: what-is-vpipe##contact-us
+        url: what-is-vpipe#contact-us
 ---
