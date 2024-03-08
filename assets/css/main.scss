@@ -86,11 +86,14 @@ body {
   
   #btn-getting-started {
     display: flex;
-    padding: 15px 25px;
+    align-items: center;
+    padding: 10px 20px 10px 12px;
     position: fixed;
-    right: 25px;
-    bottom: 25px;
-    border-radius: 50px;
+    right: -200px;
+    bottom: 35px;
+    font: {
+      size: 1.1em;
+    }
     background-image: linear-gradient(to right, #111, #444, #111, #444);
     box-shadow: 0 4px 15px 0 rgba(116, 79, 168, 0.75);
     background-size: 300% 100%;
@@ -98,14 +101,31 @@ body {
     transition: all .4s ease-in-out;
     color: white;
     text-decoration: none;
+    animation: slideInFromRtoLeft 1s forwards alternate;
     &:hover {
       background-position: 100% 0;
       transition: all .4s ease-in-out;
     }
-    img {
-      width: 20px;
-      display: none;
-      margin: 0 0 0 8px;
+    span {
+      width: 50px;
+      height: 50px;
+      margin: 0 10px 0 0;
+      display: flex;
+      justify-content: center;
+      border-radius: 50%;
+      background: #333;
+      img {
+        width: 24px;
+        margin: 0 8px 0;
+      }
+    }
+    @keyframes slideInFromRtoLeft {
+      from {
+        right: -200px;
+      }
+      to {
+        right: 35px;
+      }
     }
   }
 
