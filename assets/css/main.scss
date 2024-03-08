@@ -883,11 +883,24 @@ body {
       }
     }
     #meet-the-team {
+      padding: 160px 0 0;
       .container {
-        display: grid;
         .column {
-          width: auto;
-          margin: 10px 0;
+          ul {
+            li {
+              display: grid;
+              font: {
+                size: 1em;
+              }
+              span {
+                &:first-child {
+                  font: {
+                    weight: bold;
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -1059,7 +1072,12 @@ body {
     #vpipe-numbers {
       .bg-full-width {
         .container {
+          display: grid;
+          grid-template-columns: 50% 50%;
+          grid-column-gap: 20px;
+          grid-row-gap: 20px;
           .column-numbers {
+            width: 100%;
             h1 {
               font: {
                 size: 1.4em;
@@ -1252,16 +1270,8 @@ body {
         .column {
           ul {
             li {
-              display: grid;
               font: {
                 size: .85em;
-              }
-              span {
-                &:first-child {
-                  font: {
-                    weight: bold;
-                  }
-                }
               }
             }
           }
