@@ -949,6 +949,24 @@ body {
 
 @media screen and (max-width: 1024px) {
   body {
+    #btn-getting-started {
+      bottom: 25px;
+      font: {
+        size: 1em;
+      }
+      span {
+        width: 40px;
+        height: 40px;
+      }
+      @keyframes slideInFromRtoLeft {
+        from {
+          right: -200px;
+        }
+        to {
+          right: 25px;
+        }
+      }
+    }
     .container {
       max-width: calc(100% - 10px);
       padding: 0;
