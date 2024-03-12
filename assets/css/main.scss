@@ -40,18 +40,10 @@ body {
       }
     }
     #nav-container {
-      &.navScrolled {
-        .container {
-          background: $bgNavArticles;
-          box-shadow: 0 0 20px -10px #00000054;
-          border-radius: $mainRadius;
-        }
-      }
-      .container {
-        background: $bgNavArticles;
-        box-shadow: 0 0 20px -10px #00000054;
-        border-radius: $mainRadius;
-      }
+      padding: 10px 0;
+      background: rgb(255,244,244);
+      background: linear-gradient(328deg, rgba(253, 253, 253, 0.9) 0%, rgba(255,237,237,.9) 100%);
+      top: 0;
     }
     header {
       &:not(.home) {
@@ -247,11 +239,10 @@ body {
       }
     }
     &.navScrolled {
-      .container {
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 0 20px -10px #00000054;
-        border-radius: $mainRadius;
-      }
+      padding: 10px 0;
+      top: 0;
+      background: rgb(255,244,244);
+      background: linear-gradient(328deg, rgba(253, 253, 253, 0.9) 0%, rgba(255,237,237,.9) 100%);
     }
   }
   
@@ -564,6 +555,13 @@ body {
                   color: $sibRed;
                 }
               }
+              &.not-a-link {
+                span {
+                  padding: 5px;
+                  background: rgba(255,255,255,0.45);
+                  border-radius: $smallRadius;
+                }
+              }
             }
           }
           &:after {
@@ -589,30 +587,8 @@ body {
     margin: 220px 0 70px;
     position: relative;
     text-align: center;
-    .dna-txt {
-      width: 48%;
-      overflow: hidden;
-      position: absolute;
-      top: -40px;
-      left: 0;
-      // color: $sibRed;
-      background: linear-gradient(to right, rgba(226,6,19,.5) 0%, rgba(226,6,19,0) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font: {
-        family: "Courier";
-        size: 1.2em;
-      }
-      &:nth-child(2) {
-        left: auto;
-        top: 0px;
-        right: 0;
-        background: linear-gradient(to left, rgba(226,6,19,.5) 0%, rgba(226,6,19,0) 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
+    h1 {
+      padding-bottom: 0;
     }
     .bg-full-width {
       background: rgb(255,244,244);
@@ -623,7 +599,7 @@ body {
       .container {
         display: flex;
         gap: 20px;
-        margin: 80px auto;
+        margin: 50px auto;
         padding: 180px 0;
         .column-numbers {
           width: 25%;
@@ -666,7 +642,7 @@ body {
     .container {
       display: flex;
       gap: 20px;
-      margin: 20px auto;
+      margin: 40px auto;
       .column {
         width: 25%;
         padding: 60px 0;
@@ -719,6 +695,7 @@ body {
       display: flex;
       justify-content: space-evenly;
       gap: 20px;
+      margin: 40px auto;
       .column {
         width: 50%;
         padding: 40px;
@@ -759,15 +736,6 @@ body {
         }
       }
     }
-    .abstract-covid {
-      position: absolute;
-      top: 100px;
-      right: -250px;
-      z-index: -1;
-      img {
-        width: 490px;
-      }
-    }
   }
 
   #funding {
@@ -779,17 +747,35 @@ body {
       display: flex;
       justify-content: space-evenly;
       gap: 20px;
+      margin: 40px auto;
       .column {
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 40px 0;
+        flex-direction: column;
+        padding: 60px 0;
+        position: relative;
         border: 1px solid #ddd;
         border-radius: $smallRadius;
         a {
           img {
             width: 200px;
+          }
+        }
+        p {
+          position: absolute;
+          bottom: 0px;
+          font: {
+            size: .8em;
+          }
+          color: #939393;
+          text-align: center;
+          a {
+            color: #333;
+            &:hover {
+              color: $sibRed;
+            }
           }
         }
       }

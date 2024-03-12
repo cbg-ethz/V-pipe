@@ -10,5 +10,5 @@ links:
       - title: License
         url: /about#license-and-privacy-policy
       - title: Available in GitHub/GitLab/Docker
-        url: #
+        url:
 ---

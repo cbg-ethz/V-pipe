@@ -1,8 +1,5 @@
 <section id="get-started">
   
-  <div class="metaball"><img src="assets/img/vpipe-metaball-fragment.webp" alt="V-pipe abstract metaball" /></div>
-  <div class="metaball"><img src="assets/img/vpipe-metaball-fragment-red.webp" alt="V-pipe abstract metaball" /></div>
-
   <h1>Get <span>started</span> with <span>V-pipe</span></h1>
   
   <div class="container">
@@ -19,7 +16,11 @@
           {% endif %}
           <ul>
           {% for link in link_group.links %}
-            <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a></li>
+            {% if link.url %}
+              <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a></li>
+            {% else %}
+              <li class="not-a-link"><span>{{ link.title }}</span></li>
+            {% endif %}
           {% endfor %}
           </ul>
         {% endfor %}
