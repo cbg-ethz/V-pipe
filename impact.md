@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Documentation of V-pipe
+title: Impact of V-pipe
 nav_items:
   - name: Home
     link: "/index"

@@ -75,6 +75,18 @@ body {
       }
     }
   }
+  .btn-404-home, .btn-404-report {
+    display: inline-block;
+    margin: 0 0 10px 0;
+    padding: 15px 20px;
+    background: $sibRed;
+    color: white;
+    border-radius: $smallRadius;
+    text-decoration: none;
+    &:hover {
+      background: $vpipeOffBlack;
+    }
+  }
   .welcome-txt {
     display: table;
     margin: 0 auto;
