@@ -1,8 +1,8 @@
 <section id="meet-the-team">
-    <h1>Meet the <span>V-pipe team</span></h1>
+    <h2>Meet the <span>V-pipe team</span></h2>
     <div class="container">
         <div class="column">
-            <h2><span>Upcoming</span> Events</h2>
+            <h3><span>Upcoming</span> Events</h3>
             <ul>
                 {% for event in site.data.events %}
                     {% assign event_date = event.date | date: "%Y-%m-%d" %}
@@ -17,7 +17,7 @@
             </ul>
         </div>
         <div class="column">
-            <h2><span>Past</span> Events</h2>
+            <h3><span>Past</span> Events</h3>
             <ul>
                 {% for event in site.data.events %}
                     {% assign event_date = event.date | date: "%Y-%m-%d" %}

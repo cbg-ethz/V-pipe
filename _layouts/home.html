@@ -4,27 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }}</title>
-    <meta property="og:title" content="V-pipe" />
-    <meta name="author" content="V-pipe" />
-    <meta property="og:locale" content="en_US" />
-    <meta name="description" content="{{ page.title }}" />
-    <meta property="og:description" content="{{ page.title }}" />
-    <link rel="canonical" href="https://cbg-ethz.github.io/V-pipe/" />
-    <meta property="og:url" content="https://cbg-ethz.github.io/V-pipe/" />
-    <meta property="og:site_name" content="V-pipe" />
-    <meta property="og:type" content="website" />
+    <meta property="og:title" content="V-pipe" >
+    <meta name="author" content="V-pipe" >
+    <meta property="og:locale" content="en_US" >
+    <meta name="description" content="{{ page.title }}" >
+    <meta property="og:description" content="{{ page.title }}" >
+    <link rel="canonical" href="https://cbg-ethz.github.io/V-pipe/" >
+    <meta property="og:url" content="https://cbg-ethz.github.io/V-pipe/" >
+    <meta property="og:site_name" content="V-pipe" >
+    <meta property="og:type" content="website" >
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
     <script src="https://rawgit.com/kenwheeler/slick/master/slick/slick.min.js"></script>
-    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick-theme.css" rel="stylesheet"/>
-    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick.css" rel="stylesheet"/>
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick-theme.css" rel="stylesheet">
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="manifest" href="site.webmanifest">
+    <script type="application/ld+json"> 
+      { 
+        "@context": "https://schema.org/", 
+        "@id": "https://cbg-ethz.github.io/V-pipe/",  
+        "@type": "WebSite", 
+        "name": "V-pipe",  
+        "description": "V-pipe is a bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations.",   
+        "url": "https://cbg-ethz.github.io/V-pipe/",  
+        "isAccessibleForFree" : true,
+      
+        "license": {       
+          "@type": "CreativeWork",                   
+          "name": "Apache License, Version 2.0",                      
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"   
+        },  
+        "citation": { 
+           "@type": "ScholarlyArticle", 
+           "@id": "https://doi.org/10.1093/bioinformatics/btab015", 
+           "name": "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput data.",
+           "author": [
+           {"@type": "Person", "givenName": "Susana", "familyName": "Posada-Céspedes"},  
+           {"@type": "Person", "givenName": "David", "familyName": "Seifert", "identifier": "https://orcid.org/0000-0003-4739-5110"}, 
+           {"@type": "Person", "givenName": "Ivan", "familyName": "Topolsky", "identifier": "https://orcid.org/0000-0002-7561-0810"}, 
+           {"@type": "Person", "givenName": "Kim Philipp", "familyName": "Jablonski", "identifier": "ttps://orcid.org/0000-0002-4166-4343"},
+           {"@type": "Person", "givenName": "Karin J.", "familyName": "Metzner", "identifier": "https://orcid.org/0000-0003-4862-1503"},
+           {"@type": "Person", "givenName": "Niko", "familyName": "Beerenwinkel", "identifier": "https://orcid.org/0000-0002-0573-6119"}
+           ],
+           "url": "https://pubmed.ncbi.nlm.nih.gov/pubmed/30476243" 
+        }, 
+        "provider": [
+          { 
+          "@type": "Organization", 
+          "name": "SIB Swiss Institute of Bioinformatics", 
+          "sameAs": "https://ror.org/002n09z45",
+          "url": "https://www.sib.swiss/" 
+          },
+          { 
+          "@type": "Organization", 
+          "name": "ETH Zurich", 
+          "sameAs": "https://ror.org/05a28rw58",
+          "url": "https://ethz.ch/"
+          }
+        ]
+      }
+    </script>
+    <script>
+      var _paq = window._paq = window._paq || [];
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//matomo.sib.swiss/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '59']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
   </head>
   <body class="homebody">
     
@@ -33,6 +91,8 @@
     <header class="home">
       {% include carousel.html %}
     </header>
+
+    <h1 class="welcome-txt">Welcome to <span>V-pipe</span></h1>
 
     {% include get_started_columns.html %}
 
@@ -46,7 +106,7 @@
 
     {% include footer.html %}
 
-    <a id="btn-getting-started" href="getting-started"><span><img src="assets/img/ic-idea-bulb.svg" alt="Icon Getting Started" /></span> Getting started <!--img src="assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /--></a>
+    <a id="btn-getting-started" href="getting-started"><span><img src="assets/img/ic-idea-bulb.svg" alt="Icon Getting Started" ></span> Getting started <!--img src="assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /--></a>
     
   </body>
 </html>

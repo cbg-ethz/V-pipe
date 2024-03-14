@@ -4,31 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations.</title>
-    <meta property="og:title" content="V-pipe" />
-    <meta name="author" content="V-pipe" />
-    <meta property="og:locale" content="en_US" />
-    <meta name="description" content="V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations." />
-    <meta property="og:description" content="V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations." />
-    <link rel="canonical" href="https://cbg-ethz.github.io/V-pipe/" />
-    <meta property="og:url" content="https://cbg-ethz.github.io/V-pipe/" />
-    <meta property="og:site_name" content="V-pipe" />
-    <meta property="og:type" content="website" />
+    <meta property="og:title" content="V-pipe" >
+    <meta name="author" content="V-pipe" >
+    <meta property="og:locale" content="en_US" >
+    <meta name="description" content="V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations." >
+    <meta property="og:description" content="V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations." >
+    <link rel="canonical" href="https://cbg-ethz.github.io/V-pipe/" >
+    <meta property="og:url" content="https://cbg-ethz.github.io/V-pipe/" >
+    <meta property="og:site_name" content="V-pipe" >
+    <meta property="og:type" content="website" >
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
     <script src="https://rawgit.com/kenwheeler/slick/master/slick/slick.min.js"></script>
-    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick-theme.css" rel="stylesheet"/>
-    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick.css" rel="stylesheet"/>
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick-theme.css" rel="stylesheet">
+    <link href="https://rawgit.com/kenwheeler/slick/master/slick/slick.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="manifest" href="site.webmanifest">
+    <script type="application/ld+json"> 
+      { 
+        "@context": "https://schema.org/", 
+        "@id": "https://cbg-ethz.github.io/V-pipe/",  
+        "@type": "WebSite", 
+        "name": "V-pipe",  
+        "description": "V-pipe is a bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations.",   
+        "url": "https://cbg-ethz.github.io/V-pipe/",  
+        "isAccessibleForFree" : true,
+      
+        "license": {       
+          "@type": "CreativeWork",                   
+          "name": "Apache License, Version 2.0",                      
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"   
+        },  
+        "citation": { 
+           "@type": "ScholarlyArticle", 
+           "@id": "https://doi.org/10.1093/bioinformatics/btab015", 
+           "name": "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput data.",
+           "author": [
+           {"@type": "Person", "givenName": "Susana", "familyName": "Posada-Céspedes"},  
+           {"@type": "Person", "givenName": "David", "familyName": "Seifert", "identifier": "https://orcid.org/0000-0003-4739-5110"}, 
+           {"@type": "Person", "givenName": "Ivan", "familyName": "Topolsky", "identifier": "https://orcid.org/0000-0002-7561-0810"}, 
+           {"@type": "Person", "givenName": "Kim Philipp", "familyName": "Jablonski", "identifier": "ttps://orcid.org/0000-0002-4166-4343"},
+           {"@type": "Person", "givenName": "Karin J.", "familyName": "Metzner", "identifier": "https://orcid.org/0000-0003-4862-1503"},
+           {"@type": "Person", "givenName": "Niko", "familyName": "Beerenwinkel", "identifier": "https://orcid.org/0000-0002-0573-6119"}
+           ],
+           "url": "https://pubmed.ncbi.nlm.nih.gov/pubmed/30476243" 
+        }, 
+        "provider": [
+          { 
+          "@type": "Organization", 
+          "name": "SIB Swiss Institute of Bioinformatics", 
+          "sameAs": "https://ror.org/002n09z45",
+          "url": "https://www.sib.swiss/" 
+          },
+          { 
+          "@type": "Organization", 
+          "name": "ETH Zurich", 
+          "sameAs": "https://ror.org/05a28rw58",
+          "url": "https://ethz.ch/"
+          }
+        ]
+      }
+    </script>
+    <script>
+      var _paq = window._paq = window._paq || [];
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//matomo.sib.swiss/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '59']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
   </head>
   <body class="homebody">
     
-    <section id="nav-container">
+    <div id="nav-container">
 
   <div class="container">
     
@@ -54,7 +112,7 @@
           <li>
             <a href="/vpipe/documentation">Documentation</a>
             
-            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" />
+            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
             <ul>
               
                 <li><a href="/vpipe/documentation#tutorials">Tutorials</a></li>
@@ -72,7 +130,7 @@
           <li>
             <a href="/vpipe/literature">Literature</a>
             
-            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" />
+            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
             <ul>
               
                 <li><a href="/vpipe/literature#how-to-cite-us">How to Cite Us</a></li>
@@ -88,7 +146,7 @@
           <li>
             <a href="/vpipe/about">About</a>
             
-            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" />
+            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
             <ul>
               
                 <li><a href="/vpipe/about#funding">Funding</a></li>
@@ -104,7 +162,7 @@
           <li>
             <a href="/vpipe/contact">Contact</a>
             
-            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" />
+            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
             <ul>
               
                 <li><a href="/vpipe/contact#chat-with-us">Chat with Us</a></li>
@@ -124,7 +182,7 @@
 
   </div>
 
-</section>
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -180,7 +238,7 @@
       <div class="slide">
           
           <div class="video">
-              <iframe width="730" height="438" src="https://www.youtube.com/embed/pIby1UooK94" title="" frameborder="0" allowfullscreen></iframe>
+              <iframe width="730" height="438" src="https://www.youtube.com/embed/pIby1UooK94" title="Carousel video" allowfullscreen></iframe>
           </div>
           
           <div class="content">
@@ -269,9 +327,11 @@
 </script>
     </header>
 
+    <h1 class="welcome-txt">Welcome to <span>V-pipe</span></h1>
+
     <section id="get-started">
   
-  <h1>Get <span>started</span> with <span>V-pipe</span></h1>
+  <h2>Get <span>started</span> with <span>V-pipe</span></h2>
   
   <div class="container">
     <div class="homepage-columns">
@@ -279,7 +339,7 @@
         <div class="column" id="box-1">
         <div class="column-heading" id="column-heading-1">
           <img src="assets/img/ic-what-is-vpipe.svg" alt="What is V-pipe">
-          <h2>What is V-pipe?</h2>
+          <h3>What is V-pipe?</h3>
         </div>
         
           
@@ -316,7 +376,7 @@
         <div class="column" id="box-2">
         <div class="column-heading" id="column-heading-2">
           <img src="assets/img/ic-how-to-use-vpipe.svg" alt="How to use V-pipe">
-          <h2>How to use V-pipe?</h2>
+          <h3>How to use V-pipe?</h3>
         </div>
         
           
@@ -341,7 +401,7 @@
         <div class="column" id="box-3">
         <div class="column-heading" id="column-heading-3">
           <img src="assets/img/ic-how-to-get-vpipe.svg" alt="How to get V-pipe?">
-          <h2>How to get V-pipe?</h2>
+          <h3>How to get V-pipe?</h3>
         </div>
         
           
@@ -366,7 +426,7 @@
         <div class="column" id="box-4">
         <div class="column-heading" id="column-heading-4">
           <img src="assets/img/ic-documentation.svg" alt="Documentation">
-          <h2>Documentation</h2>
+          <h3>Documentation</h3>
         </div>
         
           
@@ -399,65 +459,65 @@
 </section>
 
     <section id="vpipe-numbers">
-    <h1><span>V-pipe</span> in <span>numbers</span></h1>
+    <h2><span>V-pipe</span> in <span>numbers</span></h2>
     <div class="bg-full-width">
       <div class="container">
-        <div class="column-numbers" id="downloads-num">
-          <h1><span>894,512</span>Citations in 2023</h1>
+        <div class="column-numbers" id="citations-num">
+          <h3><span>894,512</span>Citations in 2023</h3>
         </div>  
         <div class="column-numbers" id="downloads-num">
-          <h1><span>237,862</span>Downloads in Bioconda in 2023</h1>
+          <h3><span>237,862</span>Downloads in Bioconda in 2023</h3>
         </div>
         <div class="column-numbers" id="uni-num">
-          <h1><span>76,558</span>Samples analysed<br>during the pandemics</h1>
+          <h3><span>76,558</span>Samples analysed<br>during the pandemics</h3>
         </div>
-        <div class="column-numbers" id="citing-num">
-          <h1><span>1,972,395</span>Samples analysed<br>in wastewater since 2021</h1>
+        <div class="column-numbers" id="samples-num">
+          <h3><span>1,972,395</span>Samples analysed<br>in wastewater since 2021</h3>
         </div>
       </div>
     </div>
 </section>
 
     <section id="why-vpipe">
-    <h1>Why <span>choose V-pipe</span></h1>
+    <h2>Why <span>choose V-pipe</span></h2>
     <div class="container">
         
         <a href="https://snakemake.readthedocs.io/" class="column" target="_blank">
             <div class="img-container">
                 <img src="assets/img/ic-flow.svg" alt="Automated pipeline">
             </div>
-            <h2>Automated pipeline</h2>
+            <h3>Automated pipeline</h3>
         </a>
         
         <a href="documentation#tutorials" class="column">
             <div class="img-container">
                 <img src="assets/img/ic-computer.svg" alt="Easy to Install">
             </div>
-            <h2>Easy to Install</h2>
+            <h3>Easy to Install</h3>
         </a>
         
         <a href="what-is-vpipe#customisation" class="column">
             <div class="img-container">
                 <img src="assets/img/ic-puzzle.svg" alt="Modular, customizable">
             </div>
-            <h2>Modular, customizable</h2>
+            <h3>Modular, customizable</h3>
         </a>
         
         <a href="contact" class="column">
             <div class="img-container">
                 <img src="assets/img/ic-hand-gear.svg" alt="First-class support">
             </div>
-            <h2>First-class support</h2>
+            <h3>First-class support</h3>
         </a>
         
     </div>
 </section>
     
     <section id="meet-the-team">
-    <h1>Meet the <span>V-pipe team</span></h1>
+    <h2>Meet the <span>V-pipe team</span></h2>
     <div class="container">
         <div class="column">
-            <h2><span>Upcoming</span> Events</h2>
+            <h3><span>Upcoming</span> Events</h3>
             <ul>
                 
                     
@@ -541,7 +601,7 @@
             </ul>
         </div>
         <div class="column">
-            <h2><span>Past</span> Events</h2>
+            <h3><span>Past</span> Events</h3>
             <ul>
                 
                     
@@ -628,17 +688,17 @@
 </section>
 
     <section id="funding">
-  <h1><span>V-pipe</span> funding</h1>
+  <h2><span>V-pipe</span> funding</h2>
   <div class="container">
     <div class="column">
       <a href="https://sib.swiss/" target="_blank">
-        <img src="assets/img/logo-sib-full.svg" alt="Logo SIB" />
+        <img src="assets/img/logo-sib-full.svg" alt="Logo SIB" >
       </a>
       <p>V-pipe is part of <a href="https://www.sib.swiss/services/open-software-and-databases" target="_blank">SIB's portfolio of open software and databases</a>.</p>
     </div>
     <div class="column">
       <a href="https://ethz.ch/" target="_blank">
-        <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" />
+        <img src="assets/img/logo-ethz.svg" alt="Logo ETH Zurich" >
       </a>
     </div>
   </div>
@@ -649,7 +709,7 @@
     <div class="row">
       
           <div class="column">
-              <h1>Documentation</h1>
+              <h2>Documentation</h2>
               <ul>
                   
                       <li><a href="documentation#tutorials">Tutorials</a></li>
@@ -664,7 +724,7 @@
           </div>
       
           <div class="column">
-              <h1>Literature</h1>
+              <h2>Literature</h2>
               <ul>
                   
                       <li><a href="literature#how-to-cite-us">How to cite us</a></li>
@@ -677,7 +737,7 @@
           </div>
       
           <div class="column">
-              <h1>About</h1>
+              <h2>About</h2>
               <ul>
                   
                       <li><a href="about#funding">Funding</a></li>
@@ -690,7 +750,7 @@
           </div>
       
           <div class="column">
-              <h1>Contact</h1>
+              <h2>Contact</h2>
               <ul>
                   
                       <li><a href="contact#chat-with-us">Chat with us</a></li>
@@ -707,15 +767,15 @@
     </div>
     <div class="row">
       <div class="column">
-        <h1>Follow us</h1>
+        <h2>Follow us</h2>
         <div class="social-container">
-          <a href="#"><img src="assets/img/ic-newsletter.svg" alt="YouTube Icon" /></a>
-          <a href="#"><img src="assets/img/ic-youtube.svg" alt="YouTube Icon" /></a>
-          <a href="#"><img src="assets/img/ic-rss.svg" alt="YouTube Icon" /></a>
+          <a href="#"><img src="assets/img/ic-newsletter.svg" alt="YouTube Icon" ></a>
+          <a href="#"><img src="assets/img/ic-youtube.svg" alt="YouTube Icon" ></a>
+          <a href="#"><img src="assets/img/ic-rss.svg" alt="YouTube Icon" ></a>
         </div>
       </div>
       <div class="column">
-        <h1>Enquiries</h1>
+        <h2>Enquiries</h2>
         <a href="mailto:v-pipe@bsse.ethz.ch">v-pipe@bsse.ethz.ch</a>
       </div>
     </div>
@@ -725,7 +785,7 @@
   </div>
 </section>
 
-    <a id="btn-getting-started" href="getting-started"><span><img src="assets/img/ic-idea-bulb.svg" alt="Icon Getting Started" /></span> Getting started <!--img src="assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /--></a>
+    <a id="btn-getting-started" href="getting-started"><span><img src="assets/img/ic-idea-bulb.svg" alt="Icon Getting Started" ></span> Getting started <!--img src="assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /--></a>
     
   </body>
 </html>

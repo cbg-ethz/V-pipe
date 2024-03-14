@@ -1,6 +1,6 @@
 <section id="get-started">
   
-  <h1>Get <span>started</span> with <span>V-pipe</span></h1>
+  <h2>Get <span>started</span> with <span>V-pipe</span></h2>
   
   <div class="container">
     <div class="homepage-columns">
@@ -8,7 +8,7 @@
         <div class="column" id="box-{{ forloop.index }}">
         <div class="column-heading" id="column-heading-{{ forloop.index }}">
           <img src="{{ column.image }}" alt="{{ column.title }}">
-          <h2>{{ column.heading }}</h2>
+          <h3>{{ column.heading }}</h3>
         </div>
         {% for link_group in column.links %}
           {% if link_group.subject %}

@@ -1,12 +1,12 @@
 <section id="why-vpipe">
-    <h1>Why <span>choose V-pipe</span></h1>
+    <h2>Why <span>choose V-pipe</span></h2>
     <div class="container">
         {% for column in site.col_whyVpipe %}
         <a href="{{ column.link }}" class="column"{% if column.open_in_new_tab %} target="_blank"{% endif %}>
             <div class="img-container">
                 <img src="{{ column.image }}" alt="{{ column.title }}">
             </div>
-            <h2>{{ column.title }}</h2>
+            <h3>{{ column.title }}</h3>
         </a>
         {% endfor %}
     </div>
