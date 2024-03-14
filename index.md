@@ -1,6 +1,6 @@
 ---
 layout: home
-title: V-pipe | Virus NGS Pipeline - Bioinformatics pipeline for the analysis of next-generation sequencing data derived from intra-host viral populations.
+title: V-pipe | NGS data analysis pipeline
 nav_items:
   - name: Home
     link: "/index"

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Documentation of V-pipe
+title: Getting started - V-pipe | NGS data analysis pipeline
 nav_items:
   - name: Home
     link: "/index"

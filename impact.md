@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Impact of V-pipe
+title: Impact - V-pipe | NGS data analysis pipeline
 nav_items:
   - name: Home
     link: "/index"
