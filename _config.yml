@@ -10,6 +10,10 @@ baseurl: "/vpipe"
 sass:
   style: compressed
 
+
+exclude:
+  - README.md
+
 # Add any other configurations or site-specific settings
 
 collections:
