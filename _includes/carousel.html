@@ -1,6 +1,7 @@
 <div class="container">
   <div class="hero-carousel">
-      {% for slide in site.col_heroCarousel %}
+      {% assign allslides = site.col_heroCarousel | sort: "order" %}
+      {% for slide in allslides %}
       <div class="slide">
           {% if slide.video %}
           <div class="video">
