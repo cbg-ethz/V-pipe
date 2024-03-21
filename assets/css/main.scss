@@ -1235,6 +1235,20 @@ body {
         }
       }
     }
+    .welcome-txt {
+      width: 94%;
+      padding: 60px 10px 20px 10px;
+      border-radius: 0 0 20px 20px;
+      text-align: center;
+    }
+    @keyframes slideDown {
+      from {
+        top: -50px;
+      }
+      to {
+        top: -40px;
+      }
+    }
     #get-started {
       margin: 50px 15px 0;
       position: relative;
@@ -1313,6 +1327,9 @@ body {
     }
     #funding {
       padding: 0;
+      .container {
+        flex-direction: column-reverse;
+      }
     }
     #footer {
       .container {
