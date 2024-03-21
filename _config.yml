@@ -19,6 +19,7 @@ exclude:
 collections:
   col_heroCarousel:
     output: true
+    sort_by: "order"
   col_getStartedColumns:
     output: true
   col_whyVpipe:
