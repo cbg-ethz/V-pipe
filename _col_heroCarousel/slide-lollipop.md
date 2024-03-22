@@ -6,7 +6,7 @@ description: |
 image: assets/img/vpipe-hero-slide.webp
 cta:
   text: LolliPop
-  link: https://github.com/cbg-ethz/lollipop
+  external_url: https://github.com/cbg-ethz/lollipop
 order: 12
 ---
 

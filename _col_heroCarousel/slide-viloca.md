@@ -8,7 +8,7 @@ description: |
 image: assets/img/vpipe-hero-slide.webp
 cta:
   text: VILOCA
-  link: https://github.com/cbg-ethz/VILOCA
+  external_url: https://github.com/cbg-ethz/VILOCA
 order: 10
 ---
 

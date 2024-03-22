@@ -8,7 +8,7 @@ description: |
 image: assets/img/vpipe-hero-slide.webp
 cta:
   text: COJAC
-  link: https://github.com/cbg-ethz/cojac
+  external_url: https://github.com/cbg-ethz/cojac
 order: 11
 ---
 
