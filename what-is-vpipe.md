@@ -49,6 +49,7 @@ nav_items:
 # What is V-pipe?
 
 ## Table of Contents
+- [Introduction](#introduction)
 - [What is V-pipe?](#what-is-v-pipe)
 - [What can V-pipe do with my data?](#what-can-v-pipe-do-with-my-data)
 - [How does V-pipe work?](#how-does-v-pipe-work)
@@ -58,102 +59,47 @@ nav_items:
 
 ---
 
+
+## Introduction
+
+Virus populations exist as heterogeneous ensembles of genomes within their hosts in clinical samples or among hosts in environmental samples.
+This genetic diversity is associated with viral pathogenesis, virulence, and disease progression, and it can be probed using high-throughput sequencing technologies.
+
+----
+
 ## What is V-pipe?
-Learn more about V-pipe.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Data Processing
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Visualization
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+V-pipe is a bioinformatics pipeline that integrates various computational tools for the analysis of viral high-throughput sequencing data. 
+It supports the reproducible analysis of genomic diversity in intra-host virus populations, which is often involved in viral pathogenesis and virulence.
+V-pipe is targeted at researchers and professionals in patient-focused clinical applications, epidemiological surveillance, and public health management.
+It is specialized in samples with mixtures of viral populations, and is positioned as a flexible, adaptable, and comprehensive tool, capable of handling different viruses and applications.
 
 ---
 
 ## What can V-pipe do with my data?
-What can V-pipe do with my data?
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Data Processing
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Visualization
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+V-pipe takes as input read data obtained from a viral sequencing experiment and produces, in a single execution of the pipeline, various output files covering quality control, read alignment, and inference of viral genomic diversity on the level of both single-nucleotide variants and viral haplotypes.
 
 ---
 
 ## How does V-pipe work?
-How does V-pipe work?
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Case Studies
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Collaborations
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+V-pipe uses the workflow management system Snakemake to determine the order in which the steps of the specified pipeline are executed and checks that the output files are produced. To simplify installation of all components, conda environments are provided. 
 
 ---
 
 ## Can I build my own pipeline?
-Can I build my own pipeline?
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Feature Comparison
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Performance Analysis
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+V-pipe has a modular and extensible architecture. Users can design their own fully reproducible and transparent pipelines. Developers can test their own tools in a defined environment and contribute to the establishment of best practices for virus research and clinical diagnostics.
 
 ---
 
 ## How can I use V-pipe?
-How can I use V-pipe?
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+V-pipe is freely available for download:
+[Get started with V-pipe](http://localhost:4000/vpipe/getting-started).
 
-### Customisation Information
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+Further details can be found in the [documentation](documentation) section and in the
+[readme](https://github.com/cbg-ethz/V-pipe/blob/master/README.md#usage) of the software.
 
-### Customisation response Time
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
-
----
-
-## Customisation
-How can I customize V-pipe?
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Customisation Information
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Customisation response Time
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+Should you have any further question, please do not hesitate to [contact us](contact).
