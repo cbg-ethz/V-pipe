@@ -95,12 +95,58 @@ Now that you have setup the software necessary to start using V-pipe, you can fo
 
 For advanced users: If your are fluent with these tools, you can:
 
-* directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
+* directly download and install [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (*and perform one-time setup of [bioconda](https://bioconda.github.io/index.html)*) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
 * specifiy your V-pipe configuration, and start using V-pipe
 
 Use `--use-conda` to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies. Please refer to the documentation for additional instructions.
 
 
-### Reusing an existing conda installation
+## Reusing an existing conda installation
 
-[TO BE CONTINUED]
+Find out the directory where Conda is currently installed on your system. Common locations include:
+
+```bash
+  /opt/conda
+  ~/miniconda
+  ~/anaconda
+  ```
+
+Ensure that your `PATH` environment variable includes the path to your existing Conda installation. 
+
+You can do this by editing your shell's configuration file (e.g., `.bashrc`, `.bash_profile`, `.zshrc`).
+
+Add the `PATH` to the configuration file by adding this line but replace `/path/to/your/conda` with the actual path to your Conda installation directory :
+
+```bash
+export PATH="/path/to/your/conda/bin:$PATH"
+```
+
+Restart your terminal session to apply the changes made to the environment variables, or run:
+
+```bash
+source ~/.bashrc
+```
+
+This command reloads the shell configuration file (replace `.bashrc` with the appropriate file if you're using a different shell).
+
+Download the V-pipe installation script using `curl`:
+
+```bash
+curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+```
+
+Make the script executable if it doesn't have permissions:
+
+```bash
+chmod +x quick_install.sh
+```
+
+Run the installation script with the desired parameters to specify the installation directory (`-p`) and working directory (`-w`). For example:
+
+```bash
+bash quick_install.sh -p vp-analysis -w work
+```
+
+Here, `-p vp-analysis` specifies the subdirectory where V-pipe will be installed, and `-w work` creates a working directory for V-pipe.
+
+After the installation completes, verify that V-pipe and its dependencies are correctly installed by running commands like `conda list` to see the installed packages and `vpipe --help` to check if V-pipe commands are available.
