@@ -24,51 +24,62 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     # TODO: allow indels of length >1
 
     seq_haplotype = np.asarray(list(seq_master))
-    ground_truth = {"type": [], "position": [], "variant": []}
-
-    # deletions
-    deletion_count = int(len(seq_haplotype) * deletion_rate)
-    position_list = np.random.choice(
-        np.arange(len(seq_haplotype)), size=deletion_count, replace=False
-    )
-    seq_haplotype = np.delete(seq_haplotype, position_list)
-
-    ground_truth["type"].extend(["deletion"] * position_list.shape[0])
-    ground_truth["position"].extend(position_list)
-    ground_truth["variant"].extend(["-"] * position_list.shape[0])
+    seq_master = np.asarray(list(seq_master))
+    ground_truth = {"type": [], "position": [], "variant": [], "reference": []}
 
     # mutations
     mutation_count = int(len(seq_haplotype) * mutation_rate)
-    position_list = np.random.choice(
+    position_list_muts = np.random.choice(
         np.arange(len(seq_haplotype)), size=mutation_count, replace=False
     )
 
     base_set = set(BASE_LIST)
-    for pos in position_list:
+    for pos in position_list_muts:
         # make sure we mutate to base different from reference
-        cur_base_list = list(base_set - {seq_haplotype[pos]})
+        cur_base_list = list(base_set - {seq_master[pos]})
         seq_haplotype[pos] = np.random.choice(cur_base_list)
 
-    ground_truth["type"].extend(["mutation"] * position_list.shape[0])
-    ground_truth["position"].extend(position_list)
-    ground_truth["variant"].extend(seq_haplotype[position_list])
+    ground_truth["type"].extend(["mutation"] * position_list_muts.shape[0])
+    ground_truth["position"].extend(position_list_muts)
+    ground_truth["variant"].extend(seq_haplotype[position_list_muts])
+    ground_truth["reference"].extend(seq_master[position_list_muts])
 
-    # insertions
+    # deletions + insertions
+    deletion_count = int(len(seq_haplotype) * deletion_rate)
     insertion_count = int(len(seq_haplotype) * insertion_rate)
     position_list = np.random.choice(
-        np.arange(len(seq_haplotype)), size=insertion_count, replace=False
+        np.asarray([number for number in np.arange(len(seq_haplotype)) if not number in position_list_muts ]),
+        size=deletion_count+insertion_count,
+        replace=False
     )
+    position_list = sorted(position_list, reverse=True)
 
-    insertion_list = np.random.choice(BASE_LIST, size=insertion_count)
-    seq_haplotype = np.insert(
-        seq_haplotype,
-        position_list,
-        insertion_list,
-    )
+    # insertions
+    seq_haplotype = list(seq_haplotype)
+    insertion_positions = position_list[:insertion_count]
+    insertion_list = np.random.choice(BASE_LIST, size=(insertion_count,3))
+    insertion_list = np.asarray(["".join(aa) for aa in insertion_list])
+    for count, (insert_pos, insert) in enumerate(zip(insertion_positions, insertion_list)):
+        seq_haplotype.insert(insert_pos+count,insert)
 
-    ground_truth["type"].extend(["insertion"] * position_list.shape[0])
-    ground_truth["position"].extend(position_list)
+    ground_truth["type"].extend(["insertion"] * insertion_count)
+    ground_truth["position"].extend(insertion_positions)
     ground_truth["variant"].extend(insertion_list)
+    ground_truth["reference"].extend(seq_master[insertion_positions])
+
+
+    # deletions
+    seq_haplotype = np.asarray(seq_haplotype)
+
+    deletion_positions = position_list[-deletion_count:]
+    deletion_positions_extended = [ pos +1 for pos in deletion_positions] + [ pos +2 for pos in deletion_positions] + deletion_positions
+
+    seq_haplotype = np.delete(seq_haplotype, deletion_positions_extended)
+
+    ground_truth["type"].extend(["deletion"] * deletion_count)
+    ground_truth["position"].extend(deletion_positions)
+    ground_truth["variant"].extend(["-"] * deletion_count)
+    ground_truth["reference"].extend(seq_master[deletion_positions])
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
