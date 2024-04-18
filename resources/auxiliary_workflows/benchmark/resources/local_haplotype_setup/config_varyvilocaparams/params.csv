@@ -1,11 +1,4 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-# Population 2
-illumina,shotgun,single_amplicon,249,249,1000,5@5@30@10@15@geom@0.75
-# Population 4
-illumina,shotgun,single_amplicon,249,249,1000,5@15@30@10@15@geom@0.75
-# Population 8 (ONT)
-nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@600@200@300@geom@0.75
-# Population 10 (ONT)
-#nanopore,shotgun,single_amplicon,5000,5000,1000,15@5@600@300@200@geom@0.75
 # amplicon mode
-#illumina,amplicon,400:100,249,9719,1000,5@5@1200@480@480@geom@0.75
+illumina,amplicon,400:10,249,5000,1000,5@10@600@200@240@geom@0.75
+illumina,amplicon,400:100,249,5000,1000,5@10@600@200@240@geom@0.75
