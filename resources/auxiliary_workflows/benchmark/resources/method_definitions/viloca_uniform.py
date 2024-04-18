@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@master
 
 import subprocess
 from pathlib import Path
@@ -32,8 +32,8 @@ def main(
     dname_work,
 ):
     genome_size = str(fname_bam).split("genome_size~")[1].split("__coverage")[0]
-    alpha = 0.000001
-    n_max_haplotypes = 500
+    alpha = 0.00001
+    n_max_haplotypes = 100
     n_mfa_starts = 1
     win_min_ext = 0.85
 
@@ -47,8 +47,8 @@ def main(
     dname_work.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
-            "shorah",
-            "shotgun",
+            "viloca",
+            "run",
             "-b",
             fname_bam.resolve(),
             "-f",

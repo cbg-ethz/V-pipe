@@ -1,9 +1,9 @@
 # GROUP: global
 # CONDA: libshorah
-# CONDA: pyvcf
+# CONDA: fuc
 # CONDA: biopython = 1.79
 # PIP: pandas
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@master
 
 import subprocess
 from pathlib import Path
@@ -63,8 +63,8 @@ def main(
     if fname_insert_bed == []:
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",
@@ -88,8 +88,8 @@ def main(
         # insert bed file is there
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",
@@ -115,8 +115,8 @@ def main(
     # here are all snvs regardless their posterior: (dname_work / "snv" / "SNVs_0.010000_final.vcf")
 
     # filter out snvs with low posterior, threshold = 0.9 as default in shorah
-    fname_vcf_viloca = (dname_work / "snv" / "SNVs_0.010000_final.vcf").resolve()
-    filter_snvs(fname_vcf_viloca, fname_results_snv, posterior_threshold = 0.9)
+    fname_vcf_viloca = str(Path(dname_work / "snv" / "SNVs_0.010000_final.vcf").resolve())
+    filter_snvs(fname_vcf_viloca, str(Path(fname_results_snv).resolve()), posterior_threshold = 0.9)
 
     mypath = (dname_work / "support").resolve()
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -161,3 +161,4 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
     )
+                                                                                                                                                                                                                                                                                      165,1         Bot

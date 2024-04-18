@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@master
 
 import subprocess
 from pathlib import Path
@@ -30,14 +30,20 @@ def main(
     fname_results_snv,
     fname_result_haplos,
     dname_work,
-    threads,
 ):
     genome_size = str(fname_bam).split("genome_size~")[1].split("__coverage")[0]
-    alpha = 0.000001
-    n_max_haplotypes = 500
+    alpha = 0.00001
+    n_max_haplotypes = 100
     n_mfa_starts = 1
     win_min_ext = 0.85
 
+    #coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
+    #if float(coverage) > 200:
+    #    exclude_non_var_pos_threshold = 2 / float(coverage)
+    #else:
+   #     exclude_non_var_pos_threshold = 1 / float(coverage)
+
+    exclude_non_var_pos_threshold = 0.001
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]
     if read_length == "Ten_strain_IAV":
         sampler = "learn_error_params"
@@ -49,8 +55,8 @@ def main(
     if fname_insert_bed == []:
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",
@@ -65,9 +71,8 @@ def main(
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
-                "--threads",
-                str(threads),
-                "--extended_window_mode",
+                "--exclude_non_var_pos_threshold",
+                str(exclude_non_var_pos_threshold),
             ],
             cwd=dname_work,
         )
@@ -93,15 +98,45 @@ def main(
                 str(n_mfa_starts),
                 "--win_min_ext",
                 str(win_min_ext),
-                "--threads",
-                str(threads),
-                "--extended_window_mode",
+                "--exclude_non_var_pos_threshold",
+                str(exclude_non_var_pos_threshold),
             ],
             cwd=dname_work,
         )
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
-    open(fname_result_haplos, "a").close()
+
+
+    mypath = (dname_work / "support").resolve()
+    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    print("onlyfiles", onlyfiles)
+    for file in onlyfiles:
+        if "reads-support.fas" in file:
+            file_name = onlyfiles[0]
+            fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
+            if file.endswith(".gz"):
+                fname_zipped = (dname_work / "support" / onlyfiles[0]).resolve()
+                fname_haplos = onlyfiles[0].split(".gz")[0]
+                fname_unzipped = (dname_work / "support" / fname_haplos).resolve()
+                # unzip
+                gunzip(fname_zipped, fname_result_haplos)
+
+            elif file.endswith(".fas"):
+                fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
+                (dname_work / "support" / file).rename(fname_result_haplos)
+
+    # fix frequency information
+
+    freq_list = []
+    for record in SeqIO.parse(fname_result_haplos, "fasta"):
+        freq_list.append(float(record.description.split("ave_reads=")[-1]))
+    norm_freq_list = [float(i) / sum(freq_list) for i in freq_list]
+
+    record_list = []
+    for idx, record in enumerate(SeqIO.parse(fname_result_haplos, "fasta")):
+        record.description = f"freq:{norm_freq_list[idx]}"
+        record_list.append(record)
+    SeqIO.write(record_list, fname_result_haplos, "fasta")
 
 
 if __name__ == "__main__":
@@ -112,5 +147,5 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result),
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
-        snakemake.threads,
     )
+                                                                                                                                                                                                                                                                                      149,1         Bot
