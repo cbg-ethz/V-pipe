@@ -11,6 +11,7 @@ def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_wo
         [
             "lofreq",
             "call",
+            "--call-indels",
             "-f",
             fname_reference.resolve(),
             "-o",
