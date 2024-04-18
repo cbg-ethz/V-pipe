@@ -1,14 +1,11 @@
 method_list: [lofreq_local_haplo,
               shorah_default,
-              #cliquesnv_local_haplo,
-              #cliquesnv_local_haplo_snv,
+              predicthaplo_local_haplo,
+              cliquesnv_local_haplo,
+              cliquesnv_local_haplo_tf0.1,
               cliquesnv_local_haplo_tf0.01,
-              cliquesnv_local_haplo_snv_tf0.01,
-              viloca_alpha_0.000001,
-              viloca_alpha_0.000001_K300,
               viloca_alpha_0.00001,
-              viloca_alpha_0.00001_K100,
-              viloca_multi,
+              #strainline,  failed in clustering step
               # shorah_default_amplicon, --> here the short illumina simulation still not work due to b2w errors
               ]
 replicate_count: 5
