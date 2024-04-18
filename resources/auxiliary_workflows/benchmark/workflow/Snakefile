@@ -307,22 +307,6 @@ rule provide_Ten_strain_IAV:
         cp "$fname_fasta" "{output.fname_fasta}"
         """
 
-
-
-rule split:
-    conda:
-        "envs/split.yaml"
-    input:
-        fname_aln=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.cram",
-    output:
-        fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
-        fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
-    wildcard_constraints:
-        read_length="Two-strain-SARS-CoV-2",
-    shell:
-        "samtools collate -O {input.fname_aln} | samtools fastq -1 {output.fname_fastq_R1} -2 {output.fname_fastq_R2} -"
-
-
 rule flash:
     input:
         fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
