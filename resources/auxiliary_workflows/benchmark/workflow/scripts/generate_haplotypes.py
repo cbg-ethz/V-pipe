@@ -63,8 +63,8 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
         seq_haplotype.insert(insert_pos+count,insert)
 
     ground_truth["type"].extend(["insertion"] * insertion_count)
-    ground_truth["position"].extend(insertion_positions)
-    ground_truth["variant"].extend(insertion_list)
+    ground_truth["position"].extend([pos-1 for pos in insertion_positions])
+    ground_truth["variant"].extend([ref+codon for (ref, codon) in zip(seq_master[insertion_positions], insertion_list)])
     ground_truth["reference"].extend(seq_master[insertion_positions])
 
 
@@ -78,8 +78,8 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
 
     ground_truth["type"].extend(["deletion"] * deletion_count)
     ground_truth["position"].extend(deletion_positions)
-    ground_truth["variant"].extend(["-"] * deletion_count)
-    ground_truth["reference"].extend(seq_master[deletion_positions])
+    ground_truth["variant"].extend([seq_master[pos] for pos in deletion_positions])
+    ground_truth["reference"].extend(["".join(seq_master[pos:pos+4]) for pos in deletion_positions])
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
