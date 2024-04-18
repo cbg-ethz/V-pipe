@@ -97,7 +97,7 @@ rule indels_performance_measures_freqs:
             if os.path.isfile(f"results/indels/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         groundtruth_list=[
-            f"results/indels/simulated_reads/{params}/replicates/{replicate}/ground_truth_corrected.csv"
+            f"results/indels/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
             for params in indels.paramspace.instance_patterns
             for method in indels.method_list
             for replicate in range(indels.config["replicate_count"])
