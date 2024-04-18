@@ -15,8 +15,6 @@ module indels:
         load_config("config_indels/config.yaml")
     replace_prefix:
         {"results/": "results/indels/", "resources/": "resources/indels/"}
-
-
 use rule * from indels as indels_*
 
 
@@ -30,8 +28,6 @@ module varyvilocaparams:
             "results/": "results/varyvilocaparams/",
             "resources/": "resources/varyvilocaparams/",
         }
-
-
 use rule * from varyvilocaparams as varyvilocaparams_*
 
 
@@ -42,8 +38,6 @@ module distance:
         load_config("config_distance/config.yaml")
     replace_prefix:
         {"results/": "results/distance/", "resources/": "resources/distance/"}
-
-
 use rule * from distance as distance_*
 
 
@@ -54,25 +48,26 @@ module realdata:
         load_config("config_realdata/config.yaml")
     replace_prefix:
         {"results/": "results/realdata/", "resources/": "resources/realdata/"}
-
-
 use rule * from realdata as realdata_*
 
 
 # define required output files
 rule all:
     input:
-        "results/indels/performance_measures/local/",
+        "results/indels/performance_measures/performance_mutation_calls_freqs.csv",
         "results/varyvilocaparams/performance_measures/local/",
-        "results/varyvilocaparams/performance_measures/global/",
+        "results/varyvilocaparams/performance_measures/performance_mutation_calls_posterior_thres.csv",
         "results/distance/performance_measures/global/",
         "results/distance/performance_measures/local/",
+        "results/distance/performance_measures/performance_mutation_calls_posterior_thres.csv",
+        "results/distance/performance_measures/runtime.csv",
         "results/realdata/performance_measures/local/",
         "results/realdata/performance_measures/global/",
     default_target: True
 
-
+##############
 # indels rules
+##############
 use rule run_method_local from indels as indels_run_method_local_global with:
     output:
         fname_result_haplos=f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
@@ -87,41 +82,37 @@ use rule run_method_local from indels as indels_run_method_local_global with:
         script_path=lambda wildcards, input: input.script,
     benchmark:
         f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + indels.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
-    threads: 32  # threads cannot be allocated in resources.
+    threads: 10  # threads cannot be allocated in resources.
     resources:
-        mem_mb=60024,
-        runtime=400,
+        mem_mb=8000,
+        runtime=4,
 
-
-use rule performance_measures_local from indels as indels_performance_measures_local with:
+rule indels_performance_measures_freqs:
     input:
         vcf_list=[
             f"results/indels/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
             for params in indels.paramspace.instance_patterns
             for method in indels.method_list
             for replicate in range(indels.config["replicate_count"])
+            if os.path.isfile(f"results/indels/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
-        # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
-            f"results/indels/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            f"results/indels/simulated_reads/{params}/replicates/{replicate}/ground_truth_corrected.csv"
             for params in indels.paramspace.instance_patterns
             for method in indels.method_list
             for replicate in range(indels.config["replicate_count"])
+            if os.path.isfile(f"results/indels/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
-        benchmark_list=[
-            f"results/indels/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
-            for params in indels.paramspace.instance_patterns
-            for method in indels.method_list
-            for replicate in range(indels.config["replicate_count"])
-        ],
-        haplostats_list=[
-            f"results/indels/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in indels.paramspace.instance_patterns
-            for replicate in range(indels.config["replicate_count"])
-        ],
+    output:
+        fname_out="results/indels/performance_measures/performance_mutation_calls_freqs.csv",
+    conda:
+        "../../../workflow/envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_snvs_freq.py"
 
-
-# distance rules
+##############
+# varyvilocaparams rules
+##############
 use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_local_global with:
     output:
         fname_result_haplos=f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
@@ -140,6 +131,32 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
     resources:
         mem_mb=20024,
         runtime=240, # 10 days
+
+
+rule varyvilocaparams_performance_measures_snvs_posterior:
+    input:
+        vcf_list=[
+            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list
+            if (method.startswith("viloca")) or (method.startswith("shorah"))
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+            if os.path.isfile(f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+        groundtruth_list=[
+            f"results/varyvilocaparams/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in varyvilocaparams.paramspace.instance_patterns
+            for method in varyvilocaparams.method_list
+            if (method.startswith("viloca")) or (method.startswith("shorah"))
+            for replicate in range(varyvilocaparams.config["replicate_count"])
+            if os.path.isfile(f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+    output:
+        fname_out="results/varyvilocaparams/performance_measures/performance_mutation_calls_posterior_thres.csv",
+    conda:
+        "../../../workflow/envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_snvs_viloca.py"
 
 
 use rule performance_measures_local from varyvilocaparams as varyvilocaparams_performance_measures_local with:
@@ -170,43 +187,9 @@ use rule performance_measures_local from varyvilocaparams as varyvilocaparams_pe
         ],
 
 
-use rule performance_measures_global from varyvilocaparams as varyvilocaparams_performance_measures_global with:
-    input:
-        predicted_haplos_list=[
-            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/haplotypes_.fasta"
-            for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list_global
-            for replicate in range(varyvilocaparams.config["replicate_count"])
-        ],
-        true_haplos_list=[
-            f"results/varyvilocaparams/simulated_reads/{params}/replicates/{replicate}/haplotypes.fasta"
-            for params in varyvilocaparams.paramspace.instance_patterns
-            for replicate in range(varyvilocaparams.config["replicate_count"])
-        ],
-        haplostats_list=[
-            f"results/varyvilocaparams/haplo_stats/{params}/replicates/{replicate}/haplotypes_stats.csv"
-            for params in varyvilocaparams.paramspace.instance_patterns
-            for replicate in range(varyvilocaparams.config["replicate_count"])
-        ],
-        runstatus_list=[
-            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/status_.txt"
-            for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list_global
-            for replicate in range(varyvilocaparams.config["replicate_count"])
-        ],
-        benchmark_list=[
-            f"results/varyvilocaparams/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
-            for params in varyvilocaparams.paramspace.instance_patterns
-            for method in varyvilocaparams.method_list_global
-            for replicate in range(varyvilocaparams.config["replicate_count"])
-        ],
-    params:
-        method_list_global=varyvilocaparams.method_list_global,
-        quast=False,
-
-
-
+##############
 # distance rules
+##############
 use rule run_method_local from distance as distance_run_method_local_global with:
     output:
         fname_result_haplos=f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
@@ -224,7 +207,74 @@ use rule run_method_local from distance as distance_run_method_local_global with
     threads: 30
     resources:
         mem_mb=60024,
-        runtime=10*24*60,
+        runtime=15*24*60,
+
+
+rule distance_runtime:
+    input:
+        benchmark_list=[
+            f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list
+            for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv")
+        ],
+    output:
+        fname_out="results/distance/performance_measures/runtime.csv",
+    conda:
+        "../../../workflow/envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_runtime.py"
+
+
+rule distance_performance_measures_snvs_posterior:
+    input:
+        vcf_list=[
+            f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list
+            if (method.startswith("viloca")) or (method.startswith("shorah"))
+            for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+        groundtruth_list=[
+            f"results/distance/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list
+            if (method.startswith("viloca")) or (method.startswith("shorah"))
+            for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+    output:
+        fname_out="results/distance/performance_measures/performance_mutation_calls_posterior_thres.csv",
+    conda:
+        "../../../workflow/envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_snvs_viloca.py"
+
+rule distance_performance_measures_freqs:
+    input:
+        vcf_list=[
+            f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list
+            for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+        groundtruth_list=[
+            f"results/distance/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
+            for params in distance.paramspace.instance_patterns
+            for method in distance.method_list
+            for replicate in range(distance.config["replicate_count"])
+            if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
+        ],
+    output:
+        fname_out="results/distance/performance_measures/performance_mutation_calls_freqs.csv",
+    conda:
+        "../../../workflow/envs/performance_measures.yaml"
+    script:
+        "scripts/performance_measures_snvs_freq.py"
+
 
 
 use rule performance_measures_local from distance as distance_performance_measures_local with:
@@ -233,7 +283,7 @@ use rule performance_measures_local from distance as distance_performance_measur
             f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list
-            if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
+            if not method.startswith("cliquesnv")
             for replicate in range(distance.config["replicate_count"])
             if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
@@ -242,7 +292,7 @@ use rule performance_measures_local from distance as distance_performance_measur
             f"results/distance/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list
-            if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
+            if not method.startswith("cliquesnv")
             for replicate in range(distance.config["replicate_count"])
             if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
@@ -250,7 +300,7 @@ use rule performance_measures_local from distance as distance_performance_measur
             f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
             for params in distance.paramspace.instance_patterns
             for method in distance.method_list
-            if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
+            if not method.startswith("cliquesnv")
             for replicate in range(distance.config["replicate_count"])
             if os.path.isfile(f"results/distance/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
@@ -301,8 +351,9 @@ use rule performance_measures_global from distance as distance_performance_measu
         method_list_global=distance.method_list_global,
         quast=False,
 
-
+#########
 # real data rules
+#########
 use rule run_method_local from realdata as realdata_run_method_local_global with:
     output:
         fname_result_haplos=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
