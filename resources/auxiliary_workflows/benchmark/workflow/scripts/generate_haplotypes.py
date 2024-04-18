@@ -152,12 +152,14 @@ def generate_haplotype_groups(
 ):
     """d_group1, d_group2, d_group12: must be divisible by 2 (implementation reasons)."""
     genome_length = len(master_seq)
+    ground_truth_list = []
 
     # generate master of group 1 and group 2
-    master_group1, _ = mutate(master_seq, int(d_group12 / 2))
-    master_group2, _ = mutate(master_seq, int(d_group12 / 2))
+    master_group1, ground_truth = mutate(master_seq, int(d_group12 / 2))
+    ground_truth_list.append(ground_truth)
+    master_group2, ground_truth = mutate(master_seq, int(d_group12 / 2))
+    ground_truth_list.append(ground_truth)
 
-    ground_truth_list = []
     haplo_list = []
 
     for i in range(n_group1):
