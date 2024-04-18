@@ -124,7 +124,6 @@ rule all:
         "results/performance_measures/local/" if len(method_list_local) > 0 else [],
         "results/performance_measures/global/" if len(method_list_global) > 0 else [],
         "results/haplo_stats/summary.csv",
-        #"results/haplotype_populations/" if config['haplotype_generation'] == 'distance' else None,
         expand(
             "results/read_statistics/{params}/replicates/{replicate}/",
             params=paramspace.instance_patterns,
@@ -242,41 +241,6 @@ rule amplicon_simulation:
         "envs/simulate_reads.yaml"
     script:
         "scripts/amplicon_simulation.py"
-
-
-rule provide_curlcakes_ONT_data:
-    output:
-        fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
-        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
-        dname_work=directory(
-            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
-        ),
-    resources:
-        mem_mb=5_000,
-        time_min=60 * 4,
-    wildcard_constraints:
-        read_length="curlcakes_ONT",
-    shell:
-        """
-        source="{wildcards.read_length}"
-        sample="{wildcards.coverage}"
-        parts=(${{sample//_/ }})
-        reference="${{parts[0]}}"
-
-        mkdir -p "{output.dname_work}"
-
-        # this are the paths to run this rule from local_haplotype_setup
-        fname_bam="../experimental_data/curlcakes_ONT/samples/"$sample".sort.bam"
-        fname_expected_variants="../experimental_data/curlcakes_ONT/ground_truth.csv"
-        fname_reference="../experimental_data/curlcakes_ONT/references/"$reference".fasta"
-
-        if [[ "$source" == "curlcakes_ONT" ]]; then
-            cp "$fname_bam" "{output.fname_bam}"
-            cp "$fname_expected_variants" "{output.fname_groundtruth}"
-            cp "$fname_reference" "{output.fname_reference}"
-        fi
-        """
 
 
 rule provide_Five_strain_PVY_mix:
