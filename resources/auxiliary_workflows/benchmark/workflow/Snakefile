@@ -436,7 +436,6 @@ rule samtools_index:
         """
         samtools index {input}
         """
-# samtools index {input} -o {output}
 
 
 rule read_statistics:
@@ -584,31 +583,6 @@ rule performance_measures_local:
         "envs/performance_measures.yaml"
     script:
         "scripts/performance_measures_local.py"
-
-
-rule performance_measures_local_realdata_sarscov2:
-    input:
-        vcf_list=[
-            f"results/method_runs/{params}/{method}/replicates/{replicate}/snvs.vcf"
-            for params in paramspace.instance_patterns
-            for method in method_list_local
-            for replicate in range(config["replicate_count"])
-        ],
-        # we also include `method_list_local` to align with `vcf_list`
-        groundtruth_list=[
-            f"results/simulated_reads/{params}/replicates/{replicate}/ground_truth.csv"
-            for params in paramspace.instance_patterns
-            for method in method_list_local
-            for replicate in range(config["replicate_count"])
-        ],
-    output:
-        fname_out=f"results/performance_measures/performance_Two_strain_SARS-CoV-2.csv",
-    wildcard_constraints:
-        read_length="Two-strain-SARS-CoV-2",
-    conda:
-        "envs/performance_measures.yaml"
-    script:
-        "scripts/performance_measures_Two-strain-SARS-CoV-2.py"
 
 
 rule performance_measures_global:
