@@ -308,44 +308,6 @@ rule provide_Ten_strain_IAV:
         """
 
 
-rule provide_2_SARS_CoV_2_mix:
-    output:
-        fname_cram=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.real_data.cram",
-        fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_groundtruth=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/ground_truth.csv",
-        fname_insert_bed=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed",
-        dname_work=directory(
-            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
-        ),
-    resources:
-        mem_mb=5_000,
-        runtime=60 * 4,
-    wildcard_constraints:
-        read_length="Two-strain-SARS-CoV-2",
-    shell:
-        """
-        tmp="{wildcards.read_length}"
-        parts=(${{tmp//@/ }})
-        source="{wildcards.read_length}"
-        #subsample_frac="${wildcards.coverage}"
-        sample="{wildcards.genome_size}"
-        echo "$source of sample $sample"
-
-        fname_cram="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample".cram"
-        fname_expected_variants="../experimental_data/Two-strain-SARS-CoV-2/"$sample"/"$sample"_expected_variants.csv"
-        fname_reference="../experimental_data/Two-strain-SARS-CoV-2/reference.fasta"
-        fname_insert_bed="../experimental_data/Two-strain-SARS-CoV-2/nCoV-2019.insert.bed"
-
-        mkdir -p "{output.dname_work}"
-
-        if [[ "$source" == "Two-strain-SARS-CoV-2" ]]; then
-            cp "$fname_cram" "{output.fname_cram}"
-            cp "$fname_expected_variants" "{output.fname_groundtruth}"
-            cp "$fname_reference" "{output.fname_reference}"
-            cp "$fname_insert_bed" "{output.fname_insert_bed}"
-        fi
-        """
-
 
 rule split:
     conda:
