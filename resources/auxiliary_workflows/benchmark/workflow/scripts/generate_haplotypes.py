@@ -60,7 +60,7 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     insertion_list = np.random.choice(BASE_LIST, size=(insertion_count,3))
     insertion_list = np.asarray(["".join(aa) for aa in insertion_list])
     for count, (insert_pos, insert) in enumerate(zip(insertion_positions, insertion_list)):
-        seq_haplotype.insert(insert_pos+count,insert)
+        seq_haplotype.insert(insert_pos-1+count-1,insert)
 
     ground_truth["type"].extend(["insertion"] * insertion_count)
     ground_truth["position"].extend([pos-1 for pos in insertion_positions])
@@ -77,9 +77,9 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     seq_haplotype = np.delete(seq_haplotype, deletion_positions_extended)
 
     ground_truth["type"].extend(["deletion"] * deletion_count)
-    ground_truth["position"].extend(deletion_positions)
-    ground_truth["variant"].extend([seq_master[pos] for pos in deletion_positions])
-    ground_truth["reference"].extend(["".join(seq_master[pos:pos+4]) for pos in deletion_positions])
+    ground_truth["position"].extend([pos-1 for pos in deletion_positions])
+    ground_truth["variant"].extend([seq_master[pos-1] for pos in deletion_positions])
+    ground_truth["reference"].extend(["".join(seq_master[pos-1:pos+3]) for pos in deletion_positions])
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
