@@ -5,8 +5,8 @@ The notebooks in the directory `workflow/notebooks/` can be used to reproduce th
 Here is a step-by-step guide on how to run this workflow.
 1. Clone the repository of V-pipe 3.0 into your working directory: `git clone https://github.com/cbg-ethz/V-pipe.git`  
 2. Go into the directory of the benchmarking study for the global haplotype reconstruction `cd V-pipe/resources/auxiliary_workflows/benchmark/resources/multi_setup`  
-3. The parameters to reproduce the synthetic dataset of varying coverage is here: `config_distance_varycoverage/params.csv` with the configuration file `config_distance_varycoverage/config.yaml` where simulation mode, replicate number and methods to be executed are defined.  
-4. The parameters to reproduce the synthetic dataset of varying distance pattern is here: `config_distance_varyparams/params.csv` with the configuration file `config_distance_varyparams/config.yaml` where simulation mode, replicate number and methods to be executed are defined.  
+3. The parameters to reproduce the synthetic dataset of varying coverage is here: `config_varycoverage/params.csv` with the configuration file `config_varycoverage/config.yaml` where simulation mode, replicate number and methods to be executed are defined.  
+4. The parameters to reproduce the synthetic dataset of varying distance pattern is here: `config_varyparams/params.csv` with the configuration file `config_varyparams/config.yaml` where simulation mode, replicate number and methods to be executed are defined.  
 5. The parameters to reproduce the real dataset is here: `config_realdata/params.csv` with the configuration file `config_realdata/config.yaml` where replicate number and methods to be executed are defined.  
 6. The methods to execute must be define in a Python script in this directory: `V-pipe/resources/auxiliary_workflows/benchmark/resources/method_definitions`
 - Haploclique: `V-pipe/resources/auxiliary_workflows/benchmark/resources/method_definitions/haploclique.py`  
