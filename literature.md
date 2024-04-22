@@ -49,57 +49,42 @@ nav_items:
 # Literature
 
 ## Table of Contents
-- [How to cite us](#how-to-cite-us)
+- [Primary](#primary)
+- [General](#general)
 - [Use of V-pipe](#use-of-v-pipe)
+- [Components of V-pipe developed at CBG-ETHZ](#components-of-v-pipe-developed-at-cbg-ethz)
 - [V-pipe vs competitors](#v-pipe-vs-competitors)
 
 ---
 
-## How to cite us
-This section provides guidelines on how to cite our work.
+## Primary
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+{% include literature-primary.html %}
 
-### APA Style
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+### How to cite us
 
-### MLA Style
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+Citations links
+
+---
+
+## General
+
+{% include literature-general.html %}
 
 ---
 
 ## Use of V-pipe
-Learn how to use V-pipe for your research projects.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+{% include literature-use.html %}
 
-### Installation
-1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-2. Sed fringilla velit at sapien rutrum.
-3. Nec malesuada turpis aliquet.
+---
 
-### Usage
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+## Components of V-pipe developed at CBG-ETHZ
+
+{% include literature-components.html %}
 
 ---
 
 ## V-pipe vs competitors
-Compare V-pipe with other similar tools and software available in the market.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Feature Comparison
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Performance Analysis
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+{% include literature-benchmarks.html %}

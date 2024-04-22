@@ -171,6 +171,24 @@ body {
     max-width: calc(100% - 110px);
     margin: 0 auto;
     padding: 0 40px;
+    /*  references csl-bib-body hanging-indent [role=list] */
+    .references[role=list] {
+      padding: 0 0 0 20px;
+      /* csl-entry[role=listitem] */
+      [role=listitem] {
+        display: list-item;
+        margin: 8px 0;
+        padding: 5px 0;
+        list-style-image: url(../img/ic-list-style.svg);
+        a {
+          color: black;
+          &:hover {
+            color: $sibRed;
+          }
+        }
+
+      }
+    }
   }
 
   #nav-container {
