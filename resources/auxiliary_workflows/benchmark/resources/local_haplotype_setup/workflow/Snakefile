@@ -108,7 +108,7 @@ rule indels_performance_measures_freqs:
     conda:
         "../../../workflow/envs/performance_measures.yaml"
     script:
-        "scripts/performance_measures_snvs_freq.py"
+        "scripts/performance_measures_indels_freq.py"
 
 ##############
 # varyvilocaparams rules
