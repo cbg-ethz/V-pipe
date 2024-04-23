@@ -60,26 +60,27 @@ def generate_haplotype(seq_master, mutation_rate=0, insertion_rate=0, deletion_r
     insertion_list = np.random.choice(BASE_LIST, size=(insertion_count,3))
     insertion_list = np.asarray(["".join(aa) for aa in insertion_list])
     for count, (insert_pos, insert) in enumerate(zip(insertion_positions, insertion_list)):
-        seq_haplotype.insert(insert_pos-1+count-1,insert)
+        # count is 1- based
+        # Insert values along the given axis before the given indices.
+        seq_haplotype.insert(insert_pos+count,insert)
 
     ground_truth["type"].extend(["insertion"] * insertion_count)
-    ground_truth["position"].extend([pos-1 for pos in insertion_positions])
-    ground_truth["variant"].extend([ref+codon for (ref, codon) in zip(seq_master[insertion_positions], insertion_list)])
-    ground_truth["reference"].extend(seq_master[insertion_positions])
+    ground_truth["position"].extend([pos -1 for pos in insertion_positions]) # 0-based
+    ground_truth["variant"].extend([ref+codon for (ref, codon) in zip(seq_master[[pos -1 for pos in insertion_positions]], insertion_list)])
+    ground_truth["reference"].extend(seq_master[[pos -1 for pos in insertion_positions]])
 
 
     # deletions
     seq_haplotype = np.asarray(seq_haplotype)
-
     deletion_positions = position_list[-deletion_count:]
-    deletion_positions_extended = [ pos +1 for pos in deletion_positions] + [ pos +2 for pos in deletion_positions] + deletion_positions
 
-    seq_haplotype = np.delete(seq_haplotype, deletion_positions_extended)
-
-    ground_truth["type"].extend(["deletion"] * deletion_count)
-    ground_truth["position"].extend([pos-1 for pos in deletion_positions])
-    ground_truth["variant"].extend([seq_master[pos-1] for pos in deletion_positions])
-    ground_truth["reference"].extend(["".join(seq_master[pos-1:pos+3]) for pos in deletion_positions])
+    for delection_pos in deletion_positions:
+        # Return a new array with sub-arrays along an axis deleted. For a one dimensional array, this returns those entries not returned by arr[obj].
+        seq_haplotype = np.delete(seq_haplotype, [delection_pos, delection_pos+1, delection_pos+2])
+        ground_truth["type"].extend(["deletion"])
+        ground_truth["position"].extend([delection_pos-2])
+        ground_truth["variant"].extend([seq_master[delection_pos-2]]) #delection_pos ?
+        ground_truth["reference"].extend(["".join(seq_master[delection_pos-2:delection_pos+2])])
 
     return "".join(seq_haplotype), pd.DataFrame(ground_truth)
 
