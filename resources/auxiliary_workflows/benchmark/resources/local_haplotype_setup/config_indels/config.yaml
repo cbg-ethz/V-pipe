@@ -1,7 +1,7 @@
 method_list: [
-              viloca_ewm,
               viloca_ewm_uni,
-              lofreq_local_haplo
+              lofreq_local_haplo,
+              shorah_default,
               ]
 replicate_count: 5
 haplotype_generation: mutation_rate
