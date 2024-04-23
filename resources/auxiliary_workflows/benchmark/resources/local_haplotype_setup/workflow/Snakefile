@@ -383,7 +383,6 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
-            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         # we also include `method_list_local` to align with `vcf_list`
         groundtruth_list=[
@@ -392,7 +391,6 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
-            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
         benchmark_list=[
             f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/benchmark_.tsv"
@@ -400,7 +398,6 @@ use rule performance_measures_local from realdata as realdata_performance_measur
             for method in realdata.method_list_local + realdata.method_list_global
             if method not in ["cliquesnv_local_haplo", "cliquesnv_local_haplo_tf0.01"]
             for replicate in range(realdata.config["replicate_count"])
-            if os.path.isfile(f"results/realdata/method_runs/{params}/{method}/replicates/{replicate}/snvs_.vcf")
         ],
 
 
