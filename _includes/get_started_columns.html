@@ -17,9 +17,9 @@
           <ul>
           {% for link in link_group.links %}
             {% if link.url %}
-              <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a></li>
+              <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a>{% if link.extra %}<br />{{ link.extra | markdownify }}{% endif %}</li>
             {% elsif link.extra %}
-              <li class="not-a-link"><span>{{ link.title }}</span><br />{{ link.extra | markdownify }}</li>
+              <li class="not-a-link"><span>{{ link.title }}</span>{% if link.extra %}<br />{{ link.extra | markdownify }}{% endif %}</li>
             {% else %}
               <li class="not-a-link"><span>{{ link.title }}</span></li>
             {% endif %}
