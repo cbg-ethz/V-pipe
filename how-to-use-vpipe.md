@@ -51,55 +51,34 @@ nav_items:
 ## Table of Contents
 - [Hardware requirements](#hardware-requirements)
 - [Software requirements](#software-requirements)
-- [How to cite us](#how-to-cite-us)
 
 ---
 
 ## Hardware requirements
-Learn about the hardware requirements for using V-pipe.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+The actual space usage depends on datasets size. Recommendation:
 
-### Minimum Requirements
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+- RAM >= 16GiB
+- Storage >= 40 GiB
 
-### Recommended Configuration
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+
+- x86 CPU recommended (Apple silicon users see [OS](#OS) requirements below)
+- cores >= 4
 
 ---
 
 ## Software requirements
-Explore the software requirements for running V-pipe.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
 
-### Supported Platforms
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+### OS
 
-### Dependencies
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+- Linux and Mac OS X currently supported.
+- Windows 10 users can install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/about) for compatibility with Linux as bioconda [does not support Windows directly](https://bioconda.github.io/faqs.html#what-versions-are-supported).
+- Mac OS X users with Apple Silicon should use the `arch -x86_64 …` command (e.g.: `env /usr/bin/arch -x86_64 /bin/zsh --login`) to run through Rosetta as bioconda support isn't stable yet.
 
----
+### Software
 
-## How to cite us
-This section provides guidelines on how to cite our work.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Citation Formats
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Examples
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+- mamba (e.g.: from [miniforge](https://github.com/conda-forge/miniforge)) and [snakemake](https://snakemake.readthedocs.io/en/stable/) are required
+  - we strongly encourage our users to deploy the pipeline [using the quick install script](https://github.com/cbg-ethz/V-pipe/blob/master/utils/README.md#quick-installer)
+  - the [first tutorial, _V-pipe Installation_](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_0_install.md), demonstrates how to use it
+- All dependencies of V-pipe are automatically downloaded and installed by snakemake from [bioconda](https://bioconda.github.io/).
