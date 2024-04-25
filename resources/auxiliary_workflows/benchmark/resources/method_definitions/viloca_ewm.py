@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/cbg-ethz/VILOCA@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@check_exitcode_multipro
 
 import subprocess
 from pathlib import Path
@@ -46,28 +46,55 @@ def main(
         sampler = "use_quality_scores"
 
     dname_work.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "viloca",
-            "run",
-            "-b",
-            fname_bam.resolve(),
-            "-f",
-            Path(fname_reference).resolve(),
-            "--mode",
-            str(sampler),
-            "--alpha",
-            str(alpha),
-            "--n_max_haplotypes",
-            str(n_max_haplotypes),
-            "--n_mfa_starts",
-            str(n_mfa_starts),
-            "--win_min_ext",
-            str(win_min_ext),
-            "--extended_window_mode",
-        ],
-        cwd=dname_work,
-    )
+    if fname_insert_bed == []:
+        subprocess.run(
+            [
+                "viloca",
+                "run",
+                "-b",
+                fname_bam.resolve(),
+                "-f",
+                Path(fname_reference).resolve(),
+                "--mode",
+                str(sampler),
+                "--alpha",
+                str(alpha),
+                "--n_max_haplotypes",
+                str(n_max_haplotypes),
+                "--n_mfa_starts",
+                str(n_mfa_starts),
+                "--win_min_ext",
+                str(win_min_ext),
+                "--extended_window_mode",
+            ],
+            cwd=dname_work,
+        )
+    else:
+        # insert bed file is there
+        subprocess.run(
+            [
+                "viloca",
+                "run",
+                "-b",
+                fname_bam.resolve(),
+                "-f",
+                Path(fname_reference).resolve(),
+                "--mode",
+                str(sampler),
+                "--alpha",
+                str(alpha),
+                "--n_max_haplotypes",
+                str(n_max_haplotypes),
+                "--n_mfa_starts",
+                str(n_mfa_starts),
+                "--win_min_ext",
+                str(win_min_ext),
+                "--extended_window_mode",
+                "-z",
+                Path(fname_insert_bed).resolve(),
+            ],
+            cwd=dname_work,
+        )
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
 
