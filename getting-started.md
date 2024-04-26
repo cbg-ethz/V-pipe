@@ -55,63 +55,35 @@ nav_items:
 
 ---
 
-## Outlinks
-Explore the impact of V-pipe on your data.
+## How to get V-pipe
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+Here are the locations from which you can obtain V-pipe and information on how to install it from these sources.
 
-### Github installer
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+### Available from
 
-### Docker
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+V-pipe is available on and can be obtained from the following locations:
 
-### Snake deploy
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+- using the [installation script](utils/README.md#quick-installer) available on GitHub
+- as [Docker image](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
+- listed on [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe) and can be installed using the official workflow installer Snakedeploy
 
----
+### Learn how to install
 
-## Usage sections
-Discover how V-pipe is utilized in the community.
+Here are the relevant [sections of the README](https://github.com/cbg-ethz/V-pipe#usage) to install V-pipe from the above sources:
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
-### Github installer
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Docker
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
-
-### Snake deploy
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+- Installer script:
+  - [Using quick install script](https://github.com/cbg-ethz/V-pipe#using-quick-install-script)
+  - we strong envourage beginners who aren't used to neither conda nor snakemake to use this approach
+  - this approach is also demonstrated step-by-step in our [first tutorial, V-pipe Installation](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_0_install.md)
+- Docker image:
+  - [Using docker](https://github.com/cbg-ethz/V-pipe?tab=readme-ov-file#using-docker)
+- Snakemake Workflow Catalog:
+  - [Using snakedeploy](https://github.com/cbg-ethz/V-pipe?tab=readme-ov-file#using-snakedeploy)
 
 ---
 
-## Links
-Next steps
+## Next step
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+To start using V-pipe, you can now refer to the [documentation](documentation).
 
-### Feature Comparison
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
-
-### Performance Analysis
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
-
----
+We strongly encourage you to check our [tutorials](documentation#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.
