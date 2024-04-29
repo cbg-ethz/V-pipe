@@ -15,16 +15,16 @@ You can find several tutorials in this directory:
 
 ## Note about the tutorials
 
-Due to automated texting, each copy-pastable block begins with a command entering the directory and ends with on leaving the directory:
+Due to automated testing, each copy-pastable block begins with a command entering the directory and ends with one leaving the directory:
 
 ```bash
 cd tutorial/work/
 # do something
 cd ../..
 ```
-Of course you don't necessarily need to do that.  You can simply remain in the working directory.
+Of course, you don't necessarily need to do that.  You can simply remain in the working directory.
 
-When editing files like `config.yaml`, you can use your favorite editor (`vim`, `emacs`, `nano`, [butterflies](https://xkcd.com/378/), etc.). By default our tutorials use a [_heredoc_](https://en.wikipedia.org/wiki/Here_document) to make it easier to copy-paste the blocks into bash:
+When editing files like `config.yaml`, you can use your favorite editor (`vim`, `emacs`, `nano`, [butterflies](https://xkcd.com/378/), etc.). By default, our tutorials use a [_heredoc_](https://en.wikipedia.org/wiki/Here_document) to make it easier to copy-paste the blocks into bash:
 
 ```bash
 cat > config.yaml <<EOF
