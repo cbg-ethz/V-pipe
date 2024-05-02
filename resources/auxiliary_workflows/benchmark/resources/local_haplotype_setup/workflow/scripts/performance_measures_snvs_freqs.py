@@ -26,7 +26,6 @@ def convert_vcf(fname):
             zero_based_pos = variant.POS - 1  # VCF is 1-based
             variant_list.add(f"{zero_based_pos}{base}")
     return variant_list
-vim
 
 def convert_groundtruth(fname):
     df = pd.read_csv(fname, index_col=0)
@@ -49,7 +48,7 @@ def mutation_calls_details(vcf_list, groundtruth_list):
         for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
             true_variant = str(gt_row["position"]) + gt_row["variant"]
             mutation_type = str(gt_row["type"])
-            if method.startswith(('lofreq', 'shorah'):
+            if method.startswith(('lofreq', 'shorah')):
                 is_false_negative = True
                 for variant in VCF(fname_vcf):
                     for idx_base, base in enumerate(variant.ALT):
