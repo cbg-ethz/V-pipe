@@ -1,4 +1,5 @@
 seq_tech,seq_mode,seq_mode_param,read_length,genome_size,coverage,haplos
-illumina,shotgun,,249,5000,1000,0.001@0.0002@0.0002@0.6:0.2:0.15:0.05
-nanopore,shotgun,,5000,5000,1000,0.001@0.0002@0.0002@0.6:0.2:0.15:0.05
-pacbio,shotgun,,5000,5000,1000,0.001@0.0002@0.0002@0.6:0.2:0.15:0.05
+illumina,shotgun,,249,5000,1000,0.001@0.0002@0.0002@0.8:0.2
+illumina,shotgun,,249,5000,1000,0.001@0.0002@0.0002@0.9:0.1
+illumina,shotgun,,249,5000,1000,0.001@0.0002@0.0002@0.7:0.2:0.1
+illumina,shotgun,,249,5000,1000,0.001@0.0002@0.0002@0.5:0.3:0.2

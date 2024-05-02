@@ -45,6 +45,7 @@ def mutation_calls_details(vcf_list, groundtruth_list):
         predicted_variants = convert_vcf(fname_vcf)
 
         # iter through ground truth mutations
+        set_true_variants = [str(gt_row["position"]) + gt_row["variant"] for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows()]
         for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
             true_variant = str(gt_row["position"]) + gt_row["variant"]
             mutation_type = str(gt_row["type"])
@@ -75,11 +76,27 @@ def mutation_calls_details(vcf_list, groundtruth_list):
                                     "mutation_type": mutation_type,
                                     "true_positive": 1,
                                     "false_negative": 0,
+                                    "false_positive": 0,
                                     "haplotype": gt_row["haplotype"],
                                     "frequency_groundtruth": gt_row["frequency"],
                                     "frequency_predicted": freq,
                                     "position": gt_row["position"],
                                     "variant": gt_row["variant"],
+                                }
+                            )
+                        elif predicted_variant not in set_true_variants:
+                            tmp.append(
+                                {
+                                    "method": method,
+                                    "params": params,
+                                    "replicate": replicate,
+                                    "true_positive": 0,
+                                    "false_negative": 0,
+                                    "false_positive": 1,
+                                    "frequency_groundtruth": 0,
+                                    "frequency_predicted": freq,
+                                    "position": zero_based_pos,
+                                    "variant": base,
                                 }
                             )
                 if is_false_negative:
@@ -91,6 +108,7 @@ def mutation_calls_details(vcf_list, groundtruth_list):
                             "replicate": replicate,
                             "true_positive": 0,
                             "false_negative": 1,
+                            "false_positive": 0,
                             "haplotype": gt_row["haplotype"],
                             "frequency_groundtruth": gt_row["frequency"],
                             "frequency_predicted": 0.0,

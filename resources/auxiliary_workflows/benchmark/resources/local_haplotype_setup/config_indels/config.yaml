@@ -1,9 +1,7 @@
 method_list: [
-              viloca_ewm_uni,
-              lofreq_local_haplo,
-              shorah_default,
+              viloca_ewm,
               ]
-replicate_count: 5
+replicate_count: 1
 haplotype_generation: mutation_rate
 params_path: config_indels/params.csv
 master_seq_path: ../../../../hiv/HXB2.fasta
