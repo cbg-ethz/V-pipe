@@ -1,6 +1,6 @@
 ---
 title: Meet Us
-description: V-pipe will be present at the SIB Days 2024
+description: V-pipe will be present at the Swiss bioinformatics summit 2024
 image: assets/img/virus-5.webp
 cta:
   text: SIB Days 2024
