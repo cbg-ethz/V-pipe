@@ -33,6 +33,11 @@ Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/
 
 Tutorials introducing usage of V-pipe are available in the [docs/](docs/README.md) subdirectory.
 
+
+### Tutorials
+
+First steps with V-pipe for different scenarios are  available in the [docs/](docs/README.md) subdirectory.
+
 ### Using quick install script
 
 To deploy V-pipe, use the [installation script](utils/README.md#quick-installer) with the following parameters:
@@ -49,6 +54,8 @@ cd work
 # edit config.yaml and provide samples/ directory
 ./vpipe --jobs 4 --printshellcmds --dry-run
 ```
+
+Test data is available with the tutorials provided in the [docs/](docs/README.md) subdirectory.
 
 ### Using Docker
 
