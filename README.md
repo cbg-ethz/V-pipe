@@ -55,7 +55,7 @@ cd work
 ./vpipe --jobs 4 --printshellcmds --dry-run
 ```
 
-Test data is available with the tutorials provided in the [docs/](docs/README.md) subdirectory.
+Test data to test your installation is available with the tutorials provided in the [docs/](docs/README.md) subdirectory.
 
 ### Using Docker
 
