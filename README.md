@@ -36,7 +36,7 @@ Tutorials introducing usage of V-pipe are available in the [docs/](docs/README.m
 
 ### Tutorials
 
-First steps with V-pipe for different scenarios are  available in the [docs/](docs/README.md) subdirectory.
+Tutorials for your first steps with V-pipe for different scenarios are  available in the [docs/](docs/README.md) subdirectory.
 
 ### Using quick install script
 
