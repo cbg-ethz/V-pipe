@@ -63,7 +63,14 @@ nav_items:
 
 ### How to cite us
 
-Citations links
+To cite V-pipe in a publication when you use the workflow for your analysis, please cite the most recent primary publication.
+
+Here you can download the bibliography in some popular formats:
+
+[BibTeX](assets/cite/v-pipe.bib)
+[RIS](assets/cite/v-pipe.ris)
+[EndNote](assets/cite/v-pipe.end)
+[Word 2007 XML](assets/cite/v-pipe.word.xml)
 
 ---
 

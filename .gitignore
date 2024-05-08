@@ -4,3 +4,4 @@ vendor/
 Gemfile.lock
 _site/
 .sass-cache/
+_literature/primary.xml
