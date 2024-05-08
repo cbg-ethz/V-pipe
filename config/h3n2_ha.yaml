@@ -1,5 +1,5 @@
 # config-file used for the analysis of H3N2 segment HA
-# config file was used to analysis data from SRA available
+# config file was used to analysis wastewater Illumina data from SRA available
 # through the SRA Run accession: SRP385331
 
 general:
