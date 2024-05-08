@@ -59,6 +59,8 @@ nav_items:
 
 ## Primary
 
+These are the primary publications about V-pipe itself.
+
 {% include literature-primary.html %}
 
 ### How to cite us
@@ -82,16 +84,22 @@ Here you can download the bibliography in some popular formats:
 
 ## Use of V-pipe
 
+Publications from our group members or collaborators in which V-pipe has been used to analyse NGS viral data.
+
 {% include literature-use.html %}
 
 ---
 
 ## Components of V-pipe developed at CBG-ETHZ
 
+Specific components developed at the [Computational Biology Group of ETH Zürich](https://bsse.ethz.ch/cbg) and available within of V-pipe.
+
 {% include literature-components.html %}
 
 ---
 
 ## V-pipe vs competitors
+
+Benchmark comparing the performance of V-pipe against other similar workflows.
 
 {% include literature-benchmarks.html %}
