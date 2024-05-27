@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - mafft=7.305
+  - mafft=7.526
   - ngshmmalign=0.1.1

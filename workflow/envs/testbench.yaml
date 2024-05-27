@@ -7,4 +7,4 @@ dependencies:
   - sh
   - biopython
   - pandas
-  - mafft=7.305
+  - mafft=7.526
