@@ -557,15 +557,19 @@ rule bed_file_single_amplicon:
 rule run_method_local:
     input:
         script=srcdir("../resources/method_definitions/{method}.py"),
-        fname_bam=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
-        if wildcards.seq_mode == "amplicon"
-        else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam",
+        fname_bam=lambda wildcards: (
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+            if wildcards.seq_mode == "amplicon"
+            else f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+        ),
         fname_bam_index=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
         fname_reference=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
-        fname_insert_bed=lambda wildcards: f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
-        if wildcards.seq_mode == "amplicon"
-        or wildcards.seq_mode_param == "single_amplicon"
-        else [],
+        fname_insert_bed=lambda wildcards: (
+            f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
+            if wildcards.seq_mode == "amplicon"
+            or wildcards.seq_mode_param == "single_amplicon"
+            else []
+        ),
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         fname_status=touch(

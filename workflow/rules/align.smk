@@ -13,9 +13,11 @@ rule initial_vicuna:
         global_ref=reference_file,
         R1="{dataset}/preprocessed_data/R1.fastq",
         R2=(
-            lambda wildcards: wildcards.dataset + "/preprocessed_data/R2.fastq"
-            if config.input["paired"]
-            else []
+            lambda wildcards: (
+                wildcards.dataset + "/preprocessed_data/R2.fastq"
+                if config.input["paired"]
+                else []
+            )
         ),
     output:
         "{dataset}/references/vicuna_consensus.fasta",
@@ -667,9 +669,11 @@ elif config.general["aligner"] == "minimap":
             SEED="--seed 42",
             EXTRA=config.minimap_align["extra"],
             PRESET=config.minimap_align["preset"],
-            SECONDARY="--secondary=yes --secondary-seq"
-            if config.minimap_align["secondary"]
-            else "--secondary=no",
+            SECONDARY=(
+                "--secondary=yes --secondary-seq"
+                if config.minimap_align["secondary"]
+                else "--secondary=no"
+            ),
             FILTER="-f 2" if config.input["paired"] else "-F 4",
             MINIMAP=config.applications["minimap"],
             SAMTOOLS=config.applications["samtools"],

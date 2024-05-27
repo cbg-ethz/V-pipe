@@ -61,9 +61,11 @@ rule cooc:
         COJAC=config.applications["cojac"],
         name=ID,
         sep=config.general["id_separator"],
-        out_format="--multiindex"
-        if config.cooc["out_format"] == "columns"
-        else "--multiindex --lines",
+        out_format=(
+            "--multiindex"
+            if config.cooc["out_format"] == "columns"
+            else "--multiindex --lines"
+        ),
     log:
         outfile="{dataset}/signatures/cooc.out.log",
         errfile="{dataset}/signatures/cooc.err.log",
@@ -104,9 +106,11 @@ rule cohort_cooc:
     params:
         COJAC=config.applications["cojac"],
         sep=config.general["id_separator"],
-        out_format="--multiindex"
-        if config.cooc["out_format"] == "columns"
-        else "--multiindex --lines",
+        out_format=(
+            "--multiindex"
+            if config.cooc["out_format"] == "columns"
+            else "--multiindex --lines"
+        ),
     log:
         outfile=cohortdir("cohort_cooc.{proto}.out.log"),
         errfile=cohortdir("cohort_cooc.{proto}.err.log"),
@@ -222,26 +226,36 @@ if config.timeline["local"]:
 rule timeline:
     input:
         samples_tsv=config.input["samples_file"],
-        locations=config.timeline["locations_table"]
-        if config.timeline["locations_table"]
-        else [],
+        locations=(
+            config.timeline["locations_table"]
+            if config.timeline["locations_table"]
+            else []
+        ),
         regex=config.timeline["regex_yaml"] if config.timeline["regex_yaml"] else [],
     output:
         timeline=cohortdir("timeline.tsv"),
-        locations_list=cohortdir("locations_list.yaml")
-        if config.timeline["locations_table"]
-        else [],
+        locations_list=(
+            cohortdir("locations_list.yaml")
+            if config.timeline["locations_table"]
+            else []
+        ),
     params:
         maketimeline=cachepath(config.timeline["script"], executable=True),
-        locations=f"--locations {config.timeline['locations_table']}"
-        if config.timeline["locations_table"]
-        else "",
-        regex=f"--regex-config {config.timeline['regex_yaml']}"
-        if config.timeline["regex_yaml"]
-        else "",
-        out_locations=f"--out-locations {cohortdir('locations_list.yaml')}"
-        if config.timeline["locations_table"] or config.timeline["regex_yaml"]
-        else "",
+        locations=(
+            f"--locations {config.timeline['locations_table']}"
+            if config.timeline["locations_table"]
+            else ""
+        ),
+        regex=(
+            f"--regex-config {config.timeline['regex_yaml']}"
+            if config.timeline["regex_yaml"]
+            else ""
+        ),
+        out_locations=(
+            f"--out-locations {cohortdir('locations_list.yaml')}"
+            if config.timeline["locations_table"] or config.timeline["regex_yaml"]
+            else ""
+        ),
         options=config.timeline["options"],
     log:
         outfile=cohortdir("timeline.out.log"),
@@ -296,20 +310,24 @@ rule deconvolution:
     input:
         tallymut=cohortdir("tallymut.tsv.zst"),
         deconv_conf=config.deconvolution["deconvolution_config"],
-        var_conf=config.deconvolution["variants_config"]
-        if config.deconvolution["variants_config"]
-        else cohortdir("variants_pangolin.yaml"),
-        var_dates=config.deconvolution["variants_dates"]
-        if config.deconvolution["variants_dates"]
-        else [],
+        var_conf=(
+            config.deconvolution["variants_config"]
+            if config.deconvolution["variants_config"]
+            else cohortdir("variants_pangolin.yaml")
+        ),
+        var_dates=(
+            config.deconvolution["variants_dates"]
+            if config.deconvolution["variants_dates"]
+            else []
+        ),
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
         deconv_json=cohortdir("deconvoluted_upload.json"),
     params:
         LOLLIPOP=config.applications["lollipop"],
-        out_format="--fmt-columns"
-        if config.deconvolution["out_format"] == "columns"
-        else "",
+        out_format=(
+            "--fmt-columns" if config.deconvolution["out_format"] == "columns" else ""
+        ),
         seed="--seed=42",
     log:
         outfile=cohortdir("deconvoluted.out.log"),
