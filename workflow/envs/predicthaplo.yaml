@@ -1,7 +1,6 @@
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - predicthaplo=2.1.4
   - samtools=1.10
