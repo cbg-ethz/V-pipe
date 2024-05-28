@@ -31,12 +31,11 @@ general:
 
 Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html) to learn more about the command-line options available when executing the workflow.
 
-Tutorials introducing usage of V-pipe are available in the [docs/](docs/README.md) subdirectory.
-
 
 ### Tutorials
 
-Tutorials for your first steps with V-pipe for different scenarios are  available in the [docs/](docs/README.md) subdirectory.
+Tutorials for your first steps with V-pipe for different scenarios are available in the [docs/](docs/README.md) subdirectory.
+
 
 ### Using quick install script
 
