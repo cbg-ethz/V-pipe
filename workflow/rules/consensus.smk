@@ -184,8 +184,8 @@ rule frameshift_deletions_checks:
     input:
         REF_NAME=reference_file,
         BAM=alignment_wildcard,
-        #REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
-        REF_majority_dels="{dataset}/references/consensus.bcftools.fasta",
+        CONSENSUS="{dataset}/references/consensus.bcftools.fasta",
+        CHAIN="{dataset}/references/consensus.bcftools.chain",
         GENES_GFF=(
             cachepath(config.input["genes_gff"]) if config.input["genes_gff"] else []
         ),
@@ -207,7 +207,7 @@ rule frameshift_deletions_checks:
     threads: 1
     shell:
         """
-        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.REF_majority_dels} -f {input.REF_NAME} -g {input.GENES_GFF} --english=true -o {output.FRAMESHIFT_DEL_CHECK_TSV} 2> >(tee {log.errfile} >&2)
+        {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.CONSENSUS} --chain {input.CHAIN} -f {input.REF_NAME} -g {input.GENES_GFF} --english=true -o {output.FRAMESHIFT_DEL_CHECK_TSV} 2> >(tee {log.errfile} >&2)
         """
 
 
