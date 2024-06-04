@@ -286,6 +286,55 @@ rule lofreq:
         {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
+rule prep_paired_end_read_merger:
+    conda:
+        config.sam2bam["conda"]
+    input:
+        fname_bam=alignment_wildcard,
+        fname_ref=(
+            cohortdir("cohort_consensus.fasta")
+            if config.viloca["consensus"]
+            else reference_file
+        ),
+    params:
+        SAMTOOLS=config.applications["samtools"],
+    output:
+        fname_sam=temp(f"results/{{sample}}/alignment/REF_aln.sam"),
+        fname_sam_sort=temp(f"results/{{sample}}/alignment/REF_aln.sort.sam"),
+    shell:
+        """
+        ## Preparation
+        fname_reference_idx = "${input.fname_reference_idx}.fai"
+        {params.SAMTOOLS} view -h -T {input.fname_reference} -t ${fname_reference_idx} {input.fname_bam} > {output.fname_sam}
+        ## sort accrording to QNAME
+        {params.SAMTOOLS} sort -T tmp -O sam -n {output.fname_sam} > {output.fname_sam_sort}
+        """
+
+rule paired_end_read_merger:
+    input:
+        fname_sam_sort=rules.prep_paired_end_read_merger.output.fname_sam_sort,
+        fname_ref=(
+            cohortdir("cohort_consensus.fasta")
+            if config.viloca["consensus"]
+            else reference_file
+        ),
+    output:
+        fname_sam_merged=f"results/{{sample}}/alignment/REF_aln.merged.sam",
+        fname_sam_nonmerged=f"results/{{sample}}/alignment/REF_aln.nonmerged.sam",
+    params:
+        PAIRED_END_READ_MERGER=config.applications["paired_end_read_merger"],
+    log:
+        outfile="{dataset}/alignment/paired_end_read_merger.out.log",
+        errfile="{dataset}/alignment/paired_end_read_merger.err.log",
+    conda:
+        config.paired_end_read_merger["conda"]
+    shell:
+        """
+        ## run script
+         {params.PAIRED_END_READ_MERGER} {input.fname_sam_sort} {output.fname_sam_merged} {output.fname_sam_nonmerged} {input.fname_ref}
+        """
+
+
 rule viloca:
     input:
         REF=(
@@ -293,7 +342,13 @@ rule viloca:
             if config.viloca["consensus"]
             else reference_file
         ),
-        BAM=alignment_wildcard,
+        BAM=(
+            rules.paired_end_read_merger.output.fname_sam_merged,
+            if config.viloca["merge_paired_end_reads"]
+            else alignment_wildcard
+        ),
+
+
     output:
         SNVs="{dataset}/variants/SNVs/snvs.vcf",
         CSV="{dataset}/variants/SNVs/snv/cooccurring_mutations.csv",
