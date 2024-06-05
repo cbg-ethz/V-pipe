@@ -338,6 +338,10 @@
                     "type": "string",
                     "default": "frameshift_deletions_checks"
                 },
+                "paired_end_read_merger": {
+                    "type": "string",
+                    "default": "paired_end_read_merger"
+                },
                 "mafft": {
                     "type": "string",
                     "default": "mafft"
@@ -988,6 +992,27 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "paired_end_read_merger": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/paired_end_read_merger.yaml"
                 }
             },
             "default": {},
