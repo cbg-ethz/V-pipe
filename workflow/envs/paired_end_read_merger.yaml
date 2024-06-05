@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - samtools=1.10
+  - pip
+  - pip:
+    - git+https://github.com/cbg-ethz/smallgenomeutilities@master
