@@ -332,8 +332,6 @@ rule viloca:
             if config.viloca["merge_paired_end_reads"]
             else alignment_wildcard
         ),
-
-
     output:
         SNVs="{dataset}/variants/SNVs/snvs.vcf",
         CSV="{dataset}/variants/SNVs/snv/cooccurring_mutations.csv",
