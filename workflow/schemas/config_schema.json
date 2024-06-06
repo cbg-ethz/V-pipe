@@ -1237,6 +1237,12 @@
                     "description": "Indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False.",
                     "examples": [false]
                 },
+                "merge_paired_end_reads": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Merge paired-end reads in the preprocessing. This is a preprocessing snakemake rule.",
+                    "examples": [false]
+                },
                 "shift": {
                     "type": "integer",
                     "default": 3,
