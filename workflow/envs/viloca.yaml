@@ -1,10 +1,7 @@
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - libshorah
   - python=3.10.4
-  - pip
-  - pip:
-    - git+https://github.com/cbg-ethz/VILOCA@master
+  - viloca
