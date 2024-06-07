@@ -1,27 +1,21 @@
+---
+name: Respiratory Syncytial Virus B
 # config file for Human respiratory syncytial virus B
 # config file is used to process Illumina RSV samples
 
 general:
-    virus_base_config: ""
     preprocessor: "prinseq"
     aligner: "bwa"
     primers_trimmer: "samtools"
 
 input:
-    datadir: "samples/"
-    samples_file: "samples.tsv"
-    read_length: 251
+    reference: "{VPIPE_BASEDIR}/../resources/rsvb/MT107528.1.fasta"
     primers_bedfile: "{VPIPE_BASEDIR}/../resources/rsvb/RSVB_primers_400_V2.1.bed"
     inserts_bedfile: "{VPIPE_BASEDIR}/../resources/rsvb/RSVB_inserts_400_V2.1.bed"
-    reference: "{VPIPE_BASEDIR}/../resources/rsvb/MT107528.1.fasta"
+    read_length: 251
 
-output:
-    datadir: "results"
-    trim_primers: true
-    snv: false
-    local: false
-    global: false
-snv:
-    consensus: false
 lofreq:
+    consensus: false
+
+snv:
     consensus: false

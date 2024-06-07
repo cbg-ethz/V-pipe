@@ -52,6 +52,12 @@ Currently, the following _virus base config_ are available:
 - [hiv](hiv.yaml): provides HXB2 as a reference sequence for HIV, and sets the default aligner to _ngshmmalign_.
 - [sars-cov-2](sars-cov-2.yaml): provides NC\_045512.2 as a reference sequence for SARS-CoV-2, sets the default aligner to _bwa_ and sets the variant calling to be done against the reference instead of the cohort's consensus.
   In addition, a look-up for the recent versions of ARTIC protocol is provided; this makes it possible to set per-sample protocol in the sample table, and to turn on amplicon trimming (see [amplicon protocols](#amplicon-protocols)).
+- [rsvb](rsvb.yaml) config file for Human respiratory syncytial virus B (RSV-B), used to process Illumina RSV samples.
+- [h3n2_ha](h3n2_ha.yaml) config-file used for the analysis of H3N2 segment HA from wastewater Illumina data on SRA available through the SRA Run accession: [SRP385331](https://www.ebi.ac.uk/ena/browser/view/PRJNA856656)
+- [drosophila_c_virus](drosophila_c_virus.yaml) configuration used for the analysis of drosphila C virus (DCV) Illumina samples in Lezcano et al., Virus Evolution, 2023, doi:[10.1093/ve/vead074](https://doi.org/10.1093/ve/vead074), NCBI BioProject accession number [PRJNA993483](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA993483)
+- [](herpes_simplex_virus_2.yaml) config-file used for the analysis of herpes simplex virus 2 (HSV-2) Illumina samples in Lezcano et al., Virus Evolution, 2023, doi:[10.1093/ve/vead074](https://doi.org/10.1093/ve/vead074). Analysed sample is from  López-Muñoz AD, Rastrojo A, Kropp KA, Viejo-Borbolla A, Alcamí A. "Combination of long- and short-read sequencing fully resolves complex repeats of herpes simplex virus 2 strain MS complete genome". _Microb Genom._ 2021 Jun;7(6). Sample accession number [ERR3278849](https://www.ebi.ac.uk/ena/browser/view/ERR3278849)
+- [polio](polio.yaml) config-file used for the analysis of poliovirus MinION samples. sample accession number: [ERR4027774]](https://www.ebi.ac.uk/ena/browser/view/ERR4027774) (Shaw et al., 2020, DOI: https://doi.org/10.1128/jcm.00920-20)
+- [mpxv](mpxv.yaml) Monkey pox virus
 
 ### configuration manual
 

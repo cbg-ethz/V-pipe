@@ -1,3 +1,5 @@
+---
+name: Drosphila C virus
 # config-file used for the analysis of drosphila C virus Illumina samples
 # Lezcano et al., Virus Evolution, 2023, https://doi.org/10.1093/ve/vead074
 # NCBI BioProject accession number PRJNA993483
@@ -8,25 +10,14 @@ general:
 
 input:
     reference: resources/drosphila_c_virus/NC_001834.1.fasta
-    datadir: resources/samples/
     read_length: 100
-    samples_file: samples.tsv
     paired: true
 
 consensus_bcftools:
     max_coverage: 150000
 
+lofreq:
+    consensus: false
+
 snv:
   consensus: false
-  disk_mb: 1250
-  mem_mb: 35000
-  time_min: 6000
-  threads: 64
-
-output:
-    snv: true
-    local: true
-    global: false
-    visualization: false
-    diversity: false
-    QA: false

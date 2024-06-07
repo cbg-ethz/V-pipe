@@ -1,3 +1,5 @@
+---
+name: Herpes simplex Virus 2
 # config-file used for the analysis of herpes_simplex_virus_2 Illumina samples
 # Lezcano et al., Virus Evolution, 2023, https://doi.org/10.1093/ve/vead074
 # deletion analysis
@@ -12,7 +14,6 @@ input:
     reference: resources/herpes_simplex_virus_2/MK855052.1.fasta
     datadir: resources/samples/
     read_length: 250
-    samples_file: samples.tsv
     paired: true
 
 consensus_bcftools:
@@ -20,15 +21,3 @@ consensus_bcftools:
 
 snv:
   consensus: false
-  disk_mb: 1250
-  mem_mb: 35000
-  time_min: 6000
-  threads: 64
-
-output:
-    snv: true
-    local: true
-    global: false
-    visualization: false
-    diversity: false
-    QA: false
