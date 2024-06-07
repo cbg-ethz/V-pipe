@@ -299,7 +299,8 @@ rule paired_end_read_merger:
             cohortdir("cohort_consensus.fasta")
             if config.viloca["consensus"]
             else reference_file
-        )+".fai",
+        )
+        + ".fai",
     output:
         fname_bam_merged="{dataset}/alignment/REF_aln.merged.bam",
         fname_sam_merged=temp_with_prefix("{dataset}/alignment/REF_aln.merged.sam"),
