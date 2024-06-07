@@ -95,7 +95,7 @@ Now that you have setup the software necessary to start using V-pipe, you can fo
 
 For advanced users: If your are fluent with these tools, you can:
 
-* directly download and install [bioconda](https://bioconda.github.io/user/install.html) and [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
+* directly download and install [Miniforge3](https://github.com/conda-forge/miniforge#Download), setup [bioconda](https://bioconda.github.io/index.html#usage) and install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda),
 * specifiy your V-pipe configuration, and start using V-pipe
 
 Use `--use-conda` to [automatically download and install](https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management) any further pipeline dependencies. Please refer to the documentation for additional instructions.
