@@ -2,5 +2,5 @@ usage:
   software-stack-deployment:
     conda: true
     singularity: false
-    singularity+conda: false
+    singularity+conda: true
   report: false
