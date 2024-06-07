@@ -4,4 +4,5 @@ channels:
 dependencies:
   - libshorah
   - python=3.10.4
-  - viloca
+  - viloca=1.0.0
+  - coreutils # [not linux]

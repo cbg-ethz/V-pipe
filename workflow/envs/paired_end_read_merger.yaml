@@ -19,4 +19,4 @@ dependencies:
   - git-lfs
   - pip
   - pip:
-    - git+https://github.com/cbg-ethz/smallgenomeutilities@dev
+    - git+https://git.bsse.ethz.ch/cbg/viruses/smallgenomeutilities@dev

@@ -347,15 +347,14 @@ rule viloca:
     output:
         SNVs="{dataset}/variants/SNVs/snvs.vcf",
         CSV="{dataset}/variants/SNVs/snv/cooccurring_mutations.csv",
+        WORK_DIR=directory("{dataset}/variants/SNVs"),
     params:
         READ_LEN=read_len,
         INSERT_FILE=config.viloca["insert_bedfile"],
         MODE=config.viloca["mode"],
         SHIFT=config.viloca["shift"],
-        OUTDIR="{dataset}/variants/SNVs",
         EXTRA=config.viloca["extra"],
         VILOCA=config.applications["viloca"],
-        WORK_DIR="{dataset}/variants/SNVs",
     log:
         outfile="{dataset}/variants/SNVs/viloca.out.log",
         errfile="{dataset}/variants/SNVs/viloca.err.log",
@@ -377,20 +376,20 @@ rule viloca:
 
         # Get absolute path for input files
         CWD=${{PWD}}
-        BAM=${{PWD}}/{input.BAM}
-        REF={input.REF}; [[ ${{REF}} =~ ^/ ]] || REF=${{PWD}}/${{REF}}
-        OUTFILE=${{PWD}}/{log.outfile}
-        ERRFILE=${{PWD}}/{log.errfile}
-        WORK_DIR=${{PWD}}/{params.WORK_DIR}
+        WORK_DIR="$(realpath -m {ouput.WORK_DIR})"
+        BAM="$(realpath {input.BAM})"
+        REF="$(realpath {input.REF})"
+        OUTFILE="$(realpath -m {log.outfile})"
+        ERRFILE="$(realpath -m {log.errfile})"
 
         # Create directory for running VILOCA
-        DIR=${{WORK_DIR}}
+        DIR="${{WORK_DIR}}"
         if [[ ! -d "${{DIR}}" ]]; then
             echo "Creating directory ${{DIR}}" >> $OUTFILE
             mkdir -p ${{DIR}}
         fi
         # Change to the directory where VILOCA is to be executed
-        cd ${{DIR}}
+        cd "${{DIR}}"
 
         # Run VILOCA
         echo "Running VILOCA" >> $OUTFILE
