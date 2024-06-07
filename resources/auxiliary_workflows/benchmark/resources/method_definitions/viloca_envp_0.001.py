@@ -37,11 +37,11 @@ def main(
     n_mfa_starts = 1
     win_min_ext = 0.85
 
-    #coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
-    #if float(coverage) > 200:
+    # coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
+    # if float(coverage) > 200:
     #    exclude_non_var_pos_threshold = 2 / float(coverage)
-    #else:
-   #     exclude_non_var_pos_threshold = 1 / float(coverage)
+    # else:
+    #     exclude_non_var_pos_threshold = 1 / float(coverage)
 
     exclude_non_var_pos_threshold = 0.001
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]
@@ -106,7 +106,6 @@ def main(
 
     (dname_work / "snv" / "SNVs_0.010000_final.vcf").rename(fname_results_snv)
 
-
     mypath = (dname_work / "support").resolve()
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     print("onlyfiles", onlyfiles)
@@ -148,4 +147,3 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
     )
-                                                                                                                                                                                                                                                                                      149,1         Bot

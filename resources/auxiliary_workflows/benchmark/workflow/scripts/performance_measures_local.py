@@ -20,7 +20,7 @@ def convert_vcf(fname):
         vcf = VCF(fname)
     except OSError:
         return set()
-        
+
     for variant in VCF(fname):
         for base in variant.ALT:
             zero_based_pos = variant.POS - 1  # VCF is 1-based

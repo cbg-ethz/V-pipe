@@ -5,10 +5,12 @@ import subprocess
 from pathlib import Path
 
 
-def main(fname_bam, fname_reference, fname_result, fname_result_haplos, dname_work, seq_tech):
+def main(
+    fname_bam, fname_reference, fname_result, fname_result_haplos, dname_work, seq_tech
+):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    if seq_tech == 'illumina':
+    if seq_tech == "illumina":
         window_length = 162
 
         subprocess.run(

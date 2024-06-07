@@ -307,6 +307,7 @@ rule provide_Ten_strain_IAV:
         cp "$fname_fasta" "{output.fname_fasta}"
         """
 
+
 rule flash:
     input:
         fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",

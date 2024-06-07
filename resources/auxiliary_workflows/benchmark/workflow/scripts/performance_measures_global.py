@@ -44,7 +44,6 @@ def read_fasta_files(fasta_files, with_method=True):
             else:
                 posterior = np.nan
 
-
             if freq is None:
                 freq = props.get("Freq")
 

@@ -37,11 +37,11 @@ def main(
     n_mfa_starts = 1
     win_min_ext = 0.85
 
-    #coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
-    #if float(coverage) > 200:
+    # coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
+    # if float(coverage) > 200:
     #    exclude_non_var_pos_threshold = 2 / float(coverage)
-    #else:
-   #     exclude_non_var_pos_threshold = 1 / float(coverage)
+    # else:
+    #     exclude_non_var_pos_threshold = 1 / float(coverage)
 
     exclude_non_var_pos_threshold = 0.01
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]

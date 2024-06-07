@@ -26,15 +26,15 @@ def fastq_to_fasta(input_file, output_file):
             SeqIO.write(record, f_out, "fasta")
 
 
-
-def main(fname_bam,
-         fname_reference,
-         fname_results_snv,
-         fname_result_haplos,
-         dname_work,
-         seq_type,
-         threads,):
-
+def main(
+    fname_bam,
+    fname_reference,
+    fname_results_snv,
+    fname_result_haplos,
+    dname_work,
+    seq_type,
+    threads,
+):
 
     # create empty vcf files
     f = open(fname_results_snv, "a")
@@ -58,8 +58,8 @@ def main(fname_bam,
             seq_platform = "ont"
 
         # fastq to fasta
-        fname_reads_fastq = str(fname_bam.resolve()).split("bam")[0]+"fastq"
-        fname_reads_fasta = str(fname_bam.resolve()).split("bam")[0]+"fasta"
+        fname_reads_fastq = str(fname_bam.resolve()).split("bam")[0] + "fastq"
+        fname_reads_fasta = str(fname_bam.resolve()).split("bam")[0] + "fasta"
         fastq_to_fasta(fname_reads_fastq, fname_reads_fasta)
 
         dname_work.mkdir(parents=True, exist_ok=True)
@@ -81,9 +81,6 @@ def main(fname_bam,
         )
 
         # adapt haplotype output
-
-
-
 
 
 if __name__ == "__main__":

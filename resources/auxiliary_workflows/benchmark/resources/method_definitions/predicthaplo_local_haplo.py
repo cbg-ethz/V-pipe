@@ -30,49 +30,54 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
-def write_config_file(fname_ref, fname_sam,fname_config, ph_prefix, dname_work, fname_result_haplos):
+def write_config_file(
+    fname_ref, fname_sam, fname_config, ph_prefix, dname_work, fname_result_haplos
+):
 
     read_length = str(fname_sam).split("read_length~")[1].split("__")[0]
     if read_length == "Ten_strain_IAV":
         read_length = 2300
         fname_output_haplos = "predicthaplo_output_global_1_2263.fas"
 
-    with open((dname_work / "config_5V").resolve(), 'r') as file:
+    with open((dname_work / "config_5V").resolve(), "r") as file:
         content = file.readlines()
 
-    modified_content =  content
-    modified_content[2] = str(ph_prefix)+'\n'
-    modified_content[4] = str(fname_ref)+'\n'
-    modified_content[6] = "0"+'\n'
-    modified_content[8] = str(fname_sam)+'\n'
-    modified_content[10] = "0"+'\n'
-    modified_content[12] = str(fname_result_haplos)+'\n'
-    modified_content[16] = "10000"+'\n'
-    modified_content[20] = "1"+'\n'
-    modified_content[22] = str(int(read_length)+1)+'\n'
+    modified_content = content
+    modified_content[2] = str(ph_prefix) + "\n"
+    modified_content[4] = str(fname_ref) + "\n"
+    modified_content[6] = "0" + "\n"
+    modified_content[8] = str(fname_sam) + "\n"
+    modified_content[10] = "0" + "\n"
+    modified_content[12] = str(fname_result_haplos) + "\n"
+    modified_content[16] = "10000" + "\n"
+    modified_content[20] = "1" + "\n"
+    modified_content[22] = str(int(read_length) + 1) + "\n"
 
     # the following parameters are set such that we don't get the following error:
     # died with <Signals.SIGFPE: 8>.
-    modified_content[30] = "-1"+'\n'
-    modified_content[34] = "0.1"+'\n'
-    modified_content[18] = "0.0001"+'\n'
-    modified_content[26] = "1"+'\n'
+    modified_content[30] = "-1" + "\n"
+    modified_content[34] = "0.1" + "\n"
+    modified_content[18] = "0.0001" + "\n"
+    modified_content[26] = "1" + "\n"
 
-    with open(fname_config, 'w') as file:
+    with open(fname_config, "w") as file:
         file.writelines(modified_content)
 
 
-def main(fname_bam,
-         fname_reference,
-         fname_results_snv,
-         fname_result_haplos,
-         dname_work,
-         seq_type,
-         threads,
+def main(
+    fname_bam,
+    fname_reference,
+    fname_results_snv,
+    fname_result_haplos,
+    dname_work,
+    seq_type,
+    threads,
 ):
     dname_work.mkdir(parents=True, exist_ok=True)
 
-    predicthaplo_exe = "/cluster/work/bewi/members/lfuhrmann/PredictHaplo-1.1/PredictHaplo"
+    predicthaplo_exe = (
+        "/cluster/work/bewi/members/lfuhrmann/PredictHaplo-1.1/PredictHaplo"
+    )
 
     # prepare environment
     subprocess.run(
@@ -84,7 +89,10 @@ def main(fname_bam,
 
     # copy example config file
     subprocess.run(
-        ["wget", "https://raw.githubusercontent.com/bmda-unibas/PredictHaplo/master/config_5V"],
+        [
+            "wget",
+            "https://raw.githubusercontent.com/bmda-unibas/PredictHaplo/master/config_5V",
+        ],
         cwd=dname_work,
         check=True,
     )
@@ -92,7 +100,14 @@ def main(fname_bam,
     # modify config file for predicthaplo
     fname_config = (dname_work / "predicthaplo_config").resolve()
     ph_prefix = (dname_work / "predicthaplo_output_").resolve()
-    write_config_file(Path(fname_reference).resolve(), fname_sam, fname_config, ph_prefix, dname_work, fname_result_haplos)
+    write_config_file(
+        Path(fname_reference).resolve(),
+        fname_sam,
+        fname_config,
+        ph_prefix,
+        dname_work,
+        fname_result_haplos,
+    )
 
     # execute tool
     subprocess.run(
@@ -112,8 +127,8 @@ def main(fname_bam,
 
     # clean output file
     record_list = []
-    for record in SeqIO.parse( (dname_work / fname_output_haplos).resolve(), "fasta"):
-        freq = record.description.split('Freq:')[1].split(". Overla")[0]
+    for record in SeqIO.parse((dname_work / fname_output_haplos).resolve(), "fasta"):
+        freq = record.description.split("Freq:")[1].split(". Overla")[0]
         record.description = f"freq:{freq}"
         seq_nodel = str(record.seq).replace("-", "")
         record.seq = Seq(seq_nodel)

@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 
+
 def runtime(benchmark_list, fname_out):
     # gather benchmark information
     tmp = []

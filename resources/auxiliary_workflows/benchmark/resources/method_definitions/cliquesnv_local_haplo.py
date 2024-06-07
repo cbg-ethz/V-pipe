@@ -27,7 +27,7 @@ def main(
         check=True,
     )
 
-    runtime_limit = 15*24*60*60 - 60*60  # 15 days - 1h
+    runtime_limit = 15 * 24 * 60 * 60 - 60 * 60  # 15 days - 1h
     cliquesnv_mode = None
     if seq_type == "illumina":
         cliquesnv_mode = "snv-illumina"

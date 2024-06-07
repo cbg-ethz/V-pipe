@@ -27,11 +27,19 @@ def gunzip(source_filepath, dest_filepath, block_size=65536):
             else:
                 d_file.write(block)
 
+
 def filter_snvs(fname_vcf_viloca, fname_results_snv, posterior_threshold):
     vf = pyvcf.VcfFrame.from_file(fname_vcf_viloca)
-    info_strings = '{"' + vf.df.INFO.str.split(';').str.join('","').str.replace('=','":"').str.replace("\"\",", "") + '"}'
+    info_strings = (
+        '{"'
+        + vf.df.INFO.str.split(";")
+        .str.join('","')
+        .str.replace("=", '":"')
+        .str.replace('"",', "")
+        + '"}'
+    )
     info_df = pd.json_normalize(info_strings.apply(eval))
-    filter_out = info_df["Post1"].astype(float)>posterior_threshold
+    filter_out = info_df["Post1"].astype(float) > posterior_threshold
     vf.df = vf.df[filter_out]
     vf.to_file(fname_results_snv)
 
@@ -43,7 +51,7 @@ def main(
     fname_results_snv,
     fname_result_haplos,
     dname_work,
-    threads =1
+    threads=1,
 ):
     genome_size = str(fname_bam).split("genome_size~")[1].split("__coverage")[0]
     alpha = 0.00001
@@ -115,8 +123,14 @@ def main(
     # here are all snvs regardless their posterior: (dname_work / "snv" / "SNVs_0.010000_final.vcf")
 
     # filter out snvs with low posterior, threshold = 0.9 as default in shorah
-    fname_vcf_viloca = str(Path(dname_work / "snv" / "SNVs_0.010000_final.vcf").resolve())
-    filter_snvs(fname_vcf_viloca, str(Path(fname_results_snv).resolve()), posterior_threshold = 0.9)
+    fname_vcf_viloca = str(
+        Path(dname_work / "snv" / "SNVs_0.010000_final.vcf").resolve()
+    )
+    filter_snvs(
+        fname_vcf_viloca,
+        str(Path(fname_results_snv).resolve()),
+        posterior_threshold=0.9,
+    )
 
     mypath = (dname_work / "support").resolve()
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -134,7 +148,9 @@ def main(
 
             elif file.endswith(".fas"):
                 fname_haplos = (dname_work / "support" / onlyfiles[0]).resolve()
-                shutil.copy((dname_work / "support" / file).resolve(), fname_result_haplos)
+                shutil.copy(
+                    (dname_work / "support" / file).resolve(), fname_result_haplos
+                )
 
     # fix frequency information
 
@@ -142,7 +158,9 @@ def main(
     post_list = []
     for record in SeqIO.parse(fname_result_haplos, "fasta"):
         freq_list.append(float(record.description.split("ave_reads=")[-1]))
-        post_list.append(float(record.description.split("posterior=")[-1].split(" ave_")[0]))
+        post_list.append(
+            float(record.description.split("posterior=")[-1].split(" ave_")[0])
+        )
     norm_freq_list = [float(i) / sum(freq_list) for i in freq_list]
 
     record_list = []
@@ -161,4 +179,3 @@ if __name__ == "__main__":
         Path(snakemake.output.fname_result_haplos),
         Path(snakemake.output.dname_work),
     )
-                                                                                                                                                                                                                                                                                      165,1         Bot

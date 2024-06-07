@@ -10,7 +10,7 @@ def main(fname_reference, fname_insert_bed, genome_size):
         f.write(
             str(seq_id)
             + "  1       "
-            + str(int(genome_size)+1)
+            + str(int(genome_size) + 1)
             + "     scheme_INSERT_1 1       +"
         )
 

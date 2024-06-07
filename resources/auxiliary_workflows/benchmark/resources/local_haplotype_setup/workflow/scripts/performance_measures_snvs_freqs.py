@@ -27,9 +27,11 @@ def convert_vcf(fname):
             variant_list.add(f"{zero_based_pos}{base}")
     return variant_list
 
+
 def convert_groundtruth(fname):
     df = pd.read_csv(fname, index_col=0)
     return set((df["position"].astype(str) + df["variant"]).tolist())
+
 
 def mutation_calls_details(vcf_list, groundtruth_list):
     # compute performance
@@ -48,7 +50,7 @@ def mutation_calls_details(vcf_list, groundtruth_list):
         for iter_row, gt_row in pd.read_csv(fname_groundtruth, index_col=0).iterrows():
             true_variant = str(gt_row["position"]) + gt_row["variant"]
             mutation_type = str(gt_row["type"])
-            if method.startswith(('lofreq', 'shorah')):
+            if method.startswith(("lofreq", "shorah")):
                 is_false_negative = True
                 for variant in VCF(fname_vcf):
                     for idx_base, base in enumerate(variant.ALT):
@@ -58,12 +60,18 @@ def mutation_calls_details(vcf_list, groundtruth_list):
                         if true_variant == predicted_variant:
                             is_false_negative = False
                             # get pred_freq
-                            if method.startswith('lofreq'):
+                            if method.startswith("lofreq"):
                                 posterior = 1.0
-                                freq = variant.INFO.get('AF')#vi.split(',')[idx_base]
-                            elif method.startswith('shorah'):
+                                freq = variant.INFO.get("AF")  # vi.split(',')[idx_base]
+                            elif method.startswith("shorah"):
                                 posterior = 1.0
-                                freq = (int(variant.INFO.get('Fvar')) + int(variant.INFO.get('Rvar'))) / (int(variant.INFO.get('Ftot')) + int(variant.INFO.get('Rtot')))
+                                freq = (
+                                    int(variant.INFO.get("Fvar"))
+                                    + int(variant.INFO.get("Rvar"))
+                                ) / (
+                                    int(variant.INFO.get("Ftot"))
+                                    + int(variant.INFO.get("Rtot"))
+                                )
 
                             tmp.append(
                                 {
@@ -99,23 +107,41 @@ def mutation_calls_details(vcf_list, groundtruth_list):
                         }
                     )
 
-            elif method.startswith('viloca'):
+            elif method.startswith("viloca"):
 
-                colnames=['Chromosome', 'Pos', 'Ref', 'Alt', 'Frq', 'Pst', 'Rvar', 'Fvar', 'Rtot', 'Ftot', 'Qval']
+                colnames = [
+                    "Chromosome",
+                    "Pos",
+                    "Ref",
+                    "Alt",
+                    "Frq",
+                    "Pst",
+                    "Rvar",
+                    "Fvar",
+                    "Rtot",
+                    "Ftot",
+                    "Qval",
+                ]
                 # we want the file SNVs_0.010000.tsv as the posterior filter was not applied here
-                fname_SNVs_correct = str(fname_vcf).split("snvs_.vcf")[0] + "work/snv/SNVs_0.010000.tsv"
-                df_predicted = pd.read_csv(fname_SNVs_correct, names=colnames, header=None ,sep="\t")
-                df_predicted['Pst'] = pd.to_numeric(df_predicted['Pst'], errors='coerce')
+                fname_SNVs_correct = (
+                    str(fname_vcf).split("snvs_.vcf")[0] + "work/snv/SNVs_0.010000.tsv"
+                )
+                df_predicted = pd.read_csv(
+                    fname_SNVs_correct, names=colnames, header=None, sep="\t"
+                )
+                df_predicted["Pst"] = pd.to_numeric(
+                    df_predicted["Pst"], errors="coerce"
+                )
 
                 for iter_row_pred, pred_row in df_predicted.iterrows():
-                    zero_based_pos = int(pred_row['Pos']) - 1  # VCF is 1-based
+                    zero_based_pos = int(pred_row["Pos"]) - 1  # VCF is 1-based
                     is_false_negative = True
                     predicted_variant = f"{zero_based_pos}{pred_row['Alt']}"
 
                     if true_variant == predicted_variant:
                         is_false_negative = False
-                        posterior = pred_row['Pst']
-                        freq = pred_row['Frq']
+                        posterior = pred_row["Pst"]
+                        freq = pred_row["Frq"]
 
                         tmp.append(
                             {
@@ -157,6 +183,7 @@ def main(vcf_list, groundtruth_list, fname_out):
 
     df = mutation_calls_details(vcf_list, groundtruth_list)
     df.to_csv(fname_out)
+
 
 if __name__ == "__main__":
     main(

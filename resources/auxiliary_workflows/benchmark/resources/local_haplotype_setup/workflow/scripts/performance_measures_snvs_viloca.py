@@ -18,10 +18,11 @@ def convert_vcf(df):
     variant_list = set()
 
     for idx_row, variant in df.iterrows():
-        for base in variant['Alt']:
-            zero_based_pos = int(variant['Pos']) - 1  # VCF is 1-based
+        for base in variant["Alt"]:
+            zero_based_pos = int(variant["Pos"]) - 1  # VCF is 1-based
             variant_list.add(f"{zero_based_pos}{base}")
     return variant_list
+
 
 def convert_groundtruth(fname):
     df = pd.read_csv(fname, index_col=0)
@@ -76,20 +77,38 @@ def compute_performance(true_variants, predicted_variants):
 
 def performance_plots(vcf_list, groundtruth_list, posterior_threshold):
     # compute performance
-    colnames=['Chromosome', 'Pos', 'Ref', 'Alt', 'Frq', 'Pst', 'Rvar', 'Fvar', 'Rtot', 'Ftot', 'Qval']
+    colnames = [
+        "Chromosome",
+        "Pos",
+        "Ref",
+        "Alt",
+        "Frq",
+        "Pst",
+        "Rvar",
+        "Fvar",
+        "Rtot",
+        "Ftot",
+        "Qval",
+    ]
     tmp = []
     fps_tmp = []
     for fname_vcf, fname_groundtruth in zip(vcf_list, groundtruth_list):
 
         # we want the file SNVs_0.010000.tsv as the posterior filter was not applied here
-        fname_SNVs_correct = str(fname_vcf).split("snvs_.vcf")[0] + "work/snv/SNVs_0.010000.tsv"
+        fname_SNVs_correct = (
+            str(fname_vcf).split("snvs_.vcf")[0] + "work/snv/SNVs_0.010000.tsv"
+        )
         if os.path.isfile(fname_SNVs_correct):
-            df_predicted = pd.read_csv(fname_SNVs_correct, names=colnames, header=None ,sep="\t")
+            df_predicted = pd.read_csv(
+                fname_SNVs_correct, names=colnames, header=None, sep="\t"
+            )
         else:
-            fname_SNVs_correct = str(fname_vcf).split("snvs_.vcf")[0] + "work/snv/SNVs_0.010000_final.csv"
+            fname_SNVs_correct = (
+                str(fname_vcf).split("snvs_.vcf")[0]
+                + "work/snv/SNVs_0.010000_final.csv"
+            )
             df_predicted = pd.read_csv(fname_SNVs_correct)
-            df_predicted = df_predicted.rename(columns={'Var': 'Alt',
-                                                        'Pst2': 'Pst'})
+            df_predicted = df_predicted.rename(columns={"Var": "Alt", "Pst2": "Pst"})
 
         parts = str(fname_vcf).split("/")
 
@@ -98,11 +117,10 @@ def performance_plots(vcf_list, groundtruth_list, posterior_threshold):
         elif len(parts) == 8:  # for multi workflow
             _, _, _, params, method, _, replicate, _ = parts
 
-
-        #filter dataframe according to posterior_threshold
-        df_predicted['Pst'] = pd.to_numeric(df_predicted['Pst'], errors='coerce')
-        df_predicted = df_predicted.dropna(subset=['Pst'])
-        df_predicted = df_predicted[df_predicted['Pst']>posterior_threshold]
+        # filter dataframe according to posterior_threshold
+        df_predicted["Pst"] = pd.to_numeric(df_predicted["Pst"], errors="coerce")
+        df_predicted = df_predicted.dropna(subset=["Pst"])
+        df_predicted = df_predicted[df_predicted["Pst"] > posterior_threshold]
 
         true_variants = convert_groundtruth(fname_groundtruth)
         predicted_variants = convert_vcf(df_predicted)
@@ -143,7 +161,6 @@ def performance_plots(vcf_list, groundtruth_list, posterior_threshold):
     return df_perf
 
 
-
 def main(vcf_list, groundtruth_list, fname_out):
 
     posterior_thresholds = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
@@ -152,14 +169,13 @@ def main(vcf_list, groundtruth_list, fname_out):
     for posterior_threshold in posterior_thresholds:
 
         df_pos_thres = performance_plots(
-                                vcf_list,
-                                groundtruth_list,
-                                posterior_threshold
-                                )
+            vcf_list, groundtruth_list, posterior_threshold
+        )
 
         dfs_tmp.append(df_pos_thres)
 
     pd.concat(dfs_tmp).to_csv(fname_out)
+
 
 if __name__ == "__main__":
     main(
