@@ -1,9 +1,17 @@
 # Tutorials
 
-You can find two tutorials in this directory:
+We strongly advise our users to start discovering V-pipe by looking at the tutorials
 
-- [tutorial_hiv.md](tutorial_hiv.md): uses HIV test data
-- [tutorial_sarscov2.md](tutorial_sarscov2.md): uses SARS-CoV-2 data from a publication
+You can find several tutorials in this directory:
+
+## Getting V-pipe installed
+
+- [V-pipe Installation](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_0_install.md)
+
+## Viruses
+
+- [V-Pipe HIV Tutorial](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_hiv.md): uses HIV test data
+- [SARS-CoV-2 Tutorial](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_sarscov2.md): uses SARS-CoV-2 data from a publication
 
 ## Note about the tutorials
 
