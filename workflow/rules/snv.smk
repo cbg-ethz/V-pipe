@@ -377,7 +377,7 @@ rule viloca:
 
         # Get absolute path for input files
         CWD=${{PWD}}
-        WORK_DIR="$(realpath -m {ouput.WORK_DIR})"
+        WORK_DIR="$(realpath -m {output.WORK_DIR})"
         BAM="$(realpath {input.BAM})"
         REF="$(realpath {input.REF})"
         OUTFILE="$(realpath -m {log.outfile})"

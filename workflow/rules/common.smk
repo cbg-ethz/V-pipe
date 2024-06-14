@@ -685,11 +685,20 @@ for srec in sample_list:
         # in adition to standard VCF files, ShoRAH2 also produces CSV tables
         if config.general["snv_caller"] == "shorah":
             results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        elif config.general["snv_caller"] == "viloca":
+            results.append(
+                os.path.join(sdir, "variants/SNVs/snv/cooccurring_mutations.csv")
+            )
         # all snv callers ('shorah', 'lofreq') produce standard VCF files
         results.append(os.path.join(sdir, "variants/SNVs/snvs.vcf"))
     # local haplotypes
     if config.output["local"]:
-        results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        if config.general["snv_caller"] == "shorah":
+            results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        elif config.general["snv_caller"] == "viloca":
+            results.append(
+                os.path.join(sdir, "variants/SNVs/snv/cooccurring_mutations.csv")
+            )
     # global haplotypes
     if config.output["global"]:
         if config.general["haplotype_reconstruction"] == "savage":
