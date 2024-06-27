@@ -1,0 +1,13 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: README
+parts:
+- caption: Tutorials
+  chapters:
+  - file: tutorial_0_install
+  - file: tutorial_hiv
+  - file: tutorial_sarscov2
+
+
