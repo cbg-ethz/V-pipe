@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bcftools = 1.13
-  - cyvcf2 = 0.30.11
+  - bcftools = 1.20
+  - cyvcf2 = 0.31.0
