@@ -17,8 +17,8 @@ latex:
     targetname: book.tex
 
 # Add a bibtex file so that we can create citations
-# bibtex_bibfiles:
-#   - references.bib
+bibtex_bibfiles:
+  - references.bib
 
 # Information about where the book exists on the web
 repository:
@@ -34,6 +34,7 @@ html:
 
 sphinx:
   config:
+    bibtex_reference_style: author_year
     intersphinx_mapping:
       ebp:
         - "https://executablebooks.org/en/latest/"
