@@ -4,7 +4,7 @@
 
 title: V-pipe documentation
 author: v-pipe team
-logo: logo.png
+logo: assets/images/logo-vpipe.svg
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
