@@ -320,6 +320,9 @@ rule deconvolution:
             if config.deconvolution["variants_dates"]
             else []
         ),
+        filters=(
+            config.deconvolution["filters"] if config.deconvolution["filters"] else []
+        ),
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
         deconv_json=cohortdir("deconvoluted_upload.json"),
@@ -343,7 +346,7 @@ rule deconvolution:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" {params.out_format} {params.seed} "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

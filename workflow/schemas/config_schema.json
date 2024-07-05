@@ -1661,6 +1661,12 @@
                     "default": "lines",
                     "description": "Format of the output CSV.\n- `lines`(default) - each variants a separate entry on a separate line.\n- `columns` - one column per variant",
                     "examples": ["columns"]
+                },
+                "filters": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of filters for removing problematic mutations from tally. Some mutations might be problematic and need to be taken out -- e.g. due to drop-outs in the multiplex PCR amplification, they do not show up in the data and this could be misinterpreted by LolliPop as proof of absence of a variant.",
+                    "examples": ["filters_preprint.yaml"]
                 }
             },
             "default": {},
