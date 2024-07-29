@@ -4,10 +4,17 @@
 format: jb-book
 root: index
 parts:
+- caption: Documentation
+  chapters:
+  - file: documentation/overview
+  - file: documentation/installation
+  - file: documentation/configuration
+  - file: documentation/output
 - caption: Tutorials
   chapters:
-  - file: tutorials/tutorial_0_install
   - file: tutorials/tutorial_hiv
   - file: tutorials/tutorial_sarscov2
+  - file: tutorials/tutorial_cowwid.md
+
 
 

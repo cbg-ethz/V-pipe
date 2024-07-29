@@ -4,7 +4,7 @@ V-pipe is a bioinformatics pipeline that integrates various computational tools 
 
 ## Getting started
 
-::::{grid} 1 1 1 3
+::::{grid} 
 :class-container: text-center
 :gutter: 3
 
@@ -40,6 +40,18 @@ SARS-CoV-2 tutorial
 ^^^
 
 Tutorial on analyzing SARS-CoV-2 data with V-pipe.
+:::
+
+:::{grid-item-card}
+:link: tutorials/tutorial_cowwid
+:link-type: doc
+:class-header: bg-light
+
+SARS-CoV-2 waste water tutorial
+^^^
+
+Tutorial on analyzing SARS-CoV-2 waste water data with V-pipe.
+
 :::
 
 

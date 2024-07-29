@@ -50,7 +50,9 @@ We will organise our software in the following tree structure, which will be reu
 
 V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is implemented using [Snakemake](https://snakemake.readthedocs.io/en/stable/).
 
+```{note}
 For advanced users: If your are fluent with these tools, see [below](#fluent-users)
+```
 
 In this short tutorial, you will learn how to setup a workflow for the various examples in the analysis tutorials.
 
@@ -61,15 +63,21 @@ curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_in
 bash quick_install.sh -p vp-analysis -w work
 ```
 
-> **Note**:
-> * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
-> * using `-w` will create a working directory and populate it. It will colloquial the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
-> * an additional option `-b` (not demonstrated above) allows to install a spefic branch or tagged version. If nothing is specified, the master branch will be installed.
+```{note}
+* using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
+* using `-w` will create a working directory and populate it. It will colloquial the references and the default `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
+* an additional option `-b` (not demonstrated above) allows to install a spefic branch or tagged version. If nothing is specified, the master branch will be installed.
+```
 
+```{note}
 If you get `zsh: permission denied: ./quick_install.sh`, run `chmod +x quick_install.sh` this gives the necessary permissions.
+```
 
+```{tip}
+To create and populate other new working directories, you can call `init_project.sh` from within the new directory:
+```
 
-**Tip:** To create and populate other new working directories, you can call `init_project.sh` from within the new directory:
+<!-- below needs context, it's not clear what the user should do next -->
 
 ```bash
 cd vp-analysis/
@@ -92,6 +100,8 @@ Now that you have setup the software necessary to start using V-pipe, you can fo
 
 
 ## Fluent users
+
+<!-- In the readme there's also a thing on snakedeploy add that here -->
 
 For advanced users: If your are fluent with these tools, you can:
 
