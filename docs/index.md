@@ -9,7 +9,7 @@ V-pipe is a bioinformatics pipeline that integrates various computational tools 
 :gutter: 3
 
 :::{grid-item-card}
-:link: tutorials/tutorial_0_install
+:link: documentation/installation
 :link-type: doc
 :class-header: bg-light
 
