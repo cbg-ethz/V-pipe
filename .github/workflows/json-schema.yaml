@@ -19,7 +19,10 @@ jobs:
             python-version: 3.x
         - run: |
             pip install json-schema-for-humans
-            generate-schema-doc workflow/schemas/config_schema.json docs/documentation/config_schema.html
+            generate-schema-doc \
+            --config-file workflow/schemas/jsfh-conf.yaml \
+            workflow/schemas/config_schema.json \
+            docs/documentation/config_schema.html
         - name: Create Pull Request
           uses: peter-evans/create-pull-request@v6
           with:
