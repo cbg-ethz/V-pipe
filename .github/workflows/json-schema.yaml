@@ -1,0 +1,31 @@
+name: json cofiguration schema to html
+
+on:
+    push:
+        branches:
+        - main
+        - gsod-rtd
+        paths:
+        - '.github/workflows/json-schema.yaml'
+        # - 'workflow/schemas/config_schema.json'
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: 3.x
+        - run: |
+            pip install json-schema-for-humans
+            generate-schema-doc workflow/schemas/config_schema.json docs/documentation/config_schema.html
+        - name: Create Pull Request
+          uses: peter-evans/create-pull-request@v6
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            commit-message: 'Add config_schema.html'
+            title: 'Add config_schema.html'
+            body: 'This PR adds the config_schema.html file'
+            branch: 'add-config-schema-html'
+            base: 'gsod-rtd'
