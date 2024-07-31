@@ -3,11 +3,11 @@ name: json cofiguration schema to html
 on:
     push:
         branches:
-        - main
+        - master
         - gsod-rtd
         paths:
         - '.github/workflows/json-schema.yaml'
-        # - 'workflow/schemas/config_schema.json'
+        - 'workflow/schemas/config_schema.json'
 
 jobs:
     deploy:

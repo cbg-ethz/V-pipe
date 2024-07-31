@@ -2,6 +2,7 @@ name: Run tutorials
 
 on:
   push:
+    branches: master
   pull_request:
 
 concurrency:
