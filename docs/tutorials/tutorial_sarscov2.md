@@ -23,7 +23,7 @@ For the purpose of this Tutorial, we will work with the master branch of V-pipe 
 
 ## Requirements
 
-The tutorial assumes that you have [installed V-pipe using the installation tutorial](tutorial_0_install.md), and that the workflow is setup with the following structure:
+The tutorial assumes that you have [installed V-pipe using the installation tutorial](../documentation/installation.md), and that the workflow is setup with the following structure:
 
 ```text
 📁 [HOME]
@@ -42,6 +42,8 @@ The tutorial assumes that you have [installed V-pipe using the installation tuto
 
 ## Organizing Data
 
+<!-- This is documentation. Write this in a tutorial format, and refer to docs -->
+
 V-pipe expects the input samples to be organized in a two-level hierarchy:
 
 - At the first level, input files grouped by samples (e.g.: patients or biological replicates of an experiment).
@@ -52,34 +54,39 @@ V-pipe expects the input samples to be organized in a two-level hierarchy:
 
 ## Preparing a small dataset
 
+<!-- sratools is a requirement here. Make a note of that at the top of the tutorial -->
+
 You can run the first test on your workstation or a good laptop.
 
 First, you need to prepare the data:
 
 * For that test, you need to download the following runs from SRA: [SRR10903401](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903401) and [SRR10903402](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR10903402)
 
-```bash
-mkdir -p samples/SRR10903401/20200102/raw_data
-cd samples/SRR10903401/20200102/raw_data
-fasterq-dump --progress SRR10903401
-cd -
-```
 
 ```bash
-mkdir -p samples/SRR10903402/20200102/raw_data
-cd samples/SRR10903402/20200102/raw_data
-fasterq-dump --progress SRR10903402
-cd -
-```
+download_reads () {
+  # SRR ID
+  SRR=$1
+  # path to the directory containing the reads on the ENA FTP
+  FTP_PATH=$2
 
-You then have to rename the files so that they have `_R1` and `_R2` suffixes:
+  # creating the raw_data directory
+  mkdir -p samples/$SRR/20200102/raw_data
 
-```bash
-mv samples/SRR10903401/20200102/raw_data/SRR10903401_1.fastq samples/SRR10903401/20200102/raw_data/SRR10903401_R1.fastq
-mv samples/SRR10903401/20200102/raw_data/SRR10903401_2.fastq samples/SRR10903401/20200102/raw_data/SRR10903401_R2.fastq
+  # downloading the reads from ENA
+  # note that we rename the _1 suffix to _R1 and _2 to _R2
+  curl \
+  -o samples/$SRR/20200102/raw_data/"${SRR}"_R1.fastq.gz \
+  ftp://ftp.sra.ebi.ac.uk/"$FTP_PATH"/"$SRR"/"$SRR"_1.fastq.gz
 
-mv samples/SRR10903402/20200102/raw_data/SRR10903402_1.fastq samples/SRR10903402/20200102/raw_data/SRR10903402_R1.fastq
-mv samples/SRR10903402/20200102/raw_data/SRR10903402_2.fastq samples/SRR10903402/20200102/raw_data/SRR10903402_R2.fastq
+  curl \
+  -o samples/$SRR/20200102/raw_data/"${SRR}"_R2.fastq.gz \
+  ftp://ftp.sra.ebi.ac.uk/"$FTP_PATH"/"$SRR"/"$SRR"_2.fastq.gz
+}
+
+# executing the function for the two SRR IDs
+download_reads SRR10903401 vol1/fastq/SRR109/001
+download_reads SRR10903402 vol1/fastq/SRR109/002
 ```
 
 The downloaded files should have the following structure:
@@ -104,10 +111,11 @@ You can display the directory structure with the following command on Linux (on 
 tree samples
 ```
 
-
 ## Install V-pipe
 
-After [having installed V-pipe using the installation tutorial](tutorial_0_install.md), create a new working directory for this analysis:
+<!-- I expected this to be before the data preparation. Move it up? -->
+
+After [having installed V-pipe using the installation tutorial](../documentation/installation.md), create a new working directory for this analysis:
 
 ```bash
 cd vp-analysis
@@ -123,13 +131,15 @@ cd ../..
 
 ## Running V-pipe
 
+<!-- Yet another reason to move the initiation as first step: -->
+
 Copy the samples directory you created in the step [Preparing a small](#preparing-a-small-dataset) dataset to this working directory. (You can display the directory structure with `tree samples` or `find samples`.)
 
 ```bash
 mv samples vp-analysis/work_sarscov2/
 ```
 
-Prepare V-pipe's configuration. You can find more information in [the documentation](https://github.com/cbg-ethz/V-pipe/blob/master/config/README.md). In your local V-pipe installation, you will also find an exhaustive manual about all the configuration options inside `config/config.html`.
+Prepare V-pipe's configuration. You can find more information in [the documentation](../documentation/configuration.md). 
 
 ```bash
 cat <<EOT > vp-analysis/work_sarscov2/config.yaml
@@ -157,9 +167,16 @@ Check what will be executed:
 
 ```bash
 cd vp-analysis/work_sarscov2/
-./vpipe --dryrun
+./vpipe --dryrun --cores 2
 cd ../..
 ```
+
+<!-- This errors out locally: 
+
+WorkflowError:
+Error grouping resources in group 'ed1ff0c3-07c9-4d6c-be48-4d472349e50a': Not enough resources were provided. This error is typically caused by a Pipe group requiring too many resources. Note that resources are summed across every member of the pipe group, except for ['runtime'], which is calculated via max(). Excess Resources:
+        _cores: 2/1 -->
+
 
 As it is your first run of V-pipe, this will also generate the sample collection table. Check `samples.tsv` in your editor.
 
@@ -196,9 +213,24 @@ The small dataset that we used in this tutorial section has been analyzed by [do
 
 Using either the VCF or CSV files, compare with the results given out by V-pipe (with bwa and ShoRAH).
 
+<!-- By browing to results/SRR10903401/20200102/variants/SNVs/snvs.csv I only find Shohrah output. Where's the BWA output? Or should I check alighments with IGV or something?   -->
+
+<!-- In the vcf:
+NC_045512.2	19164	.	C	T	100	PASS	Freq1=0.1666;Freq2=0.2404;Freq3=0.2298;Post1=1;Post2=1;Post3=1;Fvar=8;Rvar=9;Ftot=41;Rtot=44;Pval=1;Qval=1 -->
+
+<!-- Ftot + Rtot = 41 + 44 = 85. In the paper: REF: 40	ALT: 12 = 52. Due to filtering?  -->
+
+<!-- 1821, 26314 and 26590 not reported at all by ShoRAH.  -->
+
+<!-- All together, this needs more context and explanation. -->
+
+
 * For positions 19164 and 24323 of SRR10903401 and position 11563 of SRR10903402, we expect to see similar results in V-pipe.
+
+
 * For the remaining positions (1821, 26314 and 26590 of SRR10903401), we expect that ShoRAH will consider the variants of poor quality and reject them because there is very little support ( <= than 5 reads supporting the alt).
 
+<!-- This is documentation: -->
 
 ## Swapping component
 
@@ -211,6 +243,8 @@ general:
   snv_caller: lofreq
 ```
 
+<!-- This is (rather important) documentation: -->
+<!-- However, in snakemake8 profiles are implemented differently -->
 
 ## Cluster deployment
 
