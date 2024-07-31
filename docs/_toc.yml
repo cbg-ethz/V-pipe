@@ -12,8 +12,8 @@ parts:
   - file: documentation/output
 - caption: Tutorials
   chapters:
-  - file: tutorials/tutorial_hiv
   - file: tutorials/tutorial_sarscov2
+  - file: tutorials/tutorial_hiv
   - file: tutorials/tutorial_cowwid.md
 
 
