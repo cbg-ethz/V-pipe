@@ -32,6 +32,7 @@ bash quick_install.sh -p vp-analysis -w work
 
 V-pipe is optimized for Linux or Mac OS systems, and we heavily rely on bioconda, which isn't supported on Windows. Therefore, we recommend users with a Windows system to [install WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
+(quick-install-v-pipe-and-conda)=
 ## Quick install V-pipe and conda
 
 V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is implemented using [Snakemake](https://snakemake.readthedocs.io/en/stable/). Although you can install all the dependencies manually, we recommend using our install quick install script:
@@ -46,18 +47,6 @@ The script `quick_install.sh` has the following options:
 * using `-p` specifies the subdirectory where to download and install snakemake and V-pipe
 * using `-w` will create a working directory and populate it. It will create a boilerplate `config/config.yaml`, and create a handy `vpipe` short-cut script to invoke `snakemake`.
 * an additional option `-b` (not demonstrated above) allows to install a spefic branch or tagged version. If nothing is specified, the master branch will be installed.
-
-```{tip}
-To create and populate other new working directories, you can call `init_project.sh` from within the new directory:
-
-```bash
-cd vp-analysis/
-
-mkdir -p working_2
-cd working_2
-../V-pipe/init_project.sh
-
-```
 
 After running the `quick_install.sh` script, you should have a directory structure like this:
 
@@ -80,6 +69,31 @@ vp-analysis
 - `V-pipe` is the directory where V-pipe's code will be downloaded from GitHub
 - `work` finally, each analysis of virus data will be performed in a directory like `work…`. If you start a new analysis of a dataset, you can create a new directory, run `init_project.sh` inside the directory and get started.
 
+Now you can check your installation with a small test dataset:
+
+```bash
+cd work
+# copy the example data from the repository to your working directory
+cp -r ../V-pipe/docs/example_HIV_data/* .
+# check what will be run with a dry run
+./vpipe -n
+# run vpipe on a small HIV test dataset
+# this will install all dependencies and run the pipeline
+./vpipe 
+```
+
+```{tip}
+To create and populate other new working directories, you can call `init_project.sh` from within the new directory:
+
+```bash
+cd vp-analysis/
+
+mkdir -p working_2
+cd working_2
+../V-pipe/init_project.sh
+
+```
+
 ## Other installation options
 
 ### Cloning the repository 
@@ -91,6 +105,16 @@ git clone https://github.com/cbg-ethz/V-pipe.git
 ```
 
 If you haven't already done so, install snakemake by using the [official instructions](https://github.com/cbg-ethz/V-pipe.git), and you can run the pipeline with `snakemake --use-conda`. 
+
+Test the installation with a small dataset: 
+
+```bash
+mkdir work
+cd work
+cp -r ../V-pipe/docs/example_HIV_data/* .
+snakemake -s ../V-pipe/workflow/Snakefile --use-conda --dry-run
+snakemake -s ../V-pipe/workflow/Snakefile --use-conda --cores 4
+```
 
 ### Using Docker
 

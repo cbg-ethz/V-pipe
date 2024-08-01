@@ -17,68 +17,51 @@ jupyter:
 <!-- markdownlint-configure-file { "MD010": { "ignore_code_languages" : [ "tsv", "bash" ] } } -->
 # V-Pipe HIV Tutorial
 
-V-pipe is a workflow designed for the analysis of next generation sequencing (NGS) data from viral pathogens. It produces a number of results in a curated format (e.g., consensus sequences, SNV calls, local/global haplotypes). V-pipe is written using the Snakemake workflow management system.
-
-The present tutorial will show you how to apply V-pipe on HIV sequencing data.
+The present tutorial will show you how to apply V-pipe on HIV sequencing data. The data originate from the publication Abrahams et al. (2019), Science translational medicine 11.513 (DOI: 10.1126/scitranslmed.aaw5589). For testing the installation the same data is used. In this tutorial we will show you how to set up the configuration file, run the pipeline and interpret the output.
 
 ## Requirements
 
-The tutorial assumes that you have [installed V-pipe using the installation tutorial](tutorial_0_install.md), and that the workflow is setup with the following structure:
+The tutorial assumes that you have installed V-pipe using the [quick install installation documentation](quick-install-v-pipe-and-conda), and that the workflow is setup with the following structure:
 
 ```text
-📁 [HOME]
-└───📁vp-analysis
-    ├───📁V-pipe      # V-pipe checked out from Github
-    ├───📁Miniforge3  # bioconda + conda-forge + mamba + Snakemake
-    ├───📁work        # work directories
-    ├───📁work-tests  #  …
-    └───📁 …          #  …
+vp-analysis
+├── V-pipe
+├── mambaforge
+└── work
 ```
 
-- `vp-analysis` is the main directory where we installed everything in the previous tutorial
-- `Miniforge3` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
+- `vp-analysis` is the main directory where you have installed V-pipe
 - `V-pipe` is the directory with V-pipe's own code
-- and for this tutorial we will create a directory like `work…`, which will hold the configuration and the sequencing data for our analysis.
+- `mambaforge` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
+- `work` is the directory where you have performed the test analysis
 
+## Setting up the work directory
 
+We will create a fresh work directory for this tutorial. A V-pipe work directory typically contains the following files and directories:
 
-## Organizing Data
+- `config.yaml`: the configuration file. For example to tell V-pipe where to find the samples and the reference genome. All configuration options are described in the [configuration schema](configuring-the-workflow)
+- `samples.tsv`: a tab-separated file listing the samples to be processed. The first two columns are mandatory and represent the hierarchical levels of the samples. The third and fourth column are optional and contain the read length and protocol name. 
+- `vpipe`: a wrapper script to start the workflow
+- `samples/`: the directory containing the raw data of the samples
 
-V-Pipe takes as an input raw data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes.
+And after running the workflow:
 
-<!-- This is documentation, not tutorial -->
+- `results/`: the results of the workflow
+- `.snakemake`: the directory containing the snakemake working files
 
-V-pipe expects the input samples to be organized in a two-level hierarchy:
+For your convenience, you can set up a boilerplate working directory with the script `init.sh`. This will copy a `config.yaml` and the `vpipe` wrapper script to get started: 
 
-At the first level, input files are grouped by samples (e.g.: patients or biological replicates of an experiment).
-At the second level, different datasets belonging to the same sample (e.g., from sample dates) are distinguished.
-Inside the 2nd-level directory, the sub-directory `raw_data` holds the sequencing data in FASTQ format (optionally compressed with GZip).
-Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
+```bash
+cd vp-analysis
 
-```text
-📁samples
-├───📁patient1
-│   └───📁date1
-│       └───📁raw_data
-│           ├───🧬reads_R1.fastq
-│           └───🧬reads_R2.fastq
-└───📁patient2
-    ├───📁date1
-    │   └───📁raw_data
-    │       ├───🧬reads_R1.fastq
-    │       └───🧬reads_R2.fastq
-    └───📁date2
-        └───📁raw_data
-            ├───🧬reads_R1.fastq
-            └───🧬reads_R2.fastq
+mkdir -p work_hiv
+cd work_hiv
+../V-pipe/init_project.sh
 ```
 
 ## Preparing a small dataset
 
-<!-- example_hiv_data should be downloadable as zip -->
-
-In the directory `example_HIV_data` you find a small test dataset that you can run on your workstation or laptop.
-The files will have the following structure:
+As described in [configuration](organizing-data) V-pipe expects the input samples to be organized in a two-level hierarchy. In the directory `vp-analysis/V-pipe/documentation/example_HIV_data` you can find a small dataset in the correct format that we will use in this tutorial. The files will have the following structure:
 
 ```text
 📁samples
@@ -98,72 +81,25 @@ The files will have the following structure:
             └───🧬reads_R2.fastq
 ```
 
-## Install V-pipe
-
-After, [having installed V-pipe using the installation tutorial](tutorial_0_install.md), create a new working directory for this analysis:
+Now, copy this dataset to the `work_hiv` directory:
 
 ```bash
-cd vp-analysis
-
-# create a new directory and initialise it
-mkdir -p work_hiv
-cd work_hiv
-../V-pipe/init_project.sh
-
-cd ../..
+cp -r ../V-pipe/docs/example_HIV_data/samples .
 ```
 
+## Configuration
 
-## Preparation
+### References
 
-Copy the samples directory you created in the step "Preparing a small dataset" to this working directory. (You can display the directory structure with `tree vp-analysis/work_hiv/resources/samples` or `find vp-analysis/work_hiv/resources/samples`.)
+V-pipe comes with pre-configured references. You can specify the species you are using in the configuration file at `general.virus_base_config`. If you are working with a reference that is not pre-configured, you can specify it in the configuration file at `input.reference`. For more information see the [documentation](configuring-the-workflow).
 
-```bash
-mkdir -p vp-analysis/work_hiv/resources
-# is mv-ing from a repo a good idea here? Rather use cp -r
-# when did the user clone the repo? 
-mv vp-analysis/V-pipe/docs/example_HIV_data/samples vp-analysis/work_hiv/resources/samples
-```
+In this tutorial we will use a reference already available in `V-pipe/resources/hiv/HXB2.fasta`, but instead of specifing `virus_base_config` we will specify the reference directly in the configuration file. We will also seperately specify the genome annotation (gff file) and the metainfo file. 
 
-Note that:
-- by default V-pipe expects its samples in a directory `samples` contained directly in the working directory - i.e. `vp-analysis/work_hiv/sample``
-- in this tutorial we put them inside the `resources` subdirectory, and will set the config file accordingly.
+### Populating `config.yaml`
 
+In the `work_hiv`  directory you can find the file `config.yaml`. Open it in your editor and add the following content:
 
-### Reference
-
-<!-- This is documentation -->.
-
-If you have a reference sequences that you would like to use for read mapping and alignment, then add it to the `resources/reference/ref.fasta` directory. 
-
-<!-- back to tutorial -->
-
-In our case, however, we will use the reference sequence HXB2 already provided by V-Pipe `V-pipe/resources/hiv/HXB2.fasta`.
-<!-- OK, so should I copy? -->
-<!-- Yes, should be copied. Also include other files in V-pipe/resources -->
-
-### Preparing V-pipe's configuration
-
-In the `work_hiv`  directory you can find the file `config.yaml`. This is where the V-Pipe configuration should be specified. 
-
-<!-- This should move to the documentation: -->
-
-See [README file in the config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
-
-<!-- Full config docs: https://github.com/cbg-ethz/V-pipe/blob/master/config/config.html. Not sure where the source is. -->
-
-In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty.
-
-<!-- What is set by the pre-configurations? Which are available? Where do I find which ones are available? This is in: https://github.com/cbg-ethz/V-pipe/tree/master/config#readme -->
-
- Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
-
- <!-- What can be set at input? This is not in https://github.com/cbg-ethz/V-pipe/tree/master/config#readme. What can be set with metainfo? Why is a gff relevant? -->
-
-```bash
-# if the user is copy-pasting anyway .. 
-# better have this file available in the repo for rendering the ipynb
-cat <<EOT > ./vp-analysis/work_hiv/config.yaml
+```yaml
 general:
     virus_base_config: ""
     aligner: bwa
@@ -171,11 +107,12 @@ general:
     haplotype_reconstruction: haploclique
 
 input:
-    reference: "{VPIPE_BASEDIR}/../resources/hiv/HXB2.fasta"
-    metainfo_file: "{VPIPE_BASEDIR}/../resources/hiv/metainfo.yaml"
-    gff_directory: "{VPIPE_BASEDIR}/../resources/hiv/gffs/"
-    # NOTE: this input datadir isn't standard
-    datadir: resources/samples/
+    # the references are part of the repository in this case:
+    reference: "../V-pipe/resources/hiv/HXB2.fasta"
+    metainfo_file: "../V-pipe/resources/hiv/metainfo.yaml"
+    gff_directory: "../V-pipe/resources/hiv/gffs/"
+    datadir: samples/
+    # we specify the read length here, as it is not the default 250:
     read_length: 301
     samples_file: samples.tsv
     paired: true
@@ -190,7 +127,6 @@ output:
     visualization: true
     QA: false
     diversity: true
-EOT
 ```
 
 ```{note}
@@ -206,65 +142,24 @@ cd vp-analysis/work_hiv/
 
 ./vpipe --dryrun
 
-cd ../..
 ```
 
-<!-- This returns snakemake dryrun output -->
+As this is your first run of V-pipe, it will automatically generate the sample collection table (`samples.tsv`). Check `samples.tsv` in your editor. It is always a good idea check the content of the `samples.tsv` file, as it is used to collect the samples for the analysis. Of course, you can also provide `samples.tsv` yourself, before running the pipeline. If you did not use the expected directory structure, this file might end up empty or some entries might be missing. If so, you can safely delete it and re-run with option `--dry-run` to regenerate it. More information on the `samples.tsv` file can be found in the [documentation](setting-up-samplestsv).
 
-As this is your first run of V-pipe, it will also generate the sample collection table. Check `samples.tsv` in your editor.
-
-Note that the samples you have downloaded have reads of length 301 only. V-pipe’s default parameters are optimized for reads of length 250. To adapt to the read length, add a third column in the tab-separated file as follows:
-
-```bash
-cat <<EOT > vp-analysis/work_hiv/samples.tsv
-CAP217	4390	301
-CAP188	4	301
-CAP188	30	301
-EOT
-```
-
-<!-- Read length is also specfied in the config (input.read_length). Why twice? -->
-
-<!-- Typing a tab is challenging on some systems (e.g. VScode). Take this into account.  -->
-
-Always check the content of the `samples.tsv` file.
-
-<!-- Any docs on samples.tsv? Any other columns? -->
-
-If you did not use the correct directory structure, this file might end up empty or some entries might be missing.
-You can safely delete it and re-run with option `--dry-run` to regenerate it.
-
-Finally, we can run the V-pipe analysis (the necessary dependencies will be downloaded and installed in conda environments managed by snakemake):
+Finally, we can run the V-pipe analysis. The first run will take a while because it will install all necessary software dependencies with conda:
 
 ```bash
 cd vp-analysis/work_hiv/
 
 ./vpipe -p --cores 2
-# -p and --cores (and all other options?) are passed to snakemake. -p is for printing shell cmds. 
+# -p and --cores (and all other options) are passed to snakemake. -p is for printing shell cmds. 
 # takes a while to run, needs to install packages
+```
 
-cd -
+```{note}
+Note that `vpipe` is a wrapper for `snakemake`. All options that are passed to `vpipe` are options to snakemake. More information about snakemake options can be found in the [snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html).
 ```
 
 ## Output
 
-<!-- Wiki (if still exists?) should move to the documentation. Otherwise find these docs ..  -->
-<!-- Wiki is here: https://github.com/cbg-ethz/V-pipe/wiki/ -->
-
-The Wiki contains an overview of the output files. The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `results/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `results/​{hierarchy}​/variants/SNVs/snvs.csv`.
-
-<!-- For a tutorial, we need more output interpretation. -->
-
-
-<!-- This is documentation: -->
-
-## Swapping component
-
-The default configuration uses ShoRAH to call the SNVs and to reconstruct the local (windowed) haplotypes.
-
-Components of the pipeline can be swapped simply by changing the `config.yaml` file. For example to call SNVs using lofreq instead of ShoRAH use
-
-```yaml
-general:
-  snv_caller: lofreq
-```
+The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `results/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `results/​{hierarchy}​/variants/SNVs/snvs.csv`.

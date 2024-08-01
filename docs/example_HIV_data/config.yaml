@@ -1,0 +1,19 @@
+general:
+    virus_base_config: 'hiv'
+    # e.g: 'hiv', 'sars-cov-2', or absent
+
+input:
+    samples_file: samples.tsv
+    read_length: 300
+
+output:
+    trim_primers: false
+    # see: config/README.md#amplicon-protocols
+    snv: false
+    local: false
+    global: false
+    visualization: false
+    diversity: false
+    QA: false
+    upload: false
+    dehumanized_raw_reads: false

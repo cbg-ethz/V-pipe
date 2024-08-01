@@ -1,6 +1,6 @@
 # V-pipe
 
-V-pipe is a bioinformatics pipeline that integrates various computational tools for the analysis of viral high-throughput sequencing data. It supports the reproducible analysis of genomic diversity in intra-host virus populations, which is often involved in viral pathogenesis and virulence.
+V-pipe is a bioinformatics pipeline that integrates various computational tools for the analysis of viral high-throughput sequencing data. It supports the reproducible analysis of genomic diversity in intra-host virus populations, which is often involved in viral pathogenesis and virulence. V-Pipe takes as an input raw data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes. 
 
 ## Getting started
 
