@@ -59,7 +59,7 @@ cd work_hiv
 ../V-pipe/init_project.sh
 ```
 
-## Preparing a small dataset
+## Preparing the dataset
 
 As described in [configuration](organizing-data) V-pipe expects the input samples to be organized in a two-level hierarchy. In the directory `vp-analysis/V-pipe/documentation/example_HIV_data` you can find a small dataset in the correct format that we will use in this tutorial. The files will have the following structure:
 

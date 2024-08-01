@@ -9,6 +9,7 @@ parts:
   - file: documentation/overview
   - file: documentation/installation
   - file: documentation/configuration
+  - file: documentation/running
   - file: documentation/output
 - caption: Tutorials
   chapters:
