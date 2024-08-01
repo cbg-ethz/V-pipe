@@ -29,7 +29,7 @@ An example of a directory structure is shown below:
          └──🧬patient2_20081130_R2.fastq.gz
 ```
 
-By default, V-pipe will look for the samples in the `samples` directory. This can be changed in the configuration file at `input.samples_dir`. 
+By default, V-pipe will look for the samples in the `samples` directory. This can be changed in the configuration file at `input.datadir` see [Configuring the workflow](#configuring-the-workflow). 
 
 ## Setting up `samples.tsv`
 
