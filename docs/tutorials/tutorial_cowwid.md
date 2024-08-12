@@ -34,28 +34,25 @@ The data we will be using are heavily down-sampled real-world samples that where
 
 - Bagutti, Claudia, Monica Alt Hug, Philippe Heim, Laura Maurer Pekerman, Evelyn Ilg Hampe, Philipp Hübner, Simon Fuchs, et al. 2022. "Wastewater Monitoring of SARS-CoV-2 Shows High Correlation with COVID-19 Case Numbers and Allowed Early Detection of the First Confirmed b.1.1.529 Infection in Switzerland: Results of an Observational Surveillance Study." _Swiss Medical Weekly_ 152 (2526): w30202. [doi:10.4414/smw.2022.w30202](https//doi.org/10.4414/smw.2022.w30202)
 
+<!-- Not necessary to mention here, but include elsewhere in the documentation: -->
 This set of samples have been sequenced on Illumina sequencers as paired-ends, but V-pipe has been recently adapted to also work on Oxford Nanopore Technologies long reads.
 
 
 ## Requirements
 
-The tutorial assumes that you have [installed V-pipe using the installation tutorial](tutorial_0_install.md), and that the workflow is setup with the following structure:
+The tutorial assumes that you have installed V-pipe using the [quick install installation documentation](quick-install-v-pipe-and-conda), and that the workflow is setup with the following structure:
 
 ```text
-📁 [HOME]
-└───📁vp-analysis
-    ├───📁V-pipe      # V-pipe checked out from Github
-    ├───📁Miniforge3  # bioconda + conda-forge + mamba + Snakemake
-    ├───📁work        # work directories
-    ├───📁work-tests  #  …
-    └───📁 …          #  …
+vp-analysis
+├── V-pipe
+├── mambaforge
+└── work
 ```
 
-- `vp-analysis` is the main directory where we installed everything in the previous tutorial
-- `Miniforge3` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
+- `vp-analysis` is the main directory where you have installed V-pipe
 - `V-pipe` is the directory with V-pipe's own code
-- and for this tutorial we will create a directory like `work…`, which will hold the configuration and the sequencing data for our analysis.
-
+- `mambaforge` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
+- `work` is the directory where you have performed the test analysis
 
 ### Installing a stand-alone COJAC and viramp-hub
 
@@ -68,7 +65,7 @@ Let's install them into a separate conda environment:
 # NOTE: if you use your own conda installation instead, make sure it is active
 
 # create the environment
-mamba install -n cowwid-prepare -c conda-forge -c bioconda cojac viramp-hub
+mamba create -n cowwid-prepare -c conda-forge -c bioconda cojac viramp-hub
 
 # deactivate conda
 conda deactivate
@@ -110,14 +107,15 @@ source:
 mut:
   …list goes here…
 ```
-**Note** Important:
+
+```{note}
  - short name in `short` (used for column names internally, etc.)
  - Pangolineage in `pangolin`
  - `mut` contains the list above
  - (the other fields -- Nextstrain, WHO, voc, … -- are optional)
+```
 
 There are different possibilities to obtain or produce the necessary YAML files, the exact strategy will depedent on the variant considered (e.g.: widespread vs. new emerging).
-
 
 ### Alternative A: share ours
 
@@ -132,6 +130,11 @@ This is the standard way for us to generate new signatures (outside of new emerg
 
 COJAC has quick explanations in its [README](https://github.com/cbg-ethz/cojac/), you can use similar commands to generate full lists of mutations per variants:
 
+<!-- below returned an error -->
+  <!-- File "/Users/geertvangeest/Documents/repositories/test-vpipe/vp-analysis/mambaforge/envs/cowwid-prepare/lib/python3.12/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) -->
+
 ```bash
 # activate the environment 'cowwid-prepare' which contains cojac
 . vp-analysis/*forge*/bin/activate cowwid-prepare
@@ -142,7 +145,9 @@ cojac sig-generate --url https://lapis.cov-spectrum.org/open/v1 --variant BA.1 |
 cojac sig-generate --url https://lapis.cov-spectrum.org/open/v1 --variant BA.2 | tee omicron_ba2_mutations_full.yaml
 ```
 
->  **Note** the above example uses the free and open ENA database. Access to the GISAID database isn't open and requires a token.
+```{note}
+The above example uses the free and open ENA database. Access to the GISAID database isn't open and requires a token.
+```
 
 *[ENA]: European Nucleotide Archive
 
@@ -186,7 +191,9 @@ UK HSA publishes their own variant definitions in this repo:
 *[HSA]:  Health Security Agency
 *[UKHSA]:  United Kingdom's Health Security Agency
 
-**Note:** these definitions are geared toward the typing of consensus sequences and aren't exhaustive. In our experience, due to the dispersion nature of wastewater sequencing, exhaustive list usually perform better, as a smaller curated subset like UKHSA's might all fall on a drop outs.
+```{note}
+These definitions are geared toward the typing of consensus sequences and aren't exhaustive. In our experience, due to the dispersion nature of wastewater sequencing, exhaustive list usually perform better, as a smaller curated subset like UKHSA's might all fall on a drop outs.
+```
 
 It's possible to convert their YAML format into COJAC's by using:
 
@@ -194,7 +201,9 @@ It's possible to convert their YAML format into COJAC's by using:
 phe2cojac --shortname 'om2' --yaml voc/omicron_ba2_mutations.yaml variant_definitions/variant_yaml/imagines-viewable.ym
 ```
 
-> Note: a short name needs to be passed on the command line, the rest of the header is generated out of information available in the converted YAML.
+```{note}
+a short name needs to be passed on the command line, the rest of the header is generated out of information available in the converted YAML.
+```
 
 ### Checking background levels of mutations
 
@@ -202,6 +211,7 @@ Once you have a YAML, check the mutation list with `cojac cooc-curate`
 
 ## Installation
 
+<!-- This requires explanation -->
 We need to request a specific branch:
 
 ```bash
@@ -220,10 +230,13 @@ will produce:
 └───📁work        # work directory
 ```
 
+<!-- What's this? -->
+
 curl 'https://polybox.ethz.ch/index.php/s/ZumerimckhgCRYB/download' -o cowwid-tutorial.tar.xz
 
 ## Getting data into V-pipe
 
+<!-- Where do we get this data? -->
 What we need is a `samples.tsv` and the specific 2-level hierarchy that V-pipe uses (1-level should also be okay):
 
 ```text
@@ -244,6 +257,9 @@ What we need is a `samples.tsv` and the specific 2-level hierarchy that V-pipe u
 ### Alternative A: Getting .fastq.gz files
 
 There are also tools useful for automatically importing files:
+
+<!-- What does this do? -->
+<!-- Also not documented in the script -->
 
 ```bash
 ../V-pipe/utils/sort_samples_dumb -h
