@@ -11,6 +11,18 @@ module load  gcc/5.4.0 openblas/0.2.19
 . /cluster/work/bewi/members/lfuhrmann/miniconda3/bin/activate
 conda activate snakemake
 module load eth_proxy
+
+on the new ubuntu system:
+export MY_MODULEPATH_ROOT=/cluster/work/bewi/nss/modules/
+module use $MY_MODULEPATH_ROOT/Core
+
+module load stack/.2024-04-silent  gcc/8.5.0 openblas/0.3.24
+
+. /cluster/work/bewi/members/lfuhrmann/miniconda3/bin/activate
+cd /cluster/work/bewi/members/lfuhrmann/
+conda activate snakemake
+module load eth_proxy
+
 """
 
 
