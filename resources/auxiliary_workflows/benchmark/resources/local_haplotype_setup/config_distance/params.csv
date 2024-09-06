@@ -37,3 +37,9 @@ pacbio,shotgun,single_amplicon,5000,5000,1000,5@5@600@200@300@geom@0.75
 # Population 8
 nanopore,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@240@geom@0.75
 pacbio,shotgun,single_amplicon,5000,5000,1000,5@10@600@200@240@geom@0.75
+# revisions
+# Population 10
+pacbio,shotgun,single_amplicon,5000,5000,1000,5@5@100@5@5@geom@0.75
+nanopore,shotgun,single_amplicon,5000,5000,1000,5@5@100@5@5@geom@0.75
+# Population 5
+illumina,shotgun,single_amplicon,249,249,1000,10@5@5@4@3@geom@0.75
