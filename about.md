@@ -55,51 +55,55 @@ nav_items:
 
 ---
 
-## Funding
-Information about the funding sources for our project.
+## Team
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+### Senior software developer and current maintainer
 
-### Grants
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+- [Ivan Topolsky ![orcid]](https://orcid.org/0000-0002-7561-0810), [![github]](https://github.com/dryak)
 
-### Donations
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+### Contributors
+
+- [Pelin Icer Baykal ![orcid]](https://orcid.org/0000-0002-9542-5292), [![github]](https://github.com/picerbaykal)
+- [Kim Philipp Jablonski ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
+- [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
+- [Michal Okoniewski ![orcid]](https://orcid.org/0000-0003-4722-4506), [![github]](https://github.com/michalogit)
+- [Monica Dragan ![orcid]](https://orcid.org/0000-0002-7719-5892), [![github]](https://github.com/monicadragan)
+- [Susana Posada Céspedes ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
+- [David Seifert ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
+- Tobias Marschall
+check V-pipe
+
+### Research group leader
+
+- [Niko Beerenwinkel ![orcid]](https://orcid.org/0000-0002-0573-6119)
+
+[github]: assets/img/icon-github.svg
+[orcid]: assets/img/icon-ORICID.svg
 
 ---
 
-## Team
-Meet the team members behind the development of V-pipe.
+## Funding
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
+The development and longterm maintenance of V-pipe is supported by:
 
-### Core Team
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+[SIB Swiss Institute of Bioinformatics](https://www.sib.swiss/)
 
-### Advisory Board
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+[ETH Zurich](https://www.ethz.ch/)
+
+<!-- ### Grants -->
 
 ---
 
 ## License and privacy policy
+
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
+
 Details about the licensing terms and privacy policies associated with V-pipe.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla velit at sapien rutrum, nec malesuada turpis aliquet. Fusce ut libero nec mauris lobortis consectetur.
-
 ### License Agreement
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Sed fringilla velit at sapien rutrum.
-- Nec malesuada turpis aliquet.
+- V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/licenses/Apache-2.0)
+- All components used within V-pipe are all licensed under either copyleft or permissive license and freely availble on [bioconda](https://bioconda.github.io/).
 
 ### License and privacy policy
-- Fusce ut libero nec mauris lobortis consectetur.
-- Integer at mauris nec sapien sodales ullamcorper.
-- Phasellus lacinia mauris non neque congue, a sollicitudin metus lacinia.
+- V-pipe follows [SIB's privacy policies](https://www.sib.swiss/privacy-policy)
