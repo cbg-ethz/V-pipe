@@ -70,7 +70,7 @@ To assist you in submitting issues, two templates with prefilled sections to gui
 
 ### Bug Reporting Guidelines
 
-We strongly encourage you to provide the following informations when filing for a bug (as suggested in the template):
+We strongly encourage you to provide the following information when filing for a bug (as suggested in the template):
 
 - **Describe the bug**
   A clear and concise description of what the bug is.
@@ -103,18 +103,18 @@ We strongly encourage you to provide the following informations when filing for 
 [![Gitter](https://badges.gitter.im/bioconda/bioconda-recipes.svg)](https://gitter.im/V-pipe/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
-Chat on [gitter](https://gitter.im/V-pipe/community), also [accessible over matrix](https://matrix.to/#/#V-pipe_community:gitter.im?utm_source=gitter) from your favourite client.
+Chat on [gitter](https://gitter.im/V-pipe/community), also [accessible over matrix](https://matrix.to/#/#V-pipe_community:gitter.im?utm_source=gitter) from your favorite client.
 
 
 ### Chat Support Hours
 
-- The dev team is situated in [the central european timezone ](https://time.is/Switzerland)
+- The dev team is situated in [the central European timezone ](https://time.is/Switzerland)
 
 ---
 
 ## E-mail us
 
-For further enquiries, you can also contact the V-pipe Dev Team <v-pipe@bsse.ethz.ch>.
+For further inquiries, you can also contact the V-pipe Dev Team <v-pipe@bsse.ethz.ch>.
 
 ---
 

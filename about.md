@@ -103,7 +103,7 @@ Details about the licensing terms and privacy policies associated with V-pipe.
 
 ### License Agreement
 - V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/licenses/Apache-2.0)
-- All components used within V-pipe are all licensed under either copyleft or permissive license and freely availble on [bioconda](https://bioconda.github.io/).
+- All components used within V-pipe are all licensed under either copyleft or permissive license and freely available on [bioconda](https://bioconda.github.io/).
 
 ### License and privacy policy
 - V-pipe follows [SIB's privacy policies](https://www.sib.swiss/privacy-policy)
