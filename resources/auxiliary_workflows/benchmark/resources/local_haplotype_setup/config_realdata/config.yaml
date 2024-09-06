@@ -3,6 +3,7 @@ method_list: [lofreq_local_haplo,
               predicthaplo_local_haplo,
               viloca_alpha_0.00001,
               cliquesnv_local_haplo_tf0.001,
+              haplodmf,
               ]
 replicate_count: 1
 haplotype_generation: null
