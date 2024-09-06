@@ -1,0 +1,22 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - samtools=1.10
+  - python >=3
+  - progress
+  - numpy
+  - pandas
+  - pyyaml
+  - biopython
+  - bcbio-gff
+  - pysam
+  - pysamstats
+  - scikit-learn
+  - scipy
+  - matplotlib-base
+  - mafft
+  - git-lfs
+  - pip
+  - pip:
+    - git+https://git.bsse.ethz.ch/cbg/viruses/smallgenomeutilities@dev

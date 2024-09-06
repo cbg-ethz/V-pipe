@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - libshorah
+  - python=3.10.4
+  - viloca=1.0.0
+  - coreutils # [not linux]

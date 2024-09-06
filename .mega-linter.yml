@@ -20,3 +20,5 @@ SHOW_ELAPSED_TIME: true
 DEFAULT_BRANCH: master
 # any further fix to LICENSE.md will break licensee's detection scheme
 MARKDOWN_MARKDOWNLINT_FILTER_REGEX_EXCLUDE: LICENSE\.md
+# GitHub passes HTML comments verbatime from template so we can't use <!-- markdownlint-disable MD041 -->
+FILTER_REGEX_EXCLUDE: (\.github/ISSUE_TEMPLATE/.*\.md)

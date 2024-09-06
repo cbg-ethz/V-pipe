@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - lollipop =0.3.0
+  - lollipop =0.4.1

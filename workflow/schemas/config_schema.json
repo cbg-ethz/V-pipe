@@ -38,8 +38,8 @@
                 "snv_caller": {
                     "type": "string",
                     "default": "shorah",
-                    "enum": ["shorah","lofreq"],
-                    "description": "There are two options available for calling single nucleotide variants, either using [ShoRAH (`shorah`)](https://github.com/cbg-ethz/shorah) [^5] or [LoFreq (`lofreq`)](https://csb5.github.io/lofreq/) [^6]. ShoRAH is used by default. If you prefer to use LoFreq, then indicate so in the configuration file as in the example\n\n[^5]: Zagordi, O. et al. ShoRAH: estimating the genetic diversity of a mixed sample from next-generation sequencing data. BMC Bioinformatics. 2011.\n[^6]: Wilm, A. et al. LoFreq: A sequence-quality aware, ultra-sensitive variant caller for uncovering cell-population heterogeneity from high-throughput sequencing datasets. Nucleic Acids Res. 2012.",
+                    "enum": ["shorah","lofreq", "viloca"],
+                    "description": "There are three options available for calling single nucleotide variants, either using [ShoRAH (`shorah`)](https://github.com/cbg-ethz/shorah) [^5],  [LoFreq (`lofreq`)](https://csb5.github.io/lofreq/) [^6] or [VILOCA (`viloca`)](https://github.com/cbg-ethz/viloca) [^7] . ShoRAH is used by default. If you prefer to use LoFreq, then indicate so in the configuration file as in the example\n\n[^5]: Zagordi, O. et al. ShoRAH: estimating the genetic diversity of a mixed sample from next-generation sequencing data. BMC Bioinformatics. 2011.\n[^6]: Wilm, A. et al. LoFreq: A sequence-quality aware, ultra-sensitive variant caller for uncovering cell-population heterogeneity from high-throughput sequencing datasets. Nucleic Acids Res. 2012.",
                     "examples": ["lofreq"]
                 },
                 "haplotype_reconstruction": {
@@ -228,7 +228,7 @@
                 "local": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH).",
+                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH or VILOCA).",
                     "examples": [true]
                 },
                 "global": {
@@ -338,6 +338,10 @@
                     "type": "string",
                     "default": "frameshift_deletions_checks"
                 },
+                "paired_end_read_merger": {
+                    "type": "string",
+                    "default": "paired_end_read_merger"
+                },
                 "mafft": {
                     "type": "string",
                     "default": "mafft"
@@ -385,6 +389,10 @@
                 "shorah": {
                     "type": "string",
                     "default": "shorah shotgun"
+                },
+                "viloca": {
+                    "type": "string",
+                    "default": "viloca run"
                 },
                 "lofreq": {
                     "type": "string",
@@ -989,6 +997,27 @@
             "default": {},
             "type": "object"
         },
+        "paired_end_read_merger": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/paired_end_read_merger.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
         "basecounts": {
             "properties": {
                 "mem": {
@@ -1180,6 +1209,60 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/lofreq.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "viloca": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 2880
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/viloca.yaml"
+                },
+                "consensus": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False.",
+                    "examples": [false]
+                },
+                "merge_paired_end_reads": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Merge paired-end reads in the preprocessing. This is a preprocessing snakemake rule.",
+                    "examples": [false]
+                },
+                "shift": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "VILOCA performs local haplotype reconstruction on windows of the read alignment. The overlap between these windows is defined by the window shifts. By default, it is set to 3, i.e., apart from flanking regions each position is covered by 3 windows."
+                },
+                "insert_bedfile": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "VILOCA performs local haplotype reconstruction on windows of the read alignment. In a first step the alignment is tiled into local regions. This can be done uniformly then set this value None, otherwise path to an (optional) insert file (primer tiling strategy)"
+                },
+                "mode": {
+                    "type": "string",
+                    "default": "use_quality_scores",
+                    "enum": ["shorah","learn_error_params","use_quality_scores"],
+                    "description": "Mode in which to run VILOCA: shorah,  learn_error_params, use_quality_scores. If quality scores are available, we recommend this option"
+                },
+                "extra": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pass additional options to run `viloca`"
                 }
             },
             "default": {},
@@ -1578,6 +1661,12 @@
                     "default": "lines",
                     "description": "Format of the output CSV.\n- `lines`(default) - each variants a separate entry on a separate line.\n- `columns` - one column per variant",
                     "examples": ["columns"]
+                },
+                "filters": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of filters for removing problematic mutations from tally. Some mutations might be problematic and need to be taken out -- e.g. due to drop-outs in the multiplex PCR amplification, they do not show up in the data and this could be misinterpreted by LolliPop as proof of absence of a variant.",
+                    "examples": ["filters_preprint.yaml"]
                 }
             },
             "default": {},

@@ -1,6 +1,6 @@
 # Local haplotype reconstruction benchmark 
 
-This repository stores the scripts and notebooks used to conduct the benchmark study presented in the manuscript: XXX
+This repository stores the scripts and notebooks used to conduct the benchmark study presented in the manuscript: https://www.biorxiv.org/content/10.1101/2024.06.06.597712v1 
 
 To reproduce the benchmark study and create the figures presented in the manuscript, use the following instructions:
 1. Clone the repository of V-pipe 3.0 into your working directory:
