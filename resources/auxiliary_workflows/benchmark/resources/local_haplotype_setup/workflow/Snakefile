@@ -209,6 +209,62 @@ use rule performance_measures_local from varyvilocaparams as varyvilocaparams_pe
 ##############
 # distance rules
 ##############
+
+### To run haplodmf uncomment this rule and comment-out rule distance_run_method_local_global
+rule distance_run_haplodmf:
+    input:
+        fname_bam=lambda wildcards: (
+            f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/distance/simulated_reads/{distance.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+            if wildcards.seq_mode == "amplicon"
+            else f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/distance/simulated_reads/{distance.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+        ),
+        fname_bam_index=f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/distance/simulated_reads/{distance.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
+        fname_reference=f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/distance/simulated_reads/{distance.paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_insert_bed=lambda wildcards: (
+            f"results/distance/simulated_reads/{distance.paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
+            if wildcards.seq_mode == "amplicon"
+            or wildcards.seq_mode_param == "single_amplicon"
+            else []
+        ),
+    output:
+        fname_result_haplos=f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/snvs_.vcf",
+        dname_work=directory(
+            f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/work/"
+        ),
+        fname_status=touch(
+            f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/status_.txt"
+        ),
+    benchmark:
+        f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/benchmark_.tsv"
+    threads: 30
+    resources:
+        mem_mb=60024, # 10000,  #60024,
+        runtime=5*24*60, #15*24*60,
+    conda: "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
+    shell:
+        """
+        mkdir -p "{output.dname_work}"
+        fname_sam="{output.dname_work}/reads.sam"
+        samtools view  -h "{input.fname_bam}" > "$fname_sam"
+        cd "{output.dname_work}"
+        ls -l
+        cd /cluster/work/bewi/members/lfuhrmann/HaploDMF/
+        set +e
+        /cluster/work/bewi/members/lfuhrmann/HaploDMF/haplodmf.sh -i "$fname_sam" -r "{input.fname_reference}" -o "{output.dname_work}/result" -p prefix
+        echo "finished haplodmf"
+        cp  "{output.dname_work}/result/prefix_haplotypes.fasta"  "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
+        touch "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result}"
+        exitcode=$?
+        if [ $exitcode -eq -1 ]
+        then
+            exit 1
+        else
+            exit 0
+        fi
+        """
+
+
 use rule run_method_local from distance as distance_run_method_local_global with:
     output:
         fname_result_haplos=f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
@@ -402,6 +458,63 @@ use rule performance_measures_global from distance as distance_performance_measu
 #########
 # real data rules
 #########
+
+### To run haplodmf uncomment this rule and comment-out rule realdata_run_method_local_global
+
+rule realdata_run_haplodmf:
+    input:
+        fname_bam=lambda wildcards: (
+            f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/realdata/simulated_reads/{realdata.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+            if wildcards.seq_mode == "amplicon"
+            else f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/realdata/simulated_reads/{realdata.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam"
+        ),
+        fname_bam_index=f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/realdata/simulated_reads/{realdata.paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.{{seq_mode}}.bam.bai",
+        fname_reference=f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/realdata/simulated_reads/{realdata.paramspace.wildcard_pattern}/replicates/{{replicate}}/reference.fasta",
+        fname_insert_bed=lambda wildcards: (
+            f"results/realdata/simulated_reads/{realdata.paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/reference.insert.bed"
+            if wildcards.seq_mode == "amplicon"
+            or wildcards.seq_mode_param == "single_amplicon"
+            else []
+        ),
+    output:
+        fname_result_haplos=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/haplotypes_.fasta",
+        fname_result=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/snvs_.vcf",
+        dname_work=directory(
+            f"/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/work/"
+        ),
+        fname_status=touch(
+            f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/status_.txt"
+        ),
+    benchmark:
+        f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/benchmark_.tsv"
+    threads: 30
+    resources:
+        mem_mb=60024, # 10000,  #60024,
+        runtime=5*24*60, #15*24*60,
+    conda: "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
+    shell:
+        """
+        mkdir -p "{output.dname_work}"
+        fname_sam="{output.dname_work}/reads.sam"
+        samtools view  -h "{input.fname_bam}" > "$fname_sam"
+        cd "{output.dname_work}"
+        ls -l
+        cd /cluster/work/bewi/members/lfuhrmann/HaploDMF/
+        set +e
+        /cluster/work/bewi/members/lfuhrmann/HaploDMF/haplodmf.sh -i "$fname_sam" -r "{input.fname_reference}" -o "{output.dname_work}/result" -p prefix
+        echo "finished haplodmf"
+        cp  "{output.dname_work}/result/prefix_haplotypes.fasta"  "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
+        touch "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result}"
+        exitcode=$?
+        if [ $exitcode -eq -1 ]
+        then
+            exit 1
+        else
+            exit 0
+        fi
+        """
+
+
 use rule run_method_local from realdata as realdata_run_method_local_global with:
     output:
         fname_result_haplos=f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes_.fasta",
