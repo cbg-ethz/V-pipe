@@ -121,6 +121,8 @@ Results have helped to gain a better understanding of the transmission chains be
 
 ### SIB Profile
 
+- [SIB Profile 2024 - p60 - Anticipating human-pet virus transmission](https://issuu.com/sibswissinstituteofbioinformatics/docs/sib_profile_2024_web/60)
+- [SIB Profile 2024 - p64 - A suite of leading complementary data analysis tools to track COVID-19 and other pathogens](https://issuu.com/sibswissinstituteofbioinformatics/docs/sib_profile_2024_web/64)
 - [SIB Profile 2023 - p16 - Equipping researchers and policymakers to fight pandemics](https://issuu.com/sibswissinstituteofbioinformatics/docs/sib_profile_2023/16)
 - [SIB Profile 2022 - p38 - Tracking the virus around the globe](https://issuu.com/sibswissinstituteofbioinformatics/docs/sib_profile_2022_web/38)
 - [SIB Profile 2021 - p24 - Using V-pipe to enable early-warning detection of SARS-CoV-2 variants in wastewater](https://issuu.com/sibswissinstituteofbioinformatics/docs/profile2021/24)
