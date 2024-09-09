@@ -111,7 +111,7 @@ The downloaded files should have the following structure:
 
 ## Configuration
 
-In the `work_hiv`  directory you can find the file `config.yaml`. Open it in your editor and copy-paste the contents of the yaml file below in there. Our data is from the SARS-CoV-2 virus. Therefore, we can use the reference genome and annotation files provided by V-pipe, that we can specify at `general.virus_base_config`. In addition to that, we will set the `input.read_length` to 150 and `output.snv` to `true` to enable the SNV calling:
+In the `work_sarscov2`  directory you can find the file `config.yaml`. Open it in your editor and copy-paste the contents of the yaml file below in there. Our data is from the SARS-CoV-2 virus. Therefore, we can use the reference genome and annotation files provided by V-pipe, that we can specify at `general.virus_base_config`. In addition to that, we will set the `input.read_length` to 150 and `output.snv` to `true` to enable the SNV calling:
 
 ```yaml
 general:
