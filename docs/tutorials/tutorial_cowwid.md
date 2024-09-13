@@ -3,7 +3,9 @@
 
 The occurence of SARS-CoV-2 in wastewater can be used as an early warning system for the presence of the virus in a community. Typically, the virus is shed in the stool of infected individuals, and can be detected in wastewater before clinical cases are reported. This can be particularly useful for monitoring the presence of new variants of the virus, which may be more transmissible or resistant to vaccines. To monitor occurrence of SARS-CoV-2 variants in waste water, the RNA of the virus is amplified with PCR, and the viral genome is sequenced to identify specific mutations that are characteristic of different variants. This tutorial introduces the type of analysis that is required to translate raw sequencing data into epidemiological information as part of the [national surveillance program of SARS-CoV-2 variants in wastewater](https://cov-spectrum.ethz.ch/story/wastewater-in-switzerland).
 
-Bagutti, Claudia, Monica Alt Hug, Philippe Heim, Laura Maurer Pekerman, Evelyn Ilg Hampe, Philipp Hübner, Simon Fuchs, et al. 2022. "Wastewater Monitoring of SARS-CoV-2 Shows High Correlation with COVID-19 Case Numbers and Allowed Early Detection of the First Confirmed b.1.1.529 Infection in Switzerland: Results of an Observational Surveillance Study." _Swiss Medical Weekly_ 152 (2526): w30202. [doi:10.4414/smw.2022.w30202](https//doi.org/10.4414/smw.2022.w30202)
+The data for this tutorial comes from the following publication:
+
+Bagutti, Claudia, Monica Alt Hug, Philippe Heim, Laura Maurer Pekerman, Evelyn Ilg Hampe, Philipp Hübner, Simon Fuchs, et al. 2022. "Wastewater Monitoring of SARS-CoV-2 Shows High Correlation with COVID-19 Case Numbers and Allowed Early Detection of the First Confirmed b.1.1.529 Infection in Switzerland: Results of an Observational Surveillance Study." _Swiss Medical Weekly_ 152 (2526): w30202. [doi:10.4414/smw.2022.w30202](https://doi.org/10.4414/smw.2022.w30202)
 
 ## Setting up your work directory
 
