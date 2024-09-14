@@ -70,7 +70,9 @@ Deconvolution with [Lollipop](https://github.com/cbg-ethz/LolliPop) is based on 
 See [LolliPop's README.md](https://github.com/cbg-ethz/LolliPop#run-the-deconvolution) for more information about configuring the deconvolution.
 ```
 
-### Provinding a `timeline.tsv`
+
+
+### Providing a `timeline.tsv`
 
 The file `timeline.tsv` contains the same information as the `samples.tsv` file, but with the addition of the location of the sample. An example for the first few samples of our dataset would be:
 
@@ -88,9 +90,35 @@ Note that:
 - In addition to the first four columns of `samples.tsv`, only `location` and `date` are necessary for LolliPop. The others are optional.
 ```
 
+Provide the `timeline.tsv` file in `config.yaml` at `tallymut` under `timeline_file`, so:
+
+```yaml
+tallymut: 
+    timeline_file: timeline.tsv
+```
+
 ### Providing a `regex.yaml`
 
-Often, sample information (including date of sampling) is included in the sample name. We can extract this date information using a regex. V-pipe do this extraction for you, it just needs the regular expression, that you need to provide in a `regex.yaml` file. Here is an example of a regex for the file names we typically use (`PLANT_YEAR_MONTH_DAY_PROPERTIES`):
+Often, sample information (including date of sampling) is included in the sample name. We can extract this date information using a regex. V-pipe can do this extraction for you. It just needs the regular expression, that you need to provide in a `regex.yaml` file. This file is specified in section `timeline:`, property `regex_yaml` in `config.yaml`, so:
+
+```yaml
+timeline:
+   regex_yaml: regex.yaml
+```
+
+The yaml can contain the following items:
+- `sample` and/or `batch`: regular expressions that are run against the first (and optionally second) column of V-pipe's `samples.tsv`. 
+- `datefmt`: [strftime/strptime format string](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) to be used on regex named group `date` (e.g.: use `"%Y%m%d"` to parse YYYYMMDD). Specifying `datefmt` is most useful for date formats that don't split nicely into the ` year`, `month`, and `day` regex  named groups: e.g. if your date format uses week number, day of the week, or day of year. In that case, write a regular expression that provides a named-group `date`, and then use, e.g., `%W%w` or `%j` in your ` datefmt`.
+
+The regular expression can contain the following named-groups that are used to build the timeline:
+
+- `location`: this named-group gives the code for the location (e.g.: Ewag's number code in the schema above)
+- `year`: year (in `YYYY` or `YY` format. `YY` are automatically expanded to `20YY` --- Yes, I am optimistic with the duration of this pandemic. Or pessimistic with long term use of V-pipe after the turn of century ;-) ).
+- `month`: month
+- `day`: day
+- `date`: an alternative to the year/month/day groups, if dates aren't in a standard format.
+
+Here is an example of a regex for the file names we typically use (`PLANT_YEAR_MONTH_DAY_PROPERTIES`):
 
 ```text
 ┌──────────────── Wastewater Treatment Plant:
@@ -109,24 +137,13 @@ Often, sample information (including date of sampling) is included in the sample
 10_2020_04_26_30kd
 ```
 
-In this case, `regex.yaml` (specified in section  `timeline:`, property `regex_yaml` of the configuration) defines regular expressions that help parse the samples names specified in the above scheme:
+For this example, `regex.yaml` looks like this:
 
 ```yaml
 sample: (?P<location>\d+)_(?P<year>20\d{2})_(?P<month>[01]?\d)_(?P<day>[0-3]?\d)
 ```
 
-The yaml can contain the following items:
-- `sample` and/or `batch`: define regular expressions that are run against the first (and optionally second) column of V-pipe's `samples.tsv`. 
-- `datefmt`: [strftime/strptime format string](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) to be used on regex named group `date` (e.g.: use `"%Y%m%d"` to parse YYYYMMDD). Specifying `datefmt` is most useful for date formats that don't split nicely into the ` year`, `month`, and `day` regex  named groups: e.g. if your date format uses week number, day of the week, or day of year. In that case, write a regular expression that provides a named-group `date`, and then use, e.g., `%W%w` or `%j` in your ` datefmt`.
-
-The regular expression can contain the following named-groups that are used to build the timeline:
-
-- `location`: this named-group gives the code for the location (e.g.: Ewag's number code in the schema above)
-- `year`: year (in `YYYY` or `YY` format. `YY` are automatically expanded to `20YY` --- Yes, I am optimistic with the duration of this pandemic. Or pessimistic with long term use of V-pipe after the turn of century ;-) ).
-- `month`: month
-- `day`: day
-- `date`: an alternative to the year/month/day groups, if dates aren't in a standard format.
-
+```{note}
 Regex are parsed with the [Python regex library](https://pypi.org/project/regex/), and multiple named groups can use the same name. If you expect multiple formats of the file names, you can thus have a construction where you use `|` to give multiple alternative as long as each provide named-groups `location` and either  `year`, `month`, and `day` or `date`:
    
 ```
@@ -134,6 +151,9 @@ Regex are parsed with the [Python regex library](https://pypi.org/project/regex/
 ```
 
 (I swear I have personally typed the line above. It has nothing to do with cats walking on my keyboard ฅ^•ﻌ•^ฅ )
+
+```
+
 
 ### Expanding the location
 

@@ -17,7 +17,7 @@ parts:
   - file: tutorials/tutorial_hiv
   - file: tutorials/tutorial_cowwid.md
   - file: tutorials/create_voc.md
-  - file: tutorials/specify_timeline.md
+
 - caption: Bibliography
   chapters:
   - file: bibliography

@@ -182,6 +182,13 @@ Note that:
 - In addition to the first four columns of `samples.tsv`, only `location` and `date` are necessary for LolliPop.
 ```
 
+Provide the `timeline.tsv` file in `config.yaml` at `tallymut` under `timeline_file`, so:
+
+```yaml
+tallymut: 
+    timeline_file: timeline.tsv
+```
+
 ### Run LolliPop
 
 This command will run the deconvolution:
