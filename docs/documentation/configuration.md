@@ -166,6 +166,84 @@ code    location
 Ba  Basel (BS)
 ```
 
+(prepare-voc-data)=
+## Prepare VOC data
+
+To detect variants of concern (VOC) with [COJAC](https://github.com/cbg-ethz/cojac), it requires mutation data in the form of a `yaml` file. Each variant of interest should be represented in a single `yaml` file.
+
+Here's an example:
+
+```yaml
+variant:
+  voc: 'VOC-21APR-02'
+  who: 'delta'
+  short: 'de'
+  pangolin: 'B.1.617.2'
+mut:
+  210: 'G>T'
+  241: 'C>T'
+  3037: 'C>T'
+  4181: 'G>T'
+  6402: 'C>T'
+```
+
+These yaml files are stored in one directory in your work directory (e.g. `vocs/`), which is specified at `input` under at `config.yaml`:
+
+```yaml
+input:
+    variants_def_directory: vocs/
+```
+
+There are multiple ways to acquire the VOC yaml files. Below paragraphs describe those.  
+
+### COJAC GitHub
+
+You can directly download pre-configured yaml files are available from the [COJAC GitHub repository](https://github.com/cbg-ethz/cojac/tree/master/voc) for most of the variants that are currently of interest.
+
+### Using COJAC to download from cov-spectrum.org 
+
+The second part of this file (`mut`) can be generated using [COJAC](https://github.com/cbg-ethz/cojac), which queries the Cov-Spectrum database to identify the mutations that are characteristic of each variant. To use COJAC, we need to install it first. We will create a new conda environment called `cowwid-prepare` that contains the necessary tools for preparing the input data. We will use the `mamba` package manager to create the environment and install the required tools.
+
+```bash
+# activate the base conda environment
+. vp-analysis/*forge*/bin/activate ''
+
+# create the environment
+mamba create -n cowwid-prepare -c conda-forge -c bioconda cojac viramp-hub
+
+# deactivate conda
+conda deactivate
+```
+
+```{note}
+If you are using your own conda installation, you can skip `. vp-analysis/*forge*/bin/activate cowwid-prepare`.
+```
+
+After installation we use COJAC to generate the yaml files for the delta, omicron BA.1, and omicron BA.2 variants. First activate the `cowwid-prepare` environment:
+
+```bash
+# activate the environment 'cowwid-prepare' which contains cojac
+. vp-analysis/*forge*/bin/activate cowwid-prepare
+```
+
+And create a work directory for our analysis, including the directory where we will store the variant information:
+
+```bash
+mkdir -p vp-analysis/work_cowwid/vocs
+```
+
+Now we can use COJAC to create the mutation lists for the delta, omicron BA.1, and omicron BA.2 variants:
+
+```bash
+cd vp-analysis/work_cowwid/
+cojac sig-generate --url https://lapis.cov-spectrum.org/open/v2 --variant B.1.617.2 | tee vocs/delta_mutations_full.yaml
+cojac sig-generate --url https://lapis.cov-spectrum.org/open/v2 --variant BA.1 | tee vocs/omicron_ba1_mutations_full.yaml
+cojac sig-generate --url https://lapis.cov-spectrum.org/open/v2 --variant BA.2 | tee vocs/omicron_ba2_mutations_full.yaml
+```
+
+After creating the yaml files, we need to manually add metadata information
+
+
 (configuring-the-workflow)=
 ## Configuring the workflow
 

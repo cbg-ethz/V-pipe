@@ -114,7 +114,7 @@ wget https://raw.githubusercontent.com/cbg-ethz/cojac/master/voc/omicron_ba2_mut
 
 ```
 
-These yaml files are used to define the mutations that are characteristic of the delta, omicron BA.1, and omicron BA.2 variants. The yaml files can also be created with the help of the COJAC tool, which queries the Cov-Spectrum database to identify the mutations that are characteristic of each variant. Follow the [preparing VOC tutorial](create_voc) to learn how to use other resources to generate the yaml files for the delta, omicron BA.1, and omicron BA.2 variants.
+These yaml files are used to define the mutations that are characteristic of the delta, omicron BA.1, and omicron BA.2 variants. The yaml files can also be created with the help of the COJAC tool, which queries the Cov-Spectrum database to identify the mutations that are characteristic of each variant. Follow the [preparing VOC configuration](prepare-voc-data) to learn how to use other resources to generate the yaml files for the delta, omicron BA.1, and omicron BA.2 variants.
 
 ## Run COJAC
 
