@@ -1,7 +1,7 @@
 
 # SARS-CoV-2 Wastewater Surveillance Tutorial
 
-The occurence of SARS-CoV-2 in wastewater can be used as an early warning system for the presence of the virus in a community. Typically, the virus is shed in the stool of infected individuals, and can be detected in wastewater before clinical cases are reported. This can be particularly useful for monitoring the presence of new variants of the virus, which may be more transmissible or resistant to vaccines. To monitor occurrence of SARS-CoV-2 variants in waste water, the RNA of the virus is amplified with PCR, and the viral genome is sequenced to identify specific mutations that are characteristic of different variants. This tutorial introduces the type of analysis that is required to translate raw sequencing data into epidemiological information as part of the [national surveillance program of SARS-CoV-2 variants in wastewater](https://cov-spectrum.ethz.ch/story/wastewater-in-switzerland).
+The occurence of SARS-CoV-2 in wastewater can be used as an early warning system for the presence of the virus in a community. The virus is shed in the stool of infected individuals, and can be detected in wastewater before clinical cases are reported. This can be particularly useful for monitoring the presence of new variants of the virus, which may be more transmissible or resistant to vaccines. To monitor occurrence of SARS-CoV-2 variants in waste water, the RNA of the virus is amplified with PCR, and the viral genome is sequenced to identify specific mutations that are characteristic of different variants. This tutorial introduces the type of analysis that is required to translate raw sequencing data into epidemiological information as part of the [national surveillance program of SARS-CoV-2 variants in wastewater](https://cov-spectrum.ethz.ch/story/wastewater-in-switzerland).
 
 The data for this tutorial is from {cite}`bagutti_wastewater_2022`.
 
@@ -21,11 +21,9 @@ vp-analysis
 - `mambaforge` has dependencies to start using V-pipe (bioconda, conda-forge, mamba, snakemake)
 - `work` is the directory where you have performed the test analysis
 
-
-
 ## Preparing the input data
 
-In addition to the raw sequencing data (`fastq.gz`) files, we also need to provide information about the SARS-CoV-2 variants we would like to detect. 
+In addition to the raw sequencing data (`fastq.gz`) files, we also need to provide information about the SARS-CoV-2 variants we would like to detect. For this tutorial all required input files are provided in the correct format. This set up can serve as an example for your own data. 
 
 ### Set up the working directory
 
@@ -38,14 +36,16 @@ wget https://vpipe-gsod.s3.eu-central-1.amazonaws.com/cowwid_tutorial.tar.gz
 tar -xvf cowwid_tutorial.tar.gz
 ```
 
-After that you can initiate the project with:
+This will download and create a directory with files that you would need to provide. More information about how to set this up for your own data can be found at [organizing data](organizing-data). 
+
+After preparing the input files, you can initiate the project with:
 
 ```bash
 cd work_cowwid
 ../V-pipe/init_project.sh
 ```
 
-This will result in the following directory structure:
+The above two steps will result in the following directory structure:
 
 ```text
 work_cowwid
@@ -165,7 +165,7 @@ Now that we have evidence for the presence of variants, we can use [LolliPop](ht
 
 ### Timeline
 
-Because Lollipop performs a time-series analysis, we need to provide information on the date of sampling in a timeline file. This file should contain the date of each sample, and the location where the sample was taken. This file contains the same information as the `samples.tsv` file, but with the addition of the location of the sample. An example for the first few samples of our dataset would be:
+Because Lollipop performs a time-series analysis, we need to provide information on the date of sampling. In this tutorial we do this with  a timeline file. For more information and alternative methods see [Specifying timeline and location information](specifying-timeline-and-location-information). The timeline file should contain the date of each sample, and the location where the sample was taken. This file contains the same information as the `samples.tsv` file, but with the addition of the location of the sample. An example for the first few samples of our dataset would be:
 
 ```
 sample	batch	reads	proto	location_code	date	location
