@@ -69,6 +69,3 @@ Are you running into issues? Or want to stay up-to-date with the latest developm
 ## Citing V-pipe
 
 For citing the latest version of V-pipe refer to {cite}`fuhrmann_v-pipe_2023` or the first paper describing the pipeline {cite}`posada-cespedes_v-pipe_2021`.
-
-```{bibliography}
-```
