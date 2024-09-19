@@ -1,24 +1,6 @@
-- date: 2024-04-01
-  location: BioInformatics Summit, London, UK
-- date: 2024-04-15
-  location: Genomic Data Symposium, Paris, France
-- date: 2024-05-10
-  location: Computational Biology Conference, Berlin, Germany
-- date: 2024-06-20
-  location: Molecular Informatics Symposium, Madrid, Spain
-- date: 2024-07-15
-  location: Systems Biology Summit, Rome, Italy
-- date: 2024-08-05
-  location: BioData Forum, Athens, Greece
-- date: 2023-12-15
-  location: Precision Medicine Expo, New York, USA
-- date: 2023-11-20
-  location: Next-Gen Sequencing Congress, Los Angeles, USA
-- date: 2023-10-25
-  location: Bioinformatics Innovation Expo, Toronto, Canada
-- date: 2023-09-30
-  location: Translational Bioinformatics Symposium, Tokyo, Japan
-- date: 2023-08-15
-  location: Bioinformatics Futures Forum, Sydney, Australia
-- date: 2023-07-01
-  location: Bioinformatics Conference, Cape Town, South Africa
+- date: 2024-06-24
+  # end 2024-06-26
+  location: Swiss bioinformatics summit 2024, Biel/Bienne, Switzerland
+- date: 2022-10-03
+  # end 2022-10-07
+  location: VIROINF Workshop on analysis of viral NGS data, Hiddensee, Germany
