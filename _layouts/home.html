@@ -70,22 +70,11 @@
         ]
       }
     </script>
-    <script>
-      var _paq = window._paq = window._paq || [];
-      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u="//matomo.sib.swiss/";
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '59']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-      })();
-    </script>
   </head>
   <body class="homebody">
-    
+{%- if jekyll.environment == 'production' and site.matomo -%}
+{% include analytics.html %}
+{%- endif -%}
     {% include navigation.html %}
 
     <header class="home">
@@ -107,6 +96,6 @@
     {% include footer.html %}
 
     <a id="btn-getting-started" href="{{ site.baseurl }}/getting-started/"><span><img src="{{ site.baseurl }}/assets/img/ic-idea-bulb.svg" alt="Icon Getting Started" ></span> Getting started <!--img src="{{ site.baseurl }}/assets/img/ic-arrow-right.svg" alt="Arrow pointed to the right icon" /--></a>
-    
+
   </body>
 </html>
