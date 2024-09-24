@@ -33,7 +33,8 @@ plugins:
 whitelist:
   - jekyll-redirect-from
 
-baseurl: "/vpipe"
+baseurl: "/V-pipe"
+url: "https://cbg-ethz.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Build settings
 markdown: kramdown
