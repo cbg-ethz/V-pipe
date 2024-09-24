@@ -6,7 +6,7 @@
               <h2>{{ column.heading }}</h2>
               <ul>
                   {% for link in column.links %}
-                      <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                      <li><a href="{{ site.baseurl }}/{{ link.url }}">{{ link.title }}</a></li>
                   {% endfor %}
               </ul>
           </div>
@@ -16,9 +16,9 @@
       <div class="column">
         <h2>Follow us</h2>
         <div class="social-container">
-          <a href="#"><img src="assets/img/ic-newsletter.svg" alt="YouTube Icon" ></a>
-          <a href="#"><img src="assets/img/ic-youtube.svg" alt="YouTube Icon" ></a>
-          <a href="#"><img src="assets/img/ic-rss.svg" alt="YouTube Icon" ></a>
+          <a href="{{ site.baseurl }}/contact#subscribe-to-mailing-list"><img src="{{ site.baseurl }}/assets/img/ic-newsletter.svg" alt="Newsletter Icon" ></a>
+          <a href="#"><img src="{{ site.baseurl }}/assets/img/ic-youtube.svg" alt="YouTube Icon" ></a>
+          <a href="#"><img src="{{ site.baseurl }}/assets/img/ic-rss.svg" alt="RSS Icon" ></a>
         </div>
       </div>
       <div class="column">

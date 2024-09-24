@@ -2,7 +2,8 @@
 Vpipe Jekyll custom site draft version
 
 ## Navigation
-Currently each md file has their own navigation structure in front-matter, the display logic is in navigation.html located in the _includes folder.
+Navigation items can be added/removed in the nav_items.yml file in the _data folder. The display logic is in navigation.html located in the _includes folder.
+Note: [Footer](#footer) is indepedent
 
 ## Hero carousel
 Content can be added/edited in the heroCarousel collection. 
@@ -25,3 +26,4 @@ Content is hard-coded in the funding.html file in the _includes folder
 
 ## Footer
 Content can be added/removed in the _footer collection and the footer.html in the _includes folder.
+Note: [Navigation](#navigation) is indepedent

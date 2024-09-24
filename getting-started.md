@@ -1,49 +1,7 @@
 ---
 layout: default
 title: Getting started - V-pipe | NGS data analysis pipeline
-nav_items:
-  - name: Home
-    link: "/index"
-  - name: Documentation
-    link: "/documentation"
-    sub_items:
-      - name: Tutorials
-        link: "/documentation#tutorials"
-      - name: General information
-        link: "/documentation#general-information"
-      - name: Configuration Files
-        link: "/documentation#configuration-files"
-      - name: How to Benchmark Tools?
-        link: "/documentation#how-to-benchmark-tools"
-  - name: Literature
-    link: "/literature"
-    sub_items:
-      - name: How to Cite Us
-        link: "/literature#how-to-cite-us"
-      - name: Use of V-pipe
-        link: "/literature#use-of-v-pipe"
-      - name: V-pipe vs Competitors
-        link: "/literature#v-pipe-vs-competitors"
-  - name: About
-    link: "/about"
-    sub_items:
-      - name: Funding
-        link: "/about#funding"
-      - name: Team
-        link: "/about#team"
-      - name: License and privacy policy Policy
-        link: "/about#license-privacy-policy"
-  - name: Contact
-    link: "/contact"
-    sub_items:
-      - name: Chat with Us
-        link: "/contact#chat-with-us"
-      - name: Submit an Issue
-        link: "/contact#submit-an-issue"
-      - name: E-mail Us
-        link: "/contact#e-mail-us"
-      - name: Subscribe to our Mailing List
-        link: "/contact#subscribe-to-mailing-list"
+permalink: /getting-started/
 ---
 
 # Getting started
@@ -63,7 +21,7 @@ Here are the locations from which you can obtain V-pipe and information on how t
 
 V-pipe is available on and can be obtained from the following locations:
 
-- using the [installation script](utils/README.md#quick-installer) available on GitHub
+- using the [installation script](https://github.com/cbg-ethz/V-pipe/blob/master/utils/README.md#quick-installer) available on GitHub
 - as [Docker image](https://github.com/cbg-ethz/V-pipe/pkgs/container/v-pipe)
 - listed on [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe) and can be installed using the official workflow installer Snakedeploy
 
@@ -84,6 +42,6 @@ Here are the relevant [sections of the README](https://github.com/cbg-ethz/V-pip
 
 ## Next step
 
-To start using V-pipe, you can now refer to the [documentation](documentation).
+To start using V-pipe, you can now refer to the [documentation]({{ site.baseurl }}/documentation).
 
-We strongly encourage you to check our [tutorials](documentation#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.
+We strongly encourage you to check our [tutorials]({{ site.baseurl }}/documentation#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.

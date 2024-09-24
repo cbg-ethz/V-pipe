@@ -3,8 +3,8 @@
   <div class="container">
     
     <div class="logos">
-      <a href="{{ site.baseurl }}/"><img src="assets/img/logo-vpipe-white.svg" alt="Logo V-pipe"></a>
-      <!-- <a href="https://sib.swiss" target="_blank"><img src="assets/img/logo-sib.svg" alt="Logo SIB"></a> -->
+      <a href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/assets/img/logo-vpipe-white.svg" alt="Logo V-pipe"></a>
+      <!-- <a href="https://sib.swiss" target="_blank"><img src="{{ site.baseurl }}/assets/img/logo-sib.svg" alt="Logo SIB"></a> -->
     </div>
     
     <button id="toggle-nav-btn">
@@ -15,11 +15,11 @@
     
     <nav id="main-nav">
       <ul>
-        {% for item in page.nav_items %}
+        {% for item in site.data.nav_items %}
           <li>
             <a href="{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
             {% if item.sub_items %}
-            <img src="assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
+            <img src="{{ site.baseurl }}/assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
             <ul>
               {% for sub_item in item.sub_items %}
                 <li><a href="{{ site.baseurl }}{{ sub_item.link }}">{{ sub_item.name }}</a></li>
