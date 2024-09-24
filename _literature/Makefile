@@ -17,6 +17,7 @@ $(HTMLS): ref.md
 
 ../_includes/literature-%.html:%.bib
 	pandoc --citeproc $(patsubst %.csl,--csl=%.csl,$(^:%.bib=--bibliography %.bib)) -o $@
+	sed -i 's/"refs"/"refs-$(<:%.bib=%)"/g' $@
 
 %.xml:%.bib
 	bib2xml $^ > $@

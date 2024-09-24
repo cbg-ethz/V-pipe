@@ -24,7 +24,7 @@
   link: "/about"
   sub_items:
     - name: Funding
-      link: "/about#funding"
+      link: "/about#v-pipe-funding"
     - name: Team
       link: "/about#team"
     - name: License and privacy policy

@@ -41,7 +41,7 @@ check V-pipe
 
 ---
 
-## Funding
+## V-pipe funding
 
 The development and longterm maintenance of V-pipe is supported by:
 
