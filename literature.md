@@ -7,11 +7,10 @@ permalink: /literature/
 # Literature
 
 ## Table of Contents
-- [Primary](#primary)
-- [General](#general)
-- [Use of V-pipe](#use-of-v-pipe)
-- [Components of V-pipe developed at CBG-ETHZ](#components-of-v-pipe-developed-at-cbg-ethz)
-- [V-pipe vs competitors](#v-pipe-vs-competitors)
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

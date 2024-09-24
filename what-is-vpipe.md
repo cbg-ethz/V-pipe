@@ -7,12 +7,10 @@ permalink: /what-is-vpipe/
 # What is V-pipe?
 
 ## Table of Contents
-- [Introduction](#introduction)
-- [What is V-pipe?](#what-is-v-pipe)
-- [What can V-pipe do with my data?](#what-can-v-pipe-do-with-my-data)
-- [How does V-pipe work?](#how-does-v-pipe-work)
-- [Can I build my own pipeline?](#can-i-build-my-own-pipeline)
-- [How can I use V-pipe?](#how-can-i-use-v-pipe)
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

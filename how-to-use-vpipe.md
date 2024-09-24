@@ -7,8 +7,13 @@ permalink: /how-to-use-vpipe/
 # How to use V-pipe
 
 ## Table of Contents
-- [Hardware requirements](#hardware-requirements)
-- [Software requirements](#software-requirements)
+{:.no_toc}
+
+## Table of Contents
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

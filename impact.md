@@ -7,9 +7,13 @@ permalink: /impact/
 # Impact
 
 ## Table of Contents
-- [Impact stories](#impact-stories)
-- [Press](#press)
-- [SIB news and profiles](#sib-news-and-profiles)
+{:.no_toc}
+
+## Table of Contents
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

@@ -11,10 +11,10 @@ redirect_from:
 # Documentation
 
 ## Table of Contents
-- [Tutorials](#tutorials)
-- [General Information](#general-information)
-- [Configuration Files](#configuration-files)
-- [How to Benchmark Tools](#how-to-benchmark)
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

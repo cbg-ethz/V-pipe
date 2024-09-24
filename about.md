@@ -7,9 +7,10 @@ permalink: /about/
 # About
 
 ## Table of Contents
-- [Funding](#funding)
-- [Team](#team)
-- [License and privacy policy](#license-and-privacy-policy)
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

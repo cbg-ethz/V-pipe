@@ -7,10 +7,13 @@ permalink: /getting-started/
 # Getting started
 
 ## Table of Contents
-- [How to get V-pipe](#how-to-get-v-pipe)
-  - [Available from](#available-from)
-  - [Learn how to install](#learn-how-to-install)
-- [Next step](#next-step)
+{:.no_toc}
+
+## Table of Contents
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

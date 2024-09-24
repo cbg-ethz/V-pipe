@@ -8,10 +8,10 @@ permalink: /contact/
 # Contact
 
 ## Table of Contents
-- [Submit an issue](#submit-an-issue)
-- [Chat with us](#chat-with-us)
-- [E-mail us](#e-mail-us)
-- [Subscribe to our mailing list](#subscribe-to-our-mailing-list)
+{:.no_toc}
+
+* TOC
+{:toc}
 
 ---
 

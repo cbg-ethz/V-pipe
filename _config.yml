@@ -35,6 +35,11 @@ whitelist:
 
 baseurl: "/vpipe"
 
+# Build settings
+markdown: kramdown
+kramdown:
+  toc_levels: "2..6"
+
 sass:
   style: compressed
 
