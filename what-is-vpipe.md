@@ -1,6 +1,6 @@
 ---
 layout: default
-title: What is V-pipe - V-pipe | NGS data analysis pipeline
+title: What is V-pipe
 permalink: /what-is-vpipe/
 ---
 

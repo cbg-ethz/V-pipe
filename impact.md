@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Impact - V-pipe | NGS data analysis pipeline
+title: Impact
 permalink: /impact/
 ---
 

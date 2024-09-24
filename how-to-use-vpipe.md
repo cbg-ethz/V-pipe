@@ -1,6 +1,6 @@
 ---
 layout: default
-title: How to use V-pipe - V-pipe | NGS data analysis pipeline
+title: How to use V-pipe
 permalink: /how-to-use-vpipe/
 ---
 

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Documentation - V-pipe | NGS data analysis pipeline
+title: Documentation
 permalink: /documentation/
 redirect_from:
  - /pipeline/

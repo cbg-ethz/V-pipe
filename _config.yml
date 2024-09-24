@@ -1,8 +1,31 @@
 # _config.yml
+title: V-pipe
+tagline: Virus NGS data analysis pipeline
+logo: /assets/img/logo-vpipe.svg
+description: >
+  Bioinformatics pipeline for processing viral next-generation sequencing data and analyzing mixed virus populations.
+timezone: Europe/Zurich
+author: V-pipe Dev team
+email: v-pipe@bsse.ethz.ch
+twitter:
+  username: cbg_ethz
+
+social:
+  name: CBG-ETHZ
+  links:
+    - https://twitter.com/cbg_ethz
+    - https://github.com/cbg_ethz
+
+webmaster_verifications:
+  google: fdRUDC2xYLfIQgn2HMMoeD3dRH3d_KCP_-1YWjcbzsU
+  bing: F104A9F03044372B029AEAC57D90722A
+
 remote_theme: null
 
 # Disable unwanted plugins if needed (e.g., jekyll-feed for a one-pager)
 plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-redirect-from
 #   - jekyll-sass

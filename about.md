@@ -1,6 +1,6 @@
 ---
 layout: default
-title: About - V-pipe | NGS data analysis pipeline
+title: About
 permalink: /about/
 ---
 

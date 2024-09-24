@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Contact - V-pipe | NGS data analysis pipeline
+title: Contact
 permalink: /contact/
 ---
 

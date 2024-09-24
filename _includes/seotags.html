@@ -1,0 +1,41 @@
+{% capture seotags %}{% seo %}{% endcapture %}{% assign suffix_ld_json = '}</script>' %}{% comment %}
+   <script type="application/ld+json">
+      {
+{% endcomment %}{% capture extra_ld_json %},
+    "isAccessibleForFree" : true,
+    "license": {
+      "@type": "CreativeWork",
+      "name": "Apache License, Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },  
+    "citation": { 
+        "@type": "ScholarlyArticle", 
+        "@id": "https://doi.org/10.1093/bioinformatics/btab015", 
+        "name": "V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput data.",
+        "author": [
+        {"@type": "Person", "givenName": "Susana", "familyName": "Posada-Céspedes"},  
+        {"@type": "Person", "givenName": "David", "familyName": "Seifert", "identifier": "https://orcid.org/0000-0003-4739-5110"}, 
+        {"@type": "Person", "givenName": "Ivan", "familyName": "Topolsky", "identifier": "https://orcid.org/0000-0002-7561-0810"}, 
+        {"@type": "Person", "givenName": "Kim Philipp", "familyName": "Jablonski", "identifier": "ttps://orcid.org/0000-0002-4166-4343"},
+        {"@type": "Person", "givenName": "Karin J.", "familyName": "Metzner", "identifier": "https://orcid.org/0000-0003-4862-1503"},
+        {"@type": "Person", "givenName": "Niko", "familyName": "Beerenwinkel", "identifier": "https://orcid.org/0000-0002-0573-6119"}
+        ],
+        "url": "https://pubmed.ncbi.nlm.nih.gov/pubmed/30476243" 
+    }, 
+    "provider": [
+      { 
+      "@type": "Organization", 
+      "name": "SIB Swiss Institute of Bioinformatics", 
+      "sameAs": "https://ror.org/002n09z45",
+      "url": "https://www.sib.swiss/" 
+      },
+      { 
+      "@type": "Organization", 
+      "name": "ETH Zurich", 
+      "sameAs": "https://ror.org/05a28rw58",
+      "url": "https://ethz.ch/"
+      }
+    ]
+  }
+</script>
+{% endcapture %}{{ seotags | replace_first: suffix_ld_json, extra_ld_json }}

@@ -1,4 +1,5 @@
 ---
 layout: home
-title: V-pipe | NGS data analysis pipeline
+title: V-pipe
+image: /assets/img/logo-vpipe.svg
 ---

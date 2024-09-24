@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Literature - V-pipe | NGS data analysis pipeline
+title: Literature
 permalink: /literature/
 ---
 
