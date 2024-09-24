@@ -58,7 +58,7 @@ We strongly encourage you to provide the following information when filing for a
 
 ## Chat with us
 
-[![Gitter](https://badges.gitter.im/bioconda/bioconda-recipes.svg)](https://gitter.im/V-pipe/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/repo.svg)](https://gitter.im/V-pipe/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
 Chat on [gitter](https://gitter.im/V-pipe/community), also [accessible over matrix](https://matrix.to/#/#V-pipe_community:gitter.im?utm_source=gitter) from your favorite client.

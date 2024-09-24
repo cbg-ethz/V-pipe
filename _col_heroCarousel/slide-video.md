@@ -5,7 +5,7 @@ description: |
 video: https://www.youtube.com/embed/pIby1UooK94
 cta:
   text: Applying V-pipe
-  link: documentation
+  link: /documentation/
 order: 05
 ---
 

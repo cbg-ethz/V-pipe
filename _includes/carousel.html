@@ -19,7 +19,7 @@
               {% if slide.cta.external_url %}
               <a href="{{ slide.cta.external_url }}" class="cta">{{ slide.cta.text }}</a>
               {% else %}
-              <a href="{{ site.baseurl }}/{{ slide.cta.link }}" class="cta">{{ slide.cta.text }}</a>
+              <a href="{{ site.baseurl }}{{ slide.cta.link }}" class="cta">{{ slide.cta.text }}</a>
               {% endif %}
               {% endif %}
           </div>

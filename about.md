@@ -55,12 +55,12 @@ The development and longterm maintenance of V-pipe is supported by:
 
 ## License and privacy policy
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/license/apache-2-0)
 
 Details about the licensing terms and privacy policies associated with V-pipe.
 
 ### License Agreement
-- V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/licenses/Apache-2.0)
+- V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/license/apache-2-0)
 - All components used within V-pipe are all licensed under either copyleft or permissive license and freely available on [bioconda](https://bioconda.github.io/).
 
 ### License and privacy policy

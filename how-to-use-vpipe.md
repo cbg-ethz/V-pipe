@@ -20,7 +20,7 @@ The actual space usage depends on datasets size. Recommendation:
 - Storage >= 40 GiB
 
 
-- x86 CPU recommended (Apple silicon users see [OS](#OS) requirements below)
+- x86 CPU recommended (Apple silicon users see [OS](#os) requirements below)
 - cores >= 4
 
 ---
@@ -31,7 +31,7 @@ The actual space usage depends on datasets size. Recommendation:
 ### OS
 
 - Linux and Mac OS X currently supported.
-- Windows 10 users can install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/about) for compatibility with Linux as bioconda [does not support Windows directly](https://bioconda.github.io/faqs.html#what-versions-are-supported).
+- Windows 10 users can install [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about) for compatibility with Linux as bioconda [does not support Windows directly](https://bioconda.github.io/faqs.html#what-versions-are-supported).
 - Mac OS X users with Apple Silicon should use the `arch -x86_64 …` command (e.g.: `env /usr/bin/arch -x86_64 /bin/zsh --login`) to run through Rosetta as bioconda support isn't stable yet.
 
 ### Software

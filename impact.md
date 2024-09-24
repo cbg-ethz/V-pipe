@@ -9,7 +9,7 @@ permalink: /impact/
 ## Table of Contents
 - [Impact stories](#impact-stories)
 - [Press](#press)
-- [SIB news and profiles](#SIB-news-and-profiles)
+- [SIB news and profiles](#sib-news-and-profiles)
 
 ---
 
@@ -19,7 +19,7 @@ permalink: /impact/
 ### Surveillance in clinical tests
 
 New emerging viruses require fast reactions and up-to-date monitoring of the spread of their variants in order to react in a timely fashion. Switzerland ran a surveillance program of variants of SARS-CoV-2 in clinical tests until January 2023.
-Thanks to its flexibility, the SIB Software Resource V-pipe played a key role in this surveillance from very early on, as it performed the analysis of data for the [Swiss SARS-CoV-2 sequencing consortium (S3C)](https://bsse.ethz.ch/cevo/research/sars-cov-2/swiss-sars-cov-2-sequencing-consortium.html), that published 75’000 sequences on [ENA](https://www.ebi.ac.uk/ena/browser/view/PRJEB43828) and GISAID – about half of Switzerland’s total submissions - via with the help of the [Swiss Patho­gen Sur­veil­lance (SPSP)](https://www.spsp.ch/).
+Thanks to its flexibility, the SIB Software Resource V-pipe played a key role in this surveillance from very early on, as it performed the analysis of data for the [Swiss SARS-CoV-2 sequencing consortium (S3C)](https://bsse.ethz.ch/cevo/research/sars-cov-2/swiss-sars-cov-2-sequencing-consortium.html), that published 75’000 sequences on [ENA](https://www.ebi.ac.uk/ena/browser/view/PRJEB43828) and GISAID – about half of Switzerland’s total submissions - via with the help of the [Swiss Patho­gen Sur­veil­lance (SPSP)](https://spsp.ch/).
 The data have been instrumental in tracking variants ([10.1101/2020.10.14.20212621](https://doi.org/10.1101/2020.10.14.20212621), [10.1016/j.epidem.2021.100480](https://doi.org/10.1016/j.epidem.2021.100480))
 and in providing crucial information to support the decision-making process of public health authorities ([10.1126/scitranslmed.abn7979](https://doi.org/10.1126/scitranslmed.abn7979)).
 

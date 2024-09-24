@@ -6,11 +6,11 @@ links:
   - subject:
     links:
       - title: Getting started
-        url: /getting-started
+        url: /getting-started/
       - title: License
-        url: /about#license-and-privacy-policy
+        url: /about/#license-and-privacy-policy
         extra: |
-          [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
+          [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=flat)](https://opensource.org/license/apache-2-0)
       - title: "Available in"
         extra: |
           [![GitHub](https://img.shields.io/badge/github-grey?logo=github)](https://github.com/cbg-ethz/V-pipe)

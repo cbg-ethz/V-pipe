@@ -10,7 +10,7 @@ permalink: /documentation/
 - [Tutorials](#tutorials)
 - [General Information](#general-information)
 - [Configuration Files](#configuration-files)
-- [How to Benchmark Tools](#how-to-benchmark-tools)
+- [How to Benchmark Tools](#how-to-benchmark)
 
 ---
 

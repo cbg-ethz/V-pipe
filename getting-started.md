@@ -7,9 +7,10 @@ permalink: /getting-started/
 # Getting started
 
 ## Table of Contents
-- [Outlinks](#outlinks)
-- [Usage sections](#usage-sections)
-- [Links](#links)
+- [How to get V-pipe](#how-to-get-v-pipe)
+  - [Available from](#available-from)
+  - [Learn how to install](#learn-how-to-install)
+- [Next step](#next-step)
 
 ---
 
@@ -34,14 +35,14 @@ Here are the relevant [sections of the README](https://github.com/cbg-ethz/V-pip
   - we strong envourage beginners who aren't used to neither conda nor snakemake to use this approach
   - this approach is also demonstrated step-by-step in our [first tutorial, V-pipe Installation](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_0_install.md)
 - Docker image:
-  - [Using docker](https://github.com/cbg-ethz/V-pipe?tab=readme-ov-file#using-docker)
+  - [Using docker](https://github.com/cbg-ethz/V-pipe#using-docker)
 - Snakemake Workflow Catalog:
-  - [Using snakedeploy](https://github.com/cbg-ethz/V-pipe?tab=readme-ov-file#using-snakedeploy)
+  - [Using snakedeploy](https://github.com/cbg-ethz/V-pipe#using-snakedeploy)
 
 ---
 
 ## Next step
 
-To start using V-pipe, you can now refer to the [documentation]({{ site.baseurl }}/documentation).
+To start using V-pipe, you can now refer to the [documentation]({{ site.baseurl }}/documentation/).
 
-We strongly encourage you to check our [tutorials]({{ site.baseurl }}/documentation#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.
+We strongly encourage you to check our [tutorials]({{ site.baseurl }}/documentation/#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.

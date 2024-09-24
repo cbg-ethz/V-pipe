@@ -6,7 +6,7 @@
               <h2>{{ column.heading }}</h2>
               <ul>
                   {% for link in column.links %}
-                      <li><a href="{{ site.baseurl }}/{{ link.url }}">{{ link.title }}</a></li>
+                      <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a></li>
                   {% endfor %}
               </ul>
           </div>
@@ -16,7 +16,7 @@
       <div class="column">
         <h2>Follow us</h2>
         <div class="social-container">
-          <a href="{{ site.baseurl }}/contact#subscribe-to-mailing-list"><img src="{{ site.baseurl }}/assets/img/ic-newsletter.svg" alt="Newsletter Icon" ></a>
+          <a href="{{ site.baseurl }}/contact/#subscribe-to-our-mailing-list"><img src="{{ site.baseurl }}/assets/img/ic-newsletter.svg" alt="Newsletter Icon" ></a>
           <a href="#"><img src="{{ site.baseurl }}/assets/img/ic-youtube.svg" alt="YouTube Icon" ></a>
           <a href="#"><img src="{{ site.baseurl }}/assets/img/ic-rss.svg" alt="RSS Icon" ></a>
         </div>
@@ -25,7 +25,7 @@
         <h2>Enquiries</h2>
         <div>
           <a href="mailto:v-pipe@bsse.ethz.ch">v-pipe@bsse.ethz.ch</a> ;
-          <a href="https://gitter.im/V-pipe/community"><img src="https://badges.gitter.im/bioconda/bioconda-recipes.svg" alt="Gitter" /></a>
+          <a href="https://gitter.im/V-pipe/community"><img src="https://badges.gitter.im/repo.svg" alt="Gitter" /></a>
         </div>
       </div>
     </div>

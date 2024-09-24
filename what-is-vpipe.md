@@ -13,7 +13,6 @@ permalink: /what-is-vpipe/
 - [How does V-pipe work?](#how-does-v-pipe-work)
 - [Can I build my own pipeline?](#can-i-build-my-own-pipeline)
 - [How can I use V-pipe?](#how-can-i-use-v-pipe)
-- [Customisation](#customisation)
 
 ---
 
@@ -57,7 +56,7 @@ V-pipe has a modular and extensible architecture. Users can design their own ful
 V-pipe is freely available for download:
 [Get started with V-pipe]({{ site.baseurl }}/getting-started).
 
-Further details can be found in the [documentation]({{ site.baseurl }}/documentation) section and in the
+Further details can be found in the [documentation]({{ site.baseurl }}/documentation/) section and in the
 [readme](https://github.com/cbg-ethz/V-pipe/blob/master/README.md#usage) of the software.
 
-Should you have any further question, please do not hesitate to [contact us]({{ site.baseurl }}/contact).
+Should you have any further question, please do not hesitate to [contact us]({{ site.baseurl }}/contact/).

@@ -5,7 +5,7 @@ description: |
 image: assets/img/virus-1.webp
 cta:
   text: Get Started with V-pipe
-  link: getting-started
+  link: /getting-started/
 order: 00
 ---
 
