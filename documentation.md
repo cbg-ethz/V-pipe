@@ -2,6 +2,10 @@
 layout: default
 title: Documentation - V-pipe | NGS data analysis pipeline
 permalink: /documentation/
+redirect_from:
+ - /pipeline/
+ - /usage/
+ - /tutorial/sars-cov2/
 ---
 
 # Documentation

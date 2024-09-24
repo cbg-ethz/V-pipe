@@ -2,8 +2,13 @@
 remote_theme: null
 
 # Disable unwanted plugins if needed (e.g., jekyll-feed for a one-pager)
-# plugins:
+plugins:
+  - jekyll-sitemap
+  - jekyll-redirect-from
 #   - jekyll-sass
+
+whitelist:
+  - jekyll-redirect-from
 
 baseurl: "/vpipe"
 
