@@ -1,6 +1,6 @@
 ---
 title: How to get V-pipe?
-image: assets/img/ic-how-to-get-vpipe.svg
+image: /assets/img/ic-how-to-get-vpipe.svg
 heading: How to get V-pipe?
 links:
   - subject:

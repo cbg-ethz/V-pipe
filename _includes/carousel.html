@@ -9,7 +9,7 @@
           </div>
           {% else %}
           <div class="image">
-              <img src="{{ site.baseurl }}/{{ slide.image }}" alt="{{ slide.title }}">
+              <img src="{{ slide.image | prepend: site.baseurl }}" alt="{{ slide.title }}">
           </div>
           {% endif %}
           <div class="content">
@@ -19,7 +19,7 @@
               {% if slide.cta.external_url %}
               <a href="{{ slide.cta.external_url }}" class="cta">{{ slide.cta.text }}</a>
               {% else %}
-              <a href="{{ site.baseurl }}{{ slide.cta.link }}" class="cta">{{ slide.cta.text }}</a>
+              <a href="{{ slide.cta.link | prepend: site.baseurl }}" class="cta">{{ slide.cta.text }}</a>
               {% endif %}
               {% endif %}
           </div>

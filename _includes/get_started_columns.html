@@ -7,7 +7,7 @@
       {% for column in site.col_getStartedColumns %}
         <div class="column" id="box-{{ forloop.index }}">
         <div class="column-heading" id="column-heading-{{ forloop.index }}">
-          <img src="{{ site.baseurl }}/{{ column.image }}" alt="{{ column.title }}">
+          <img src="{{ column.image | prepend: site.baseurl }}" alt="{{ column.title }}">
           <h3>{{ column.heading }}</h3>
         </div>
         {% for link_group in column.links %}
@@ -17,7 +17,7 @@
           <ul>
           {% for link in link_group.links %}
             {% if link.url %}
-              <li><a href="{{ site.baseurl }}{{ link.url }}">{{ link.title }}</a>{% if link.extra %}<br />{{ link.extra | markdownify }}{% endif %}</li>
+              <li><a href="{{ link.url | prepend: site.baseurl }}">{{ link.title }}</a>{% if link.extra %}<br />{{ link.extra | markdownify }}{% endif %}</li>
             {% elsif link.extra %}
               <li class="not-a-link"><span>{{ link.title }}</span>{% if link.extra %}<br />{{ link.extra | markdownify }}{% endif %}</li>
             {% else %}

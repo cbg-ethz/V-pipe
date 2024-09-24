@@ -46,6 +46,6 @@ Here are the relevant [sections of the README](https://github.com/cbg-ethz/V-pip
 
 ## Next step
 
-To start using V-pipe, you can now refer to the [documentation]({{ site.baseurl }}/documentation/).
+To start using V-pipe, you can now refer to the [documentation]({{ '/documentation/' | prepend: site.baseurl }}).
 
-We strongly encourage you to check our [tutorials]({{ site.baseurl }}/documentation/#tutorials), they cover installation of V-pipe and the first steps to get it running on virus data.
+We strongly encourage you to check our [tutorials]({{ '/documentation/#tutorials' | prepend: site.baseurl }}), they cover installation of V-pipe and the first steps to get it running on virus data.

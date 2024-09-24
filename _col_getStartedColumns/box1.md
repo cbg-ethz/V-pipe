@@ -1,6 +1,6 @@
 ---
 title: What is V-pipe
-image: assets/img/ic-what-is-vpipe.svg
+image: /assets/img/ic-what-is-vpipe.svg
 heading: What is V-pipe?
 links:
   - subject: 

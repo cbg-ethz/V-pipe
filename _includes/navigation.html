@@ -3,8 +3,8 @@
   <div class="container">
     
     <div class="logos">
-      <a href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/assets/img/logo-vpipe-white.svg" alt="Logo V-pipe"></a>
-      <!-- <a href="https://sib.swiss" target="_blank"><img src="{{ site.baseurl }}/assets/img/logo-sib.svg" alt="Logo SIB"></a> -->
+      <a href="{{ '/' | prepend: site.baseurl }}"><img src="{{ '/assets/img/logo-vpipe-white.svg' | prepend: site.baseurl }}" alt="Logo V-pipe"></a>
+      <!-- <a href="https://sib.swiss" target="_blank"><img src="{{ '/assets/img/logo-sib.svg' | prepend: site.baseurl }}" alt="Logo SIB"></a> -->
     </div>
     
     <button id="toggle-nav-btn">
@@ -17,12 +17,12 @@
       <ul>
         {% for item in site.data.nav_items %}
           <li>
-            <a href="{{ site.baseurl }}{{ item.link }}">{{ item.name }}</a>
+            <a href="{{ item.link | prepend: site.baseurl }}">{{ item.name }}</a>
             {% if item.sub_items %}
-            <img src="{{ site.baseurl }}/assets/img/ic-chevron-down.svg" alt="Chevron down icon" >
+            <img src="{{ '/assets/img/ic-chevron-down.svg' | prepend: site.baseurl }}" alt="Chevron down icon" >
             <ul>
               {% for sub_item in item.sub_items %}
-                <li><a href="{{ site.baseurl }}{{ sub_item.link }}">{{ sub_item.name }}</a></li>
+                <li><a href="{{ sub_item.link | prepend: site.baseurl }}">{{ sub_item.name }}</a></li>
               {% endfor %}
             </ul>
             {% endif %}
