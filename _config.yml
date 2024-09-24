@@ -18,16 +18,19 @@ sass:
 
 exclude:
   - README.md
+  - assets/fonts/CabinetGrotesk_Complete/Fonts/WEB/README.md
+  - Gemfile.lock
+  - Gemfile
 
 # Add any other configurations or site-specific settings
 
 collections:
   col_heroCarousel:
-    output: true
+    output: false
     sort_by: "order"
   col_getStartedColumns:
-    output: true
+    output: false
   col_whyVpipe:
-    output: true
+    output: false
   footer:
-    output: true
+    output: false
