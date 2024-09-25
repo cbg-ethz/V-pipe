@@ -1,6 +1,13 @@
 <!-- markdownlint-disable MD013 MD041 -->
-
-![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
+<picture>
+  <source
+    media="(prefers-color-scheme: light)"  
+    srcset="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe.svg">
+  <source
+    media="(prefers-color-scheme: dark)"  
+    srcset="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe-dark.svg">
+  <img alt="Logo" src="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe.svg" width="50%" />
+</picture>
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥7.11.0-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
@@ -183,8 +190,8 @@ _bioRxiv_, doi:[10.1101/2023.10.16.562462](https://doi.org/10.1101/2023.10.16.56
 \* software maintainer ;
 \** group leader
 
-[github]: https://cbg-ethz.github.io/V-pipe/img/mark-github.svg
-[orcid]: https://cbg-ethz.github.io/V-pipe/img/ORCIDiD_iconvector.svg
+[github]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-github.svg
+[orcid]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-ORICID.svg
 
 ## Contact
 
