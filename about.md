@@ -31,7 +31,7 @@ permalink: /about/
 - [Susana Posada Céspedes ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
 - [David Seifert ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
 - Tobias Marschall
-check V-pipe
+
 
 ### Research group leader
 
@@ -61,8 +61,8 @@ The development and longterm maintenance of V-pipe is supported by:
 Details about the licensing terms and privacy policies associated with V-pipe.
 
 ### License Agreement
-- V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/license/apache-2-0)
+- V-pipe is opensource and released under the permissive [Apache 2.0 license](https://opensource.org/license/apache-2-0).
 - All components used within V-pipe are all licensed under either copyleft or permissive license and freely available on [bioconda](https://bioconda.github.io/).
 
 ### License and privacy policy
-- V-pipe follows [SIB's privacy policies](https://www.sib.swiss/privacy-policy)
+- V-pipe follows [SIB's privacy policies](https://www.sib.swiss/privacy-policy).
