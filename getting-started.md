@@ -35,7 +35,7 @@ Here are the relevant [sections of the README](https://github.com/cbg-ethz/V-pip
 
 - Installer script:
   - [Using quick install script](https://github.com/cbg-ethz/V-pipe#using-quick-install-script)
-  - we strong envourage beginners who aren't used to neither conda nor snakemake to use this approach
+  - we strongly encourage beginners who aren't familiar with either Conda or Snakemake to use this approach
   - this approach is also demonstrated step-by-step in our [first tutorial, V-pipe Installation](https://github.com/cbg-ethz/V-pipe/blob/master/docs/tutorial_0_install.md)
 - Docker image:
   - [Using docker](https://github.com/cbg-ethz/V-pipe#using-docker)
