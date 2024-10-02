@@ -6,6 +6,18 @@ __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
 
+wildcard_constraints:
+    proto=".*",  # protocol can be empty => default values from config file instead of primers yaml
+
+
+def get_proto_from_str(proto_str):
+    # no explicit protocol (use default) if empty (or bug: "None" cast as string)
+    # otherwise protocol name
+    return (
+        None if isinstance(proto_str, str) and proto_str in {"None", ""} else proto_str
+    )
+
+
 def all_vocs(dir):
     if not dir:
         return []
@@ -14,7 +26,9 @@ def all_vocs(dir):
 
 
 def proto_inserts(wildcards):
-    return protocol_proto_option(proto=wildcards.proto, option="inserts_bedfile")
+    return protocol_proto_option(
+        proto=get_proto_from_str(wildcards.proto), option="inserts_bedfile"
+    )
 
 
 rule amplicons:
@@ -47,7 +61,8 @@ rule amplicons:
 
 
 def get_sample_amplicons(wildcards):
-    return cohortdir("amplicons.%s.yaml" % get_sample_protocol(wildcards))
+    proto = get_sample_protocol(wildcards)
+    return cohortdir("amplicons.%s.yaml" % ("" if proto is None else proto))
 
 
 rule cooc:
@@ -86,10 +101,11 @@ rule cooc:
 
 
 def proto_datasets(wildcards):
+    proto = get_proto_from_str(wildcards.proto)
     return [
         sample_paths[s_rec]
         for s_rec, s_row in sample_table.items()
-        if s_row.protocol == wildcards.proto
+        if s_row.protocol == proto
     ]
 
 
