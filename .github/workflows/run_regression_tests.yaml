@@ -66,7 +66,7 @@ jobs:
       max-parallel: 5
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-13] # , macos-latest] # disable until V-pipe's support for aarch64 is checked
         python-version: ["3.10", "3.11"]
         virus: ["hiv", "sars-cov-2"]
 
