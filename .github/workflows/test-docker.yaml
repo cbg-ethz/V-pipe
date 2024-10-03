@@ -42,7 +42,7 @@ jobs:
 
       - name: Build and save
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
@@ -50,7 +50,7 @@ jobs:
           outputs: type=docker,dest=./vpipe-docker.tar.zst,compression=zstd,compression-level=6
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: "( !contains(github.ref, 'master') && !startsWith(github.ref, 'refs/tags') )"
         with:
           name: vpipe-docker

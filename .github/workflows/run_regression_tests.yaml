@@ -18,18 +18,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
             lfs: false
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           python-version: "3.11"
           mamba-version: "*"
-          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
+          use-mamba: true
+          no-implicit-channels: true
+          channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: V-pipe
           auto-update-conda: true
@@ -75,19 +77,21 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
             lfs: false
             # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           python-version: ${{ matrix.python-version }}
           mamba-version: "*"
-          channels: conda-forge,bioconda #,defaults # see: https://github.com/conda-forge/status/issues/144
+          use-mamba: true
+          no-implicit-channels: true
+          channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: V-pipe
           auto-update-conda: true
@@ -104,9 +108,12 @@ jobs:
         run: ./regression_tests.sh ${{ matrix.virus }}
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
+        if: ${{ success() }} || ${{ failure() }}
+        uses: actions/upload-artifact@v4
         with:
-          name: regression test output and diffs
+          name: regression_test_${{ matrix.os }}_${{ matrix.python-version }}_${{ matrix.virus }}
           path: |
             /tmp/v-pipe_tests/*
+            !/tmp/v-pipe_tests/.snakemake/conda/*/
+          include-hidden-files: true
           if-no-files-found: ignore

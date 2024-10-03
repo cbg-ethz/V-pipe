@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout test data
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
             sparse-checkout: |
                 tests
@@ -37,12 +37,14 @@ jobs:
             # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           python-version: "3.11" # temporary fix for snakemake issue #2480
           mamba-version: "*"
+          use-mamba: true
+          no-implicit-channels: true
           channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: snakemake
@@ -81,11 +83,13 @@ jobs:
                 --keep-going
 
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        if: ${{ success() }} || ${{ failure() }}
+        uses: actions/upload-artifact@v4
         with:
-          name: test_output
+          name: test_output_${{ matrix.virus }}
           path: |
             ./*
             !./.git
             !./.snakemake/conda/*/
+          include-hidden-files: true
           if-no-files-found: ignore

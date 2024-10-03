@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 
 patch_branch=0
+version=0
+patch_sralog=0
+dryrun=0
 
 # command-line options
 while [[ -n $1 ]]; do
 	case "$1" in
 		--branch|branch)
 			patch_branch=1
+		;;
+		--version|version)
+			version=1
+		;;
+		--sralog|sralog)
+			patch_sralog=1
+		;;
+		--dryrun|--dry-run|dryrun|dry-run)
+			dryrun=1
 		;;
 		*)
 			break
@@ -24,6 +36,14 @@ fi
 
 echo "Will run on:"
 printf "<%s>\n" "${alltut[@]}"
+
+# get software version
+if (( version )); then
+	(
+		jupytext --version || echo "missing jupytext"
+		fasterq-dump --version || echo "missing fasterq-dump"
+	) | tee version.log
+fi
 
 # branch (for usual PR and pushes)
 branch="$(git branch --show-current)"
@@ -51,5 +71,16 @@ elif [[ "${branch}" != "${default}" ]]; then
 	echo -e "\e[33;1mWarning: installer in tutorials will still clone the \`${default}\` branch!\e[0m Use \`$0 branch\` to patch them on the fly and instll the current branch \`${branch}\`"
 fi
 
+if (( patch_sralog )); then
+	echo "adding download log to fasterq-dump..."
+	sed -ri 's@fasterq-dump --progress.*$@\0 2> >(tee download.err.log >\&2)@g' "${alltut[@]}"
+fi
+
+execute='--execute'
+if (( dryrun )); then
+	execute=''
+	echo "conversion only, your can run notebook yourself."
+fi
+
 # create Jupyter Notebooks for all Markdown files
-exec jupytext --set-formats ipynb,md --execute "${alltut[@]}"
+exec jupytext --set-formats ipynb,md ${execute} "${alltut[@]}"
