@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD013 MD041 -->
 
-![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
+![Logo]((https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe.svg)
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥7.11.0-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
