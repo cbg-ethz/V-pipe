@@ -9,4 +9,4 @@ dependencies:
   #- snakemake-minimal
 
   # used for some tutorials
-  - sra-tools
+  - sra-tools >=3.1 # HACK setup-miniconda action adds default channel, which cause wrong version of sra-tool
