@@ -456,6 +456,7 @@ sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date",
 sample_id_patchmap = {}
 sample_dir = {}  # directory => samples record
 sample_paths = {}  # sample record => dir
+sample_protos = set()
 sample_proto_count = 0
 sample_default_count = 0
 sample_1level_count = 0
@@ -586,6 +587,7 @@ else:
             sample_table[sample_tuple] = sample_row(
                 num=spamreader.line_num, len=l, protocol=p
             )
+            sample_protos.add(p)
 
 if config["output"]["trim_primers"]:
     if sample_default_count and not config["input"]["primers_bedfile"]:

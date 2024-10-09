@@ -330,7 +330,11 @@ rule tallymut:
 
 rule deconvolution:
     input:
-        tallymut=cohortdir("tallymut.tsv.zst"),
+        tallymut=(
+            cohortdir("tallycooc.tsv.zst")
+            if config.deconvolution["source"] == "cooc"
+            else cohortdir("tallymut.tsv.zst")
+        ),
         deconv_conf=config.deconvolution["deconvolution_config"],
         var_conf=(
             config.deconvolution["variants_config"]
@@ -372,6 +376,50 @@ rule deconvolution:
         """
 
 
+def expand_proto(fmtstr, **kwargs):
+    return expand(
+        fmtstr,
+        proto=["" if p is None or p == "None" else p for p in list(sample_protos)],
+        **kwargs,
+    )
+
+
+rule tallycooc:
+    input:
+        cooctab=expand_proto(cohortdir("cohort_cooc.{proto}.csv")),
+        times=(config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")),
+    output:
+        tallycooc=cohortdir("tallycooc.tsv.zst"),
+    params:
+        XSV=config.applications["xsv"],
+        ZSTD=config.applications["zstd"],
+        selector="sample,batch" if sample_2level_count else "sample",
+    log:
+        outfile=cohortdir("tallycooc.out.log"),
+        errfile=cohortdir("tallycooc.err.log"),
+    conda:
+        config.tallymut["conda"]
+    benchmark:
+        cohortdir("tallycooc.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=config.tallymut["mem"],
+        runtime=config.tallymut["time"],
+    threads: 1
+    shell:
+        """
+        {params.XSV} join --right {params.selector} {input.times} {params.selector} \
+         <({params.XSV} cat rows  --delimiter ',' {input.cooctab} ) \
+         | {params.XSV} fmt --out-delimiter '\\t' \
+         | {params.ZSTD} -o {output.tallycooc} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        """
+
+
 rule allCooc:
     input:
         expand("{dataset}/signatures/cooc.yaml", dataset=datasets),
+
+
+rule allCoocReports:
+    input:
+        expand_proto(cohortdir("cohort_cooc_report.{proto}.csv")),
