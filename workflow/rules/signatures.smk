@@ -41,6 +41,9 @@ rule amplicons:
         COJAC=config.applications["cojac"],
         vocdir=config.input["variants_def_directory"],
         mincooc=config.amplicons["mincooc"],
+        fix_subset=(
+            "--fix-subset" if config.amplicons["fix_subset"] else "--no-fix-subset"
+        ),
     log:
         outfile=cohortdir("amplicons.{proto}.out.log"),
         errfile=cohortdir("amplicons.{proto}.err.log"),
@@ -56,7 +59,7 @@ rule amplicons:
     shell:
         """
         vocs=( {input.vocs} )
-        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" "{params.fix_subset}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
@@ -115,7 +118,10 @@ def cohort_cooc_proto(wildcards):
 
 rule cohort_cooc:
     input:
-        cohort_cooc_proto,
+        YAMLs=cohort_cooc_proto,
+        amplicons=(
+            cohortdir("amplicons.{proto}.yaml") if config.cooc["add_mutations"] else []
+        ),
     output:
         cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
         cooc_csv=cohortdir("cohort_cooc.{proto}.csv"),
@@ -141,8 +147,8 @@ rule cohort_cooc:
     threads: config.cooc["threads"]
     shell:
         """
-        cat {input} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
+        cat {input.YAMLs} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --add-mutations="{input.amplicons}" --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
         """
 
 

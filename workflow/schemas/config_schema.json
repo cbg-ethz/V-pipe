@@ -1478,6 +1478,12 @@
                     "default": 2,
                     "description": "Minimal number of coocurrences to search for in amplicon. Lowering this property to 1 will make COJAC also look for amplicon with singleton mutations.",
                     "examples": [ 1 ]
+                },
+                "fix_subset": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Fix variants attribution when cooccurrence are subset/superset of other variants, e.g.:\n- Variant 1 has mutation A and B\n- Variant 2 has mutation A, B and C\n\nWith this option amplicons carrying both mutation A and B will be tagged as being potentially belonging to variant 1 or 2.",
+                    "examples": [ true ]
                 }
             },
             "default": {},
@@ -1507,6 +1513,12 @@
                     "default": "lines",
                     "description": "Format of the output CSV.\n- `lines`(default) - each amplicon a separate entry on a separate line.\n- `columns` - one column per amplicon",
                     "examples": ["columns"]
+                },
+                "add_mutations": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Add a column with a list mutation coocurrences for amplicons on each line in the CSV table.",
+                    "examples": [ false ]
                 }
             },
             "default": {},
