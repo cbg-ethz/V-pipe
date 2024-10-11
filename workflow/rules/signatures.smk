@@ -362,7 +362,7 @@ rule deconvolution:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} "--n-cores={threads}" "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

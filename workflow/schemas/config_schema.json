@@ -1630,7 +1630,8 @@
                 },
                 "threads": {
                     "type": "integer",
-                    "default": 4
+                    "default": 4,
+                    "description": "Cores for parallel processing for multiple locations, 1 for sequential processing"
                 },
                 "conda": {
                     "type": "string",
