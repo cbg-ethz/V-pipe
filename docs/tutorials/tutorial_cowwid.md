@@ -50,6 +50,7 @@ The above two steps will result in the following directory structure:
 ```text
 work_cowwid
 ├── config.yaml
+├── deconv_linear_logit_quasi_strat.yaml
 ├── samples
 │   └── sample1
 │       ├── 2021-11-15
@@ -71,7 +72,7 @@ work_cowwid
 └── vpipe
 ```
 
-In addition to the raw fastq files, we have prepared `samples.tsv` and `timeline.tsv` for you. Note that `samples.tsv` contains both the read length and the protocol used for PCR amplification and sequencing:
+In addition to the raw fastq files, we have prepared `samples.tsv`, `timeline.tsv` (more about `timeline.tsv` [later](timeline-lollipop)) and the deconvolution configuration file: `deconv_linear_logit_quasi_strat.yaml`. Here are the first few lines of `samples.tsv`:
 
 ```
 sample1	2021-11-15	251	v41
@@ -80,7 +81,7 @@ sample1	2021-11-17	251	v41
 sample1	2021-11-18	251	v41
 ```
 
-Depicting that our raw fastq files were generated according to the ARTIC V4.1 nCov-2019 primers. The required information for this primer set is part of the V-pipe repository, and can be found in [resources/sars-cov2/primers/v41](https://github.com/cbg-ethz/V-pipe/tree/master/resources/sars-cov-2/primers/v41). Because it is part of the V-pipe repository, we can specify the protocol in the fourth column of `samples.tsv` as `v41`.
+Note that `samples.tsv` contains the read length in the third column and the protocol used for PCR amplification and sequencing in the fourth column. The identifier `v41` depicts that our raw fastq files were generated according to the ARTIC V4.1 nCov-2019 primers. The required information for this primer set is part of the V-pipe repository, and can be found in [resources/sars-cov2/primers/v41](https://github.com/cbg-ethz/V-pipe/tree/master/resources/sars-cov-2/primers/v41).
 
 ### Prepare Variant of Concern (VOC) data
 
@@ -100,14 +101,16 @@ mut:
   6402: 'C>T'
 ```
 
-These yaml files are available from the [COJAC GitHub repository](https://github.com/cbg-ethz/cojac/tree/master/voc) for most of the variants that are currently of interest. For our tutorial, we will download the yaml files for the delta, omicron BA.1, and omicron BA.2 variants:
+These yaml files are available from the [COJAC GitHub repository](https://github.com/cbg-ethz/cojac/tree/master/voc) for most of the variants that are currently of interest. For our tutorial, we will download the yaml files for the delta, omicron BA.1, and omicron BA.2 variants. For this make a directory called `vocs` in your work directory (so in `work_cowwid`):
 
 ```bash
-mkdir -p vp-analysis/work_cowwid/vocs
+mkdir vocs
 ```
 
+And download the yaml files for the delta, omicron BA.1, and omicron BA.2 variants:
+
 ```bash
-cd vp-analysis/work_cowwid/vocs
+cd vocs
 wget https://raw.githubusercontent.com/cbg-ethz/cojac/master/voc/delta_mutations_full.yaml
 wget https://raw.githubusercontent.com/cbg-ethz/cojac/master/voc/omicron_ba1_mutations_full.yaml
 wget https://raw.githubusercontent.com/cbg-ethz/cojac/master/voc/omicron_ba2_mutations_full.yaml
@@ -163,9 +166,10 @@ All columns are explained in the [COJAC documentation](https://github.com/cbg-et
 
 Now that we have evidence for the presence of variants, we can use [LolliPop](https://github.com/cbg-ethz/LolliPop) to answer the question: in which **relative proportions** are the variants in the water?
 
+(timeline-lollipop)=
 ### Timeline
 
-Because Lollipop performs a time-series analysis, we need to provide information on the date of sampling. In this tutorial we do this with  a timeline file. For more information and alternative methods see [Specifying timeline and location information](specifying-timeline-and-location-information). The timeline file should contain the date of each sample, and the location where the sample was taken. This file contains the same information as the `samples.tsv` file, but with the addition of the location of the sample. An example for the first few samples of our dataset would be:
+Because Lollipop performs a time-series analysis, we need to provide information on the date of sampling. In this tutorial we do this with  a timeline file. For more information and alternative methods see [Specifying timeline and location information](specifying-timeline-and-location-information). The timeline file should contain the date of each sample, and the location where the sample was taken. This file contains the same information as the `samples.tsv` file, but with the addition of the location of the sample. An example of `timeline.tsv` for the first few samples of our dataset would be:
 
 ```
 sample	batch	reads	proto	location_code	date	location
@@ -182,11 +186,14 @@ Note that:
 - In addition to the first four columns of `samples.tsv`, only `location` and `date` are necessary for LolliPop.
 ```
 
-Provide the `timeline.tsv` file in `config.yaml` at `tallymut` under `timeline_file`, so:
+Now we need to provide the `timeline.tsv` file in `config.yaml` at `tallymut` under `timeline_file` and provide the deconvolution configuration. Add these lines to `config.yaml`:
 
 ```yaml
 tallymut: 
     timeline_file: timeline.tsv
+
+deconvolution:
+    deconvolution_config: deconv_linear_logit_quasi_strat.yaml
 ```
 
 ### Run LolliPop
