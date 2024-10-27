@@ -101,3 +101,6 @@ img/
 
 # vim backup files
 .*.sw?
+
+vp-analysis/
+docs/documentation/quick_install.sh 
