@@ -5,7 +5,7 @@ image: /assets/img/virus-5.webp
 cta:
   text: SIB Days 2024
   external_url: https://sibdays.sib.swiss/
-order: 01
+order: 12
 ---
 
 Content of the third slide goes here.
