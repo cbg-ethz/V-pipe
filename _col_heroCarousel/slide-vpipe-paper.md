@@ -8,7 +8,7 @@ image: /assets/img/vpipe-hero-slide.webp
 cta:
   text: Get the paper!
   external_url: https://doi.org/10.1093/gigascience/giae065
-order: 12
+order: 2
 ---
 
 Content of the fourth slide goes here.
