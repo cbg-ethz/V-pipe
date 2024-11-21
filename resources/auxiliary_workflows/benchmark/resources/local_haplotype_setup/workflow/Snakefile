@@ -210,6 +210,7 @@ use rule performance_measures_local from varyvilocaparams as varyvilocaparams_pe
 # distance rules
 ##############
 
+
 ### To run haplodmf uncomment this rule and comment-out rule distance_run_method_local_global
 rule distance_run_haplodmf:
     input:
@@ -239,9 +240,10 @@ rule distance_run_haplodmf:
         f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/benchmark_.tsv"
     threads: 30
     resources:
-        mem_mb=60024, # 10000,  #60024,
-        runtime=5*24*60, #15*24*60,
-    conda: "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
+        mem_mb=60024,  # 10000,  #60024,
+        runtime=5 * 24 * 60,  #15*24*60,
+    conda:
+        "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
     shell:
         """
         mkdir -p "{output.dname_work}"
@@ -461,6 +463,7 @@ use rule performance_measures_global from distance as distance_performance_measu
 
 ### To run haplodmf uncomment this rule and comment-out rule realdata_run_method_local_global
 
+
 rule realdata_run_haplodmf:
     input:
         fname_bam=lambda wildcards: (
@@ -489,9 +492,10 @@ rule realdata_run_haplodmf:
         f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/haplodmf/replicates/{{replicate}}/benchmark_.tsv"
     threads: 30
     resources:
-        mem_mb=60024, # 10000,  #60024,
-        runtime=5*24*60, #15*24*60,
-    conda: "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
+        mem_mb=60024,  # 10000,  #60024,
+        runtime=5 * 24 * 60,  #15*24*60,
+    conda:
+        "/cluster/home/lfuhrmann/micromamba/envs/haplodmf"
     shell:
         """
         mkdir -p "{output.dname_work}"
