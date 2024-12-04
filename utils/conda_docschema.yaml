@@ -1,6 +1,5 @@
 name: schemadocs
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - pip

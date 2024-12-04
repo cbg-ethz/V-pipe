@@ -33,7 +33,7 @@ generate-schema-doc --config-file "${schema_dir}/jsfh-conf.yaml" "${schema_dir}/
 sed -Ei 's@((href|src)=)[\"]?(schema_doc\.(css|min\.js))[\"]?@\1\"doc_assets/\3\"@g' "${config_dir}/config.html"
 
 if (( validate )); then
-	curl http://json-schema.org/draft-07/schema > /tmp/schema.json
+	curl https://json-schema.org/draft-07/schema > /tmp/schema.json
 	anyconfig_cli --validate --schema "/tmp/schema.json" --itype json "${schema_dir}/config_schema.json"
 fi
 
