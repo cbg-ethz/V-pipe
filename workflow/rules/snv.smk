@@ -263,6 +263,11 @@ rule lofreq:
         EXTRA=config.lofreq["extra"],
         SAMTOOLS=config.applications["samtools"],
         LOFREQ=config.applications["lofreq"],
+        kind=lambda wildcards, threads: "parallel" if threads > 1 else "old-school",
+        subcmd=lambda wildcards, threads: "call-parallel" if threads > 1 else "call",
+        threadspar=lambda wildcards, threads: (
+            f"--pp-threads {threads}" if threads > 1 else ""
+        ),
     log:
         outfile="{dataset}/variants/SNVs/lofreq.out.log",
         errfile="{dataset}/variants/SNVs/lofreq.err.log",
@@ -274,6 +279,7 @@ rule lofreq:
         disk_mb=2000,
         mem_mb=config.lofreq["mem"],
         runtime=config.lofreq["time"],
+    threads: config.lofreq["threads"]
     shell:
         """
         # Add qualities to indels
@@ -282,8 +288,8 @@ rule lofreq:
         {params.SAMTOOLS} index {output.BAM} 2> >(tee {log.errfile} >&2)
 
         # Run Lofreq
-        echo "Running LoFreq" >> {log.outfile}
-        {params.LOFREQ} call {params.EXTRA} --call-indels -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        echo "Running {params.kind} LoFreq ({params.subcmd})" >> {log.outfile}
+        {params.LOFREQ} "{params.subcmd}" {params.EXTRA} --call-indels {params.threadspar} -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 

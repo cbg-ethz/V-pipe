@@ -1274,6 +1274,10 @@
                     "type": "integer",
                     "default": 2000
                 },
+                "threads": {
+                    "type": "integer",
+                    "default": 4
+                },
                 "time": {
                     "type": "integer",
                     "default": 60
