@@ -133,12 +133,17 @@ output:
     dehumanized_raw_reads: false
 ```
 
+You can also get it from the V-pipe repository with:
+
+```bash
+cp ../V-pipe/docs/example_sarscov2_data/config.yaml .
+```
+
 ## Running V-pipe
 
 After having prepared the configuration, we can continue with a dry run to see what gets executed and to create the `samples.tsv` file:
 
 ```bash
-cd vp-analysis/work_sarscov2/
 ./vpipe --dryrun --cores 2
 ```
 
@@ -147,8 +152,6 @@ As this is your first run of V-pipe, it will automatically generate the sample c
 Finally, we can run the V-pipe analysis. The first run will take a while because it will install all necessary software dependencies with conda:
 
 ```bash
-cd vp-analysis/work_hiv/
-
 ./vpipe -p --cores 2
 # -p and --cores (and all other options) are passed to snakemake. -p is for printing shell cmds. 
 # takes a while to run, needs to install packages
