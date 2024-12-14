@@ -39,7 +39,8 @@ V-pipe is optimized for Linux or Mac OS systems, and we heavily rely on bioconda
 
 V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software repository for all its pipeline components. The pipeline itself is implemented using [Snakemake](https://snakemake.readthedocs.io/en/stable/). Although you can install all the dependencies manually, we recommend using our install quick install script:
 
-```
+```bash
+## not run
 curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
 bash quick_install.sh -p vp-analysis -w work
 ```
@@ -73,7 +74,9 @@ vp-analysis
 
 Now you can check your installation with a small test dataset:
 
-```
+```bash
+## not run
+
 cd work
 # copy the example data from the repository to your working directory
 cp -r ../V-pipe/docs/example_HIV_data/* .
@@ -87,7 +90,8 @@ cp -r ../V-pipe/docs/example_HIV_data/* .
 ```{tip}
 To create and populate other new working directories, you can call `init_project.sh` from within the new directory:
 
-```
+```bash
+## not run
 cd vp-analysis/
 
 mkdir -p working_2
@@ -111,7 +115,8 @@ If you haven't already done so, install snakemake by using the [official instruc
 
 Test the installation with a small dataset: 
 
-```
+```bash
+## not run
 mkdir work
 cd work
 cp -r ../V-pipe/docs/example_HIV_data/* .

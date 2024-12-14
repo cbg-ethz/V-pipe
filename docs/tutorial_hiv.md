@@ -144,10 +144,7 @@ A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentatio
 Before running check what will be executed:
 
 ```bash
-cd vp-analysis/work_hiv/
-
 ./vpipe --dryrun
-
 ```
 
 As this is your first run of V-pipe, it will automatically generate the sample collection table (`samples.tsv`). Check `samples.tsv` in your editor. It is always a good idea check the content of the `samples.tsv` file, as it is used to collect the samples for the analysis. Of course, you can also provide `samples.tsv` yourself, before running the pipeline. If you did not use the expected directory structure, this file might end up empty or some entries might be missing. If so, you can safely delete it and re-run with option `--dry-run` to regenerate it. More information on the `samples.tsv` file can be found in the [documentation](setting-up-samplestsv).
