@@ -1,0 +1,17 @@
+general:
+    virus_base_config: 'sars-cov-2'
+
+input:
+    samples_file: samples.tsv
+    read_length: 150
+
+output:
+    trim_primers: false
+    snv: true
+    local: false
+    global: false
+    visualization: false
+    diversity: false
+    QA: false
+    upload: false
+    dehumanized_raw_reads: false
