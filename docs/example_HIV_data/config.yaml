@@ -1,19 +1,28 @@
 general:
-    virus_base_config: 'hiv'
-    # e.g: 'hiv', 'sars-cov-2', or absent
+    virus_base_config: ""
+    aligner: bwa
+    snv_caller: shorah
+    haplotype_reconstruction: haploclique
 
 input:
+    # the references are part of the repository in this case:
+    reference: "../V-pipe/resources/hiv/HXB2.fasta"
+    metainfo_file: "../V-pipe/resources/hiv/metainfo.yaml"
+    gff_directory: "../V-pipe/resources/hiv/gffs/"
+    datadir: samples/
+    # we specify the read length here, as it is not the default 250:
+    read_length: 301
     samples_file: samples.tsv
-    read_length: 300
+    paired: true
+
+snv:
+    consensus: false
 
 output:
-    trim_primers: false
-    # see: config/README.md#amplicon-protocols
-    snv: false
-    local: false
-    global: false
-    visualization: false
-    diversity: false
+    snv: true
+    local: true
+    global: true
+    visualization: true
     QA: false
-    upload: false
-    dehumanized_raw_reads: false
+    diversity: true
+    

@@ -129,6 +129,12 @@ output:
     diversity: true
 ```
 
+You can also get this yaml file from the V-pipe repository:
+
+```bash
+cp ../V-pipe/docs/example_HIV_data/config.yaml .
+```
+
 ```{note}
 A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentation, but **no tab**. There are also [online YAML file validators](https://www.yamllint.com/) that you might want to use if your YAML file is wrongly formatted.
 ```
