@@ -41,7 +41,7 @@ V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software 
 
 ```bash
 ## not run
-curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
+curl -O 'https://raw.githubusercontent.com/GeertvanGeest/V-pipe/gsod-rtd/utils/quick_install.sh'
 bash quick_install.sh -p vp-analysis -w work
 ```
 
@@ -77,7 +77,7 @@ Now you can check your installation with a small test dataset:
 ```bash
 ## not run
 
-cd work
+cd vp-analysis/work
 # copy the example data from the repository to your working directory
 cp -r ../V-pipe/docs/example_HIV_data/* .
 # check what will be run with a dry run
