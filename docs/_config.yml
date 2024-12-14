@@ -11,6 +11,9 @@ logo: assets/images/logo-vpipe.svg
 execute:
   execute_notebooks: force
   timeout: -1
+  exclude_patterns:
+    - '*.ipynb'
+    - 'documentation/vp-analysis/*'
 
 # Define the name of the latex output file for PDF builds
 latex:
@@ -36,37 +39,7 @@ html:
 sphinx:
   config:
     bibtex_reference_style: author_year
-    intersphinx_mapping:
-      ebp:
-        - "https://executablebooks.org/en/latest/"
-        - null
-      myst-parser:
-        - "https://myst-parser.readthedocs.io/en/latest/"
-        - null
-      myst-nb:
-        - "https://myst-nb.readthedocs.io/en/latest/"
-        - null
-      sphinx:
-        - "https://www.sphinx-doc.org/en/master"
-        - null
-      nbformat:
-        - "https://nbformat.readthedocs.io/en/latest"
-        - null
-      sd:
-        - "https://sphinx-design.readthedocs.io/en/latest"
-        - null
-      sphinxproof:
-        - "https://sphinx-proof.readthedocs.io/en/latest/"
-        - null
-    hoverxref_intersphinx:
-     - "sphinxproof"
-    mathjax3_config:
-      tex:
-        macros:
-          "N": "\\mathbb{N}"
-          "floor": ["\\lfloor#1\\rfloor", 1]
-          "bmat": ["\\left[\\begin{array}"]
-          "emat": ["\\end{array}\\right]"]
+
         
   extra_extensions:
     - sphinx.ext.intersphinx
