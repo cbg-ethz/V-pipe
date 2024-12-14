@@ -41,7 +41,7 @@ V-pipe uses the [Bioconda](https://bioconda.github.io/) bioinformatics software 
 
 ```bash
 ## not run
-curl -O 'https://raw.githubusercontent.com/GeertvanGeest/V-pipe/gsod-rtd/utils/quick_install.sh'
+curl -O 'https://raw.githubusercontent.com/cbg-ethz/V-pipe/master/utils/quick_install.sh'
 bash quick_install.sh -p vp-analysis -w work
 ```
 

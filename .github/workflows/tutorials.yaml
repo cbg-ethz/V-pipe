@@ -2,9 +2,7 @@ name: Run tutorials
 
 on:
   push:
-    branches: master
   pull_request:
-    branches: master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,44 +32,56 @@ jobs:
             sparse-checkout-cone-mode: false
             lfs: false
 
-      - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+      # - name: Install conda environment dependencies
+      #   uses: conda-incubator/setup-miniconda@v3
+      #   with:
+      #     miniforge-version: latest
+      #     miniforge-variant: Miniforge3
+      #     mamba-version: "*"
+      #     use-mamba: true
+      #     no-implicit-channels: true
+      #     channels: conda-forge,bioconda
+      #     channel-priority: strict
+      #     activate-environment: JupyText
+      #     auto-update-conda: true
+      #     environment-file: tests/conda_tutorials_env.yaml
+      #
+      # - name: Setup Jupyter kernel
+      #   run: |
+      #     python -m ipykernel install --user
+
+      - name: Install python environment
+        uses: actions/setup-python@v5
         with:
-          miniforge-version: latest
-          miniforge-variant: Miniforge3
-          mamba-version: "*"
-          use-mamba: true
-          no-implicit-channels: true
-          channels: conda-forge,bioconda
-          channel-priority: strict
-          activate-environment: JupyText
-          auto-update-conda: true
-          environment-file: tests/conda_tutorials_env.yaml
+          python-version: '3.13'
 
-      - name: Setup Jupyter kernel
-        run: |
-          python -m ipykernel install --user
-
-      - name: Run installation notebooks
+      - name: Run installation tutorial
         working-directory: ./docs
-        run: ./convert.sh --branch *_install.md
+        # run: ./convert.sh --branch *_install.md
+        run: |
+          mkdir -p _test_tutorials
+          ./convert.sh --version --branch --sralog --patch-only *.md
+          python extract_bash_code.py -o _test_tutorials *.md
+          cd _test_tutorials
+          bash installation.sh
 
       - name: Create V-pipe installation archive
         # HACK this acceleraters upload while preserving Unix-specifics (case sensitivity, file attributes).
-        run: tar --zstd -cvf vpipeinstallation.tar.zst ./docs/vp-analysis
+        run: tar --zstd -cvf vpipeinstallation.tar.zst ./docs/_test_tutorials/vp-analysis ./docs/_test_tutorials/*.sh
 
       - name: Keep installation
         uses: actions/upload-artifact@v4
         with:
           name: VPipeInstallation
           path: vpipeinstallation.tar.zst
+          compression-level: 0 # no compression
           if-no-files-found: error
 
-      - name: Save notebooks
-        uses: actions/upload-artifact@v4
-        with:
-          name: JupyterNotebooks-Install
-          path: ./docs/*.ipynb
+      # - name: Save notebooks
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: JupyterNotebooks-Install
+      #     path: ./docs/*.ipynb
 
 
   tutorial:
@@ -81,7 +91,7 @@ jobs:
       max-parallel: 5
       fail-fast: false
       matrix:
-         virus: ["hiv", "sarscov2"]
+         virus: ["hiv"] #, "sarscov2"]
 
     runs-on: ubuntu-latest
 
@@ -113,28 +123,36 @@ jobs:
       - name: Extract V-pipe installation archive
         run: tar --zstd -xvf vpipeinstallation.tar.zst
 
-      - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+      # - name: Install conda environment dependencies
+      #   uses: conda-incubator/setup-miniconda@v3
+      #   with:
+      #     miniforge-version: latest
+      #     miniforge-variant: Miniforge3
+      #     python-version: "3.11"
+      #     mamba-version: "*"
+      #     use-mamba: true
+      #     no-implicit-channels: true
+      #     channels: conda-forge,bioconda
+      #     channel-priority: strict
+      #     activate-environment: JupyText
+      #     auto-update-conda: true
+      #     environment-file: tests/conda_tutorials_env.yaml
+      #
+      # - name: Setup Jupyter kernel
+      #   run: |
+      #     python -m ipykernel install --user
+
+      - name: Install python environment
+        uses: actions/setup-python@v5
         with:
-          miniforge-version: latest
-          miniforge-variant: Miniforge3
-          python-version: "3.11"
-          mamba-version: "*"
-          use-mamba: true
-          no-implicit-channels: true
-          channels: conda-forge,bioconda
-          channel-priority: strict
-          activate-environment: JupyText
-          auto-update-conda: true
-          environment-file: tests/conda_tutorials_env.yaml
+          python-version: '3.13'
 
-      - name: Setup Jupyter kernel
-        run: |
-          python -m ipykernel install --user
-
-      - name: Run analysis notebooks
+      - name: Run analysis tutorial
         working-directory: ./docs
-        run: ./convert.sh --version --branch --sralog tutorial*_${{ matrix.virus }}.md
+        #run: ./convert.sh --version --branch --sralog tutorial*_${{ matrix.virus }}.md
+        run: |
+          cd _test_tutorials
+          bash tutorial_${{ matrix.virus }}.sh
 
       - name: Save output
         if: ${{ failure() }}
@@ -142,19 +160,17 @@ jobs:
         with:
           name: Tutorial_${{ matrix.virus }}
           path: |
-            ./docs/*.ipynb
-            ./docs/*.log
-            ./docs/samples/*
-            ./docs/vp-analysis/work*
-            !./docs/vp-analysis/work*/.snakemake/conda/*/
+            ./docs/_test_tutorials/
+            !./docs/_test_tutorials/vp-analysis/work*/.snakemake/conda/*/
+            !./docs/_test_tutorials/vp-analysis/mini*/pkgs/
           include-hidden-files: true
           if-no-files-found: ignore
 
-      - name: Save notebooks
-        uses: actions/upload-artifact@v4
-        with:
-          name: JupyterNotebooks-${{ matrix.virus }}
-          path: ./docs/*.ipynb
+      # - name: Save notebooks
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: JupyterNotebooks-${{ matrix.virus }}
+      #     path: ./docs/*.ipynb
 
       # - name: Publish
       #   uses: peaceiris/actions-gh-pages@v3
