@@ -1,3 +1,18 @@
+---
+jupyter:
+  jupytext:
+    cell_metadata_filter: -all
+    formats: md
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
+      jupytext_version: 1.16.4
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
 
 # SARS-CoV-2 Wastewater Surveillance Tutorial
 
@@ -121,7 +136,7 @@ These yaml files are used to define the mutations that are characteristic of the
 
 ## Run COJAC
 
-The main feature of COJAC is to detect the presence of a certain variant based on the presence of a combination of mutations. In order to specify the input files and output charactertistics, we adjust the `config.yaml` file:
+The main feature of COJAC is to detect the presence of a certain variant based on the presence of a combination of mutations. In order to specify the input files and output charactertistics, let's change the `config.yaml` file:
 
 ```yaml
 general:
@@ -135,9 +150,26 @@ output:
     trim_primers: true
 ```
 
+You can do this with the following command (but of course also by simply using copy-paste):
+
+```bash
+cat <<EOT > config.yaml
+general:
+    virus_base_config: 'sars-cov-2'
+
+input:
+    samples_file: samples.tsv
+    variants_def_directory: vocs/
+
+output:
+    trim_primers: true
+EOT
+```
+
 After setting the configuration, we can run V-pipe to do the preprocessing, and run COJAC to detect the presence of the variants:
 
 ```bash
+cd ..
 ./vpipe --cores 8 allCooc results/cohort_cooc_report.v41.csv
 ```
 
@@ -196,6 +228,19 @@ deconvolution:
     deconvolution_config: deconv_linear_logit_quasi_strat.yaml
 ```
 
+You can do this with the following command (but of course also by simply using copy-paste):
+
+```bash
+cat <<EOT >> config.yaml
+
+tallymut: 
+    timeline_file: timeline.tsv
+
+deconvolution:
+    deconvolution_config: deconv_linear_logit_quasi_strat.yaml
+EOT
+```
+
 ### Run LolliPop
 
 This command will run the deconvolution:
@@ -209,6 +254,7 @@ This command will run the deconvolution:
 V-pipe will produce `results/deconvoluted.tsv.zst`, which is a Zstandard-compressed table that can be directly reads into pandas for further processing. We would like visualize that using python. First install the necessary packages:
 
 ```bash
+cd ../../
 # activate the base conda environment
 . vp-analysis/*forge*/bin/activate ''
 
