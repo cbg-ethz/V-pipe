@@ -11,7 +11,7 @@ __email__ = "v-pipe@bsse.ethz.ch"
 
 
 # fetch primers_file either from config or sample-specific protocol
-re_trim_dataset = re.compile("(?P<dataset>.+)/alignments/REF_aln")
+re_trim_dataset = re.compile(r"(?P<dataset>.+)/alignments/REF_aln")
 
 
 def primers_file(wildcards):

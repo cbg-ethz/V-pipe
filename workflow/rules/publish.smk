@@ -1,3 +1,5 @@
+from functools import partial
+
 if config.upload["local"]:
 
     localrules:
