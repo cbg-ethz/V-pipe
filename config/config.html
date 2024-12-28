@@ -1214,6 +1214,61 @@ You are still free to override that default in your configuration shall the need
         </div>
     </div>
 </div>
+<div class="accordion" id="accordioninput_primers_trim_cutoff">
+    <div class="card">
+        <div class="card-header" id="headinginput_primers_trim_cutoff">
+            <h2 class="mb-0">
+                <button class="btn btn-link property-name-button" type="button" data-toggle="collapse" data-target="#input_primers_trim_cutoff"
+                        aria-expanded="" aria-controls="input_primers_trim_cutoff" onclick="setAnchor('#input_primers_trim_cutoff')"><span class="property-name">primers_trim_cutoff</span></button>
+            </h2>
+        </div>
+
+        <div id="input_primers_trim_cutoff"
+             class="collapse property-definition-div" aria-labelledby="headinginput_primers_trim_cutoff"
+             data-parent="#accordioninput_primers_trim_cutoff">
+            <div class="card-body pl-5">
+
+    <div class="breadcrumbs">root
+        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-right-short" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
+            />
+        </svg>
+    <a href="#input" onclick="anchorLink('input')">input</a>
+        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-right-short" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
+            />
+        </svg>
+    <a href="#input_primers_trim_cutoff" onclick="anchorLink('input_primers_trim_cutoff')">primers_trim_cutoff</a></div><span class="badge badge-dark value-type">Type: null or number</span> <span class="badge badge-success default-value">Default: 0.5</span><br/>
+<span class="description"><p>Functionally similar to <a href="#input_trim_percent_cutoff">property <code>trim_percent_cutoff</code></a>, but happens at a later stage, after primer trimming.</p>
+
+<p>Using this parameter, the user can specify the minimum read-length threshold that should be applied during the primers trimming (aka amplicon clipping), either as a percentage (0 &lt; <code>trim_percent_cutoff</code> &lt;= 1) or as an absolute base pair lenght.</p>
+
+<p>Leave empty (json: null) to leave the triming software&#8217;s default</p>
+
+<p><strong>Note</strong>: This option works better than iVar&#8217;s own average-based autodetection which can fail in case of abundant primer dimers in the alignment, because V-pipe knows the exact read-lenght from either the <a href="#input_read_length">property <code>read_length</code></a> or the <a href="#input_samples_file">samples file</a>.</p>
+</span>
+        
+
+        
+        
+
+        <br/>
+<div class="badge badge-secondary">Examples:</div>
+<br/><div id="input_primers_trim_cutoff_ex1" class="jumbotron examples"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">None</span>
+</pre></div>
+</div><div id="input_primers_trim_cutoff_ex2" class="jumbotron examples"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">0.7</span>
+</pre></div>
+</div><div id="input_primers_trim_cutoff_ex3" class="jumbotron examples"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">200</span>
+</pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="accordion" id="accordioninput_reference">
     <div class="card">
         <div class="card-header" id="headinginput_reference">
@@ -11059,6 +11114,46 @@ For more details on Bowtie 2 configurable options refer to the software <a href=
         </div>
     </div>
 </div>
+<div class="accordion" id="accordionlofreq_threads">
+    <div class="card">
+        <div class="card-header" id="headinglofreq_threads">
+            <h2 class="mb-0">
+                <button class="btn btn-link property-name-button" type="button" data-toggle="collapse" data-target="#lofreq_threads"
+                        aria-expanded="" aria-controls="lofreq_threads" onclick="setAnchor('#lofreq_threads')"><span class="property-name">threads</span></button>
+            </h2>
+        </div>
+
+        <div id="lofreq_threads"
+             class="collapse property-definition-div" aria-labelledby="headinglofreq_threads"
+             data-parent="#accordionlofreq_threads">
+            <div class="card-body pl-5">
+
+    <div class="breadcrumbs">root
+        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-right-short" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
+            />
+        </svg>
+    <a href="#lofreq" onclick="anchorLink('lofreq')">lofreq</a>
+        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-right-short" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
+            />
+        </svg>
+    <a href="#lofreq_threads" onclick="anchorLink('lofreq_threads')">threads</a></div><span class="badge badge-dark value-type">Type: integer</span> <span class="badge badge-success default-value">Default: 4</span><br/>
+
+        
+
+        
+        
+
+        
+            </div>
+        </div>
+    </div>
+</div>
 <div class="accordion" id="accordionlofreq_time">
     <div class="card">
         <div class="card-header" id="headinglofreq_time">
@@ -13650,15 +13745,15 @@ For more details on Bowtie 2 configurable options refer to the software <a href=
 <p>It will receive the following parameters (in addition to what is specified in property <em>options</em>:</p>
 
 <ul>
-<li><em>--output &lt;OUTPUT&gt;</em>: the output TSV file that must be created by the script.</li>
+<li><em><code>--output</code> &lt;OUTPUT&gt;</em>: the output TSV file that must be created by the script.</li>
 <li><em>&lt;SAMPLE_TSV&gt;</em>: the input samples TSV file</li>
 </ul>
 
 <p>For an example, see the default script <code>file_parser.py</code>, it uses regular expressions (regex) to parse the first two columns (sample and batch names) and extract a date, and a location code that is further look-ed up in a table. It takes two additional parameters:</p>
 
 <ul>
-<li><em>--locations &lt;LOOKUP&gt;</em>: look-up TSV table mapping the code to full location names</li>
-<li><em>--regex_yaml &lt;YAML&gt;</em>: YAML file with regular expressions defining how the date and code are extracted.</li>
+<li><em><code>--locations</code> &lt;LOOKUP&gt;</em>: look-up TSV table mapping the code to full location names</li>
+<li><em><code>--regex_yaml</code> &lt;YAML&gt;</em>: YAML file with regular expressions defining how the date and code are extracted.</li>
 </ul>
 </span>
         
@@ -14009,7 +14104,7 @@ Ba  Basel (BS)
             />
         </svg>
     <a href="#tallymut_timeline_file" onclick="anchorLink('tallymut_timeline_file')">timeline_file</a></div><span class="badge badge-dark value-type">Type: string</span> <span class="badge badge-success default-value">Default: ""</span><br/>
-<span class="description"><p>If set, this user-provided TSV file (e.g.: generated with an external tool, prior of running V-pipe) will be used for obtaining locations and dates -- as needed by LolliPop -- instead of generating <code>results/timeline.tsv</code> with the rule timeline.<br />
+<span class="description"><p>If set, this user-provided TSV file (e.g.: generated with an external tool, prior of running V-pipe) will be used for obtaining locations and dates &#8211; as needed by LolliPop &#8211; instead of generating <code>results/timeline.tsv</code> with the rule timeline.<br />
 This follows the following format (similar to the output of rule timeline):</p>
 
 <pre><code>sample  batch   reads   proto   location_code   date    location
@@ -14452,7 +14547,7 @@ A3_16_2023_04_14    20230428_HNG5MDRX2  250 v41 16  2023-04-14  Genève (GE)
             />
         </svg>
     <a href="#deconvolution_filters" onclick="anchorLink('deconvolution_filters')">filters</a></div><span class="badge badge-dark value-type">Type: string</span> <span class="badge badge-success default-value">Default: ""</span><br/>
-<span class="description"><p>List of filters for removing problematic mutations from tally. Some mutations might be problematic and need to be taken out -- e.g. due to drop-outs in the multiplex PCR amplification, they do not show up in the data and this could be misinterpreted by LolliPop as proof of absence of a variant.</p>
+<span class="description"><p>List of filters for removing problematic mutations from tally. Some mutations might be problematic and need to be taken out &#8211; e.g. due to drop-outs in the multiplex PCR amplification, they do not show up in the data and this could be misinterpreted by LolliPop as proof of absence of a variant.</p>
 </span>
         
 
@@ -15235,7 +15330,7 @@ A3_16_2023_04_14    20230428_HNG5MDRX2  250 v41 16  2023-04-14  Genève (GE)
             />
         </svg>
     <a href="#dehuman_catchup" onclick="anchorLink('dehuman_catchup')">catchup</a></div><span class="badge badge-dark value-type">Type: boolean</span> <span class="badge badge-success default-value">Default: false</span><br/>
-<span class="description"><p>Use this option when generating dehumanized raw reads (<code>dehuman.cram</code>) on old samples <em><strong>that have already</strong></em> been processed in the past --- a <em>catch up</em>.</p>
+<span class="description"><p>Use this option when generating dehumanized raw reads (<code>dehuman.cram</code>) on old samples <em><strong>that have already</strong></em> been processed in the past &#8212; a <em>catch up</em>.</p>
 
 <p>Normally, removing host-mapping reads requires analyzing reads which were rejected by V-pipe&#8217;s main processing (as specified in section <code>general</code>, property <code>aligner</code>). But this output is considered temporary and will get deleted by Snakemake once the processing of a sample has finished. To generate <code>dehuman.cram</code> V-pipe would need to run the aligner again, which will both regenerate the data necessary for this output but also generate a new alignment which will trigger the whole workflow again.<br />
 Use this property <code>catchup</code> to only generate the input necessary for <code>dehuman.cram</code>, leaving untouched the alignment and everything else that has already been processed.</p>
@@ -15867,7 +15962,7 @@ Use this property <code>catchup</code> to only generate the input necessary for 
 <li><em>&lt;OUTPUT&gt;</em>: the output file that must be created by the script.</li>
 <li><em>&lt;SAMPLE_ID&gt;</em>: a string (with no path separator slashes) that can be used as a name, uniquely identifying the sample and the date.</li>
 <li><em>&lt;SAMPLE_DIR&gt;</em>: the base directory of the sample.</li>
-<li><em>&lt;UPLOAD_FILES&gt;</em>...: a list of files to consider for upload</li>
+<li><em>&lt;UPLOAD_FILES&gt;</em>&#8230;: a list of files to consider for upload</li>
 </ul>
 
 <p>For an example, see the default script <code>prepare_upload_symlinks.sh</code>, it generates symlinks that help tracking which samples are new and/or updated between runs of V-pipe and thus should be considered for upload.</p>
@@ -15929,6 +16024,6 @@ Use this property <code>catchup</code> to only generate the input necessary for 
 </div>
 
     <footer>
-        <p class="generated-by-footer">Generated using <a href="https://github.com/coveooss/json-schema-for-humans">json-schema-for-humans</a> on 2024-12-04 at 11:18:32 +0100</p>
+        <p class="generated-by-footer">Generated using <a href="https://github.com/coveooss/json-schema-for-humans">json-schema-for-humans</a> on 2024-12-28 at 22:05:58 +0100</p>
     </footer></body>
 </html>
