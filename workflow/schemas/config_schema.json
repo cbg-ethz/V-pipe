@@ -146,6 +146,13 @@
                     "description": "Using this parameter, the user can specify the read-length threshold that should be applied during the quality trimming as a percentage (0 < `trim_percent_cutoff` < 1).",
                     "examples": [ 0.9 ]
                 },
+                "primers_trim_cutoff": {
+                    "type": [ "null", "number" ],
+                    "default": 0.5,
+                    "minimum": 0,
+                    "description": "Functionally similar to [property `trim_percent_cutoff`](#input_trim_percent_cutoff), but happens at a later stage, after primer trimming.\n\nUsing this parameter, the user can specify the minimum read-length threshold that should be applied during the primers trimming (aka amplicon clipping), either as a percentage (0 < `trim_percent_cutoff` <= 1) or as an absolute base pair lenght.\n\nLeave empty (json: null) to leave the triming software's default\n\n**Note**: This option works better than iVar's own average-based autodetection which can fail in case of abundant primer dimers in the alignment, because V-pipe knows the exact read-lenght from either the [property `read_length`](#input_read_length) or the [samples file](#input_samples_file).",
+                    "examples": [ null, 0.7, 200 ]
+                },
                 "reference": {
                     "type": "string",
                     "default": "results/cohort_consensus.fasta",

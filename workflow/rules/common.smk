@@ -146,7 +146,22 @@ def load_legacy_ini(ininame, schemaname):
             # configparser doesn't convert type automatically
             # convert if necessary based on schema
             ty = sch["properties"][name]["properties"][entry]["type"]
-            if ty == "boolean":
+            if type(ty) is list:
+                for t in ty:
+                    # convert the first type that matches the value string
+                    if t == "null" and value.lower() in ("", "null", "none"):
+                        value = None
+                        break
+                    elif ty == "boolean":
+                        value = section.getboolean(entry)
+                        break
+                    elif ty == "integer":
+                        value = section.getint(entry)
+                        break
+                    elif ty == "number":
+                        value = section.getfloat(entry)
+                        break
+            elif ty == "boolean":
                 value = section.getboolean(entry)
             elif ty == "integer":
                 value = section.getint(entry)
