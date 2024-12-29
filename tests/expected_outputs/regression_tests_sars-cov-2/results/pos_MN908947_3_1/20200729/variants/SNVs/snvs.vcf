@@ -21,19 +21,19 @@
 ##bcftools_concatVersion=1.10.2+htslib-1.10.2
 ##bcftools_concatCommand=concat -o /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/snvs_tmp.vcf /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_1/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_2/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_3/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_4/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_5/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_6/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_7/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_8/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_9/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_10/snv/SNVs_0.010000_final.vcf.gz /tmp/tmp.qHFx7sYjwN/results/pos_MN908947_3_1/20200729/variants/SNVs/REGION_11/snv/SNVs_0.010000_final.vcf.gz; Date=Tue Aug 16 01:59:44 2022
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-NC_045512.2	13451	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=240;Rtot=214;Pval=0.955858;Qval=1
-NC_045512.2	13452	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=240;Rtot=214;Pval=0.955858;Qval=1
-NC_045512.2	13453	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=240;Rtot=215;Pval=0.963863;Qval=1
-NC_045512.2	13454	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=215;Pval=0.92476;Qval=1
-NC_045512.2	13455	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=217;Pval=0.942194;Qval=1
-NC_045512.2	13456	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=217;Pval=0.942194;Qval=1
-NC_045512.2	13457	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=219;Pval=0.959498;Qval=1
-NC_045512.2	13458	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=219;Pval=0.959498;Qval=1
-NC_045512.2	13459	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=220;Pval=0.968099;Qval=1
-NC_045512.2	13460	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=220;Pval=0.968099;Qval=1
-NC_045512.2	13461	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=221;Pval=0.976666;Qval=1
-NC_045512.2	13462	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=221;Pval=0.976666;Qval=1
-NC_045512.2	13463	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=240;Rtot=221;Pval=0.976666;Qval=1
+NC_045512.2	13451	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=239;Rtot=214;Pval=0.963028;Qval=1
+NC_045512.2	13452	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=239;Rtot=214;Pval=0.963028;Qval=1
+NC_045512.2	13453	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=11;Rvar=11;Ftot=239;Rtot=215;Pval=0.971037;Qval=1
+NC_045512.2	13454	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=215;Pval=0.932617;Qval=1
+NC_045512.2	13455	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=217;Pval=0.950066;Qval=1
+NC_045512.2	13456	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=217;Pval=0.950066;Qval=1
+NC_045512.2	13457	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=219;Pval=0.967381;Qval=1
+NC_045512.2	13458	.	C	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=219;Pval=0.967381;Qval=1
+NC_045512.2	13459	.	G	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=220;Pval=0.975986;Qval=1
+NC_045512.2	13460	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=220;Pval=0.975986;Qval=1
+NC_045512.2	13461	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=221;Pval=0.984556;Qval=1
+NC_045512.2	13462	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=221;Pval=0.984556;Qval=1
+NC_045512.2	13463	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=221;Pval=0.984556;Qval=1
 NC_045512.2	13464	.	T	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=221;Pval=0.984556;Qval=1
 NC_045512.2	13465	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=221;Pval=0.984556;Qval=1
 NC_045512.2	13466	.	A	-	4.77121	PASS	Freq1=0;Freq2=0.1246;Freq3=0.0826;Post1=0;Post2=1;Post3=1;Fvar=14;Rvar=14;Ftot=239;Rtot=222;Pval=0.99309;Qval=1

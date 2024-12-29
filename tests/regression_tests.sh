@@ -156,7 +156,7 @@ function compare_to_recorded_results {
     while IFS= read -r -d '' RECORDED_OUTPUT; do
         CURRENT_OUTPUT=${PROJECT_DIR}/${RECORDED_OUTPUT}
         echo "COMPARE ${RECORDED_OUTPUT} AND ${CURRENT_OUTPUT}"
-        if diff -I '^#' "${RECORDED_OUTPUT}" "${CURRENT_OUTPUT}" >> "${DIFF_FILE}"; then
+        if diff -u -a -I '^#' "${RECORDED_OUTPUT}" "${CURRENT_OUTPUT}" >> "${DIFF_FILE}"; then
             :
         else
             echo
