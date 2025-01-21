@@ -177,18 +177,20 @@ _bioRxiv_, doi:[10.1101/2023.10.16.562462](https://doi.org/10.1101/2023.10.16.56
 
 - [Ivan Topolsky\* ![orcid]](https://orcid.org/0000-0002-7561-0810), [![github]](https://github.com/dryak)
 - [Pelin Icer Baykal ![orcid]](https://orcid.org/0000-0002-9542-5292), [![github]](https://github.com/picerbaykal)
-- [Kim Philipp Jablonski ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Auguste Rimaite ![orcid]](https://orcid.org/0009-0004-6840-1668), [![github]](https://github.com/AugusteRi)
 - [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
 - [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
 - [Michal Okoniewski ![orcid]](https://orcid.org/0000-0003-4722-4506), [![github]](https://github.com/michalogit)
 - [Monica Dragan ![orcid]](https://orcid.org/0000-0002-7719-5892), [![github]](https://github.com/monicadragan)
-- [Susana Posada Céspedes ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
-- [David Seifert ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
-- Tobias Marschall
+- [Kim Philipp Jablonski\*\*\* ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Susana Posada Céspedes\*\*\* ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
+- [David Seifert\*\*\* ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
+- Tobias Marschall\*\*\*
 - [Niko Beerenwinkel\*\* ![orcid]](https://orcid.org/0000-0002-0573-6119)
 
 \* software maintainer ;
-\** group leader
+\** group leader ;
+\*\*\* group alumni and former contributors.
 
 [github]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-github.svg
 [orcid]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-ORICID.svg
