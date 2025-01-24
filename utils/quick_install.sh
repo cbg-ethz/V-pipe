@@ -152,7 +152,7 @@ title 'installing Mambaforge'
 check_directory "${MINICONDAPATH}" 'Mambaforge installation path'
 
 # Check OS for OS-Spefic Mambaforge installer
-MINICONDA="Mambaforge-$(uname)-$(uname -m).sh"
+MINICONDA="Miniforge3-24.11.3-0-$(uname)-$(uname -m).sh"
 message 'Using installer:' "${MINICONDA}"
 
 # Get and install Mambaforge
