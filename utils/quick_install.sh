@@ -139,20 +139,20 @@ fi
 
 ##################
 #                #
-#   Mambaforge   #
+#   Miniforge    #
 #                #
 ##################
 
 MINICONDA=
-MINICONDAPATH="${PREFIX}/mambaforge"
+MINICONDAPATH="${PREFIX}/miniforge"
 
-title 'installing Mambaforge'
+title 'installing Miniforge3'
 
 # Check if directory is free
 check_directory "${MINICONDAPATH}" 'Mambaforge installation path'
 
 # Check OS for OS-Spefic Mambaforge installer
-MINICONDA="Miniforge3-24.11.3-0-$(uname)-$(uname -m).sh"
+MINICONDA="Miniforge3-$(uname)-$(uname -m).sh"
 message 'Using installer:' "${MINICONDA}"
 
 # Get and install Mambaforge
@@ -160,13 +160,13 @@ message 'Using installer:' "${MINICONDA}"
 mkdir -p "${PREFIX}" && cd "${PREFIX}" || fail "Could not create directory: ${PREFIX}"
 [[ -f "${MINICONDA}" ]] && rm "${MINICONDA}"
 ${DOWNLOAD} "https://github.com/conda-forge/miniforge/releases/latest/download/${MINICONDA}"
-sh "${MINICONDA}" -b -p mambaforge
+sh "${MINICONDA}" -b -p miniforge
 # -b for batch (no question asked)
-MINICONDAFULLPATH="$(pwd)/mambaforge"
+MINICONDAFULLPATH="$(pwd)/miniforge"
 
 
 # shellcheck source=/dev/null
-. mambaforge/bin/activate
+. miniforge/bin/activate
 
 # set the channel precedence (lowest to highest)
 conda config --add channels defaults
