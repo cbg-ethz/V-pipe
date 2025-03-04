@@ -27,7 +27,7 @@ Content is hard-coded in the funding.html file in the _includes folder
 ## How to cite us
 
 **To add a publication** to the "How to cite us" page:
-1) add get your BIB details from PubMed, see `_literature/HOWTO.md`.
+1) get your BIB details from PubMed, see `_literature/HOWTO.md`.
 2) add the bib entry to correct file in `_literature/<<section>>.bib` depending on your contributioin to V-Pipe:
 i.e. `<<section>>.bib` as `primary.bib`, `general.bib` or `components.bib`.
 3) navigate to `_literature/`
