@@ -24,15 +24,17 @@ Content can be added/removed in the events.yml file in the _data folder. The log
 ## V-pipe funding
 Content is hard-coded in the funding.html file in the _includes folder
 
-## How to cite us
+## Adding articles to Literature
 
-**To add a publication** to the "How to cite us" page:
-1) get your BIB details from PubMed, see `_literature/HOWTO.md`.
+**To add a publication** to the "[Literature](https://cbg-ethz.github.io/V-pipe/literature/)" page:
+1) get your BIB.  Most pre-print and pub servers have a "Download BIB" button. (otherwise for details from PubMed, see `_literature/HOWTO.md`).
 2) add the bib entry to correct file in `_literature/<<section>>.bib` depending on your contribution to V-Pipe:
-i.e. `<<section>>.bib` as `primary.bib`, `general.bib` or `components.bib`.
+   i.e. `<<section>>.bib` as `primary.bib`, `general.bib` or `components.bib`.
 3) navigate to `_literature/`
 4) run `make` to build all the new resources, commit all.
-Note you may need to install "bibutils" before.
+   > [!NOTE]  
+   > Note you may need to install "pandoc" and "bibutils" before.
+
 ## Footer
 Content can be added/removed in the _footer collection and the footer.html in the _includes folder.
 Note: [Navigation](#navigation) is indepedent
