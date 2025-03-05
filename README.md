@@ -28,13 +28,11 @@ Content is hard-coded in the funding.html file in the _includes folder
 
 **To add a publication** to the "How to cite us" page:
 1) get your BIB details from PubMed, see `_literature/HOWTO.md`.
-2) add the bib entry to correct file in `_literature/<<section>>.bib` depending on your contributioin to V-Pipe:
+2) add the bib entry to correct file in `_literature/<<section>>.bib` depending on your contribution to V-Pipe:
 i.e. `<<section>>.bib` as `primary.bib`, `general.bib` or `components.bib`.
 3) navigate to `_literature/`
-3) run `make` to build all the new resources, commit all.
-
-Note you may need ot install "bibutils" before.
-
+4) run `make` to build all the new resources, commit all.
+Note you may need to install "bibutils" before.
 ## Footer
 Content can be added/removed in the _footer collection and the footer.html in the _includes folder.
 Note: [Navigation](#navigation) is indepedent
