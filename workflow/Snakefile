@@ -1,3 +1,6 @@
+container: "docker://snakemake/snakemake:v7.32.4"
+
+
 import logging
 
 LOGGER = logging.getLogger("snakemake.logging")

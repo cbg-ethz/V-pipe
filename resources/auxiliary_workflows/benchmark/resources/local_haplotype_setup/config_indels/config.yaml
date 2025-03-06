@@ -1,8 +1,7 @@
 method_list: [
-              viloca_alpha_0.000001_extended_window_mode,
-              viloca_uniform_extended_window_mode,
+              viloca_ewm,
               ]
-replicate_count: 5
+replicate_count: 1
 haplotype_generation: mutation_rate
 params_path: config_indels/params.csv
 master_seq_path: ../../../../hiv/HXB2.fasta

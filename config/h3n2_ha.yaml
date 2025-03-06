@@ -1,0 +1,75 @@
+# config-file used for the analysis of H3N2 segment HA
+# config file was used to analysis wastewater Illumina data from SRA available
+# through the SRA Run accession: SRP385331
+
+general:
+    aligner: bwa
+    primers_trimmer: samtools
+    threads: 6
+    snv_caller: lofreq
+    temp_prefix: ./temp
+    preprocessor: skip
+
+input:
+    datadir: samples/
+    samples_file: samples.tsv
+    reference: "{VPIPE_BASEDIR}/../resources/h3n2_ha/h3n2_ha.fasta"
+    genes_gff: "{VPIPE_BASEDIR}/../resources/h3n2_ha/gffs/h3n2_ha.gff3"
+    paired: true
+    read_length: 151
+
+output:
+    datadir: results/
+    snv: True
+    local: True
+    global: False
+    visualization: False
+    QA: False
+    diversity: False
+
+gunzip:
+    mem: 100000
+
+extract:
+    mem: 100000
+
+preprocessing:
+    mem: 10000
+
+sam2bam:
+    mem: 5000
+
+ref_bwa_index:
+    mem: 65536
+
+bwa_align:
+    mem: 40690
+    threads: 8
+
+bowtie_align:
+    mem: 12288
+    threads: 6
+
+coverage:
+    mem: 131072
+    threads: 32
+    time: 60
+
+minor_variants:
+    mem: 16384
+    threads: 64
+
+coverage_intervals:
+    coverage: 0
+    mem: 2000
+    threads: 1
+
+lofreq:
+    consensus: false
+
+snv:
+    consensus: false
+    localscratch: $TMPDIR
+    time: 240
+    mem: 1024
+    threads: 64

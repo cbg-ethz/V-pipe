@@ -1,6 +1,13 @@
 <!-- markdownlint-disable MD013 MD041 -->
-
-![Logo](https://cbg-ethz.github.io/V-pipe/img/logo.svg)
+<picture>
+  <source
+    media="(prefers-color-scheme: light)"  
+    srcset="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe.svg">
+  <source
+    media="(prefers-color-scheme: dark)"  
+    srcset="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe-dark.svg">
+  <img alt="Logo" src="https://cbg-ethz.github.io/V-pipe/assets/img/logo-vpipe.svg" width="50%" />
+</picture>
 
 [![bio.tools](https://img.shields.io/badge/bio-tools-blue.svg)](https://bio.tools/V-Pipe)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥7.11.0-blue.svg)](https://snakemake.github.io/snakemake-workflow-catalog/?usage=cbg-ethz/V-pipe)
@@ -31,7 +38,11 @@ general:
 
 Also see [snakemake's documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html) to learn more about the command-line options available when executing the workflow.
 
-Tutorials introducing usage of V-pipe are available in the [docs/](docs/README.md) subdirectory.
+
+### Tutorials
+
+Tutorials for your first steps with V-pipe for different scenarios are available in the [docs/](docs/README.md) subdirectory.
+
 
 ### Using quick install script
 
@@ -49,6 +60,8 @@ cd work
 # edit config.yaml and provide samples/ directory
 ./vpipe --jobs 4 --printshellcmds --dry-run
 ```
+
+Test data to test your installation is available with the tutorials provided in the [docs/](docs/README.md) subdirectory.
 
 ### Using Docker
 
@@ -156,29 +169,31 @@ Other dependencies are managed by using isolated conda environments per rule, an
 
 If you use this software in your research, please cite:
 
-Posada-Céspedes S., Seifert D., Topolsky I., Jablonski K.P., Metzner K.J., and Beerenwinkel N. 2021.
-"V-pipe: a computational pipeline for assessing viral genetic diversity from high-throughput sequencing data."
-_Bioinformatics_, January. doi:[10.1093/bioinformatics/btab015](https://doi.org/10.1093/bioinformatics/btab015).
+Fuhrmann, L., Jablonski, K. P., Topolsky, I., Batavia, A. A., Borgsmueller, N., Icer Baykal, P., Carrara, M. ... & Beerenwinkel, (2023).
+"V-Pipe 3.0: A Sustainable Pipeline for Within-Sample Viral Genetic Diversity Estimation."
+_bioRxiv_, doi:[10.1101/2023.10.16.562462](https://doi.org/10.1101/2023.10.16.562462).
 
 ## Contributions
 
 - [Ivan Topolsky\* ![orcid]](https://orcid.org/0000-0002-7561-0810), [![github]](https://github.com/dryak)
 - [Pelin Icer Baykal ![orcid]](https://orcid.org/0000-0002-9542-5292), [![github]](https://github.com/picerbaykal)
-- [Kim Philipp Jablonski ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Auguste Rimaite ![orcid]](https://orcid.org/0009-0004-6840-1668), [![github]](https://github.com/AugusteRi)
 - [Lara Fuhrmann ![orcid]](https://orcid.org/0000-0001-6405-0654), [![github]](https://github.com/LaraFuhrmann)
 - [Uwe Schmitt ![orcid]](https://orcid.org/0000-0002-4658-0616), [![github]](https://github.com/uweschmitt)
 - [Michal Okoniewski ![orcid]](https://orcid.org/0000-0003-4722-4506), [![github]](https://github.com/michalogit)
 - [Monica Dragan ![orcid]](https://orcid.org/0000-0002-7719-5892), [![github]](https://github.com/monicadragan)
-- [Susana Posada Céspedes ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
-- [David Seifert ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
-- Tobias Marschall
+- [Kim Philipp Jablonski\*\*\* ![orcid]](https://orcid.org/0000-0002-4166-4343), [![github]](https://github.com/kpj)
+- [Susana Posada Céspedes\*\*\* ![orcid]](https://orcid.org/0000-0002-7459-8186), [![github]](https://github.com/sposadac)
+- [David Seifert\*\*\* ![orcid]](https://orcid.org/0000-0003-4739-5110), [![github]](https://github.com/SoapZA)
+- Tobias Marschall\*\*\*
 - [Niko Beerenwinkel\*\* ![orcid]](https://orcid.org/0000-0002-0573-6119)
 
 \* software maintainer ;
-\** group leader
+\** group leader ;
+\*\*\* group alumni and former contributors.
 
-[github]: https://cbg-ethz.github.io/V-pipe/img/mark-github.svg
-[orcid]: https://cbg-ethz.github.io/V-pipe/img/ORCIDiD_iconvector.svg
+[github]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-github.svg
+[orcid]: https://cbg-ethz.github.io/V-pipe/assets/img/icon-ORICID.svg
 
 ## Contact
 

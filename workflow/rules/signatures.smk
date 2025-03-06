@@ -6,6 +6,18 @@ __maintainer__ = "Ivan Topolsky"
 __email__ = "v-pipe@bsse.ethz.ch"
 
 
+wildcard_constraints:
+    proto=".*",  # protocol can be empty => default values from config file instead of primers yaml
+
+
+def get_proto_from_str(proto_str):
+    # no explicit protocol (use default) if empty (or bug: "None" cast as string)
+    # otherwise protocol name
+    return (
+        None if isinstance(proto_str, str) and proto_str in {"None", ""} else proto_str
+    )
+
+
 def all_vocs(dir):
     if not dir:
         return []
@@ -14,7 +26,9 @@ def all_vocs(dir):
 
 
 def proto_inserts(wildcards):
-    return protocol_proto_option(proto=wildcards.proto, option="inserts_bedfile")
+    return protocol_proto_option(
+        proto=get_proto_from_str(wildcards.proto), option="inserts_bedfile"
+    )
 
 
 rule amplicons:
@@ -27,6 +41,9 @@ rule amplicons:
         COJAC=config.applications["cojac"],
         vocdir=config.input["variants_def_directory"],
         mincooc=config.amplicons["mincooc"],
+        fix_subset=(
+            "--fix-subset" if config.amplicons["fix_subset"] else "--no-fix-subset"
+        ),
     log:
         outfile=cohortdir("amplicons.{proto}.out.log"),
         errfile=cohortdir("amplicons.{proto}.err.log"),
@@ -42,12 +59,13 @@ rule amplicons:
     shell:
         """
         vocs=( {input.vocs} )
-        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" "{params.fix_subset}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
         """
 
 
 def get_sample_amplicons(wildcards):
-    return cohortdir("amplicons.%s.yaml" % get_sample_protocol(wildcards))
+    proto = get_sample_protocol(wildcards)
+    return cohortdir("amplicons.%s.yaml" % ("" if proto is None else proto))
 
 
 rule cooc:
@@ -61,9 +79,11 @@ rule cooc:
         COJAC=config.applications["cojac"],
         name=ID,
         sep=config.general["id_separator"],
-        out_format="--multiindex"
-        if config.cooc["out_format"] == "columns"
-        else "--multiindex --lines",
+        out_format=(
+            "--multiindex"
+            if config.cooc["out_format"] == "columns"
+            else "--multiindex --lines"
+        ),
     log:
         outfile="{dataset}/signatures/cooc.out.log",
         errfile="{dataset}/signatures/cooc.err.log",
@@ -84,10 +104,11 @@ rule cooc:
 
 
 def proto_datasets(wildcards):
+    proto = get_proto_from_str(wildcards.proto)
     return [
         sample_paths[s_rec]
         for s_rec, s_row in sample_table.items()
-        if s_row.protocol == wildcards.proto
+        if s_row.protocol == proto
     ]
 
 
@@ -97,16 +118,21 @@ def cohort_cooc_proto(wildcards):
 
 rule cohort_cooc:
     input:
-        cohort_cooc_proto,
+        YAMLs=cohort_cooc_proto,
+        amplicons=(
+            cohortdir("amplicons.{proto}.yaml") if config.cooc["add_mutations"] else []
+        ),
     output:
         cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
         cooc_csv=cohortdir("cohort_cooc.{proto}.csv"),
     params:
         COJAC=config.applications["cojac"],
         sep=config.general["id_separator"],
-        out_format="--multiindex"
-        if config.cooc["out_format"] == "columns"
-        else "--multiindex --lines",
+        out_format=(
+            "--multiindex"
+            if config.cooc["out_format"] == "columns"
+            else "--multiindex --lines"
+        ),
     log:
         outfile=cohortdir("cohort_cooc.{proto}.out.log"),
         errfile=cohortdir("cohort_cooc.{proto}.err.log"),
@@ -121,8 +147,8 @@ rule cohort_cooc:
     threads: config.cooc["threads"]
     shell:
         """
-        cat {input} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
+        cat {input.YAMLs} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --add-mutations="{input.amplicons}" --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
         """
 
 
@@ -222,26 +248,36 @@ if config.timeline["local"]:
 rule timeline:
     input:
         samples_tsv=config.input["samples_file"],
-        locations=config.timeline["locations_table"]
-        if config.timeline["locations_table"]
-        else [],
+        locations=(
+            config.timeline["locations_table"]
+            if config.timeline["locations_table"]
+            else []
+        ),
         regex=config.timeline["regex_yaml"] if config.timeline["regex_yaml"] else [],
     output:
         timeline=cohortdir("timeline.tsv"),
-        locations_list=cohortdir("locations_list.yaml")
-        if config.timeline["locations_table"]
-        else [],
+        locations_list=(
+            cohortdir("locations_list.yaml")
+            if config.timeline["locations_table"]
+            else []
+        ),
     params:
         maketimeline=cachepath(config.timeline["script"], executable=True),
-        locations=f"--locations {config.timeline['locations_table']}"
-        if config.timeline["locations_table"]
-        else "",
-        regex=f"--regex-config {config.timeline['regex_yaml']}"
-        if config.timeline["regex_yaml"]
-        else "",
-        out_locations=f"--out-locations {cohortdir('locations_list.yaml')}"
-        if config.timeline["locations_table"] or config.timeline["regex_yaml"]
-        else "",
+        locations=(
+            f"--locations {config.timeline['locations_table']}"
+            if config.timeline["locations_table"]
+            else ""
+        ),
+        regex=(
+            f"--regex-config {config.timeline['regex_yaml']}"
+            if config.timeline["regex_yaml"]
+            else ""
+        ),
+        out_locations=(
+            f"--out-locations {cohortdir('locations_list.yaml')}"
+            if config.timeline["locations_table"] or config.timeline["regex_yaml"]
+            else ""
+        ),
         options=config.timeline["options"],
     log:
         outfile=cohortdir("timeline.out.log"),
@@ -294,22 +330,34 @@ rule tallymut:
 
 rule deconvolution:
     input:
-        tallymut=cohortdir("tallymut.tsv.zst"),
+        tallymut=(
+            cohortdir("tallycooc.tsv.zst")
+            if config.deconvolution["source"] == "cooc"
+            else cohortdir("tallymut.tsv.zst")
+        ),
         deconv_conf=config.deconvolution["deconvolution_config"],
-        var_conf=config.deconvolution["variants_config"]
-        if config.deconvolution["variants_config"]
-        else cohortdir("variants_pangolin.yaml"),
-        var_dates=config.deconvolution["variants_dates"]
-        if config.deconvolution["variants_dates"]
-        else [],
+        var_conf=(
+            config.deconvolution["variants_config"]
+            if config.deconvolution["variants_config"]
+            else cohortdir("variants_pangolin.yaml")
+        ),
+        var_dates=(
+            config.deconvolution["variants_dates"]
+            if config.deconvolution["variants_dates"]
+            else []
+        ),
+        filters=(
+            config.deconvolution["filters"] if config.deconvolution["filters"] else []
+        ),
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
         deconv_json=cohortdir("deconvoluted_upload.json"),
     params:
         LOLLIPOP=config.applications["lollipop"],
-        out_format="--fmt-columns"
-        if config.deconvolution["out_format"] == "columns"
-        else "",
+        out_format=(
+            "--fmt-columns" if config.deconvolution["out_format"] == "columns" else ""
+        ),
+        EXTRA=config.deconvolution["extra"],
         seed="--seed=42",
     log:
         outfile=cohortdir("deconvoluted.out.log"),
@@ -325,10 +373,54 @@ rule deconvolution:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" {params.out_format} {params.seed} "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} {params.EXTRA} "--n-cores={threads}" "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        """
+
+
+def expand_proto(fmtstr, **kwargs):
+    return expand(
+        fmtstr,
+        proto=["" if p is None or p == "None" else p for p in list(sample_protos)],
+        **kwargs,
+    )
+
+
+rule tallycooc:
+    input:
+        cooctab=expand_proto(cohortdir("cohort_cooc.{proto}.csv")),
+        times=(config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")),
+    output:
+        tallycooc=cohortdir("tallycooc.tsv.zst"),
+    params:
+        XSV=config.applications["xsv"],
+        ZSTD=config.applications["zstd"],
+        selector="sample,batch" if sample_2level_count else "sample",
+    log:
+        outfile=cohortdir("tallycooc.out.log"),
+        errfile=cohortdir("tallycooc.err.log"),
+    conda:
+        config.tallymut["conda"]
+    benchmark:
+        cohortdir("tallycooc.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=config.tallymut["mem"],
+        runtime=config.tallymut["time"],
+    threads: 1
+    shell:
+        """
+        {params.XSV} join --right {params.selector} {input.times} {params.selector} \
+         <({params.XSV} cat rows  --delimiter ',' {input.cooctab} ) \
+         | {params.XSV} fmt --out-delimiter '\\t' \
+         | {params.ZSTD} -o {output.tallycooc} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
 rule allCooc:
     input:
         expand("{dataset}/signatures/cooc.yaml", dataset=datasets),
+
+
+rule allCoocReports:
+    input:
+        expand_proto(cohortdir("cohort_cooc_report.{proto}.csv")),

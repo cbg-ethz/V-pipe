@@ -146,7 +146,22 @@ def load_legacy_ini(ininame, schemaname):
             # configparser doesn't convert type automatically
             # convert if necessary based on schema
             ty = sch["properties"][name]["properties"][entry]["type"]
-            if ty == "boolean":
+            if type(ty) is list:
+                for t in ty:
+                    # convert the first type that matches the value string
+                    if t == "null" and value.lower() in ("", "null", "none"):
+                        value = None
+                        break
+                    elif ty == "boolean":
+                        value = section.getboolean(entry)
+                        break
+                    elif ty == "integer":
+                        value = section.getint(entry)
+                        break
+                    elif ty == "number":
+                        value = section.getfloat(entry)
+                        break
+            elif ty == "boolean":
                 value = section.getboolean(entry)
             elif ty == "integer":
                 value = section.getint(entry)
@@ -456,6 +471,7 @@ sample_record = typing.NamedTuple("sample_record", [("sample_id", str), ("date",
 sample_id_patchmap = {}
 sample_dir = {}  # directory => samples record
 sample_paths = {}  # sample record => dir
+sample_protos = set()
 sample_proto_count = 0
 sample_default_count = 0
 sample_1level_count = 0
@@ -586,6 +602,7 @@ else:
             sample_table[sample_tuple] = sample_row(
                 num=spamreader.line_num, len=l, protocol=p
             )
+            sample_protos.add(p)
 
 if config["output"]["trim_primers"]:
     if sample_default_count and not config["input"]["primers_bedfile"]:
@@ -685,11 +702,20 @@ for srec in sample_list:
         # in adition to standard VCF files, ShoRAH2 also produces CSV tables
         if config.general["snv_caller"] == "shorah":
             results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        elif config.general["snv_caller"] == "viloca":
+            results.append(
+                os.path.join(sdir, "variants/SNVs/snv/cooccurring_mutations.csv")
+            )
         # all snv callers ('shorah', 'lofreq') produce standard VCF files
         results.append(os.path.join(sdir, "variants/SNVs/snvs.vcf"))
     # local haplotypes
     if config.output["local"]:
-        results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        if config.general["snv_caller"] == "shorah":
+            results.append(os.path.join(sdir, "variants/SNVs/snvs.csv"))
+        elif config.general["snv_caller"] == "viloca":
+            results.append(
+                os.path.join(sdir, "variants/SNVs/snv/cooccurring_mutations.csv")
+            )
     # global haplotypes
     if config.output["global"]:
         if config.general["haplotype_reconstruction"] == "savage":

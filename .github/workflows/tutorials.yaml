@@ -24,7 +24,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
             sparse-checkout: |
                 docs
@@ -33,11 +33,13 @@ jobs:
             lfs: false
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           mamba-version: "*"
+          use-mamba: true
+          no-implicit-channels: true
           channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: JupyText
@@ -57,16 +59,16 @@ jobs:
         run: tar --zstd -cvf vpipeinstallation.tar.zst ./docs/vp-analysis
 
       - name: Keep installation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPipeInstallation
           path: vpipeinstallation.tar.zst
           if-no-files-found: error
 
       - name: Save notebooks
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: JupyterNotebooks
+          name: JupyterNotebooks-Install
           path: ./docs/*.ipynb
 
 
@@ -93,7 +95,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
             sparse-checkout: |
                 docs
@@ -102,7 +104,7 @@ jobs:
             lfs: false
 
       - name: Reuse installation
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
             name: VPipeInstallation
 
@@ -110,12 +112,14 @@ jobs:
         run: tar --zstd -xvf vpipeinstallation.tar.zst
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           python-version: "3.11"
           mamba-version: "*"
+          use-mamba: true
+          no-implicit-channels: true
           channels: conda-forge,bioconda
           channel-priority: strict
           activate-environment: JupyText
@@ -128,12 +132,26 @@ jobs:
 
       - name: Run analysis notebooks
         working-directory: ./docs
-        run: ./convert.sh --branch tutorial*_${{ matrix.virus }}.md
+        run: ./convert.sh --version --branch --sralog tutorial*_${{ matrix.virus }}.md
+
+      - name: Save output
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tutorial_${{ matrix.virus }}
+          path: |
+            ./docs/*.ipynb
+            ./docs/*.log
+            ./docs/samples/*
+            ./docs/vp-analysis/work*
+            !./docs/vp-analysis/work*/.snakemake/conda/*/
+          include-hidden-files: true
+          if-no-files-found: ignore
 
       - name: Save notebooks
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: JupyterNotebooks
+          name: JupyterNotebooks-${{ matrix.virus }}
           path: ./docs/*.ipynb
 
       # - name: Publish

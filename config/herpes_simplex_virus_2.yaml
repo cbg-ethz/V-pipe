@@ -1,0 +1,34 @@
+# config-file used for the analysis of herpes_simplex_virus_2 Illumina samples
+# Lezcano et al., Virus Evolution, 2023, https://doi.org/10.1093/ve/vead074
+# deletion analysis
+# analysed sample is from  López-Muñoz AD, Rastrojo A, Kropp KA, Viejo-Borbolla A, Alcamí A. Combination of long- and short-read sequencing fully resolves complex repeats of herpes simplex virus 2 strain MS complete genome. Microb Genom. 2021 Jun;7(6).
+# Sample accession number: ERR3278849
+
+general:
+      aligner: "bwa"
+      snv_caller: "shorah"
+
+input:
+    reference: resources/herpes_simplex_virus_2/MK855052.1.fasta
+    datadir: resources/samples/
+    read_length: 250
+    samples_file: samples.tsv
+    paired: true
+
+consensus_bcftools:
+    max_coverage: 150000
+
+snv:
+  consensus: false
+  disk_mb: 1250
+  mem_mb: 35000
+  time_min: 6000
+  threads: 64
+
+output:
+    snv: true
+    local: true
+    global: false
+    visualization: false
+    diversity: false
+    QA: false

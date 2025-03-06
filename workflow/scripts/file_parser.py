@@ -202,7 +202,7 @@ def main():
     datefmt = None
     if args.config_file:
         with open(args.config_file, "r") as stream:
-            yaml = ruamel.yaml.YAML(typ='rt')
+            yaml = ruamel.yaml.YAML(typ="rt")
             reg_data = yaml.load(stream)
         if "sample" in reg_data:
             rxsam = regex.compile(reg_data.get("sample"))

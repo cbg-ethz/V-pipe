@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@master
 
 import subprocess
 from pathlib import Path
@@ -44,8 +44,8 @@ def main(
     if fname_insert_bed == []:
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",
@@ -67,8 +67,8 @@ def main(
         # insert bed file is there
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",

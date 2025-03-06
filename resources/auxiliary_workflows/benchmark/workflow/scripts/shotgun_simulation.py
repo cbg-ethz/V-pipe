@@ -18,7 +18,7 @@ def simulate_illumina(fname_haplotype, coverage_haplotype, read_length, art_pref
     subprocess.run(
         [
             "art_illumina",
-            "-sam",
+            "-sam",  # this alignment fails when we simulate indels in the haplotypes
             "--paired",
             "-m",
             str(
@@ -279,6 +279,41 @@ def main(
             ["samtools", "view", "-b", "-h", "-o", fd_tmp.name, fname_merged_sam]
         )
         subprocess.run(["samtools", "sort", "-o", fname_bam, fd_tmp.name])
+
+    if (params["seq_tech"] == "illumina") & (haplotype_generation == "mutation_rate"):
+        deletion_rate = float(params["haplos"].split("@")[-2])
+        insertion_rate = float(params["haplos"].split("@")[-3])
+        # bwa is not able to align the simulated indels correctly.vim
+
+        if (insertion_rate > 0) or (deletion_rate > 0):
+            subprocess.run(["rm", fname_bam])
+            # align reads
+            subprocess.run(
+                [
+                    "minimap2",
+                    "-ax",
+                    "sr",
+                    "--secondary=no",
+                    str(dname_work.resolve())[:-4] + "reference.fasta",
+                    str(fname_fastq.resolve()),
+                    "-o",
+                    str(art_prefix) + ".sam",
+                ]
+            )
+
+            subprocess.run(
+                [
+                    "samtools",
+                    "sort",
+                    str(art_prefix) + ".sam",
+                    "-o",
+                    str(art_prefix) + ".sam",
+                ]
+            )
+
+            subprocess.run(
+                ["samtools", "view", "-bS", str(art_prefix) + ".sam", "-o", fname_bam]
+            )
 
 
 if __name__ == "__main__":

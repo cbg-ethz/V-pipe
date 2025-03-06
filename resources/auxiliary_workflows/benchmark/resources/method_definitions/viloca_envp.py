@@ -1,7 +1,7 @@
 # GROUP: global
 # CONDA: libshorah
 # CONDA: biopython = 1.79
-# PIP: git+https://github.com/LaraFuhrmann/shorah@master
+# PIP: git+https://github.com/cbg-ethz/VILOCA@master
 
 import subprocess
 from pathlib import Path
@@ -32,17 +32,18 @@ def main(
     dname_work,
 ):
     genome_size = str(fname_bam).split("genome_size~")[1].split("__coverage")[0]
-    alpha = 0.000001
-    n_max_haplotypes = 500
+    alpha = 0.00001
+    n_max_haplotypes = 100
     n_mfa_starts = 1
     win_min_ext = 0.85
 
-    coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
-    if float(coverage) > 200:
-        exclude_non_var_pos_threshold = 2 / float(coverage)
-    else:
-        exclude_non_var_pos_threshold = 1 / float(coverage)
+    # coverage = str(fname_bam).split("coverage~")[1].split("__")[0]
+    # if float(coverage) > 200:
+    #    exclude_non_var_pos_threshold = 2 / float(coverage)
+    # else:
+    #     exclude_non_var_pos_threshold = 1 / float(coverage)
 
+    exclude_non_var_pos_threshold = 0.01
     read_length = str(fname_bam).split("read_length~")[1].split("__")[0]
     if read_length == "Ten_strain_IAV":
         sampler = "learn_error_params"
@@ -54,8 +55,8 @@ def main(
     if fname_insert_bed == []:
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",
@@ -79,8 +80,8 @@ def main(
         # insert bed file is there
         subprocess.run(
             [
-                "shorah",
-                "shotgun",
+                "viloca",
+                "run",
                 "-b",
                 fname_bam.resolve(),
                 "-f",

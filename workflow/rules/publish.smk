@@ -1,3 +1,5 @@
+from functools import partial
+
 if config.upload["local"]:
 
     localrules:
@@ -16,35 +18,43 @@ rule prepare_upload:
     input:
         R1=partial(raw_data_file, pair=1) if config.upload["orig_fastq"] else [],
         R2=partial(raw_data_file, pair=2) if config.upload["orig_fastq"] else [],
-        orig_cram=[
-            "{dataset}/raw_uploads/raw_reads.cram",
-            "{dataset}/raw_uploads/raw_reads.cram.%s" % config.general["checksum"],
-        ]
-        if config.upload["orig_cram"]
-        else [],
-        dehuman=[
-            "{dataset}/raw_uploads/dehuman.cram",
-            "{dataset}/raw_uploads/dehuman.cram.%s" % config.general["checksum"],
-        ]
-        if config.output["dehumanized_raw_reads"]
-        else [],
+        orig_cram=(
+            [
+                "{dataset}/raw_uploads/raw_reads.cram",
+                "{dataset}/raw_uploads/raw_reads.cram.%s" % config.general["checksum"],
+            ]
+            if config.upload["orig_cram"]
+            else []
+        ),
+        dehuman=(
+            [
+                "{dataset}/raw_uploads/dehuman.cram",
+                "{dataset}/raw_uploads/dehuman.cram.%s" % config.general["checksum"],
+            ]
+            if config.output["dehumanized_raw_reads"]
+            else []
+        ),
         consensus_indels="{dataset}/references/consensus%s.bcftools.fasta"
         % bcft_suffix(),
         consensus_indels_chain="{dataset}/references/consensus%s.bcftools.chain"
         % bcft_suffix(),
         consensus_aligned="{dataset}/references/ref_%s_dels.fasta"
         % config.upload["consensus"],
-        csum=[
-            "{dataset}/references/consensus%(suf)s.bcftools.fasta.%(csum)s"
-            % {"suf": bcft_suffix(), "csum": config.general["checksum"]},
-            "{dataset}/references/ref_majority_dels.fasta.%(csum)s"
-            % {"suf": bcft_suffix(), "csum": config.general["checksum"]},
-        ]
-        if config.upload["checksum"]
-        else [],
-        frameshift_deletions_check="{dataset}/references/frameshift_deletions_check.tsv"
-        if config.output["QA"]
-        else [],
+        csum=(
+            [
+                "{dataset}/references/consensus%(suf)s.bcftools.fasta.%(csum)s"
+                % {"suf": bcft_suffix(), "csum": config.general["checksum"]},
+                "{dataset}/references/ref_majority_dels.fasta.%(csum)s"
+                % {"suf": bcft_suffix(), "csum": config.general["checksum"]},
+            ]
+            if config.upload["checksum"]
+            else []
+        ),
+        frameshift_deletions_check=(
+            "{dataset}/references/frameshift_deletions_check.tsv"
+            if config.output["QA"]
+            else []
+        ),
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch",
     params:

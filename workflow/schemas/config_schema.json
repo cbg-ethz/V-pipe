@@ -38,8 +38,8 @@
                 "snv_caller": {
                     "type": "string",
                     "default": "shorah",
-                    "enum": ["shorah","lofreq"],
-                    "description": "There are two options available for calling single nucleotide variants, either using [ShoRAH (`shorah`)](https://github.com/cbg-ethz/shorah) [^5] or [LoFreq (`lofreq`)](https://csb5.github.io/lofreq/) [^6]. ShoRAH is used by default. If you prefer to use LoFreq, then indicate so in the configuration file as in the example\n\n[^5]: Zagordi, O. et al. ShoRAH: estimating the genetic diversity of a mixed sample from next-generation sequencing data. BMC Bioinformatics. 2011.\n[^6]: Wilm, A. et al. LoFreq: A sequence-quality aware, ultra-sensitive variant caller for uncovering cell-population heterogeneity from high-throughput sequencing datasets. Nucleic Acids Res. 2012.",
+                    "enum": ["shorah","lofreq", "viloca"],
+                    "description": "There are three options available for calling single nucleotide variants, either using [ShoRAH (`shorah`)](https://github.com/cbg-ethz/shorah) [^5],  [LoFreq (`lofreq`)](https://csb5.github.io/lofreq/) [^6] or [VILOCA (`viloca`)](https://github.com/cbg-ethz/viloca) [^7] . ShoRAH is used by default. If you prefer to use LoFreq, then indicate so in the configuration file as in the example\n\n[^5]: Zagordi, O. et al. ShoRAH: estimating the genetic diversity of a mixed sample from next-generation sequencing data. BMC Bioinformatics. 2011.\n[^6]: Wilm, A. et al. LoFreq: A sequence-quality aware, ultra-sensitive variant caller for uncovering cell-population heterogeneity from high-throughput sequencing datasets. Nucleic Acids Res. 2012.",
                     "examples": ["lofreq"]
                 },
                 "haplotype_reconstruction": {
@@ -146,6 +146,13 @@
                     "description": "Using this parameter, the user can specify the read-length threshold that should be applied during the quality trimming as a percentage (0 < `trim_percent_cutoff` < 1).",
                     "examples": [ 0.9 ]
                 },
+                "primers_trim_cutoff": {
+                    "type": [ "null", "number" ],
+                    "default": 0.5,
+                    "minimum": 0,
+                    "description": "Functionally similar to [property `trim_percent_cutoff`](#input_trim_percent_cutoff), but happens at a later stage, after primer trimming.\n\nUsing this parameter, the user can specify the minimum read-length threshold that should be applied during the primers trimming (aka amplicon clipping), either as a percentage (0 < `trim_percent_cutoff` <= 1) or as an absolute base pair lenght.\n\nLeave empty (json: null) to leave the triming software's default\n\n**Note**: This option works better than iVar's own average-based autodetection which can fail in case of abundant primer dimers in the alignment, because V-pipe knows the exact read-lenght from either the [property `read_length`](#input_read_length) or the [samples file](#input_samples_file).",
+                    "examples": [ null, 0.7, 200 ]
+                },
                 "reference": {
                     "type": "string",
                     "default": "results/cohort_consensus.fasta",
@@ -228,7 +235,7 @@
                 "local": {
                     "type": "boolean",
                     "default": false,
-                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH).",
+                    "description": "This option activates local haplotype reconstruction (only available when using ShoRAH or VILOCA).",
                     "examples": [true]
                 },
                 "global": {
@@ -338,6 +345,10 @@
                     "type": "string",
                     "default": "frameshift_deletions_checks"
                 },
+                "paired_end_read_merger": {
+                    "type": "string",
+                    "default": "paired_end_read_merger"
+                },
                 "mafft": {
                     "type": "string",
                     "default": "mafft"
@@ -385,6 +396,10 @@
                 "shorah": {
                     "type": "string",
                     "default": "shorah shotgun"
+                },
+                "viloca": {
+                    "type": "string",
+                    "default": "viloca run"
                 },
                 "lofreq": {
                     "type": "string",
@@ -989,6 +1004,27 @@
             "default": {},
             "type": "object"
         },
+        "paired_end_read_merger": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 1250
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 30
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/paired_end_read_merger.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
         "basecounts": {
             "properties": {
                 "mem": {
@@ -1185,11 +1221,69 @@
             "default": {},
             "type": "object"
         },
+        "viloca": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 10000
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 2880
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/viloca.yaml"
+                },
+                "consensus": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Indicate whether to use the cohort-consensus sequence from the analyzed samples (output from `minor_variants` rule located in the cohort-wide output `results/cohort_onsensus.fasta`) or the reference sequence by setting this option to False.",
+                    "examples": [false]
+                },
+                "merge_paired_end_reads": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Merge paired-end reads in the preprocessing. This is a preprocessing snakemake rule.",
+                    "examples": [false]
+                },
+                "shift": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "VILOCA performs local haplotype reconstruction on windows of the read alignment. The overlap between these windows is defined by the window shifts. By default, it is set to 3, i.e., apart from flanking regions each position is covered by 3 windows."
+                },
+                "insert_bedfile": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "VILOCA performs local haplotype reconstruction on windows of the read alignment. In a first step the alignment is tiled into local regions. This can be done uniformly then set this value None, otherwise path to an (optional) insert file (primer tiling strategy)"
+                },
+                "mode": {
+                    "type": "string",
+                    "default": "use_quality_scores",
+                    "enum": ["shorah","learn_error_params","use_quality_scores"],
+                    "description": "Mode in which to run VILOCA: shorah,  learn_error_params, use_quality_scores. If quality scores are available, we recommend this option"
+                },
+                "extra": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pass additional options to run `viloca`"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
         "lofreq": {
             "properties": {
                 "mem": {
                     "type": "integer",
                     "default": 2000
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 4
                 },
                 "time": {
                     "type": "integer",
@@ -1395,6 +1489,12 @@
                     "default": 2,
                     "description": "Minimal number of coocurrences to search for in amplicon. Lowering this property to 1 will make COJAC also look for amplicon with singleton mutations.",
                     "examples": [ 1 ]
+                },
+                "fix_subset": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Fix variants attribution when cooccurrence are subset/superset of other variants, e.g.:\n- Variant 1 has mutation A and B\n- Variant 2 has mutation A, B and C\n\nWith this option amplicons carrying both mutation A and B will be tagged as being potentially belonging to variant 1 or 2.",
+                    "examples": [ true ]
                 }
             },
             "default": {},
@@ -1424,6 +1524,12 @@
                     "default": "lines",
                     "description": "Format of the output CSV.\n- `lines`(default) - each amplicon a separate entry on a separate line.\n- `columns` - one column per amplicon",
                     "examples": ["columns"]
+                },
+                "add_mutations": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Add a column with a list mutation coocurrences for amplicons on each line in the CSV table.",
+                    "examples": [ false ]
                 }
             },
             "default": {},
@@ -1487,7 +1593,7 @@
                 "script": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/scripts/file_parser.py",
-                    "description": "Script that sets up a timeline of the samples.\n\nIts purpose is to take the V-pipe's samples TSV file and add two columns:\n - _location_: location of the sampes\n - _date_: sampling date of the samples\n\nIt will receive the following parameters (in addition to what is specified in property _options_:\n - *--output &lt;OUTPUT&gt;*: the output TSV file that must be created by the script.\n - *&lt;SAMPLE_TSV&gt;*: the input samples TSV file\n\nFor an example, see the default script `file_parser.py`, it uses regular expressions (regex) to parse the first two columns (sample and batch names) and extract a date, and a location code that is further look-ed up in a table. It takes two additional parameters:\n - *--locations &lt;LOOKUP&gt;*: look-up TSV table mapping the code to full location names\n - *--regex_yaml &lt;YAML&gt;*: YAML file with regular expressions defining how the date and code are extracted.",
+                    "description": "Script that sets up a timeline of the samples.\n\nIts purpose is to take the V-pipe's samples TSV file and add two columns:\n - _location_: location of the sampes\n - _date_: sampling date of the samples\n\nIt will receive the following parameters (in addition to what is specified in property _options_:\n - *`--output` &lt;OUTPUT&gt;*: the output TSV file that must be created by the script.\n - *&lt;SAMPLE_TSV&gt;*: the input samples TSV file\n\nFor an example, see the default script `file_parser.py`, it uses regular expressions (regex) to parse the first two columns (sample and batch names) and extract a date, and a location code that is further look-ed up in a table. It takes two additional parameters:\n - *`--locations` &lt;LOOKUP&gt;*: look-up TSV table mapping the code to full location names\n - *`--regex_yaml` &lt;YAML&gt;*: YAML file with regular expressions defining how the date and code are extracted.",
                     "example": ["custom_scripts/uploader.py"]
                 },
                 "options": {
@@ -1547,7 +1653,8 @@
                 },
                 "threads": {
                     "type": "integer",
-                    "default": 4
+                    "default": 4,
+                    "description": "Cores for parallel processing for multiple locations, 1 for sequential processing"
                 },
                 "conda": {
                     "type": "string",
@@ -1578,6 +1685,25 @@
                     "default": "lines",
                     "description": "Format of the output CSV.\n- `lines`(default) - each variants a separate entry on a separate line.\n- `columns` - one column per variant",
                     "examples": ["columns"]
+                },
+                "filters": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of filters for removing problematic mutations from tally. Some mutations might be problematic and need to be taken out -- e.g. due to drop-outs in the multiplex PCR amplification, they do not show up in the data and this could be misinterpreted by LolliPop as proof of absence of a variant.",
+                    "examples": ["filters_preprint.yaml"]
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["mut","cooc"],
+                    "default": "mut",
+                    "description": "Timeline of events that deconvolution runs on.\n- `mut` simple mutations generated from basecounts (pile-up like)\n- `cooc` coocurrences of mutations on amplicons generated by COJAC",
+                    "examples": ["cooc"]
+                },
+                "extra": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pass additional options to run `lollipop deconvolute` such as, e.g., `--bp` (see [LolliPop README](https://github.com/cbg-ethz/LolliPop)).",
+                    "examples": ["--bp 0"]
                 }
             },
             "default": {},
