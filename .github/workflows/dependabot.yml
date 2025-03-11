@@ -1,0 +1,13 @@
+# Dependabot for GitHub Actions
+
+version: 2
+updates:
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "rubicon"
+    commit-message:
+      prefix: "GitHub Actions"
+      include: "scope"
