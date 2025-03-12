@@ -60,6 +60,14 @@ rule prepare_upload:
             if config.output["QA"]
             else []
         ),
+        consensus_stats=(
+            "{dataset}/references/consensus.bcftools.stats.yaml"
+            if config.output["QA"]
+            else []
+        ),
+        consensus_aligned_stats=(
+            "{dataset}/references/ref_stats.yaml" if config.output["QA"] else []
+        ),
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch",
     params:

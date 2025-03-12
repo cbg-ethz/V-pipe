@@ -109,6 +109,56 @@ rule consensus_bcftools:
         """
 
 
+localrules:
+    cons_bcf_QA,
+
+
+IUPAC = (lambda x: x.upper() + x.lower())(
+    "R"  # = A or G
+    "K"  # = G or T
+    "S"  # = G or C
+    "Y"  # = C or T
+    "M"  # = A or C
+    "W"  # = A or T
+    "B"  # = not A (C, G or T)
+    "H"  # = not G (A, C or T)
+    "D"  # = not C (A, G or T)
+    "V"  # = not T (A, C or G)
+)
+
+
+rule cons_bcf_QA:
+    input:
+        fname_fasta="{dataset}/references/consensus.bcftools.fasta",
+        fname_fasta_ambig="{dataset}/references/consensus_ambig.bcftools.fasta",
+    output:
+        stats="{dataset}/references/consensus.bcftools.stats.yaml",
+    params:
+        name=ID,
+        IUPAC=IUPAC,
+    log:
+        outfile="{dataset}/references/consensus.bcftools.stats.out.log",
+        errfile="{dataset}/references/consensus.bcftools.stats.err.log",
+    # conda: # NOTE: no environment, we rely on standard bash+coreutils
+    benchmark:
+        "{dataset}/alignments/consensus.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consensus_sequences["mem"],
+        runtime=config.consensus_sequences["time"],
+    threads: 1
+    shell:
+        r"""
+        (   \
+          echo '{params.name}:' &&   \
+          printf '  %s: %s\n'   \
+            'consensus_N' "$(grep -E '^[^>]' "{input.fname_fasta}" | tr -cd 'Nn' | wc -c)"   \
+            'consensus_IUPAC' "$(grep -E '^[^>]' "{input.fname_fasta_ambig}" | tr -cd '{params.IUPAC}' | wc -c)"   \
+        ) > "{output.stats}"  \
+          2> >(tee "{log.errfile}" >&2)
+        """
+
+
 rule consensus_sequences:
     input:
         BAM=alignment_wildcard,
@@ -153,10 +203,14 @@ rule consseq_QA:
     input:
         REF=reference_file,
         REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+        REF_amb_dels="{dataset}/references/ref_ambig_dels.fasta",
     output:
         REF_matcher="{dataset}/references/ref_majority_dels.matcher",
+        stats="{dataset}/references/ref_stats.yaml",
     params:
         MATCHER=config.applications["matcher"],
+        name=ID,
+        IUPAC=IUPAC,
     log:
         outfile="{dataset}/references/qa_consseq.out.log",
         errfile="{dataset}/references/qa_consseq.err.log",
@@ -177,6 +231,15 @@ rule consseq_QA:
             touch {output.REF_matcher}
             echo "pure 'nnnn...' consensus, no possible alignement" | tee {log.outfile}
         fi
+
+        (   \
+          echo '{params.name}:' &&   \
+          printf '  %s: %s\\n'   \
+            'consensus_N' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'Nn' | wc -c)"   \
+            'consensus_lower' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'atcg' | wc -c)"   \
+            'consensus_IUPAC' "$(grep -E '^[^>]' "{input.REF_amb_dels}" | tr -cd '{params.IUPAC}' | wc -c)"   \
+        ) > "{output.stats}"  \
+          2> >(tee -a "{log.errfile}" >&2)
         """
 
 

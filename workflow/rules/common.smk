@@ -681,6 +681,8 @@ for srec in sample_list:
 
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
+        alignments.append(os.path.join(sdir, "references/ref_stats.yaml"))
+        alignments.append(os.path.join(sdir, "references/consensus.bcftools.stats.yaml"))
         alignments.append(os.path.join(sdir, "references/frameshift_deletions_check.tsv"))
 
     trimmed_files.append(os.path.join(sdir, "preprocessed_data/R1.fastq.gz"))
