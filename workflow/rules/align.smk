@@ -48,7 +48,7 @@ rule initial_vicuna:
         """
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
         source {params.FUNCTIONS}
 
@@ -117,7 +117,7 @@ rule initial_vicuna:
         rm -r cleaned/
 
         # 8. fix broken header
-        sed -e 's:>dg-\([[:digit:]]\+\)\s.*:>dg-\1:g' contig.fasta > contig_clean.fasta
+        sed -e 's:>dg-\\([[:digit:]]\\+\\)\\s.*:>dg-\\1:g' contig.fasta > contig_clean.fasta
 
         # 9. InDelFixer + ConsensusFixer to polish up consensus
         for i in {{1..3}}
@@ -184,7 +184,7 @@ rule create_vicuna_initial:
         """
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
         mkdir -p {wildcards.dataset}/references/
         {params.EXTRACT_SEQ} {input} -o {output} -s "${{CONSENSUS_NAME}}"
@@ -204,7 +204,7 @@ rule create_simple_initial:
         """
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
         mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
@@ -225,7 +225,7 @@ rule create_denovo_initial:
         """
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
         mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
@@ -317,7 +317,7 @@ if config.general["aligner"] == "ngshmmalign":
             """
             CONSENSUS_NAME={wildcards.dataset}
             CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-            CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+            CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
             # 1. clean previous run
             rm -rf   {wildcards.dataset}/alignments

@@ -80,7 +80,7 @@ rule coverage_QA:
         """
         CONSENSUS_NAME={wildcards.dataset}
         CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\//-}}"
+        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
 
         # 1. clean previous run
         rm -f {output}
