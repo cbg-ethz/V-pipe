@@ -381,6 +381,14 @@
                     "type": "string",
                     "default": "aln2basecnt"
                 },
+                "chromsize": {
+                    "type": "string",
+                    "default": "chromsize"
+                },
+                "coverage_depth_qc": {
+                    "type": "string",
+                    "default": "coverage_depth_qc"
+                },
                 "gather_coverage": {
                     "type": "string",
                     "default": "gather_coverage"
@@ -1041,6 +1049,55 @@
                 "conda": {
                     "type": "string",
                     "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "chromsize": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 128
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 10
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/chromsize.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "basecounts_qc": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 128
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 10
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/smallgenomeutilities.yaml"
+                },
+                "depth_qc_type": {
+                    "type": "string",
+                    "default": "fraction",
+                    "enum": ["absolute", "fraction"],
+                    "description": "specififies if the 'genome covered at depth N' should be reported as a _fraction_ or as an _absolute_ count (i.e. number of positions covered)",
+                    "examples": ["absolute"]
+                },
+                "depth_qc_list": {
+                    "type": "string",
+                    "default": "5,10,15,20,30,40,50",
+                    "description": "comma-separated list of depths at which the 'fraction/number-positions of genome covered' QC should be computed",
+                    "examples:": ["10,20,30,50"]
                 }
             },
             "default": {},

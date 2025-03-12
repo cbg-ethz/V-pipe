@@ -55,6 +55,11 @@ rule prepare_upload:
             if config.output["QA"]
             else []
         ),
+        coverage_depth_qc=(
+            "{dataset}/alignments/coverage_depth_qc.yaml"
+            if config.output["QA"]
+            else []
+        ),
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch",
     params:

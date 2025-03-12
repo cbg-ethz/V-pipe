@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - smallgenomeutilities=0.5.0
+  - chromsize=0.0.2

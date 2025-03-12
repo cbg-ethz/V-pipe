@@ -37,6 +37,72 @@ rule basecounts:
         """
 
 
+rule chromsize:
+    input:
+        reference_file,
+    output:
+        chrom_size=cohortdir("chrom.size"),
+        tmp=temp_with_prefix(cohortdir("chrom.size.tmp")),
+    params:
+        CHROMSIZE=config.applications["chromsize"],
+    log:
+        outfile=cohortdir("chromsize.out.log"),
+        errfile=cohortdir("chromsize.err.log"),
+    conda:
+        config.chromsize["conda"]
+    benchmark:
+        cohortdir("chromsize.benchmark")
+    resources:
+        disk_mb=1250,
+        mem_mb=config.chromsize["mem"],
+        runtime=config.chromsize["time"],
+    threads: 1
+    shell:
+        r"""
+        {params.CHROMSIZE} --fasta "{input}" --output "{output.tmp}" \
+            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
+        sed -E 's@^([^ ]+)[^\t]+@\1@g' "{output.tmp}" > "{output.chrom_size}" \
+            2> >(tee -a "{log.errfile}" >&2)
+        """
+
+
+rule basecounts_QC:
+    input:
+        COVERAGE="{dataset}/alignments/coverage.tsv.gz",
+        CHROM_SIZE=(
+            cohortdir("chrom.size")
+            if config["basecounts_qc"]["depth_qc_type"] == "fraction"
+            else []
+        ),
+    output:
+        COV_DEPTH_QC="{dataset}/alignments/coverage_depth_qc.yaml",
+    params:
+        COV_DEPTH_QC=config.applications["coverage_depth_qc"],
+        DEPTHS=config["basecounts_qc"]["depth_qc_list"],
+        CHROM_SIZE=(
+            f"--fract={cohortdir('chrom.size')}"
+            if config["basecounts_qc"]["depth_qc_type"] == "fraction"
+            else ""
+        ),
+    log:
+        outfile="{dataset}/alignments/basecounts_qc.out.log",
+        errfile="{dataset}/alignments/basecounts_qc.out.log",
+    conda:
+        config.basecounts_qc["conda"]
+    benchmark:
+        "{dataset}/alignments/coverage_depth_qc.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.basecounts_qc["mem"],
+        runtime=config.basecounts_qc["time"],
+    threads: 1
+    shell:
+        """
+        {params.COV_DEPTH_QC} {params.CHROM_SIZE} --depth {params.DEPTHS} --output {output.COV_DEPTH_QC} -- {input.COVERAGE}    \
+            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
+        """
+
+
 # 1. Gather coverages into central big file
 localrules:
     coverage_list,
