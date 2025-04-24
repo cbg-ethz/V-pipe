@@ -19,7 +19,8 @@ This is currently hard-coded in vpipe_number.html in _includes
 Content can be added/edited in the whyVpipe collection
 
 ## Meet the V-pipe team
-Content can be added/removed in the events.yml file in the _data folder. The logic will check the data against the current date and put them either in the upcoming- or past events.
+**To add an event** add/remove an entry in the [events.yml](https://github.com/cbg-ethz/V-pipe/blob/gh-pages/_data/events.yml) file in the _data folder. 
+The logic will check the data against the current date and put them either in the upcoming- or past events.
 
 ## V-pipe funding
 Content is hard-coded in the funding.html file in the _includes folder
