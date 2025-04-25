@@ -187,3 +187,43 @@ rule checksum:
 
 
 ruleorder: unfiltered_cram > checksum
+
+
+rule transform_upload_to_SILO:
+    """
+    Handles the wrangleing and upload to SILO.
+    
+    Takes the primer trimmed nudlitide aligments, wrangles them 
+    into cleartext sequences, transalted to amino acids, aligns them, 
+    then uploads the result to SILO, with all the metadata.
+    """
+    input:
+        nudlitide_alignment="{alignment_wildcard}",
+    output:
+        silo_input= "{dataset}/alignments/silo_input.ndjson.zst",
+
+    # TO EDIT WIP
+    params:
+        sample_id = rebase_datadir(config.input["datadir"], wildcards.dataset),
+        batch_id=lambda wildcards: wildcards.batch_id,
+        timeline_file=config["TIMELINE_FILE"],
+        primers_file=config["PRIMERS_FILE"],
+        nuc_reference=config["NUC_REFERENCE"],
+        aa_reference=config["NUC_REFERENCE"],
+    log:
+        # ???
+    conda:
+        "envs/sr2silo.yaml"
+
+    shell:
+        """
+        sr2silo import-to-loculus \
+            --input-file {input.nudlitide_alignment} \
+            --sample-id {params.sample_id} \
+            --batch-id {params.batch_id} \
+            --timeline-file {params.timeline_file} \
+            --primer-file {params.primers_file} \
+            --output-fp {output.silo_input} \
+            --reference {params.nuc_reference} \
+            --no-upload 2>&1 | tee -a {log}
+        """
