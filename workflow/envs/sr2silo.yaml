@@ -1,6 +1,5 @@
 channels:
-  - bioconda
   - conda-forge
-  - defaults
+  - bioconda
 dependencies:
-  - sr2silo=0.0.4
+  - sr2silo=1.0.1
