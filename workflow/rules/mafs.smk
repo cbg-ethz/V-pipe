@@ -61,7 +61,7 @@ rule chromsize:
         r"""
         {params.CHROMSIZE} --fasta "{input}" --output "{output.tmp}" \
             > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
-        sed -E 's@^([^ ]+)[^\t]+@\1@g' "{output.tmp}" > "{output.chrom_size}" \
+        sed -E 's@^([^ \t]+)[^\t]*@\1@g' "{output.tmp}" > "{output.chrom_size}" \
             2> >(tee -a "{log.errfile}" >&2)
         """
 
