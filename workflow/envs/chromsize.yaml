@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - chromsize=0.0.2
+  - chromsize=0.0.3

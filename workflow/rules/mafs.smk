@@ -42,7 +42,6 @@ rule chromsize:
         reference_file,
     output:
         chrom_size=cohortdir("chrom.size"),
-        tmp=temp_with_prefix(cohortdir("chrom.size.tmp")),
     params:
         CHROMSIZE=config.applications["chromsize"],
     log:
@@ -59,10 +58,8 @@ rule chromsize:
     threads: 1
     shell:
         r"""
-        {params.CHROMSIZE} --fasta "{input}" --output "{output.tmp}" \
-            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
-        sed -E 's@^([^ \t]+)[^\t]*@\1@g' "{output.tmp}" > "{output.chrom_size}" \
-            2> >(tee -a "{log.errfile}" >&2)
+        {params.CHROMSIZE} --accession-only --fasta "{input}" --output "{output.chrom_size}" \
+            > {log.outfile} 2> >(tee -a "{log.errfile}" >&2)
         """
 
 
