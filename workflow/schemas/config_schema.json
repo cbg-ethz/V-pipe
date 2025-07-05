@@ -1058,7 +1058,7 @@
             "properties": {
                 "mem": {
                     "type": "integer",
-                    "default": 128
+                    "default": 256
                 },
                 "time": {
                     "type": "integer",
@@ -1076,7 +1076,7 @@
             "properties": {
                 "mem": {
                     "type": "integer",
-                    "default": 128
+                    "default": 256
                 },
                 "time": {
                     "type": "integer",
