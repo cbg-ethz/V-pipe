@@ -1984,7 +1984,7 @@
                 "group_id": {
                     "type": "integer",
                     "default": 0,
-                    "description": "Group ID to use for submission, for authentication wiht Loculus",
+                    "description": "Group ID to use for submission, for authentication with Loculus",
                     "example": [123]
                 },
                 "username": {
