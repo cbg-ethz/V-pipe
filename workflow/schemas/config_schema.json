@@ -1957,12 +1957,6 @@
                     "type": "integer",
                     "default": 1
                 },
-                "nextclade_reference": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Name of the reference. Loculus uses the same names as nextclade datasets.",
-                    "example": ["sars-cov-2"]
-                },
                 "local": {
                     "type": "boolean",
                     "default": true,
@@ -1972,7 +1966,7 @@
                 "keycloak_token_url": {
                     "type": "string",
                     "default": "",
-                    "description": "Keycloak authentication URL to use during submission",
+                    "description": "Loculus keycloak authentication URL to use during submission",
                     "example": ["https://auth.example.com/token"]
                 },
                 "submission_url": {
@@ -1980,7 +1974,29 @@
                     "default": "",
                     "description": "Loculus submission URL to use during submission",
                     "example": ["https://backend.example.com/api"]
-                }
+                },
+                "lapis-url": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Lapis URL to for fetching the reference from LAPSI/SILO.",
+                    "example": ["https://lapis.example.com"]
+                },
+                "group_id": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Group ID to use for submission, for authentication wiht Loculus",
+                    "example": [123]
+                },
+                "username": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Username to use for authentication wiht Loculus.",
+                    "example": ["your-username"]
+                },
+                "password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Password to use for authentication wiht Loculus."
             },
             "default": {},
             "type": "object"

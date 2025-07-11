@@ -201,14 +201,13 @@ rule silo_preprocess:
         nuc_alignment=alignment_wildcard,
         timeline_file=(
             config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")
-        ),
-        primers_file=config["input"]["protocols_file"],
+        )
     output:
         silo_input="{dataset}/alignments/silo_input.ndjson.zst",
     params:
         s_rec=get_s_rec,
-        nextclade_reference=config["loculus"]["nextclade_reference"],
         SR2SILO=config["applications"]["sr2silo"],
+        lapis_url=config["loculus"]["lapis-url"],
     log:
         outfile="{dataset}/alignments/silo_input.out.log",
         errfile="{dataset}/alignments/silo_input.out.err",
@@ -226,11 +225,9 @@ rule silo_preprocess:
         {params.SR2SILO} process-from-vpipe \
             --input-file "{input.nuc_alignment}" \
             --sample-id "{params.s_rec.sample_id}" \
-            --batch-id "{params.s_rec.date}" \
             --timeline-file "{input.timeline_file}" \
-            --primer-file "{input.primers_file}" \
+            --lapis-url "{params.lapis_url}" \
             --output-fp "{output.silo_input}" \
-            --reference "{params.nextclade_reference}" \
             > {log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
@@ -250,6 +247,9 @@ rule silo_upload:
         s_rec=get_s_rec,
         keycloak_token_url=config["loculus"]["keycloak_token_url"],
         submission_url=config["loculus"]["submission_url"],
+        password=config["loculus"]["password"],
+        username=config["loculus"]["username"],
+        group_id=config["loculus"]["group_id"],
         SR2SILO=config["applications"]["sr2silo"],
     log:
         outfile="{dataset}/alignments/silo_upload.out.log",
@@ -265,11 +265,13 @@ rule silo_upload:
     threads: config["loculus"]["threads"]
     shell:
         """
-        {params.SR2SILO} submit-to-loculus \
+        {params.SR2SILO} submit-to-loculus
+            --processed-file "{input.silo_input}" \
             --keycloak-token-url "{params.keycloak_token_url}" \
             --submission-url "{params.submission_url}" \
-            --processed-file "{input.silo_input}" \
-            --sample-id "{params.s_rec.sample_id}" && \
+            --group-id {params.group_id} \
+            --username "{params.username}" \
+            --password "{params.password}"  && \
         mkdir -p $(dirname {output.flag}) && \
         touch {output.flag}
         """
