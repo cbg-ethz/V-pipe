@@ -971,8 +971,8 @@ def construct_input_fastq(wildcards):
             list_output.append(os.path.join(indir, "".join((i, file_extension))))
     if len(list_output) == 0:
         raise ValueError(
-            "Missing input files for rule extract: {}/raw_data/ - Unexpected file name?".format(
-                wildcards.dataset
+            "Missing input files for rule extract: {} for {} - Unexpected file name?".format(
+                indir, wildcards.dataset
             )
         )
 
