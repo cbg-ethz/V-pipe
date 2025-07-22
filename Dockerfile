@@ -25,8 +25,10 @@ ARG vpipe_path
 ARG envs_path
 ARG test_data
 
+# HACK v7.32.4 is so old that Debian 10 Buster is EOL
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -E -i 's@(\/\/)[^\.]+(\.debian\.org)@\1archive\2@g' /etc/apt/sources.list \
+ && apt-get update && apt-get install -y --no-install-recommends \
     jdupes
 
 # TODO: only move workflow files
@@ -72,8 +74,10 @@ FROM snakemake/snakemake:${snaketag} AS vpipe-tests-base
 ARG install_path
 
 # NOTE rsync only used with local scratch
+# HACK v7.32.4 is so old that Debian 10 Buster is EOL
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -E -i 's@(\/\/)[^\.]+(\.debian\.org)@\1archive\2@g' /etc/apt/sources.list \
+ && apt-get update && apt-get install -y --no-install-recommends \
     rsync \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -166,8 +170,10 @@ ARG install_path
 ARG vpipe_path
 ARG envs_path
 
+# HACK v7.32.4 is so old that Debian 10 Buster is EOL
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -E -i 's@(\/\/)[^\.]+(\.debian\.org)@\1archive\2@g' /etc/apt/sources.list \
+ && apt-get update && apt-get install -y --no-install-recommends \
     rsync \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
