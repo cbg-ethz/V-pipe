@@ -183,7 +183,7 @@ else
 
 	VPIPEENV=V-pipe
 	# HACK Alternate to consider if we have have version conflicts
-	mamba create --yes -n ${VPIPEENV} -c conda-forge -c bioconda snakemake-minimal mamba conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
+	mamba create --yes -n ${VPIPEENV} -c conda-forge -c bioconda "snakemake-minimal<8" mamba conda git || fail "I cannot install snakemake in environment ${VPIPEENV}."
 	conda activate ${VPIPEENV}
 fi
 
