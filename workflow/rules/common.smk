@@ -337,8 +337,8 @@ if config.input["gff_directory"]:
         config.input["gff_directory"]
     ), f"""ERROR: section 'input' property 'gff_directory' cannot be a remote URL {config.input['gff_directory']}.
 when not running V-pipe locally (e.g. snakedeploy) you need to either:
-- set gff_directory to empty ''
-- copy to a local directory and specify that as the gff_directory"""
+- set gff_directory to empty '' in your configuration
+- copy the GFFs to a local directory and specify that as the gff_directory"""
 
 if (
     "genes_gff" in config.frameshift_deletions_checks
