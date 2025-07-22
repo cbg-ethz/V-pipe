@@ -129,7 +129,7 @@ If you have a reference sequences that you would like to use for read mapping an
 
 ### Preparing V-pipe's configuration
 
-In the `work_hiv`  directory you can find the file `config.yaml`. This is where the V-Pipe configuation should be specified. See [here](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
+In the `work_hiv`  directory you can find the file `config.yaml`. This is where the V-Pipe configuation should be specified. See [README file in the config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
 In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty. Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
 
 ```bash

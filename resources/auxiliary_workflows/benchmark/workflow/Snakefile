@@ -485,13 +485,13 @@ rule run_method_local:
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/snvs.vcf",
         fname_status=touch(
-            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/status.txt"
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_local)}}}/replicates/{{replicate}}/status.txt"
         ),
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
     benchmark:
-        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
+        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
     params:
         script_path=lambda wildcards, input: input.script,
     conda:
@@ -508,13 +508,13 @@ use rule run_method_local as run_method_global with:
     output:
         fname_result=f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/haplotypes.fasta",
         fname_status=touch(
-            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/status.txt"
+            f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_global)}}}/replicates/{{replicate}}/status.txt"
         ),
         dname_work=directory(
             f"results/method_runs/{paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
     benchmark:
-        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
+        f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
     threads: 10
     resources:
         mem_mb=lambda wildcards, threads, attempt: int((15_000 * attempt) / threads),

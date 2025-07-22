@@ -85,12 +85,12 @@ use rule run_method_local from indels as indels_run_method_local_global with:
             f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
         fname_status=touch(
-            f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + indels.method_list)}}}/replicates/{{replicate}}/status_.txt"
+            f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ indels.method_list)}}}/replicates/{{replicate}}/status_.txt"
         ),
     params:
         script_path=lambda wildcards, input: input.script,
     benchmark:
-        f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + indels.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+        f"results/indels/method_runs/{indels.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ indels.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     threads: 10  # threads cannot be allocated in resources.
     resources:
         mem_mb=8000,
@@ -136,12 +136,12 @@ use rule run_method_local from varyvilocaparams as varyvilocaparams_run_method_l
             f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
         fname_status=touch(
-            f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/status_.txt"
+            f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ varyvilocaparams.method_list)}}}/replicates/{{replicate}}/status_.txt"
         ),
     params:
         script_path=lambda wildcards, input: input.script,
     benchmark:
-        f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+        f"results/varyvilocaparams/method_runs/{varyvilocaparams.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ varyvilocaparams.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     threads: 10
     resources:
         mem_mb=20024,
@@ -275,12 +275,12 @@ use rule run_method_local from distance as distance_run_method_local_global with
             f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
         fname_status=touch(
-            f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + distance.method_list)}}}/replicates/{{replicate}}/status_.txt"
+            f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ distance.method_list)}}}/replicates/{{replicate}}/status_.txt"
         ),
     params:
         script_path=lambda wildcards, input: input.script,
     benchmark:
-        f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + distance.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+        f"results/distance/method_runs/{distance.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ distance.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     threads: 30
     resources:
         mem_mb=60024,
@@ -527,13 +527,13 @@ use rule run_method_local from realdata as realdata_run_method_local_global with
             f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method}}/replicates/{{replicate}}/work/"
         ),
         fname_status=touch(
-            f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/status_.txt"
+            f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ realdata.method_list)}}}/replicates/{{replicate}}/status_.txt"
         ),
     params:
         script_path=lambda wildcards, input: input.script,
         quast=False,
     benchmark:
-        f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex'] + realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
+        f"results/realdata/method_runs/{realdata.paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ realdata.method_list)}}}/replicates/{{replicate}}/benchmark_.tsv"
     threads: 30
     resources:
         mem_mb=60024,
