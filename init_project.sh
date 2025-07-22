@@ -127,7 +127,7 @@ if [ -z "$NOCONDAAUTODETECT" ]; then
     if [ -z "${ACTIVATE}" ]; then
         echo "Warning: cannot detect conda environment" 1>&2
     fi
-    EXTRA_VPIPE_OPTS="--use-conda"
+    EXTRA_VPIPE_OPTS="--conda-frontend conda --use-conda"
 else
     echo "Activate the appropriate conda environment before use"
 fi

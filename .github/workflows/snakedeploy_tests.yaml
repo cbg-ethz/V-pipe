@@ -79,6 +79,7 @@ jobs:
                 --config "input={gff_directory: 'gffs'}" \
                 --use-conda \
                 --cores "${THREADS}" \
+                --conda-frontend conda \
                 -p \
                 --keep-going
 

@@ -122,6 +122,7 @@ CONFIG_TRIM
         --config "input={datadir: ${data_root}${config_addendum}}" \
         --use-conda \
         --cores ${THREADS} \
+        --conda-frontend conda \
         -p \
         --keep-going
 
