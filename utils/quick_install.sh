@@ -137,36 +137,36 @@ if (( ENVIRONMENTWARNING )); then
 fi
 
 
-##################
-#                #
-#   Miniforge    #
-#                #
-##################
+###################
+#                 #
+#   Miniforge3    #
+#                 #
+###################
 
 MINICONDA=
-MINICONDAPATH="${PREFIX}/miniforge"
+MINICONDAPATH="${PREFIX}/miniforge3"
 
 title 'installing Miniforge3'
 
 # Check if directory is free
-check_directory "${MINICONDAPATH}" 'Mambaforge installation path'
+check_directory "${MINICONDAPATH}" 'Miniforge3 installation path'
 
-# Check OS for OS-Spefic Mambaforge installer
+# Check OS for OS-Spefic Miniforge3 installer
 MINICONDA="Miniforge3-$(uname)-$(uname -m).sh"
 message 'Using installer:' "${MINICONDA}"
 
-# Get and install Mambaforge
+# Get and install Miniforge3
 # shellcheck disable=SC2015
 mkdir -p "${PREFIX}" && cd "${PREFIX}" || fail "Could not create directory: ${PREFIX}"
 [[ -f "${MINICONDA}" ]] && rm "${MINICONDA}"
 ${DOWNLOAD} "https://github.com/conda-forge/miniforge/releases/latest/download/${MINICONDA}"
-sh "${MINICONDA}" -b -p miniforge
+MINICONDAFULLPATH="$(pwd)/miniforge3"
+sh "${MINICONDA}" -b -p "${MINICONDAFULLPATH}"
 # -b for batch (no question asked)
-MINICONDAFULLPATH="$(pwd)/miniforge"
 
 
 # shellcheck source=/dev/null
-. miniforge/bin/activate
+. "${MINICONDAFULLPATH}/bin/activate"
 
 # set the channel precedence (lowest to highest)
 conda config --add channels defaults

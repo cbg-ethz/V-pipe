@@ -77,7 +77,7 @@ if [ -z "$NOCONDAAUTODETECT" ]; then
         # search order:
         # - 'V-pipe' conda environment
         # - base conda environment
-        conda_search=( "$VPIPE_DIR/../"{mambaforge,miniconda3}{/envs/V-pipe,} )
+        conda_search=( "$VPIPE_DIR/../"{miniforge3,mambaforge,miniconda3,conda}{/envs/V-pipe,} )
         # - also search any currently active environment
         if [[ -x $(which conda) ]]; then
             conda_search+=( "$(conda info --base)" )
