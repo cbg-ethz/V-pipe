@@ -1,7 +1,6 @@
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - curl = 7.83.1
   - sed = 4.8
