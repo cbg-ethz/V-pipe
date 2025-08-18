@@ -199,15 +199,15 @@ rule silo_preprocess:
     """
     input:
         nuc_alignment=alignment_wildcard,
-        timeline_file=(
-            config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")
-        )
     output:
         silo_input="{dataset}/alignments/silo_input.ndjson.zst",
     params:
         s_rec=get_s_rec,
         SR2SILO=config["applications"]["sr2silo"],
         lapis_url=config["loculus"]["lapis-url"],
+        timeline_file=(
+            config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")
+        ), 
     log:
         outfile="{dataset}/alignments/silo_input.out.log",
         errfile="{dataset}/alignments/silo_input.out.err",
@@ -240,9 +240,9 @@ if config.loculus["local"]:
 
 rule silo_upload:
     input:
-        silo_input="{dataset}/alignments/silo_input.ndjson.zst",
+        silo_input="{dataset}/alignments/" + f"/sampleId-{sample_id}.ndjson.zst",,
     output:
-        flag="{dataset}/alignments/silo_input.uploaded",
+        flag="{dataset}/alignments/" + f"sampleId-{{sample_id}}.uploaded",
     params:
         s_rec=get_s_rec,
         keycloak_token_url=config["loculus"]["keycloak_token_url"],
