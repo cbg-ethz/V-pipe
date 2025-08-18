@@ -187,3 +187,91 @@ rule checksum:
 
 
 ruleorder: unfiltered_cram > checksum
+
+
+rule silo_preprocess:
+    """
+    Handles the wrangleing and upload to SILO.
+    
+    Takes the primer trimmed nudlitide aligments, wrangles them 
+    into cleartext sequences, transalted to amino acids, aligns them, 
+    and combine with all the metadata.
+    """
+    input:
+        nuc_alignment=alignment_wildcard,
+    output:
+        silo_input="{dataset}/alignments/silo_input.ndjson.zst",
+    params:
+        s_rec=get_s_rec,
+        SR2SILO=config["applications"]["sr2silo"],
+        lapis_url=config["loculus"]["lapis-url"],
+        timeline_file=(
+            config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")
+        ), 
+    log:
+        outfile="{dataset}/alignments/silo_input.out.log",
+        errfile="{dataset}/alignments/silo_input.out.err",
+    conda:
+        config["loculus"]["conda"]
+    benchmark:
+        "{dataset}/alignments/silo_input.benchmark"
+    resources:
+        disk_mb=65536,
+        mem_mb=config["loculus"]["mem"],
+        runtime=config["loculus"]["time"],
+    threads: config["loculus"]["threads"]
+    shell:
+        """
+        {params.SR2SILO} process-from-vpipe \
+            --input-file "{input.nuc_alignment}" \
+            --sample-id "{params.s_rec.sample_id}" \
+            --timeline-file "{input.timeline_file}" \
+            --lapis-url "{params.lapis_url}" \
+            --output-fp "{output.silo_input}" \
+            > {log.outfile} 2> >(tee {log.errfile} >&2)
+        """
+
+
+if config.loculus["local"]:
+
+    localrules:
+        silo_upload,
+
+
+rule silo_upload:
+    input:
+        silo_input="{dataset}/alignments/" + f"/sampleId-{sample_id}.ndjson.zst",,
+    output:
+        flag="{dataset}/alignments/" + f"sampleId-{{sample_id}}.uploaded",
+    params:
+        s_rec=get_s_rec,
+        keycloak_token_url=config["loculus"]["keycloak_token_url"],
+        submission_url=config["loculus"]["submission_url"],
+        password=config["loculus"]["password"],
+        username=config["loculus"]["username"],
+        group_id=config["loculus"]["group_id"],
+        SR2SILO=config["applications"]["sr2silo"],
+    log:
+        outfile="{dataset}/alignments/silo_upload.out.log",
+        errfile="{dataset}/alignments/silo_upload.out.err",
+    conda:
+        config["loculus"]["conda"]
+    benchmark:
+        "{dataset}/alignments/silo_upload.benchmark"
+    resources:
+        disk_mb=65536,
+        mem_mb=config["loculus"]["mem"],
+        runtime=config["loculus"]["time"],
+    threads: config["loculus"]["threads"]
+    shell:
+        """
+        {params.SR2SILO} submit-to-loculus
+            --processed-file "{input.silo_input}" \
+            --keycloak-token-url "{params.keycloak_token_url}" \
+            --submission-url "{params.submission_url}" \
+            --group-id {params.group_id} \
+            --username "{params.username}" \
+            --password "{params.password}"  && \
+        mkdir -p $(dirname {output.flag}) && \
+        touch {output.flag}
+        """

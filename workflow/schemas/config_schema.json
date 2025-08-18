@@ -440,6 +440,10 @@
                 "lollipop": {
                     "type": "string",
                     "default": "lollipop"
+                },
+                "sr2silo": {
+                    "type": "string",
+                    "default": "sr2silo"
                 }
             },
             "default": {},
@@ -1930,6 +1934,69 @@
                     "description": "Named options to be passed to the script, before the positional parameters. E.g. for an extra configuration file with SFTP server information.",
                     "example": ["--config custom_scripts/uploader.yaml --"]
                 }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "loculus": {
+            "description": "This section is used to assist and prepare uploads of the data to instances of [Loculus](https://loculus.org/).\n\nNOTE: The upload package for Loculus requires metadata, currently this metadata is fetched from the same timeline.tsv file as used by tallymut, see [`tallymut` => `timeline_file`](#tallymut_timeline_file)",
+            "properties": {
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/sr2silo.yaml"
+                },
+                "mem": {
+                    "type": "integer",
+                    "default": 8192
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 120
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "local": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Don't dispatch the upload rule to the cluster for execution, run the upload locally.\n\nThis is useful for execution on clusters where the compute nodes are isolated from internet.",
+                    "examples": [false]
+                },
+                "keycloak_token_url": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Loculus keycloak authentication URL to use during submission",
+                    "example": ["https://auth.example.com/token"]
+                },
+                "submission_url": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Loculus submission URL to use during submission",
+                    "example": ["https://backend.example.com/api"]
+                },
+                "lapis-url": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Lapis URL to for fetching the reference from LAPSI/SILO.",
+                    "example": ["https://lapis.example.com"]
+                },
+                "group_id": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Group ID to use for submission, for authentication with Loculus",
+                    "example": [123]
+                },
+                "username": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Username to use for authentication wiht Loculus.",
+                    "example": ["your-username"]
+                },
+                "password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Password to use for authentication wiht Loculus."
             },
             "default": {},
             "type": "object"
