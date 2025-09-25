@@ -37,6 +37,9 @@ WORKDIR ${vpipe_path}/
 COPY LICENSE.md ./LICENSE.md
 COPY workflow ./workflow
 COPY resources ./resources
+# make 'resource/' writeable for non-root users (e.g. some singularity environments)
+# hadolint ignore=DL4006
+RUN find resources/ -not -path 'resources/auxiliary_workflows*' -print0 | xargs -r0 chmod o+rwX
 COPY config ./config
 COPY utils ./utils
 COPY init_project.sh ./init_project.sh
