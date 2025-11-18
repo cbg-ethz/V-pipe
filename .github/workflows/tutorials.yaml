@@ -60,8 +60,8 @@ jobs:
         # run: ./convert.sh --branch *_install.md
         run: |
           mkdir -p _test_tutorials
-          ./convert.sh --version --branch --sralog --patch-only *.md
-          python extract_bash_code.py -o _test_tutorials *.md
+          ./convert.sh --version --branch --sralog --patch-only documentation/*.md tutorials/*.md
+          python extract_bash_code.py -o _test_tutorials documentation/*.md tutorials/*.md
           cd _test_tutorials
           bash installation.sh
 

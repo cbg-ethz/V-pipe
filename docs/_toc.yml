@@ -6,15 +6,15 @@ root: index
 parts:
 - caption: Documentation
   chapters:
-  - file: documentation/overview
-  - file: documentation/installation
-  - file: documentation/configuration
-  - file: documentation/running
-  - file: documentation/output
+  - file: documentation/overview.md
+  - file: documentation/installation.md
+  - file: documentation/configuration.md
+  - file: documentation/running.md
+  - file: documentation/output.md
 - caption: Tutorials
   chapters:
-  - file: tutorials/tutorial_sarscov2
-  - file: tutorials/tutorial_hiv
+  - file: tutorials/tutorial_sarscov2.md
+  - file: tutorials/tutorial_hiv.md
   - file: tutorials/tutorial_cowwid.md
 
 - caption: Bibliography
