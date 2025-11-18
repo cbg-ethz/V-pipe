@@ -46,6 +46,8 @@ The tutorial assumes that you have [installed V-pipe using the installation tuto
 
 V-Pipe takes as an input raw data in FASTQ format and depending on the user-defined configuration will output consensus sequences, SNV calls and local/global haplotypes.
 
+<!-- This is documentation, not tutorial -->
+
 V-pipe expects the input samples to be organized in a two-level hierarchy:
 
 At the first level, input files are grouped by samples (e.g.: patients or biological replicates of an experiment).
@@ -72,6 +74,8 @@ Paired-ended reads need to be in split files with suffixes `_R1` and `_R2`.
 ```
 
 ## Preparing a small dataset
+
+<!-- example_hiv_data should be downloadable as zip -->
 
 In the directory `example_HIV_data` you find a small test dataset that you can run on your workstation or laptop.
 The files will have the following structure:
@@ -116,6 +120,8 @@ Copy the samples directory you created in the step "Preparing a small dataset" t
 
 ```bash
 mkdir -p vp-analysis/work_hiv/resources
+# is mv-ing from a repo a good idea here? Rather use cp -r
+# when did the user clone the repo? 
 mv vp-analysis/V-pipe/docs/example_HIV_data/samples vp-analysis/work_hiv/resources/samples
 ```
 
@@ -125,14 +131,38 @@ Note that:
 
 
 ### Reference
-If you have a reference sequences that you would like to use for read mapping and alignment, then add it to the `resources/reference/ref.fasta` directory. In our case, however, we will use the reference sequence HXB2 already provided by V-Pipe `V-pipe/resources/hiv/HXB2.fasta`.
+
+<!-- This is documentation -->.
+
+If you have a reference sequences that you would like to use for read mapping and alignment, then add it to the `resources/reference/ref.fasta` directory. 
+
+<!-- back to tutorial -->
+
+In our case, however, we will use the reference sequence HXB2 already provided by V-Pipe `V-pipe/resources/hiv/HXB2.fasta`.
+<!-- OK, so should I copy? -->
+<!-- Yes, should be copied. Also include other files in V-pipe/resources -->
 
 ### Preparing V-pipe's configuration
 
-In the `work_hiv`  directory you can find the file `config.yaml`. This is where the V-Pipe configuation should be specified. See [README file in the config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
-In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty. Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
+In the `work_hiv`  directory you can find the file `config.yaml`. This is where the V-Pipe configuration should be specified. 
+
+<!-- This should move to the documentation: -->
+
+See [README file in the config subdirectory](https://github.com/cbg-ethz/V-pipe/tree/master/config#readme) for the documentation of the configuration.
+
+<!-- Full config docs: https://github.com/cbg-ethz/V-pipe/blob/master/config/config.html. Not sure where the source is. -->
+
+In this tutorial we are building our own configuration therefore `virus_base_config` will remain empty.
+
+<!-- What is set by the pre-configurations? Which are available? Where do I find which ones are available? This is in: https://github.com/cbg-ethz/V-pipe/tree/master/config#readme -->
+
+ Since we are working with HIV-1, V-Pipe is providing meta information that will be used for visualisation (metainfo_file and gff_directory).
+
+ <!-- What can be set at input? This is not in https://github.com/cbg-ethz/V-pipe/tree/master/config#readme. What can be set with metainfo? Why is a gff relevant? -->
 
 ```bash
+# if the user is copy-pasting anyway .. 
+# better have this file available in the repo for rendering the ipynb
 cat <<EOT > ./vp-analysis/work_hiv/config.yaml
 general:
     virus_base_config: ""
@@ -163,10 +193,11 @@ output:
 EOT
 ```
 
-**Note**: A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentation, but **no tab**. There are also [online YAML file validators](https://www.yamllint.com/) that you might want to use if your YAML file is wrongly formatted.
+```{note}
+A YAML files use spaces as indentation, you can use 2 or 4 spaces for indentation, but **no tab**. There are also [online YAML file validators](https://www.yamllint.com/) that you might want to use if your YAML file is wrongly formatted.
+```
 
 ## Running V-pipe
-
 
 Before running check what will be executed:
 
@@ -177,6 +208,8 @@ cd vp-analysis/work_hiv/
 
 cd ../..
 ```
+
+<!-- This returns snakemake dryrun output -->
 
 As this is your first run of V-pipe, it will also generate the sample collection table. Check `samples.tsv` in your editor.
 
@@ -190,7 +223,13 @@ CAP188	30	301
 EOT
 ```
 
+<!-- Read length is also specfied in the config (input.read_length). Why twice? -->
+
+<!-- Typing a tab is challenging on some systems (e.g. VScode). Take this into account.  -->
+
 Always check the content of the `samples.tsv` file.
+
+<!-- Any docs on samples.tsv? Any other columns? -->
 
 If you did not use the correct directory structure, this file might end up empty or some entries might be missing.
 You can safely delete it and re-run with option `--dry-run` to regenerate it.
@@ -201,15 +240,23 @@ Finally, we can run the V-pipe analysis (the necessary dependencies will be down
 cd vp-analysis/work_hiv/
 
 ./vpipe -p --cores 2
+# -p and --cores (and all other options?) are passed to snakemake. -p is for printing shell cmds. 
+# takes a while to run, needs to install packages
 
 cd -
 ```
 
-
 ## Output
+
+<!-- Wiki (if still exists?) should move to the documentation. Otherwise find these docs ..  -->
+<!-- Wiki is here: https://github.com/cbg-ethz/V-pipe/wiki/ -->
 
 The Wiki contains an overview of the output files. The output of the SNV calling step is aggregated in a standard [VCF](https://en.wikipedia.org/wiki/Variant_Call_Format) file, located in `results/​{hierarchy}​/variants/SNVs/snvs.vcf`. You can open it with your favorite VCF tools for visualisation or downstream processing. It is also available in a tabular format in `results/​{hierarchy}​/variants/SNVs/snvs.csv`.
 
+<!-- For a tutorial, we need more output interpretation. -->
+
+
+<!-- This is documentation: -->
 
 ## Swapping component
 
