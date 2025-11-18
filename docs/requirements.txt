@@ -1,4 +1,4 @@
-jupyter-book
+jupyter-book>=1,<2
 matplotlib
 numpy
 sphinx-inline-tabs
