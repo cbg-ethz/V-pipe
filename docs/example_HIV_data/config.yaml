@@ -1,0 +1,28 @@
+general:
+    virus_base_config: ""
+    aligner: bwa
+    snv_caller: shorah
+    haplotype_reconstruction: haploclique
+
+input:
+    # the references are part of the repository in this case:
+    reference: "../V-pipe/resources/hiv/HXB2.fasta"
+    metainfo_file: "../V-pipe/resources/hiv/metainfo.yaml"
+    gff_directory: "../V-pipe/resources/hiv/gffs/"
+    datadir: samples/
+    # we specify the read length here, as it is not the default 250:
+    read_length: 301
+    samples_file: samples.tsv
+    paired: true
+
+snv:
+    consensus: false
+
+output:
+    snv: true
+    local: true
+    global: true
+    visualization: true
+    QA: false
+    diversity: true
+    

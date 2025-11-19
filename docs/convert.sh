@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+patch_only=0
 patch_branch=0
 version=0
 patch_sralog=0
@@ -16,6 +17,9 @@ while [[ -n $1 ]]; do
 		;;
 		--sralog|sralog)
 			patch_sralog=1
+		;;
+		--patch-only|--patchonly|patchonly|patch-only)
+			patch_only=1
 		;;
 		--dryrun|--dry-run|dryrun|dry-run)
 			dryrun=1
@@ -74,6 +78,11 @@ fi
 if (( patch_sralog )); then
 	echo "adding download log to fasterq-dump..."
 	sed -ri 's@fasterq-dump --progress.*$@\0 2> >(tee download.err.log >\&2)@g' "${alltut[@]}"
+fi
+
+if (( patch_only )); then
+	echo "Only patching. You can run the tutorials yourself"
+	exit 0
 fi
 
 execute='--execute'

@@ -3,8 +3,7 @@ name: Test Docker image
 on:
   push:
     branches:
-      - '*'
-      - '!master'
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

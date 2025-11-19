@@ -3,6 +3,7 @@
 # defaults
 PREFIX=$(pwd)
 FORCE=
+REPO=https://github.com/cbg-ethz/V-pipe.git
 BRANCH=master
 RELEASE=
 WORKDIR=
@@ -205,7 +206,7 @@ if [[ -z "${RELEASE}" ]]; then
 	message 'Using branch:' "${BRANCH}"
 
 	check_directory 'V-pipe' 'V-pipe installation directory'
-	git clone --depth 1 --branch "${BRANCH}" https://github.com/cbg-ethz/V-pipe.git || fail "I cannot install branch ${BRANCH}."
+	git clone --depth 1 --branch "${BRANCH}" "${REPO}" || fail "I cannot install branch ${BRANCH}."
 else
 	message 'Using release:' "${RELEASE}"
 	check_directory "V-pipe-${RELEASE}" 'V-pipe installation directory'

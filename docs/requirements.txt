@@ -1,0 +1,7 @@
+jupyter-book>=1,<2
+matplotlib
+numpy
+sphinx-inline-tabs
+sphinx-examples
+sphinx-proof
+sphinx-hoverxref

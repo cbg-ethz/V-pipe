@@ -2,7 +2,9 @@ name: Tests
 
 on:
   push:
+    branches: master
   pull_request:
+    branches: master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
