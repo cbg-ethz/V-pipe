@@ -39,6 +39,10 @@ html:
 sphinx:
   config:
     bibtex_reference_style: author_year
+    html_theme_options:
+      logo:
+        image_light: assets/images/logo-vpipe.svg
+        image_dark: assets/images/logo-vpipe-dark.svg
 
         
   extra_extensions:
