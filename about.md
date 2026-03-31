@@ -50,6 +50,10 @@ The development and longterm maintenance of V-pipe is supported by:
 
 [ETH Zurich](https://www.ethz.ch/)
 
+NIH* through the [Pathogen Data Network](https://pathogendatanetwork.org/)
+
+> *: This resource is supported as a whole or in part by the National Institute Of Allergy And Infectious Diseases of the National Institutes of Health under grant n°[U24AI183840](https://reporter.nih.gov/search/JHbtQB-XeUu8wvs3vUlFFw/project-details/10913643), awarded to the SIB Swiss Institute of Bioinformatics. The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
+
 <!-- ### Grants -->
 
 ---
