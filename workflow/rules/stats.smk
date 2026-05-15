@@ -22,23 +22,23 @@ rule alignment_coverage:
         TSV="variants/coverage.tsv",
     output:
         "stats/coverage_intervals.tsv",
+    log:
+        outfile="stats/alignment_coverage.out.log",
+        errfile="stats/alignment_coverage.out.log",
+    benchmark:
+        "stats/alignment_coverage.benchmark"
+    conda:
+        config.alignment_coverage["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.alignment_coverage["mem"],
+        runtime=config.alignment_coverage["time"],
     params:
         COVERAGE=config.alignment_coverage["coverage"],
         NAMES=IDs,
         EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
         ARRAYBASED=config.general["tsvbased"],
-    log:
-        outfile="stats/alignment_coverage.out.log",
-        errfile="stats/alignment_coverage.out.log",
-    conda:
-        config.alignment_coverage["conda"]
-    benchmark:
-        "stats/alignment_coverage.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.alignment_coverage["mem"],
-        runtime=config.alignment_coverage["time"],
-    threads: 1
     shell:
         """
         {params.EXTRACT_COVERAGE_INTERVALS} -b {params.ARRAYBASED} -cf {input.TSV} -c {params.COVERAGE} --no-shorah -N {params.NAMES} -o {output} {input.BAM} > >(tee {log.outfile}) 2>&1
@@ -52,6 +52,8 @@ rule stats:
         BAM=alignment_wildcard,
     output:
         temp("{dataset}/read_counts_{pair,1}.tsv"),
+    conda:
+        config.stats["conda"]
     params:
         ID=ID,
         R1_temp=lambda wildcards: f"{wildcards.dataset}/preprocessed_data/temp.fastq",
@@ -59,8 +61,6 @@ rule stats:
         FACTOR=2 if config.input["paired"] else int(4),
         SAMTOOLS=config.applications["samtools"],
         GUNZIP=config.applications["gunzip"],
-    conda:
-        config.stats["conda"]
     shell:
         """
         SAMPLE_ID="{params.ID}"

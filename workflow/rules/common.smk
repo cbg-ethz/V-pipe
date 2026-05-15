@@ -396,7 +396,9 @@ if not config.input["genes_gff"] and config.input["gff_directory"]:
             )
         elif mf and "gff" in mf:
             fn, dsc = list(mf["gff"].items())[0]
-            srch = glob.glob(os.path.join(config.input["gff_directory"], f"{fn}{gtf_glob}"))
+            srch = glob.glob(
+                os.path.join(config.input["gff_directory"], f"{fn}{gtf_glob}")
+            )
             if len(srch) >= 1:
                 srch.sort()
                 config.input["genes_gff"] = srch[0]
@@ -447,7 +449,7 @@ if not os.path.isfile(config.input["samples_file"]):
         c = 0
         with open(config.input["samples_file"], "w") as outfile:
             for i in set(sample_pairs.sample_date):
-                (sample, date) = (
+                sample, date = (
                     [x.strip() for x in i.split(os.path.sep) if x.strip()] + [""]
                 )[:2]
                 outfile.write("{}\t{}\n".format(sample, date))
@@ -508,7 +510,9 @@ sample_row = typing.NamedTuple(
 
 
 if not os.path.isfile(config.input["samples_file"]):
-    LOGGER.warning(f"WARNING: Sample list file {config.input['samples_file']} not found.")
+    LOGGER.warning(
+        f"WARNING: Sample list file {config.input['samples_file']} not found."
+    )
 else:
     with open(config.input["samples_file"], newline="") as csvfile:
         spamreader = csv.reader(csvfile, delimiter="\t")
@@ -626,7 +630,10 @@ if len(protocols) and (0 == sample_proto_count):
 if sample_1level_count and sample_2level_count:
     LOGGER.warning(
         "WARNING: samples TSV contains both {} samples with 2-level hierarchy (starting at line {}) and {} samples with 1-level hierarchy -- i.e. one of the two columns is empty (starting at line {}). Such mixing isn't thoroughly tested, consider it unsupported. All bugs encountered are features ;-)".format(
-            sample_2level_count, sample_2level_line, sample_1level_count, sample_1level_line
+            sample_2level_count,
+            sample_2level_line,
+            sample_1level_count,
+            sample_1level_line,
         )
     )
 
@@ -658,7 +665,8 @@ alignment_wildcard = "{dataset}/" + alignment_file
 for srec in sample_list:
     # WARNING the following makes sure to gracefully handle trailing slashes in the user-provided paths in datadir
     sdir = os.path.join(
-        config.output["datadir"], os.path.normpath(os.path.join(srec.sample_id, srec.date))
+        config.output["datadir"],
+        os.path.normpath(os.path.join(srec.sample_id, srec.date)),
     )
     sample_dir[sdir] = srec
     sample_paths[srec] = sdir
@@ -684,8 +692,12 @@ for srec in sample_list:
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "references/ref_majority_dels.matcher"))
         alignments.append(os.path.join(sdir, "references/ref_stats.yaml"))
-        alignments.append(os.path.join(sdir, "references/consensus.bcftools.stats.yaml"))
-        alignments.append(os.path.join(sdir, "references/frameshift_deletions_check.tsv"))
+        alignments.append(
+            os.path.join(sdir, "references/consensus.bcftools.stats.yaml")
+        )
+        alignments.append(
+            os.path.join(sdir, "references/frameshift_deletions_check.tsv")
+        )
 
     trimmed_files.append(os.path.join(sdir, "preprocessed_data/R1.fastq.gz"))
     if config.input["paired"]:
@@ -733,7 +745,9 @@ for srec in sample_list:
                     os.path.join(sdir, "variants/global/predicthaplo_haplotypes.fasta")
                 )
             else:
-                raise NotImplementedError("PredictHaplo only works with paired-end reads")
+                raise NotImplementedError(
+                    "PredictHaplo only works with paired-end reads"
+                )
 
     # visualization
     if not config.output["snv"] and config.output["visualization"]:
@@ -930,7 +944,9 @@ def raw_data_file(wildcards, pair):
 
     if len(list_output) == 0:
         raise ValueError(
-            "Missing input files for sample in: {} - Unexpected file name?".format(indir)
+            "Missing input files for sample in: {} - Unexpected file name?".format(
+                indir
+            )
         )
 
     return list_output
@@ -946,7 +962,11 @@ def construct_input_fastq(wildcards):
     )
     if config.input["paired"]:
         inferred_values = glob_wildcards(
-            indir + "/{file}R" + wildcards.pair + config.input["fastq_suffix"] + aux.ext[0]
+            indir
+            + "/{file}R"
+            + wildcards.pair
+            + config.input["fastq_suffix"]
+            + aux.ext[0]
         )
     else:
         inferred_values = glob_wildcards(indir + "/{file}" + aux.ext[0])

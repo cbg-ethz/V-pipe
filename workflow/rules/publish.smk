@@ -70,18 +70,18 @@ rule prepare_upload:
         ),
     output:
         upload_prepared_touch="{dataset}/upload_prepared.touch",
-    params:
-        sample_id=ID,
-        script=cachepath(config.upload["script"], executable=True),
-        options=config.upload["options"],
     conda:
         # NOTE realpath is a gnu coreutils executable and not available out of the box. We need a conda environment anyway
         config.upload["conda"]
+    threads: config.upload["threads"]
     resources:
         disk_mb=1000,
         mem_mb=config.upload["mem"],
         runtime=config.upload["time"],
-    threads: config.upload["threads"]
+    params:
+        sample_id=ID,
+        script=cachepath(config.upload["script"], executable=True),
+        options=config.upload["options"],
     shell:
         """
         {params.script} {params.options} "{output.upload_prepared_touch}" "{params.sample_id}" "{wildcards.dataset}" {input:q}
@@ -99,6 +99,18 @@ rule unfiltered_cram:
         cram_sam=temp_with_prefix("{dataset}/raw_uploads/raw_reads.sam"),
         final_cram="{dataset}/raw_uploads/raw_reads.cram",
         checksum="{dataset}/raw_uploads/raw_reads.cram.%s" % config.general["checksum"],
+    log:
+        outfile="{dataset}/raw_uploads/raw_reads.out.log",
+        errfile="{dataset}/raw_uploads/raw_reads.err.log",
+    benchmark:
+        "{dataset}/raw_uploads/raw_reads.benchmark"
+    conda:
+        config.dehuman["conda"]
+    threads: config.bwa_align["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.bwa_align["mem"],
+        runtime=config.bwa_align["time"],
     params:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
@@ -106,18 +118,6 @@ rule unfiltered_cram:
         sort_tmp=temp_prefix("{dataset}/raw_uploads/raw_reads.tmp"),
         # as a param to escape backslashes
         REGEXP=r"s{(?<=\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}{BC:Z:\1}",
-    log:
-        outfile="{dataset}/raw_uploads/raw_reads.out.log",
-        errfile="{dataset}/raw_uploads/raw_reads.err.log",
-    conda:
-        config.dehuman["conda"]
-    benchmark:
-        "{dataset}/raw_uploads/raw_reads.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.bwa_align["mem"],
-        runtime=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]
     shell:
         """
         # using zcat FILENAME.gz causes issues on Mac, see
@@ -171,15 +171,15 @@ rule checksum:
         "{file}",
     output:
         "{file}.%s" % config.general["checksum"],
-    params:
-        checksum_type=config.general["checksum"],
     conda:
         config["upload"]["conda"]
+    threads: 1
     resources:
         disk_mb=10,
         mem_mb=config.checksum["mem"],
         runtime=config.checksum["time"],
-    threads: 1
+    params:
+        checksum_type=config.general["checksum"],
     shell:
         """
         {params.checksum_type}sum {input} > {output}

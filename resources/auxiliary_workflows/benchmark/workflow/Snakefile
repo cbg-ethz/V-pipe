@@ -6,7 +6,6 @@ import pandas as pd
 from snakemake.utils import Paramspace
 from snakemake.utils import min_version
 
-
 min_version("7.10.0")
 
 
@@ -153,15 +152,15 @@ rule generate_haplotypes:
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
+    wildcard_constraints:
+        seq_mode=r"(?!real_data).*",
+        seq_mode_param=r"(?!real_data).*",
+    conda:
+        "envs/simulate_reads.yaml"
     params:
         params=paramspace.instance,
         haplotype_generation=config["haplotype_generation"],
         master_seq_path=config["master_seq_path"],
-    conda:
-        "envs/simulate_reads.yaml"
-    wildcard_constraints:
-        seq_mode=r"(?!real_data).*",
-        seq_mode_param=r"(?!real_data).*",
     script:
         "scripts/generate_haplotypes.py"
 
@@ -173,17 +172,17 @@ rule shotgun_simulation:
     output:
         fname_fastq=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.shotgun.bam",
-    params:
-        params=paramspace.instance,
-        haplotype_generation=config["haplotype_generation"],
-    conda:
-        "envs/simulate_reads.yaml"
     wildcard_constraints:
         seq_mode=r"(?!real_data).*",
         seq_mode_param=r"(?!real_data).*",
+    conda:
+        "envs/simulate_reads.yaml"
     resources:
         mem_mb=5_000,
         runtime=60 * 4,
+    params:
+        params=paramspace.instance,
+        haplotype_generation=config["haplotype_generation"],
     script:
         "scripts/shotgun_simulation.py"
 
@@ -204,8 +203,6 @@ if config["haplotype_generation"] == "distance":
 
 
 rule simulate_scheme:
-    conda:
-        "envs/split.yaml"
     input:
         fname_reference=rules.generate_haplotypes.output.fname_reference,
     output:
@@ -213,12 +210,14 @@ rule simulate_scheme:
         dname_out=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
         ),
-    params:
-        params=paramspace.instance,
     wildcard_constraints:
         seq_mode="amplicon",
         #seq_mode=r"(?!real_data).*",
         seq_mode_param=r"(?!real_data).*",  #or r"(?!single_amplicon).*",
+    conda:
+        "envs/split.yaml"
+    params:
+        params=paramspace.instance,
     script:
         "scripts/simulate_scheme.py"
 
@@ -231,14 +230,14 @@ rule amplicon_simulation:
         fname_fastq_R1=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R1.fastq",
         fname_fastq_R2=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads.amplicon.R2.fastq",
         fname_bam=f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/reads_merged.amplicon.bam",
-    params:
-        params=paramspace.instance,
-        haplotype_generation=config["haplotype_generation"],
     wildcard_constraints:
         seq_mode=r"(?!real_data).*",
         seq_mode_param=r"(?!real_data).*",
     conda:
         "envs/simulate_reads.yaml"
+    params:
+        params=paramspace.instance,
+        haplotype_generation=config["haplotype_generation"],
     script:
         "scripts/amplicon_simulation.py"
 
@@ -252,11 +251,11 @@ rule provide_Five_strain_PVY_mix:
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
         ),
+    wildcard_constraints:
+        read_length="Five_strain_PVY",
     resources:
         mem_mb=5_000,
         runtime=60 * 4,
-    wildcard_constraints:
-        read_length="Five_strain_PVY",
     shell:
         """
         mkdir -p "{output.dname_work}"
@@ -284,11 +283,11 @@ rule provide_Ten_strain_IAV:
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/scheme/"
         ),
+    wildcard_constraints:
+        read_length="Ten_strain_IAV",
     resources:
         mem_mb=5_000,
         runtime=60 * 4,
-    wildcard_constraints:
-        read_length="Ten_strain_IAV",
     shell:
         """
         mkdir -p "{output.dname_work}"
@@ -358,15 +357,15 @@ rule provide_real_data:
         dname_work=directory(
             f"results/simulated_reads/{paramspace.wildcard_pattern}/replicates/{{replicate}}/work/"
         ),
-    params:
-        path_ground_truth=f"../experimental_data/Five-Virus-Mix/ground_truth.csv",
+    wildcard_constraints:
+        seq_mode_param="5-virus-mix",
     conda:
         "envs/real_data.yaml"
     resources:
         mem_mb=5_000,
         runtime=60 * 4,
-    wildcard_constraints:
-        seq_mode_param="5-virus-mix",
+    params:
+        path_ground_truth=f"../experimental_data/Five-Virus-Mix/ground_truth.csv",
     shell:
         """
         tmp="{wildcards.seq_mode_param}"
@@ -492,14 +491,14 @@ rule run_method_local:
         ),
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_local)}}}/replicates/{{replicate}}/benchmark.tsv"
-    params:
-        script_path=lambda wildcards, input: input.script,
     conda:
         get_generated_conda_env
     threads: 10
     resources:
         mem_mb=2_000,
         runtime=60 * 24,
+    params:
+        script_path=lambda wildcards, input: input.script,
     script:
         "{params.script_path}"
 
@@ -515,11 +514,11 @@ use rule run_method_local as run_method_global with:
         ),
     benchmark:
         f"results/method_runs/{paramspace.wildcard_pattern}/{{method,{'|'.join(['markertoavoidemptyregex']+ method_list_global)}}}/replicates/{{replicate}}/benchmark.tsv"
+    retries: 1
     threads: 10
     resources:
         mem_mb=lambda wildcards, threads, attempt: int((15_000 * attempt) / threads),
         runtime=60 * 24,
-    retries: 1
 
 
 rule haplotypes_stats:
@@ -620,12 +619,12 @@ rule performance_measures_global:
         dname_out=directory("results/performance_measures/global/"),
     conda:
         "envs/performance_measures.yaml"
-    params:
-        method_list_global=method_list_global,
-        quast=True,
     threads: 10
     resources:
         mem_mb=500,
         runtime=60 * 4,
+    params:
+        method_list_global=method_list_global,
+        quast=True,
     script:
         "scripts/performance_measures_global.py"

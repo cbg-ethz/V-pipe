@@ -44,6 +44,19 @@ rule generate_web_visualization:
         alignment_html_file="{dataset}/visualization/alignment.html",
         reference_uri_file="{dataset}/visualization/reference_uri_file",
         bam_uri_file="{dataset}/visualization/bam_uri_file",
+    log:
+        outfile="{dataset}/visualization/stdout.log",
+        errfile="{dataset}/visualization/stderr.log",
+    benchmark:
+        "{dataset}/visualization/html_generation.benchmark"
+    conda:
+        config.web_visualization["conda"]
+    threads: 1
+    # group: 'snv' # HACK it's too fast and it confuses snakemake's timestamping
+    resources:
+        disk_mb=2000,
+        mem_mb=config.web_visualization["mem"],
+        runtime=config.web_visualization["time"],
     params:
         tsvbased=config.general["tsvbased"],
         assemble_visualization_webpage=cachepath(
@@ -67,19 +80,6 @@ rule generate_web_visualization:
             if config.input["phylogeny_data"]
             else []
         ),
-    log:
-        outfile="{dataset}/visualization/stdout.log",
-        errfile="{dataset}/visualization/stderr.log",
-    conda:
-        config.web_visualization["conda"]
-    benchmark:
-        "{dataset}/visualization/html_generation.benchmark"
-    # group: 'snv' # HACK it's too fast and it confuses snakemake's timestamping
-    resources:
-        disk_mb=2000,
-        mem_mb=config.web_visualization["mem"],
-        runtime=config.web_visualization["time"],
-    threads: 1
     shell:
         """
         # Why a shell directive?

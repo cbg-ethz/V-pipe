@@ -27,6 +27,20 @@ rule coverage_intervals:
         TSV="{dataset}/alignments/coverage.tsv.gz",
     output:
         temp("{dataset}/variants/coverage_intervals.tsv"),
+    log:
+        outfile="{dataset}/variants/coverage_intervals.out.log",
+        errfile="{dataset}/variants/coverage_intervals.out.log",
+    benchmark:
+        "{dataset}/variants/coverage_intervals.benchmark"
+    group:
+        "snv"
+    conda:
+        config.coverage_intervals["conda"]
+    threads: config.coverage_intervals["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.coverage_intervals["mem"],
+        runtime=config.coverage_intervals["time"],
     params:
         NAME=ID,
         WINDOW_LEN=window_length1,
@@ -37,20 +51,6 @@ rule coverage_intervals:
         EXTRACT_COVERAGE_INTERVALS=config.applications["extract_coverage_intervals"],
         GUNZIP=config.applications["gunzip"],
         ARRAYBASED=config.general["tsvbased"],
-    log:
-        outfile="{dataset}/variants/coverage_intervals.out.log",
-        errfile="{dataset}/variants/coverage_intervals.out.log",
-    conda:
-        config.coverage_intervals["conda"]
-    benchmark:
-        "{dataset}/variants/coverage_intervals.benchmark"
-    group:
-        "snv"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.coverage_intervals["mem"],
-        runtime=config.coverage_intervals["time"],
-    threads: config.coverage_intervals["threads"]
     shell:
         """
         TMPTSV=$(mktemp -t XXXXXXXX_cov.tsv)
@@ -84,6 +84,20 @@ rule snv:
     output:
         CSV="{dataset}/variants/SNVs/snvs.csv",
         VCF="{dataset}/variants/SNVs/snvs.vcf",
+    log:
+        outfile="{dataset}/variants/SNVs/shorah.out.log",
+        errfile="{dataset}/variants/SNVs/shorah.err.log",
+    benchmark:
+        "{dataset}/variants/SNVs/shorah.benchmark"
+    group:
+        "snv"
+    conda:
+        config.snv["conda"]
+    threads: config.snv["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.snv["mem"],
+        runtime=config.snv["time"],
     params:
         READ_LEN=read_len,
         ALPHA=config.snv["alpha"],
@@ -98,20 +112,6 @@ rule snv:
         POSTHRESH=config.snv["posterior_threshold"],
         COVINT=config.coverage_intervals["coverage"],
         BCFTOOLS=config.applications["bcftools"],
-    log:
-        outfile="{dataset}/variants/SNVs/shorah.out.log",
-        errfile="{dataset}/variants/SNVs/shorah.err.log",
-    conda:
-        config.snv["conda"]
-    benchmark:
-        "{dataset}/variants/SNVs/shorah.benchmark"
-    group:
-        "snv"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.snv["mem"],
-        runtime=config.snv["time"],
-    threads: config.snv["threads"]
     shell:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
@@ -223,19 +223,19 @@ rule samtools_index:
         "{file}.fasta",
     output:
         "{file}.fasta.fai",
-    params:
-        SAMTOOLS=config.applications["samtools"],
     log:
         outfile="{file}_samtools_index.out.log",
         errfile="{file}_samtools_index.err.log",
+    benchmark:
+        "{file}_samtools_index.benchmark"
     conda:
         config.samtools_index["conda"]
     resources:
         disk_mb=2000,
         mem_mb=config.samtools_index["mem"],
         runtime=config.samtools_index["time"],
-    benchmark:
-        "{file}_samtools_index.benchmark"
+    params:
+        SAMTOOLS=config.applications["samtools"],
     shell:
         """
         {params.SAMTOOLS} faidx {input} -o {output} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
@@ -258,6 +258,18 @@ rule lofreq:
     output:
         BAM="{dataset}/variants/SNVs/REF_aln_indelqual.bam",
         SNVs="{dataset}/variants/SNVs/snvs.vcf",
+    log:
+        outfile="{dataset}/variants/SNVs/lofreq.out.log",
+        errfile="{dataset}/variants/SNVs/lofreq.err.log",
+    benchmark:
+        "{dataset}/variants/SNVs/lofreq.benchmark"
+    conda:
+        config.lofreq["conda"]
+    threads: config.lofreq["threads"]
+    resources:
+        disk_mb=2000,
+        mem_mb=config.lofreq["mem"],
+        runtime=config.lofreq["time"],
     params:
         OUTDIR="{dataset}/variants/SNVs",
         EXTRA=config.lofreq["extra"],
@@ -268,18 +280,6 @@ rule lofreq:
         threadspar=lambda wildcards, threads: (
             f"--pp-threads {threads}" if threads > 1 else ""
         ),
-    log:
-        outfile="{dataset}/variants/SNVs/lofreq.out.log",
-        errfile="{dataset}/variants/SNVs/lofreq.err.log",
-    conda:
-        config.lofreq["conda"]
-    benchmark:
-        "{dataset}/variants/SNVs/lofreq.benchmark"
-    resources:
-        disk_mb=2000,
-        mem_mb=config.lofreq["mem"],
-        runtime=config.lofreq["time"],
-    threads: config.lofreq["threads"]
     shell:
         """
         # Add qualities to indels
@@ -313,15 +313,15 @@ rule paired_end_read_merger:
         fname_sam=temp_with_prefix("{dataset}/alignment/REF_aln.sam"),
         fname_sam_nonmerged="{dataset}/alignment/REF_aln.nonmerged.sam",
         fname_sam_sort=temp_with_prefix("{dataset}/alignment/REF_aln.sort.sam"),
-    params:
-        SAMTOOLS=config.applications["samtools"],
-        PAIRED_END_READ_MERGER=config.applications["paired_end_read_merger"],
-        sort_tmp=temp_prefix("{dataset}.tmp"),
     log:
         outfile="{dataset}/alignment/paired_end_read_merger.out.log",
         errfile="{dataset}/alignment/paired_end_read_merger.err.log",
     conda:
         config.paired_end_read_merger["conda"]
+    params:
+        SAMTOOLS=config.applications["samtools"],
+        PAIRED_END_READ_MERGER=config.applications["paired_end_read_merger"],
+        sort_tmp=temp_prefix("{dataset}.tmp"),
     shell:
         """
         ## Preparation
@@ -355,6 +355,18 @@ rule viloca:
         SNVs="{dataset}/variants/SNVs/snvs.vcf",
         CSV="{dataset}/variants/SNVs/snv/cooccurring_mutations.csv",
         WORK_DIR=directory("{dataset}/variants/SNVs"),
+    log:
+        outfile="{dataset}/variants/SNVs/viloca.out.log",
+        errfile="{dataset}/variants/SNVs/viloca.err.log",
+    benchmark:
+        "{dataset}/variants/SNVs/viloca.benchmark"
+    conda:
+        config.viloca["conda"]
+    threads: config.viloca["threads"]
+    resources:
+        disk_mb=2000,
+        mem_mb=config.viloca["mem"],
+        runtime=config.viloca["time"],
     params:
         READ_LEN=read_len,
         INSERT_FILE=config.viloca["insert_bedfile"],
@@ -362,18 +374,6 @@ rule viloca:
         SHIFT=config.viloca["shift"],
         EXTRA=config.viloca["extra"],
         VILOCA=config.applications["viloca"],
-    log:
-        outfile="{dataset}/variants/SNVs/viloca.out.log",
-        errfile="{dataset}/variants/SNVs/viloca.err.log",
-    conda:
-        config.viloca["conda"]
-    benchmark:
-        "{dataset}/variants/SNVs/viloca.benchmark"
-    threads: config.viloca["threads"]
-    resources:
-        disk_mb=2000,
-        mem_mb=config.viloca["mem"],
-        runtime=config.viloca["time"],
     shell:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"

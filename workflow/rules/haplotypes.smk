@@ -10,6 +10,18 @@ rule haploclique:
     output:
         FASTA="{dataset}/variants/global/quasispecies.fasta",
         BAM="{dataset}/variants/global/quasispecies.bam",
+    log:
+        outfile="{dataset}/variants/global/haploclique.out.log",
+        errfile="{dataset}/variants/global/haploclique.err.log",
+    benchmark:
+        "{dataset}/variants/global/haploclique.benchmark"
+    conda:
+        config.haploclique["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.haploclique["mem"],
+        runtime=config.haploclique["time"],
     params:
         RELAX=(
             "--edge_quasi_cutoff_cliques=0.85 --edge_quasi_cutoff_mixed=0.85 --edge_quasi_cutoff_single=0.8 --min_overlap_cliques=0.6 --min_overlap_single=0.5"
@@ -23,18 +35,6 @@ rule haploclique:
         EXTRA_PARAMETERS=config.haploclique["extra_parameters"],
         OUTPREFIX="{dataset}/variants/global/quasispecies",
         HAPLOCLIQUE=config.applications["haploclique"],
-    log:
-        outfile="{dataset}/variants/global/haploclique.out.log",
-        errfile="{dataset}/variants/global/haploclique.err.log",
-    conda:
-        config.haploclique["conda"]
-    benchmark:
-        "{dataset}/variants/global/haploclique.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.haploclique["mem"],
-        runtime=config.haploclique["time"],
-    threads: 1
     shell:
         """
         {params.HAPLOCLIQUE} {params.EXTRA_PARAMETERS} {params.RELAX} {params.NO_SINGLETONS} {params.NO_PROB0} --limit_clique_size={params.CLIQUE_SIZE_LIMIT} --max_cliques={params.MAX_NUM_CLIQUES} --log={log.outfile} --bam {input} {params.OUTPREFIX} 2> >(tee {log.errfile} >&2)
@@ -47,6 +47,18 @@ rule haploclique_visualization:
         FASTA="{dataset}/variants/global/quasispecies.fasta",
     output:
         PDF="{dataset}/variants/global/quasispecies_plot.pdf",
+    log:
+        outfile="{dataset}/variants/global/haploclique_visualization.out.log",
+        errfile="{dataset}/variants/global/haploclique_visualization.err.log",
+    benchmark:
+        "{dataset}/variants/global/haploclique_visualization.benchmark"
+    conda:
+        config.haploclique_visualization["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.haploclique_visualization["mem"],
+        runtime=config.haploclique_visualization["time"],
     params:
         REGION_START=config.haploclique_visualization["region_start"],
         REGION_END=config.haploclique_visualization["region_end"],
@@ -55,18 +67,6 @@ rule haploclique_visualization:
         TSV="{dataset}/variants/global/quasispecies_mapping.tsv",
         INPREFIX="{dataset}/variants/global/quasispecies",
         COMPUTE_MDS=config.applications["compute_mds"],
-    log:
-        outfile="{dataset}/variants/global/haploclique_visualization.out.log",
-        errfile="{dataset}/variants/global/haploclique_visualization.err.log",
-    conda:
-        config.haploclique_visualization["conda"]
-    benchmark:
-        "{dataset}/variants/global/haploclique_visualization.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.haploclique_visualization["mem"],
-        runtime=config.haploclique_visualization["time"],
-    threads: 1
     shell:
         """
         {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV} > {log.output} 2> >(tee {log.errfile} >&2)
@@ -82,24 +82,24 @@ if config.input["paired"]:
             R1=temp("{dataset}/variants/global/R1.fastq"),
             R2=temp("{dataset}/variants/global/R2.fastq"),
             FASTA="{dataset}/variants/global/contigs_stage_c.fasta",
+        log:
+            outfile="{dataset}/variants/global/savage.out.log",
+            errfile="{dataset}/variants/global/savage.err.log",
+        benchmark:
+            "{dataset}/variants/global/savage.benchmark"
+        conda:
+            config.savage["conda"]
+        threads: config.savage["threads"]
+        resources:
+            disk_mb=1250,
+            mem_mb=config.savage["mem"],
+            runtime=config.savage["time"],
         params:
             SPLIT=config.savage["split"],
             PICARD=config.applications["picard"],
             SAVAGE=config.applications["savage"],
             OUTDIR="{dataset}/variants/global/",
             FUNCTIONS=functions,
-        log:
-            outfile="{dataset}/variants/global/savage.out.log",
-            errfile="{dataset}/variants/global/savage.err.log",
-        conda:
-            config.savage["conda"]
-        benchmark:
-            "{dataset}/variants/global/savage.benchmark"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.savage["mem"],
-            runtime=config.savage["time"],
-        threads: config.savage["threads"]
         shell:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
@@ -122,24 +122,24 @@ else:
         output:
             R1=temp("{dataset}/variants/global/R1.fastq"),
             FASTA="{dataset}/variants/global/contigs_stage_c.fasta",
+        log:
+            outfile="{dataset}/variants/global/savage.out.log",
+            errfile="{dataset}/variants/global/savage.err.log",
+        benchmark:
+            "{dataset}/variants/global/savage.benchmark"
+        conda:
+            config.savage["conda"]
+        threads: config.savage["threads"]
+        resources:
+            disk_mb=1250,
+            mem_mb=config.savage["mem"],
+            runtime=config.savage["time"],
         params:
             SPLIT=config.savage["split"],
             PICARD=config.applications["picard"],
             SAVAGE=config.applications["savage"],
             OUTDIR="{dataset}/variants/global/",
             FUNCTIONS=functions,
-        log:
-            outfile="{dataset}/variants/global/savage.out.log",
-            errfile="{dataset}/variants/global/savage.err.log",
-        conda:
-            config.savage["conda"]
-        benchmark:
-            "{dataset}/variants/global/savage.benchmark"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.savage["mem"],
-            runtime=config.savage["time"],
-        threads: config.savage["threads"]
         shell:
             """
             # Convert BAM to FASTQ without re-reversing reads - SAVAGE expect all reads in the same direction
@@ -168,22 +168,22 @@ if config.input["paired"]:
             fname_sam=temp("{dataset}/variants/global/REF_aln.sam"),
             fname_out="{dataset}/variants/global/predicthaplo_haplotypes.fasta",
             OUTPREFIX=directory("{dataset}/variants/global/predicthaplo"),
-        params:
-            read_min_length=config.predicthaplo["read_min_length"],
-            SAMTOOLS=config.applications["samtools"],
-            PREDICTHAPLO=config.applications["predicthaplo"],
         log:
             outfile="{dataset}/variants/global/predicthaplo.out.log",
             errfile="{dataset}/variants/global/predicthaplo.err.log",
-        conda:
-            config.predicthaplo["conda"]
         benchmark:
             "{dataset}/variants/global/predicthaplo.benchmark"
+        conda:
+            config.predicthaplo["conda"]
+        threads: config.predicthaplo["threads"]
         resources:
             disk_mb=1250,
             mem_mb=config.predicthaplo["mem"],
             runtime=config.predicthaplo["time"],
-        threads: config.predicthaplo["threads"]
+        params:
+            read_min_length=config.predicthaplo["read_min_length"],
+            SAMTOOLS=config.applications["samtools"],
+            PREDICTHAPLO=config.applications["predicthaplo"],
         shell:
             """
             {params.SAMTOOLS} sort -n {input.fname_bam} -o {output.fname_sam} 2> >(tee {log.errfile} >&2)

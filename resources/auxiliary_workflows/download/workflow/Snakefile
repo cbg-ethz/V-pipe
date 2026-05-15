@@ -12,16 +12,16 @@ rule all:
 rule download_fastq:
     output:
         fname_info=temp("samples/{accession}/19700101/raw_data/info.tsv"),
-    params:
-        restart_times=3,
     log:
         outfile="logs/download.{accession}.out.log",
         errfile="logs/download.{accession}.err.log",
     conda:
         "envs/sratools.yaml"
+    threads: 6
     resources:
         mem_mb=5_000,
-    threads: 6
+    params:
+        restart_times=3,
     script:
         "scripts/download.py"
 

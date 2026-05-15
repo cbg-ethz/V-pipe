@@ -21,6 +21,18 @@ rule initial_vicuna:
         ),
     output:
         "{dataset}/references/vicuna_consensus.fasta",
+    log:
+        outfile="{dataset}/initial_consensus/vicuna.out.log",
+        errfile="{dataset}/initial_consensus/vicuna.err.log",
+    benchmark:
+        "{dataset}/initial_consensus/vicuna_consensus.benchmark"
+    conda:
+        config.initial_vicuna["conda"]
+    threads: config.initial_vicuna["threads"]
+    resources:
+        disk_mb=1000,
+        mem_mb=config.initial_vicuna["mem"],
+        runtime=config.initial_vicuna["time"],
     params:
         PAIRED="SECOND_END_FASTQ=cleaned/R2.fastq" if config.input["paired"] else "",
         PAIRED_BOOL="true" if config.input["paired"] else "false",
@@ -32,18 +44,6 @@ rule initial_vicuna:
         SAMTOOLS=config.applications["samtools"],
         WORK_DIR="{dataset}/initial_consensus",
         FUNCTIONS=functions,
-    log:
-        outfile="{dataset}/initial_consensus/vicuna.out.log",
-        errfile="{dataset}/initial_consensus/vicuna.err.log",
-    conda:
-        config.initial_vicuna["conda"]
-    benchmark:
-        "{dataset}/initial_consensus/vicuna_consensus.benchmark"
-    resources:
-        disk_mb=1000,
-        mem_mb=config.initial_vicuna["mem"],
-        runtime=config.initial_vicuna["time"],
-    threads: config.initial_vicuna["threads"]
     shell:
         """
         CONSENSUS_NAME={wildcards.dataset}
@@ -142,21 +142,21 @@ rule initial_vicuna_msa:
         vicuna_refs,
     output:
         "references/initial_aln_gap_removed.fasta",
-    params:
-        MAFFT=config.applications["mafft"],
-        REMOVE_GAPS=config.applications["remove_gaps_msa"],
     log:
         outfile="references/MAFFT_initial_aln.out.log",
         errfile="references/MAFFT_initial_aln.err.log",
-    conda:
-        config.initial_vicuna_msa["conda"]
     benchmark:
         "references/MAFFT_initial_aln.benchmark"
+    conda:
+        config.initial_vicuna_msa["conda"]
+    threads: config.initial_vicuna_msa["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.initial_vicuna_msa["mem"],
         runtime=config.initial_vicuna_msa["time"],
-    threads: config.initial_vicuna_msa["threads"]
+    params:
+        MAFFT=config.applications["mafft"],
+        REMOVE_GAPS=config.applications["remove_gaps_msa"],
     shell:
         """
         cat {input} > initial_ALL.fasta
@@ -176,10 +176,10 @@ rule create_vicuna_initial:
         "references/initial_aln_gap_removed.fasta",
     output:
         "{dataset}/references/initial_consensus.fasta",
-    params:
-        EXTRACT_SEQ=config.applications["extract_seq"],
     conda:
         config.create_vicuna_initial["conda"]
+    params:
+        EXTRACT_SEQ=config.applications["extract_seq"],
     shell:
         """
         CONSENSUS_NAME={wildcards.dataset}
@@ -270,16 +270,16 @@ if config.general["aligner"] == "ngshmmalign":
             "{dataset}/preprocessed_data/{file}.fastq.gz",
         output:
             temp_with_prefix("{dataset}/preprocessed_data/{file}.fastq"),
-        params:
-            GUNZIP=config.applications["gunzip"],
         log:
             outfile=temp("{dataset}/preprocessed_data/{file}_gunzip.out.log"),
             errfile=temp("{dataset}/preprocessed_data/{file}_gunzip.err.log"),
+        threads: 1
         resources:
             disk_mb=1000,
             mem_mb=config.gunzip["mem"],
             runtime=config.gunzip["time"],
-        threads: 1
+        params:
+            GUNZIP=config.applications["gunzip"],
         shell:
             """
             {params.GUNZIP} -c {input} > {output} 2> >(tee {log.errfile} >&2)
@@ -296,23 +296,23 @@ if config.general["aligner"] == "ngshmmalign":
             reject_aln=temp_with_prefix("{dataset}/alignments/rejects.sam"),
             REF_ambig="{dataset}/references/ref_ambig.fasta",
             REF_majority="{dataset}/references/ref_majority.fasta",
+        log:
+            outfile="{dataset}/alignments/ngshmmalign.out.log",
+            errfile="{dataset}/alignments/ngshmmalign.err.log",
+        benchmark:
+            "{dataset}/alignments/ngshmmalign.benchmark"
+        conda:
+            config.hmm_align["conda"]
+        threads: config.hmm_align["threads"]
+        resources:
+            disk_mb=1250,
+            mem_mb=config.hmm_align["mem"],
+            runtime=config.hmm_align["time"],
         params:
             LEAVE_TEMP="-l" if config.hmm_align["leave_msa_temp"] else "",
             EXTRA=config.hmm_align["extra"],
             MAFFT=config.applications["mafft"],
             NGSHMMALIGN=config.applications["ngshmmalign"],
-        log:
-            outfile="{dataset}/alignments/ngshmmalign.out.log",
-            errfile="{dataset}/alignments/ngshmmalign.err.log",
-        conda:
-            config.hmm_align["conda"]
-        benchmark:
-            "{dataset}/alignments/ngshmmalign.benchmark"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.hmm_align["mem"],
-            runtime=config.hmm_align["time"],
-        threads: config.hmm_align["threads"]
         shell:
             """
             CONSENSUS_NAME={wildcards.dataset}
@@ -350,20 +350,20 @@ rule msa:
         construct_msa_input_files,
     output:
         "references/ALL_aln_{kind}.fasta",
-    params:
-        MAFFT=config.applications["mafft"],
     log:
         outfile="references/MAFFT_{kind}_cohort.out.log",
         errfile="references/MAFFT_{kind}_cohort.err.log",
-    conda:
-        config.msa["conda"]
     benchmark:
         "references/MAFFT_{kind}_cohort.benchmark"
+    conda:
+        config.msa["conda"]
+    threads: config.msa["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.msa["mem"],
         runtime=config.msa["time"],
-    threads: config.msa["threads"]
+    params:
+        MAFFT=config.applications["mafft"],
     shell:
         """
         cat {input} > ALL_{wildcards.kind}.fasta
@@ -389,23 +389,23 @@ if config.general["aligner"] == "ngshmmalign":
             BAM="{dataset}/alignments/full_aln.bam",
         output:
             "{dataset}/alignments/REF_aln.bam",
-        params:
-            REF_NAME=reference_name if reference_name else get_reference_name,
-            CONVERT_REFERENCE=config.applications["convert_reference"],
         log:
             outfile="{dataset}/alignments/convert_to_ref.out.log",
             errfile="{dataset}/alignments/convert_to_ref.err.log",
-        conda:
-            config.convert_to_ref["conda"]
         benchmark:
             "{dataset}/alignments/convert_to_ref.benchmark"
+        shadow:
+            "shallow"
+        conda:
+            config.convert_to_ref["conda"]
+        threads: 1
         resources:
             disk_mb=1250,
             mem_mb=config.convert_to_ref["mem"],
             runtime=config.convert_to_ref["time"],
-        threads: 1
-        shadow:
-            "shallow"
+        params:
+            REF_NAME=reference_name if reference_name else get_reference_name,
+            CONVERT_REFERENCE=config.applications["convert_reference"],
         shell:
             """
             {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
@@ -422,24 +422,24 @@ rule sam2bam:
         # TODO support cram here
         BAM="{file}.bam",
         BAI="{file}.bam.bai",
-    params:
-        SAMTOOLS=config.applications["samtools"],
-        FUNCTIONS=functions,
-        sort_tmp=temp_prefix("{file}.tmp"),
     log:
         outfile="{file}_sam2bam.out.log",
         errfile="{file}_sam2bam.err.log",
-    conda:
-        config.sam2bam["conda"]
     benchmark:
         "{file}_sam2bam.benchmark"
     group:
         "align"
+    conda:
+        config.sam2bam["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.sam2bam["mem"],
         runtime=config.sam2bam["time"],
-    threads: 1
+    params:
+        SAMTOOLS=config.applications["samtools"],
+        FUNCTIONS=functions,
+        sort_tmp=temp_prefix("{file}.tmp"),
     shell:
         """
         echo "Writing BAM file"
@@ -459,20 +459,20 @@ rule ref_bwa_index:
         "{file}",
     output:
         multiext("{file}", *bwa_idx_ext),
-    params:
-        BWA=config.applications["bwa"],
     log:
         outfile="{file}_bwa_index.out.log",
         errfile="{file}_bwa_index.err.log",
-    conda:
-        config.ref_bwa_index["conda"]
     benchmark:
         "{file}_bwa_index.benchmark"
+    conda:
+        config.ref_bwa_index["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.ref_bwa_index["mem"],
         runtime=config.ref_bwa_index["time"],
-    threads: 1
+    params:
+        BWA=config.applications["bwa"],
     shell:
         """
         {params.BWA} index {input} 2> >(tee {log.errfile} >&2)
@@ -500,25 +500,25 @@ if config.general["aligner"] == "bwa":
         output:
             REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
             TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
+        log:
+            outfile="{dataset}/alignments/bwa_align.out.log",
+            errfile="{dataset}/alignments/bwa_align.err.log",
+        benchmark:
+            "{dataset}/alignments/bwa_align.benchmark"
+        group:
+            "align"
+        conda:
+            config.bwa_align["conda"]
+        threads: config.bwa_align["threads"]
+        resources:
+            disk_mb=1250,
+            mem_mb=config.bwa_align["mem"],
+            runtime=config.bwa_align["time"],
         params:
             EXTRA=config.bwa_align["extra"],
             FILTER="-f 2" if config.input["paired"] else "-F 4",
             BWA=config.applications["bwa"],
             SAMTOOLS=config.applications["samtools"],
-        log:
-            outfile="{dataset}/alignments/bwa_align.out.log",
-            errfile="{dataset}/alignments/bwa_align.err.log",
-        conda:
-            config.bwa_align["conda"]
-        benchmark:
-            "{dataset}/alignments/bwa_align.benchmark"
-        group:
-            "align"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.bwa_align["mem"],
-            runtime=config.bwa_align["time"],
-        threads: config.bwa_align["threads"]
         shell:
             """
             {params.BWA} mem -t {threads} {params.EXTRA} -o "{output.TMP_SAM}" "{input.REF}" {input.FASTQ} 2> >(tee {log.errfile} >&2)
@@ -533,20 +533,20 @@ elif config.general["aligner"] == "bowtie":
             reference_file,
         output:
             multiext(reference_file, *bowtie_idx_ext),
-        params:
-            BOWTIE=config.applications["bowtie_idx"],
         log:
             outfile="references/bowtie_index.out.log",
             errfile="references/bowtie_index.err.log",
-        conda:
-            config.ref_bowtie_index["conda"]
         benchmark:
             "references/ref_bowtie_index.benchmark"
+        conda:
+            config.ref_bowtie_index["conda"]
+        threads: 1
         resources:
             disk_mb=1250,
             mem_mb=config.ref_bowtie_index["mem"],
             runtime=config.ref_bowtie_index["time"],
-        threads: 1
+        params:
+            BOWTIE=config.applications["bowtie_idx"],
         shell:
             """
             {params.BOWTIE} {input} {input} 2> >(tee {log.errfile} >&2)
@@ -563,6 +563,20 @@ elif config.general["aligner"] == "bowtie":
             output:
                 REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
                 TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
+            log:
+                outfile="{dataset}/alignments/bowtie_align.out.log",
+                errfile="{dataset}/alignments/bowtie_align.err.log",
+            benchmark:
+                "{dataset}/alignments/bowtie_align.benchmark"
+            group:
+                "align"
+            conda:
+                config.bowtie_align["conda"]
+            threads: config.bowtie_align["threads"]
+            resources:
+                disk_mb=1250,
+                mem_mb=config.bowtie_align["mem"],
+                runtime=config.bowtie_align["time"],
             params:
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
@@ -571,20 +585,6 @@ elif config.general["aligner"] == "bowtie":
                 FILTER="-f 2",
                 BOWTIE=config.applications["bowtie"],
                 SAMTOOLS=config.applications["samtools"],
-            log:
-                outfile="{dataset}/alignments/bowtie_align.out.log",
-                errfile="{dataset}/alignments/bowtie_align.err.log",
-            conda:
-                config.bowtie_align["conda"]
-            benchmark:
-                "{dataset}/alignments/bowtie_align.benchmark"
-            group:
-                "align"
-            resources:
-                disk_mb=1250,
-                mem_mb=config.bowtie_align["mem"],
-                runtime=config.bowtie_align["time"],
-            threads: config.bowtie_align["threads"]
             shell:
                 """
                 {params.BOWTIE} -x {input.REF} -1 {input.R1} -2 {input.R2} {params.PHRED} {params.PRESET} -X {params.MAXINS} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
@@ -602,6 +602,20 @@ elif config.general["aligner"] == "bowtie":
             output:
                 REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
                 TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
+            log:
+                outfile="{dataset}/alignments/bowtie_align.out.log",
+                errfile="{dataset}/alignments/bowtie_align.err.log",
+            benchmark:
+                "{dataset}/alignments/bowtie_align.benchmark"
+            group:
+                "align"
+            conda:
+                config.bowtie_align["conda"]
+            threads: config.bowtie_align["threads"]
+            resources:
+                disk_mb=1250,
+                mem_mb=config.bowtie_align["mem"],
+                runtime=config.bowtie_align["time"],
             params:
                 PHRED=config.bowtie_align["phred"],
                 PRESET=config.bowtie_align["preset"],
@@ -609,20 +623,6 @@ elif config.general["aligner"] == "bowtie":
                 FILTER="-F 4",
                 BOWTIE=config.applications["bowtie"],
                 SAMTOOLS=config.applications["samtools"],
-            log:
-                outfile="{dataset}/alignments/bowtie_align.out.log",
-                errfile="{dataset}/alignments/bowtie_align.err.log",
-            conda:
-                config.bowtie_align["conda"]
-            benchmark:
-                "{dataset}/alignments/bowtie_align.benchmark"
-            group:
-                "align"
-            resources:
-                disk_mb=1250,
-                mem_mb=config.bowtie_align["mem"],
-                runtime=config.bowtie_align["time"],
-            threads: config.bowtie_align["threads"]
             shell:
                 """
                 {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
@@ -638,20 +638,20 @@ elif config.general["aligner"] == "minimap":
         output:
             # multiext(reference_file,*minimap2_idx_ext)
             reference_file + ".mmi",
-        params:
-            MINIMAP=config.applications["minimap"],
         log:
             outfile="references/minimap.index.out.log",
             errfile="references/minimap.index.err.log",
-        conda:
-            config.ref_minimap_index["conda"]
         benchmark:
             "references/ref_minimap_index.benchmark"
+        conda:
+            config.ref_minimap_index["conda"]
+        threads: 1
         resources:
             disk_mb=1250,
             mem_mb=config.ref_minimap_index["mem"],
             runtime=config.ref_minimap_index["time"],
-        threads: 1
+        params:
+            MINIMAP=config.applications["minimap"],
         shell:
             """
             {params.MINIMAP} -t {threads} -d {output} {input} 2> >(tee {log.errfile} >&2)
@@ -665,6 +665,20 @@ elif config.general["aligner"] == "minimap":
         output:
             REF=temp_with_prefix("{dataset}/alignments/REF_aln.sam"),
             TMP_SAM=temp_with_prefix("{dataset}/alignments/tmp_aln.sam"),
+        log:
+            outfile="{dataset}/alignments/minimap_align.log",
+            errfile="{dataset}/alignments/minimap_align.err.log",
+        benchmark:
+            "{dataset}/alignments/minimap_align.benchmark"
+        group:
+            "align"
+        conda:
+            config.minimap_align["conda"]
+        threads: config.minimap_align["threads"]
+        resources:
+            disk_mb=1250,
+            mem_mb=config.minimap_align["mem"],
+            runtime=config.minimap_align["time"],
         params:
             SEED="--seed 42",
             EXTRA=config.minimap_align["extra"],
@@ -677,20 +691,6 @@ elif config.general["aligner"] == "minimap":
             FILTER="-f 2" if config.input["paired"] else "-F 4",
             MINIMAP=config.applications["minimap"],
             SAMTOOLS=config.applications["samtools"],
-        log:
-            outfile="{dataset}/alignments/minimap_align.log",
-            errfile="{dataset}/alignments/minimap_align.err.log",
-        conda:
-            config.minimap_align["conda"]
-        benchmark:
-            "{dataset}/alignments/minimap_align.benchmark"
-        group:
-            "align"
-        resources:
-            disk_mb=1250,
-            mem_mb=config.minimap_align["mem"],
-            runtime=config.minimap_align["time"],
-        threads: config.minimap_align["threads"]
         shell:
             """
             {params.MINIMAP} -t "{threads}" -a {params.SEED} -x "{params.PRESET}" {params.SECONDARY} {params.EXTRA} -o "{output.TMP_SAM}" "{input.target}" {input.FASTQ} 2> >(tee {log.errfile} >&2)

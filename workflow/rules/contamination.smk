@@ -16,21 +16,21 @@ rule bwa_QA:
     output:
         SAM=temp("{dataset}/QA_alignments/bwa_QA_{kind}.sam"),
         MSA="{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
-    params:
-        BWA=config.applications["bwa"],
-        MAFFT=config.applications["mafft"],
     log:
         outfile="{dataset}/QA_alignments/bwa_{kind}.out.log",
         errfile="{dataset}/QA_alignments/bwa_{kind}.err.log",
-    conda:
-        config.bwa_QA["conda"]
     benchmark:
         "{dataset}/QA_alignments/bwa_{kind}.benchmark"
+    conda:
+        config.bwa_QA["conda"]
+    threads: config.bwa_QA["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_QA["mem"],
         runtime=config.bwa_QA["time"],
-    threads: config.bwa_QA["threads"]
+    params:
+        BWA=config.applications["bwa"],
+        MAFFT=config.applications["mafft"],
     shell:
         """
         # 1. cleanup old run
@@ -61,21 +61,21 @@ rule coverage_QA:
         MSA="{dataset}/QA_alignments/bwa_refs_msa_{kind}.fasta",
     output:
         "{dataset}/QA_alignments/coverage_{kind}.tsv",
-    params:
-        TARGET=config.coverage_QA["target"],
-        COV_STATS=config.applications["coverage_stats"],
     log:
         outfile="{dataset}/QA_alignments/coverage_QA_{kind}.out.log",
         errfile="{dataset}/QA_alignments/coverage_QA_{kind}.err.log",
-    conda:
-        config.coverage_QA["conda"]
     benchmark:
         "{dataset}/QA_alignments/coverage_QA_{kind}.benchmark"
+    conda:
+        config.coverage_QA["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.coverage_QA["mem"],
         runtime=config.coverage_QA["time"],
-    threads: 1
+    params:
+        TARGET=config.coverage_QA["target"],
+        COV_STATS=config.applications["coverage_stats"],
     shell:
         """
         CONSENSUS_NAME={wildcards.dataset}

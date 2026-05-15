@@ -37,6 +37,18 @@ rule amplicons:
         inserts=proto_inserts,
     output:
         amplicons=cohortdir("amplicons.{proto}.yaml"),
+    log:
+        outfile=cohortdir("amplicons.{proto}.out.log"),
+        errfile=cohortdir("amplicons.{proto}.err.log"),
+    benchmark:
+        cohortdir("amplicons.{proto}.benchmark")
+    conda:
+        config.cooc["conda"]
+    threads: 1
+    resources:
+        disk_mb=1024,
+        mem_mb=config.amplicons["mem"],
+        runtime=config.amplicons["time"],
     params:
         COJAC=config.applications["cojac"],
         vocdir=config.input["variants_def_directory"],
@@ -44,18 +56,6 @@ rule amplicons:
         fix_subset=(
             "--fix-subset" if config.amplicons["fix_subset"] else "--no-fix-subset"
         ),
-    log:
-        outfile=cohortdir("amplicons.{proto}.out.log"),
-        errfile=cohortdir("amplicons.{proto}.err.log"),
-    conda:
-        config.cooc["conda"]
-    benchmark:
-        cohortdir("amplicons.{proto}.benchmark")
-    resources:
-        disk_mb=1024,
-        mem_mb=config.amplicons["mem"],
-        runtime=config.amplicons["time"],
-    threads: 1
     shell:
         """
         vocs=( {input.vocs} )
@@ -75,6 +75,18 @@ rule cooc:
     output:
         cooc_yaml="{dataset}/signatures/cooc.yaml",
         cooc_csv="{dataset}/signatures/cooc.csv",
+    log:
+        outfile="{dataset}/signatures/cooc.out.log",
+        errfile="{dataset}/signatures/cooc.err.log",
+    benchmark:
+        "{dataset}/signatures/cooc.benchmark"
+    conda:
+        config.cooc["conda"]
+    threads: config.cooc["threads"]
+    resources:
+        disk_mb=1024,
+        mem_mb=config.cooc["mem"],
+        runtime=config.cooc["time"],
     params:
         COJAC=config.applications["cojac"],
         name=ID,
@@ -84,18 +96,6 @@ rule cooc:
             if config.cooc["out_format"] == "columns"
             else "--multiindex --lines"
         ),
-    log:
-        outfile="{dataset}/signatures/cooc.out.log",
-        errfile="{dataset}/signatures/cooc.err.log",
-    conda:
-        config.cooc["conda"]
-    benchmark:
-        "{dataset}/signatures/cooc.benchmark"
-    resources:
-        disk_mb=1024,
-        mem_mb=config.cooc["mem"],
-        runtime=config.cooc["time"],
-    threads: config.cooc["threads"]
     shell:
         """
         {params.COJAC} cooc-mutbamscan --alignments="{input.BAM}" --name="{params.name}" --in-amp="{input.amplicons}" --yaml="{output.cooc_yaml}"   2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
@@ -125,6 +125,18 @@ rule cohort_cooc:
     output:
         cooc_yaml=cohortdir("cohort_cooc.{proto}.yaml"),
         cooc_csv=cohortdir("cohort_cooc.{proto}.csv"),
+    log:
+        outfile=cohortdir("cohort_cooc.{proto}.out.log"),
+        errfile=cohortdir("cohort_cooc.{proto}.err.log"),
+    benchmark:
+        cohortdir("cohort_cooc.{proto}.benchmark")
+    conda:
+        config.cooc["conda"]
+    threads: config.cooc["threads"]
+    resources:
+        disk_mb=1024,
+        mem_mb=config.cooc["mem"],
+        runtime=config.cooc["time"],
     params:
         COJAC=config.applications["cojac"],
         sep=config.general["id_separator"],
@@ -133,18 +145,6 @@ rule cohort_cooc:
             if config.cooc["out_format"] == "columns"
             else "--multiindex --lines"
         ),
-    log:
-        outfile=cohortdir("cohort_cooc.{proto}.out.log"),
-        errfile=cohortdir("cohort_cooc.{proto}.err.log"),
-    conda:
-        config.cooc["conda"]
-    benchmark:
-        cohortdir("cohort_cooc.{proto}.benchmark")
-    resources:
-        disk_mb=1024,
-        mem_mb=config.cooc["mem"],
-        runtime=config.cooc["time"],
-    threads: config.cooc["threads"]
     shell:
         """
         cat {input.YAMLs} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
@@ -158,22 +158,22 @@ rule cohort_cooc_report:
         amplicons=cohortdir("amplicons.{proto}.yaml"),
     output:
         cooc_report_csv=cohortdir("cohort_cooc_report.{proto}.csv"),
-    params:
-        COJAC=config.applications["cojac"],
-        vocdir=config.input["variants_def_directory"],
-        sep=config.general["id_separator"],
     log:
         outfile=cohortdir("cohort_cooc_report.{proto}.out.log"),
         errfile=cohortdir("cohort_cooc_report.{proto}.err.log"),
-    conda:
-        config.cooc["conda"]
     benchmark:
         cohortdir("cohort_cooc_report.{proto}.benchmark")
+    conda:
+        config.cooc["conda"]
+    threads: config.cooc["threads"]
     resources:
         disk_mb=1024,
         mem_mb=config.cooc["mem"],
         runtime=config.cooc["time"],
-    threads: config.cooc["threads"]
+    params:
+        COJAC=config.applications["cojac"],
+        vocdir=config.input["variants_def_directory"],
+        sep=config.general["id_separator"],
     shell:
         """
         {params.COJAC} cooc-pubmut --yaml="{input.cooc_yaml}" --amplicons="{input.amplicons}" --vocdir="{params.vocdir}" --output="{output.cooc_report_csv}" --batchname="{params.sep}" 2> >(tee {log.errfile} >&2)  > >(tee {log.outfile})
@@ -187,20 +187,20 @@ rule mutlist:
     output:
         mutlist=cohortdir("mutlist.tsv"),
         pagovars=cohortdir("variants_pangolin.yaml"),
-    params:
-        LOLLIPOP=config.applications["lollipop"],
     log:
         outfile=cohortdir("mutlist.out.log"),
         errfile=cohortdir("mutlist.err.log"),
-    conda:
-        config.deconvolution["conda"]
     benchmark:
         cohortdir("mutlist.benchmark")
+    conda:
+        config.deconvolution["conda"]
+    threads: 1
     resources:
         disk_mb=1024,
         mem_mb=config.mutlist["mem"],
         runtime=config.mutlist["time"],
-    threads: 1
+    params:
+        LOLLIPOP=config.applications["lollipop"],
     shell:
         """
         {params.LOLLIPOP} generate-mutlist --output {output.mutlist} --out-pangovars {output.pagovars} --genes {input.gff} -- {input.vocs}
@@ -217,22 +217,22 @@ rule sigmut:
         mutlist=cohortdir("mutlist.tsv"),
     output:
         mut="{dataset}/signatures/mut.tsv",
-    params:
-        LOLLIPOP=config.applications["lollipop"],
-        ARRAYBASED=config.general["tsvbased"],
-        s_rec=get_s_rec,
     log:
         outfile="{dataset}/signatures/mut.out.log",
         errfile="{dataset}/signatures/mut.err.log",
-    conda:
-        config.deconvolution["conda"]
     benchmark:
         "{dataset}/signatures/mut.benchmark"
+    conda:
+        config.deconvolution["conda"]
+    threads: 1
     resources:
         disk_mb=1024,
         mem_mb=config.sigmut["mem"],
         runtime=config.sigmut["time"],
-    threads: 1
+    params:
+        LOLLIPOP=config.applications["lollipop"],
+        ARRAYBASED=config.general["tsvbased"],
+        s_rec=get_s_rec,
     shell:
         """
         {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" --based "{params.ARRAYBASED}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
@@ -261,6 +261,18 @@ rule timeline:
             if config.timeline["locations_table"]
             else []
         ),
+    log:
+        outfile=cohortdir("timeline.out.log"),
+        errfile=cohortdir("timeline.err.log"),
+    benchmark:
+        cohortdir("timeline.benchmark")
+    conda:
+        config.timeline["conda"]
+    threads: config.timeline["threads"]
+    resources:
+        disk_mb=1024,
+        mem_mb=config.timeline["mem"],
+        runtime=config.timeline["time"],
     params:
         maketimeline=cachepath(config.timeline["script"], executable=True),
         locations=(
@@ -279,18 +291,6 @@ rule timeline:
             else ""
         ),
         options=config.timeline["options"],
-    log:
-        outfile=cohortdir("timeline.out.log"),
-        errfile=cohortdir("timeline.err.log"),
-    conda:
-        config.timeline["conda"]
-    benchmark:
-        cohortdir("timeline.benchmark")
-    resources:
-        disk_mb=1024,
-        mem_mb=config.timeline["mem"],
-        runtime=config.timeline["time"],
-    threads: config.timeline["threads"]
     shell:
         """
         {params.maketimeline} {params.regex} {params.locations} {params.out_locations} --output "{output.timeline}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
@@ -303,22 +303,22 @@ rule tallymut:
         times=(config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")),
     output:
         tallymut=cohortdir("tallymut.tsv.zst"),
-    params:
-        XSV=config.applications["xsv"],
-        ZSTD=config.applications["zstd"],
-        selector="sample,batch" if sample_2level_count else "sample",
     log:
         outfile=cohortdir("tallymut.out.log"),
         errfile=cohortdir("tallymut.err.log"),
-    conda:
-        config.tallymut["conda"]
     benchmark:
         cohortdir("tallymut.benchmark")
+    conda:
+        config.tallymut["conda"]
+    threads: 1
     resources:
         disk_mb=1024,
         mem_mb=config.tallymut["mem"],
         runtime=config.tallymut["time"],
-    threads: 1
+    params:
+        XSV=config.applications["xsv"],
+        ZSTD=config.applications["zstd"],
+        selector="sample,batch" if sample_2level_count else "sample",
     shell:
         """
         {params.XSV} join --right {params.selector} {input.times} {params.selector} \
@@ -352,6 +352,18 @@ rule deconvolution:
     output:
         deconvoluted=cohortdir("deconvoluted.tsv.zst"),
         deconv_json=cohortdir("deconvoluted_upload.json"),
+    log:
+        outfile=cohortdir("deconvoluted.out.log"),
+        errfile=cohortdir("deconvoluted.err.log"),
+    benchmark:
+        cohortdir("deconvoluted.benchmark")
+    conda:
+        config.deconvolution["conda"]
+    threads: config.deconvolution["threads"]
+    resources:
+        disk_mb=1024,
+        mem_mb=config.deconvolution["mem"],
+        runtime=config.deconvolution["time"],
     params:
         LOLLIPOP=config.applications["lollipop"],
         out_format=(
@@ -359,18 +371,6 @@ rule deconvolution:
         ),
         EXTRA=config.deconvolution["extra"],
         seed="--seed=42",
-    log:
-        outfile=cohortdir("deconvoluted.out.log"),
-        errfile=cohortdir("deconvoluted.err.log"),
-    conda:
-        config.deconvolution["conda"]
-    benchmark:
-        cohortdir("deconvoluted.benchmark")
-    resources:
-        disk_mb=1024,
-        mem_mb=config.deconvolution["mem"],
-        runtime=config.deconvolution["time"],
-    threads: config.deconvolution["threads"]
     shell:
         """
         {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} {params.EXTRA} "--n-cores={threads}" "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
@@ -391,22 +391,22 @@ rule tallycooc:
         times=(config.tallymut.get("timeline_file", None) or cohortdir("timeline.tsv")),
     output:
         tallycooc=cohortdir("tallycooc.tsv.zst"),
-    params:
-        XSV=config.applications["xsv"],
-        ZSTD=config.applications["zstd"],
-        selector="sample,batch" if sample_2level_count else "sample",
     log:
         outfile=cohortdir("tallycooc.out.log"),
         errfile=cohortdir("tallycooc.err.log"),
-    conda:
-        config.tallymut["conda"]
     benchmark:
         cohortdir("tallycooc.benchmark")
+    conda:
+        config.tallymut["conda"]
+    threads: 1
     resources:
         disk_mb=1024,
         mem_mb=config.tallymut["mem"],
         runtime=config.tallymut["time"],
-    threads: 1
+    params:
+        XSV=config.applications["xsv"],
+        ZSTD=config.applications["zstd"],
+        selector="sample,batch" if sample_2level_count else "sample",
     shell:
         """
         {params.XSV} join --right {params.selector} {input.times} {params.selector} \

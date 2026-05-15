@@ -18,22 +18,22 @@ rule dh_reuse_alignreject:
     output:
         reject_1=temp_with_prefix("{dataset}/alignments/reject_R1.fastq.gz"),
         reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
-    params:
-        SAMTOOLS=config.applications["samtools"],
     log:
         outfile="{dataset}/alignments/reject.out.log",
         errfile="{dataset}/alignments/reject.err.log",
-    conda:
-        config.dehuman["conda"]
     benchmark:
         "{dataset}/alignments/reject.benchmark"
     group:
         "align"
+    conda:
+        config.dehuman["conda"]
+    threads: config.bwa_align["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         runtime=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]
+    params:
+        SAMTOOLS=config.applications["samtools"],
     shell:
         """
         echo "Keep reject  -----------------------------------------------------"
@@ -61,23 +61,23 @@ rule dh_redo_alignreject:
         tmp_aln=temp_with_prefix("{dataset}/alignments/dh_aln.sam"),
         reject_1=temp_with_prefix("{dataset}/alignments/reject_R1.fastq.gz"),
         reject_2=temp_with_prefix("{dataset}/alignments/reject_R2.fastq.gz"),
-    params:
-        BWA=config.applications["bwa"],
-        SAMTOOLS=config.applications["samtools"],
     log:
         outfile="{dataset}/alignments/reject.out.log",
         errfile="{dataset}/alignments/reject.err.log",
-    conda:
-        config.dehuman["conda"]
     benchmark:
         "{dataset}/alignments/reject.benchmark"
     group:
         "dehuman"
+    conda:
+        config.dehuman["conda"]
+    threads: config.bwa_align["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.bwa_align["mem"],
         runtime=config.bwa_align["time"],
-    threads: config.bwa_align["threads"]
+    params:
+        BWA=config.applications["bwa"],
+        SAMTOOLS=config.applications["samtools"],
     shell:
         """
         echo "Filter out virus' reads  -----------------------------------------"
@@ -129,22 +129,22 @@ rule dh_hostalign:
         ),
     output:
         host_aln=temp_with_prefix("{dataset}/alignments/host_aln.sam"),
-    params:
-        BWA=config.applications["bwa"],
     log:
         outfile="{dataset}/alignments/host_aln.out.log",
         errfile="{dataset}/alignments/host_aln.err.log",
-    conda:
-        config.dehuman["conda"]
     benchmark:
         "{dataset}/alignments/host_aln.benchmark"
     group:
         "dehuman"
+    conda:
+        config.dehuman["conda"]
+    threads: config.dehuman["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.dehuman["mem"],
         runtime=config.dehuman["time"],
-    threads: config.dehuman["threads"]
+    params:
+        BWA=config.applications["bwa"],
     shell:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
@@ -179,6 +179,20 @@ rule dh_filter:
         # TODO shift to pipe
         filtered_1=temp_with_prefix("{dataset}/raw_uploads/filtered_1.fastq.gz"),
         filtered_2=temp_with_prefix("{dataset}/raw_uploads/filtered_2.fastq.gz"),
+    log:
+        outfile="{dataset}/raw_uploads/dehuman_filter.out.log",
+        errfile="{dataset}/raw_uploads/dehuman_filter.err.log",
+    benchmark:
+        "{dataset}/raw_uploads/dehuman_filter.benchmark"
+    group:
+        "dehuman"
+    conda:
+        config.dehuman["conda"]
+    threads: config.dehuman["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.dehuman["mem"],
+        runtime=config.dehuman["time"],
     params:
         SAMTOOLS=config.applications["samtools"],
         remove_reads_script=cachepath(
@@ -190,20 +204,6 @@ rule dh_filter:
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         # set to 1 to trigger matches with human genome (used for testing):
         F=2,
-    log:
-        outfile="{dataset}/raw_uploads/dehuman_filter.out.log",
-        errfile="{dataset}/raw_uploads/dehuman_filter.err.log",
-    conda:
-        config.dehuman["conda"]
-    benchmark:
-        "{dataset}/raw_uploads/dehuman_filter.benchmark"
-    group:
-        "dehuman"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.dehuman["mem"],
-        runtime=config.dehuman["time"],
-    threads: config.dehuman["threads"]
     shell:
         """
         # using zcat FILENAME.gz causes issues on Mac, see
@@ -302,6 +302,20 @@ rule dehuman:
         cram_sam=temp_with_prefix("{dataset}/raw_uploads/dehuman.sam"),
         final_cram="{dataset}/raw_uploads/dehuman.cram",
         checksum="{dataset}/raw_uploads/dehuman.cram.%s" % config.general["checksum"],
+    log:
+        outfile="{dataset}/raw_uploads/dehuman.out.log",
+        errfile="{dataset}/raw_uploads/dehuman.err.log",
+    benchmark:
+        "{dataset}/raw_uploads/dehuman.benchmark"
+    group:
+        "dehuman"
+    conda:
+        config.dehuman["conda"]
+    threads: config.dehuman["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.dehuman["mem"],
+        runtime=config.dehuman["time"],
     params:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
@@ -309,20 +323,6 @@ rule dehuman:
         sort_tmp=temp_prefix("{dataset}/raw_uploads/dehuman.tmp"),
         # as a param to escape backslashes
         REGEXP=r"s{(?<=\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}{BC:Z:\1}",
-    log:
-        outfile="{dataset}/raw_uploads/dehuman.out.log",
-        errfile="{dataset}/raw_uploads/dehuman.err.log",
-    conda:
-        config.dehuman["conda"]
-    benchmark:
-        "{dataset}/raw_uploads/dehuman.benchmark"
-    group:
-        "dehuman"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.dehuman["mem"],
-        runtime=config.dehuman["time"],
-    threads: config.dehuman["threads"]
     shell:
         """
         echo "Compress filtered sequences --------------------------------------"

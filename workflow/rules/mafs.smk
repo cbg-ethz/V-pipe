@@ -15,22 +15,22 @@ rule basecounts:
         BASECNT="{dataset}/alignments/basecnt.tsv.gz",
         COVERAGE="{dataset}/alignments/coverage.tsv.gz",
         STATS="{dataset}/alignments/REF_aln_stats.yaml",
-    params:
-        NAME=ID,
-        ALN2BASECNT=config.applications["aln2basecnt"],
-        ARRAYBASED=config.general["tsvbased"],
     log:
         outfile="{dataset}/alignments/basecounts.out.log",
         errfile="{dataset}/alignments/basecounts.out.log",
-    conda:
-        config.basecounts["conda"]
     benchmark:
         "{dataset}/alignments/basecounts.benchmark"
+    conda:
+        config.basecounts["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.basecounts["mem"],
         runtime=config.basecounts["time"],
-    threads: 1
+    params:
+        NAME=ID,
+        ALN2BASECNT=config.applications["aln2basecnt"],
+        ARRAYBASED=config.general["tsvbased"],
     shell:
         """
         {params.ALN2BASECNT} --first "{params.ARRAYBASED}" --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" > {log.outfile} 2> >(tee {log.errfile} >&2)
@@ -42,20 +42,20 @@ rule chromsize:
         reference_file,
     output:
         chrom_size=cohortdir("chrom.size"),
-    params:
-        CHROMSIZE=config.applications["chromsize"],
     log:
         outfile=cohortdir("chromsize.out.log"),
         errfile=cohortdir("chromsize.err.log"),
-    conda:
-        config.chromsize["conda"]
     benchmark:
         cohortdir("chromsize.benchmark")
+    conda:
+        config.chromsize["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.chromsize["mem"],
         runtime=config.chromsize["time"],
-    threads: 1
+    params:
+        CHROMSIZE=config.applications["chromsize"],
     shell:
         r"""
         {params.CHROMSIZE} --accession-only --fasta "{input}" --output "{output.chrom_size}" \
@@ -73,6 +73,18 @@ rule basecounts_QC:
         ),
     output:
         COV_DEPTH_QC="{dataset}/alignments/coverage_depth_qc.yaml",
+    log:
+        outfile="{dataset}/alignments/basecounts_qc.out.log",
+        errfile="{dataset}/alignments/basecounts_qc.out.log",
+    benchmark:
+        "{dataset}/alignments/coverage_depth_qc.benchmark"
+    conda:
+        config.basecounts_qc["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.basecounts_qc["mem"],
+        runtime=config.basecounts_qc["time"],
     params:
         COV_DEPTH_QC=config.applications["coverage_depth_qc"],
         DEPTHS=config["basecounts_qc"]["depth_qc_list"],
@@ -81,18 +93,6 @@ rule basecounts_QC:
             if config["basecounts_qc"]["depth_qc_type"] == "fraction"
             else ""
         ),
-    log:
-        outfile="{dataset}/alignments/basecounts_qc.out.log",
-        errfile="{dataset}/alignments/basecounts_qc.out.log",
-    conda:
-        config.basecounts_qc["conda"]
-    benchmark:
-        "{dataset}/alignments/coverage_depth_qc.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.basecounts_qc["mem"],
-        runtime=config.basecounts_qc["time"],
-    threads: 1
     shell:
         """
         {params.COV_DEPTH_QC} {params.CHROM_SIZE} --depth {params.DEPTHS} --output {output.COV_DEPTH_QC} -- {input.COVERAGE}    \
@@ -106,24 +106,24 @@ rule classif_by_coverage:
         CLASSIF_BED=config["classif_by_coverage"]["bed_file"],
     output:
         CLASSIF_CSV="{dataset}/alignments/classif_by_coverage.csv",
+    log:
+        outfile="{dataset}/alignments/classif_by_coverage.out.log",
+        errfile="{dataset}/alignments/classif_by_coverage.out.log",
+    benchmark:
+        "{dataset}/alignments/classif_by_coverage.benchmark"
+    conda:
+        config.classif_by_coverage["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.classif_by_coverage["mem"],
+        runtime=config.classif_by_coverage["time"],
     params:
         THRESHOLD=config["classif_by_coverage"]["threshold"],
         GENE=config["classif_by_coverage"]["gene"],
         MIN_FRACT=config["classif_by_coverage"]["min_fraction_gene_covered"],
         MIN_COVERAGE=config["classif_by_coverage"]["min_avg_gene_coverage_depth"],
         CLASSIF_BY_COVERAGE=config.applications["classif_by_coverage"],
-    log:
-        outfile="{dataset}/alignments/classif_by_coverage.out.log",
-        errfile="{dataset}/alignments/classif_by_coverage.out.log",
-    conda:
-        config.classif_by_coverage["conda"]
-    benchmark:
-        "{dataset}/alignments/classif_by_coverage.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.classif_by_coverage["mem"],
-        runtime=config.classif_by_coverage["time"],
-    threads: 1
     shell:
         """
         {params.CLASSIF_BY_COVERAGE} --bed {input.CLASSIF_BED} --threshold {params.THRESHOLD} --gene "{params.GENE}" --min_fraction_gene_covered {params.MIN_FRACT} --min_avg_gene_coverage_depth {params.MIN_COVERAGE} --output {output.CLASSIF_CSV} -- {input.COVERAGE}    \
@@ -154,20 +154,20 @@ rule coverage:
     output:
         COVERAGE=cohortdir("coverage.tsv"),
         COVSTATS=cohortdir("coverage_stats.tsv"),
-    params:
-        GATHER_COVERAGE=config.applications["gather_coverage"],
     log:
         outfile=cohortdir("coverage.out.log"),
         errfile=cohortdir("coverage.out.log"),
-    conda:
-        config.coverage["conda"]
     benchmark:
         cohortdir("minority_variants.benchmark")
+    conda:
+        config.coverage["conda"]
+    threads: config.coverage["threads"]
     resources:
         disk_mb=1250,
         mem_mb=config.coverage["mem"],
         runtime=config.coverage["time"],
-    threads: config.coverage["threads"]
+    params:
+        GATHER_COVERAGE=config.applications["gather_coverage"],
     shell:
         """
         {params.GATHER_COVERAGE} --output {output.COVERAGE} --stats {output.COVSTATS} --threads {threads} @{input.COVLIST} > >(tee {log.outfile}) 2> >(tee {log.errfile} >&2)
@@ -184,24 +184,24 @@ rule minor_variants:
     output:
         VARIANTS=cohortdir("minority_variants.tsv"),
         CONSENSUS=cohortdir("cohort_consensus.fasta"),
+    log:
+        outfile=cohortdir("minority_variants.out.log"),
+        errfile=cohortdir("minority_variants.out.log"),
+    benchmark:
+        cohortdir("minority_variants.benchmark")
+    conda:
+        config.minor_variants["conda"]
+    threads: config.minor_variants["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.minor_variants["mem"],
+        runtime=config.minor_variants["time"],
     params:
         OUTDIR=cohortdir(""),
         NAMES=IDs,
         MIN_COVERAGE=config.minor_variants["min_coverage"],
         FREQUENCIES="--freqs" if config.minor_variants["frequencies"] else "",
         MINORITY_CALLER=config.applications["minority_freq"],
-    log:
-        outfile=cohortdir("minority_variants.out.log"),
-        errfile=cohortdir("minority_variants.out.log"),
-    conda:
-        config.minor_variants["conda"]
-    benchmark:
-        cohortdir("minority_variants.benchmark")
-    resources:
-        disk_mb=1250,
-        mem_mb=config.minor_variants["mem"],
-        runtime=config.minor_variants["time"],
-    threads: config.minor_variants["threads"]
     shell:
         """
         {params.MINORITY_CALLER} -r {input.REF} -c {params.MIN_COVERAGE} -N {params.NAMES} -t {threads} -o {params.OUTDIR} {params.FREQUENCIES} {input.BAM} > >(tee {log.outfile}) 2> >(tee {log.errfile} >&2)

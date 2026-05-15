@@ -39,20 +39,20 @@ rule alignment_bias:
         ),
     output:
         "{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.tsv",
-    params:
-        PAIRED="-p" if config.input["paired"] else "",
-        ID=lambda wildcards: f"{wildcards.sample_name}-{wildcards.date}",
-        ALIGNMENT_BIAS=config.applications["alignmentBias"],
     log:
         outfile="{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log",
         errfile="{sample_dir}/{sample_name}/{date}/alignments/alignment_bias.out.log",
     conda:
         config.alignment_bias["conda"]
+    threads: 1
     resources:
         disk_mb=2000,
         mem_mb=config.alignment_bias["mem"],
         runtime=config.alignment_bias["time"],
-    threads: 1
+    params:
+        PAIRED="-p" if config.input["paired"] else "",
+        ID=lambda wildcards: f"{wildcards.sample_name}-{wildcards.date}",
+        ALIGNMENT_BIAS=config.applications["alignmentBias"],
     shell:
         """
         {params.ALIGNMENT_BIAS} -r {input.REF} -b {input.BAM} -f <(zcat {input.R1gz}) --hap {input.HAPLOTYPE_SEQS} {params.PAIRED} -N {params.ID} -o {output}
@@ -64,13 +64,13 @@ rule aggregate_alignment_bias:
         expand("{dataset}/alignments/alignment_bias.tsv", dataset=datasets),
     output:
         "stats/alignment_bias.tsv",
+    log:
+        outfile="stats/alignment_bias.out.log",
+        errfile="stats/alignment_bias.out.log",
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
         runtime=config.aggregate["time"],
-    log:
-        outfile="stats/alignment_bias.out.log",
-        errfile="stats/alignment_bias.out.log",
     shell:
         """
         awk FNR!=1 {input} > {output}
@@ -84,13 +84,13 @@ rule aggregate_beforeSB:
     output:
         TXT=temp("{dataset}/variants/SNVs/SNVs_beforeSB.txt"),
         CSV="{dataset}/variants/SNVs/SNVs_beforeSB.csv",
+    log:
+        outfile="{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
+        errfile="{dataset}/variants/SNVs/aggregate_beforeSB.err.log",
     resources:
         disk_mb=1250,
         mem_mb=2000,
         runtime=20,
-    log:
-        outfile="{dataset}/variants/SNVs/aggregate_beforeSB.out.log",
-        errfile="{dataset}/variants/SNVs/aggregate_beforeSB.err.log",
     shell:
         """
         array=( {input} )
@@ -116,6 +116,16 @@ rule test_snv:
         REF_ALN=reference_file,
     output:
         temp("{sample_dir}/{sample_name}/{date}/variants/SNVs/performance.tsv"),
+    log:
+        outfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
+        errfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
+    conda:
+        config.test_snv["conda"]
+    threads: 1
+    resources:
+        disk_mb=2000,
+        mem_mb=config.test_snv["mem"],
+        runtime=config.test_snv["time"],
     params:
         RE_MSA="true" if config.test_snv["re_msa"] else "false",
         HAPLOTYPE_SEQS_AUX="{sample_dir}/{sample_name}/{date}/references/haplotypes/haplotypes_aux.fasta",
@@ -133,16 +143,6 @@ rule test_snv:
         MAFFT=config.applications["mafft"],
         EXTRA=config.test_snv["extra"],
         TEST_BENCH=config.applications["testBench"],
-    log:
-        outfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
-        errfile="{sample_dir}/{sample_name}/{date}/variants/SNVs/testBench.out.log",
-    conda:
-        config.test_snv["conda"]
-    resources:
-        disk_mb=2000,
-        mem_mb=config.test_snv["mem"],
-        runtime=config.test_snv["time"],
-    threads: 1
     shell:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
@@ -192,6 +192,20 @@ rule compare_snv:
         TSV=input_tsv,
     output:
         temp("{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/performance.tsv"),
+    log:
+        outfile=(
+            "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log"
+        ),
+        errfile=(
+            "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log"
+        ),
+    conda:
+        config.test_snv["conda"]
+    threads: 1
+    resources:
+        disk_mb=2000,
+        mem_mb=config.test_snv["mem"],
+        runtime=config.test_snv["time"],
     params:
         RE_MSA="true" if config.test_snv["re_msa"] else "false",
         SNVs="{sample_dir}/{sample_name}/{date}/variants/SNVs/snvs.vcf",
@@ -212,20 +226,6 @@ rule compare_snv:
         ID=lambda wildcards: f"{wildcards.sample_name}-{wildcards.date}",
         MAFFT=config.applications["mafft"],
         TEST_BENCH=config.applications["testBench"],
-    log:
-        outfile=(
-            "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log"
-        ),
-        errfile=(
-            "{sample_dir}/{sample_name}/{date}/variants/SNVs/{kind}/testBench.out.log"
-        ),
-    conda:
-        config.test_snv["conda"]
-    resources:
-        disk_mb=2000,
-        mem_mb=config.test_snv["mem"],
-        runtime=config.test_snv["time"],
-    threads: 1
     shell:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
@@ -270,13 +270,13 @@ rule aggregate:
         expand("{dataset}/variants/SNVs/performance.tsv", dataset=datasets),
     output:
         "variants/SNV_calling_performance.tsv",
+    log:
+        outfile="variants/SNV_calling_performance.out.log",
+        errfile="variants/SNV_calling_performance.out.log",
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
         runtime=config.aggregate["time"],
-    log:
-        outfile="variants/SNV_calling_performance.out.log",
-        errfile="variants/SNV_calling_performance.out.log",
     shell:
         """
         awk FNR!=1 {input} > {output}
@@ -289,13 +289,13 @@ rule aggregate_kind:
         expand("{dataset}/variants/SNVs/{{kind}}/performance.tsv", dataset=datasets),
     output:
         "variants/SNV_calling_performance_{kind}.tsv",
+    log:
+        outfile="variants/SNV_calling_performance_{kind}.out.log",
+        errfile="variants/SNV_calling_performance_{kind}.out.log",
     resources:
         disk_mb=1250,
         mem_mb=config.aggregate["mem"],
         runtime=config.aggregate["time"],
-    log:
-        outfile="variants/SNV_calling_performance_{kind}.out.log",
-        errfile="variants/SNV_calling_performance_{kind}.out.log",
     shell:
         """
         awk FNR!=1 {input} > {output}

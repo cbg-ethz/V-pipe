@@ -20,6 +20,18 @@ rule consensus_bcftools:
         fname_mask_lowcoverage=temp(
             "{dataset}/references/coverage_mask_lowcoverage.bed"
         ),
+    log:
+        outfile="{dataset}/references/consensus.bcftools.out.log",
+        errfile="{dataset}/references/consensus.bcftools.err.log",
+    benchmark:
+        "{dataset}/alignments/consensus.bcftools.benchmark"
+    conda:
+        config.consensus_bcftools["conda"]
+    threads: config.consensus_bcftools["threads"]
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consensus_bcftools["mem"],
+        runtime=config.consensus_bcftools["time"],
     params:
         tsvbased=config.general["tsvbased"],
         max_coverage=config.consensus_bcftools["max_coverage"],
@@ -32,18 +44,6 @@ rule consensus_bcftools:
         ),
         gunzip=config.applications["gunzip"],
         bcftools=config.applications["bcftools"],
-    log:
-        outfile="{dataset}/references/consensus.bcftools.out.log",
-        errfile="{dataset}/references/consensus.bcftools.err.log",
-    conda:
-        config.consensus_bcftools["conda"]
-    benchmark:
-        "{dataset}/alignments/consensus.bcftools.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.consensus_bcftools["mem"],
-        runtime=config.consensus_bcftools["time"],
-    threads: config.consensus_bcftools["threads"]
     shell:
         """
         {params.bcftools} mpileup \
@@ -133,20 +133,20 @@ rule cons_bcf_QA:
         fname_fasta_ambig="{dataset}/references/consensus_ambig.bcftools.fasta",
     output:
         stats="{dataset}/references/consensus.bcftools.stats.yaml",
-    params:
-        name=ID,
-        IUPAC=IUPAC,
     log:
         outfile="{dataset}/references/consensus.bcftools.stats.out.log",
         errfile="{dataset}/references/consensus.bcftools.stats.err.log",
     # conda: # NOTE: no environment, we rely on standard bash+coreutils
     benchmark:
         "{dataset}/alignments/consensus.benchmark"
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.consensus_sequences["mem"],
         runtime=config.consensus_sequences["time"],
-    threads: 1
+    params:
+        name=ID,
+        IUPAC=IUPAC,
     shell:
         r"""
         (   \
@@ -168,6 +168,18 @@ rule consensus_sequences:
         REF_amb_dels="{dataset}/references/ref_ambig_dels.fasta",
         REF_majority="{dataset}/references/ref_majority.fasta",
         REF_majority_dels="{dataset}/references/ref_majority_dels.fasta",
+    log:
+        outfile="{dataset}/references/consensus_sequences.out.log",
+        errfile="{dataset}/references/consensus_sequences.err.log",
+    benchmark:
+        "{dataset}/alignments/consensus.benchmark"
+    conda:
+        config.consensus_sequences["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.consensus_sequences["mem"],
+        runtime=config.consensus_sequences["time"],
     params:
         MIN_COVERAGE=config.consensus_sequences["min_coverage"],
         N_COVERAGE=config.consensus_sequences["n_coverage"],
@@ -175,18 +187,6 @@ rule consensus_sequences:
         MIN_FREQ=config.consensus_sequences["min_freq"],
         OUTDIR="{dataset}/references",
         EXTRACT_CONSENSUS=config.applications["extract_consensus"],
-    log:
-        outfile="{dataset}/references/consensus_sequences.out.log",
-        errfile="{dataset}/references/consensus_sequences.err.log",
-    conda:
-        config.consensus_sequences["conda"]
-    benchmark:
-        "{dataset}/alignments/consensus.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.consensus_sequences["mem"],
-        runtime=config.consensus_sequences["time"],
-    threads: 1
     shell:
         """
         CONSENSUS_NAME={wildcards.dataset}
@@ -207,22 +207,22 @@ rule consseq_QA:
     output:
         REF_matcher="{dataset}/references/ref_majority_dels.matcher",
         stats="{dataset}/references/ref_stats.yaml",
-    params:
-        MATCHER=config.applications["matcher"],
-        name=ID,
-        IUPAC=IUPAC,
     log:
         outfile="{dataset}/references/qa_consseq.out.log",
         errfile="{dataset}/references/qa_consseq.err.log",
-    conda:
-        config.consseq_QA["conda"]
     benchmark:
         "{dataset}/alignments/qa_consseq.benchmark"
+    conda:
+        config.consseq_QA["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.consseq_QA["mem"],
         runtime=config.consseq_QA["time"],
-    threads: 1
+    params:
+        MATCHER=config.applications["matcher"],
+        name=ID,
+        IUPAC=IUPAC,
     shell:
         """
         if tail -n +2 {input.REF_majority_dels} | grep -qE '[^n]'; then
@@ -254,20 +254,20 @@ rule frameshift_deletions_checks:
         ),
     output:
         FRAMESHIFT_DEL_CHECK_TSV="{dataset}/references/frameshift_deletions_check.tsv",
-    params:
-        FRAMESHIFT_DEL_CHECKS=config.applications["frameshift_deletions_checks"],
     log:
         outfile="{dataset}/references/frameshift_deletions_check.out.log",
         errfile="{dataset}/references/frameshift_deletions_check.err.log",
-    conda:
-        config.frameshift_deletions_checks["conda"]
     benchmark:
         "{dataset}/alignments/frameshift_deletions_check.benchmark"
+    conda:
+        config.frameshift_deletions_checks["conda"]
+    threads: 1
     resources:
         disk_mb=1250,
         mem_mb=config.frameshift_deletions_checks["mem"],
         runtime=config.frameshift_deletions_checks["time"],
-    threads: 1
+    params:
+        FRAMESHIFT_DEL_CHECKS=config.applications["frameshift_deletions_checks"],
     shell:
         """
         {params.FRAMESHIFT_DEL_CHECKS} -i {input.BAM} -c {input.CONSENSUS} --chain {input.CHAIN} -f {input.REF_NAME} -g {input.GENES_GFF} --english=true -o {output.FRAMESHIFT_DEL_CHECK_TSV} 2> >(tee {log.errfile} >&2)

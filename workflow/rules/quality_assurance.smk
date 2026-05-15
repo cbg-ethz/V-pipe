@@ -13,8 +13,6 @@ rule gunzip:
         "{file}.{ext}.gz",
     output:
         pipe("{file}.{ext,(fastq|fq)}"),
-    params:
-        GUNZIP=config.applications["gunzip"],
     log:
         outfile=temp("{file}_{ext}_gunzip.out.log"),
         errfile=temp("{file}_{ext}_gunzip.err.log"),
@@ -22,11 +20,13 @@ rule gunzip:
         "{file}_{ext}_gunzip.benchmark"
     group:
         "extract"
+    threads: 1
     resources:
         disk_mb=1000,
         mem_mb=config.gunzip["mem"],
         runtime=config.gunzip["time"],
-    threads: 1
+    params:
+        GUNZIP=config.applications["gunzip"],
     shell:
         """
         {params.GUNZIP} -c {input} > {output}
@@ -46,11 +46,11 @@ rule extract:
         "{dataset}/extracted_data/extract_R{pair}.benchmark"
     group:
         "extract"
+    threads: 1
     resources:
         disk_mb=32768,  # for large files sort stores its temp data on disk
         mem_mb=config.extract["mem"],
         runtime=config.extract["time"],
-    threads: 1
     shell:
         # TODO replace with better dedicated software
         """
@@ -78,11 +78,11 @@ if not config.general["preprocessor"] or config.general["preprocessor"] == "skip
             errfile="{dataset}/preprocessed_data/skip-{pair}.err.log",
         benchmark:
             "{dataset}/preprocessed_data/skip-{pair}.benchmark"
+        threads: 1
         resources:
             disk_mb=20000,
             mem_mb=config.preprocessing["mem"],
             runtime=config.preprocessing["time"],
-        threads: 1
         shell:
             """
             echo "Skipping preprocessing and compressing merged/sorted fastq files as-is" > {log.outfile}
@@ -99,24 +99,24 @@ elif config.input["paired"]:
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
             R2gz="{dataset}/preprocessed_data/R2.fastq.gz",
-        params:
-            EXTRA=config.preprocessing["extra"],
-            LEN_CUTOFF=len_cutoff,
-            PRINSEQ=config.applications["prinseq"],
         log:
             outfile="{dataset}/preprocessed_data/prinseq.out.log",
             errfile="{dataset}/preprocessed_data/prinseq.err.log",
-        conda:
-            config.preprocessing["conda"]
-        shadow:
-            "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
+        shadow:
+            "minimal"
+        conda:
+            config.preprocessing["conda"]
+        threads: 1
         resources:
             disk_mb=20000,
             mem_mb=config.preprocessing["mem"],
             runtime=config.preprocessing["time"],
-        threads: 1
+        params:
+            EXTRA=config.preprocessing["extra"],
+            LEN_CUTOFF=len_cutoff,
+            PRINSEQ=config.applications["prinseq"],
         shell:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
@@ -147,24 +147,24 @@ else:
             R1=temp_prefix("{dataset}/extracted_data/R1.fastq"),
         output:
             R1gz="{dataset}/preprocessed_data/R1.fastq.gz",
-        params:
-            EXTRA=config.preprocessing["extra"],
-            LEN_CUTOFF=len_cutoff,
-            PRINSEQ=config.applications["prinseq"],
         log:
             outfile="{dataset}/preprocessed_data/prinseq.out.log",
             errfile="{dataset}/preprocessed_data/prinseq.err.log",
-        conda:
-            config.preprocessing["conda"]
-        shadow:
-            "minimal"
         benchmark:
             "{dataset}/preprocessed_data/prinseq.benchmark"
+        shadow:
+            "minimal"
+        conda:
+            config.preprocessing["conda"]
+        threads: 1
         resources:
             disk_mb=10000,
             mem_mb=config.preprocessing["mem"],
             runtime=config.preprocessing["time"],
-        threads: 1
+        params:
+            EXTRA=config.preprocessing["extra"],
+            LEN_CUTOFF=len_cutoff,
+            PRINSEQ=config.applications["prinseq"],
         shell:
             """
             echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
@@ -194,20 +194,20 @@ rule fastqc:
         temp_prefix("{dataset}/extracted_data/R{pair}.fastq"),
     output:
         "{dataset}/extracted_data/R{pair}_fastqc.html",
-    params:
-        NOGROUP="--nogroup" if config.fastqc["no_group"] else "",
-        OUTDIR="{dataset}/extracted_data",
-        FASTQC=config.applications["fastqc"],
     log:
         outfile="{dataset}/extracted_data/R{pair}_fastqc.out.log",
         errfile="{dataset}/extracted_data/R{pair}_fastqc.err.log",
     conda:
         config.fastqc["conda"]
+    threads: config.fastqc["threads"]
     resources:
         disk_mb=2000,
         mem_mb=config.fastqc["mem"],
         runtime=config.fastqc["time"],
-    threads: config.fastqc["threads"]
+    params:
+        NOGROUP="--nogroup" if config.fastqc["no_group"] else "",
+        OUTDIR="{dataset}/extracted_data",
+        FASTQC=config.applications["fastqc"],
     shell:
         """
         {params.FASTQC} -o {params.OUTDIR} -t {threads} {params.NOGROUP} {input} 2> >(tee {log.errfile} >&2)

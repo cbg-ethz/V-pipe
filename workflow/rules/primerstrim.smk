@@ -58,6 +58,18 @@ rule primerstrim:
     output:
         BAM="{file}_trim.bam",
         BAI="{file}_trim.bam.bai",
+    log:
+        outfile="{file}_trim.out.log",
+        errfile="{file}_trim.err.log",
+    benchmark:
+        "{file}_trim.benchmark"
+    conda:
+        config.primerstrim["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.primerstrim["mem"],
+        runtime=config.primerstrim["time"],
     params:
         SAMTOOLS=config.applications["samtools"],
         IVAR=config.applications["ivar"],
@@ -66,18 +78,6 @@ rule primerstrim:
         # prefixes to use for both softwares
         ivar_tmp=temp_prefix("{file}_trim_unsorted"),
         sort_tmp=temp_prefix("{file}_trim_tmp"),
-    log:
-        outfile="{file}_trim.out.log",
-        errfile="{file}_trim.err.log",
-    conda:
-        config.primerstrim["conda"]
-    benchmark:
-        "{file}_trim.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.primerstrim["mem"],
-        runtime=config.primerstrim["time"],
-    threads: 1
     shell:
         """
         echo "Trimming BAM with ivar"
@@ -103,24 +103,24 @@ rule ampliconclip:
         BAM="{file}_trim.bam",
         BAI="{file}_trim.bam.bai",
         stats="{file}_trim.stats",
+    log:
+        outfile="{file}_trim.out.log",
+        errfile="{file}_trim.err.log",
+    benchmark:
+        "{file}_trim.benchmark"
+    conda:
+        config.sam2bam["conda"]
+    threads: 1
+    resources:
+        disk_mb=1250,
+        mem_mb=config.primerstrim["mem"],
+        runtime=config.primerstrim["time"],
     params:
         SAMTOOLS=config.applications["samtools"],
         BED_PRIMERS=primers_file,
         FILTER_LEN=partial(len_clip_cutoff, param="--filter-len ", offset=-1),
         # prefixes to use for both softwares
         sort_tmp=temp_prefix("{file}_trim_tmp"),
-    log:
-        outfile="{file}_trim.out.log",
-        errfile="{file}_trim.err.log",
-    conda:
-        config.sam2bam["conda"]
-    benchmark:
-        "{file}_trim.benchmark"
-    resources:
-        disk_mb=1250,
-        mem_mb=config.primerstrim["mem"],
-        runtime=config.primerstrim["time"],
-    threads: 1
     shell:
         """
         echo "Trimming BAM with samtools"
