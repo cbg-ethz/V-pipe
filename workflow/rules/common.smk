@@ -664,6 +664,8 @@ for srec in sample_list:
     sample_paths[srec] = sdir
 
     alignments.append(os.path.join(sdir, alignment_file))
+    if config.output["classification"]:
+        alignments.append(os.path.join(sdir, "alignments/classif_by_coverage.csv"))
     if config.output["QA"]:
         alignments.append(os.path.join(sdir, "alignments/coverage_depth_qc.yaml"))
     #    alignments.append(os.path.join(sdir, "QA_alignments/coverage_ambig.tsv"))

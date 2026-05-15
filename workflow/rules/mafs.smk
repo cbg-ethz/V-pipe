@@ -100,6 +100,37 @@ rule basecounts_QC:
         """
 
 
+rule classif_by_coverage:
+    input:
+        COVERAGE="{dataset}/alignments/coverage.tsv.gz",
+        CLASSIF_BED=config["classif_by_coverage"]["bed_file"],
+    output:
+        CLASSIF_CSV="{dataset}/alignments/classif_by_coverage.csv",
+    params:
+        THRESHOLD=config["classif_by_coverage"]["threshold"],
+        GENE=config["classif_by_coverage"]["gene"],
+        MIN_FRACT=config["classif_by_coverage"]["min_fraction_gene_covered"],
+        MIN_COVERAGE=config["classif_by_coverage"]["min_avg_gene_coverage_depth"],
+        CLASSIF_BY_COVERAGE=config.applications["classif_by_coverage"],
+    log:
+        outfile="{dataset}/alignments/classif_by_coverage.out.log",
+        errfile="{dataset}/alignments/classif_by_coverage.out.log",
+    conda:
+        config.classif_by_coverage["conda"]
+    benchmark:
+        "{dataset}/alignments/classif_by_coverage.benchmark"
+    resources:
+        disk_mb=1250,
+        mem_mb=config.classif_by_coverage["mem"],
+        runtime=config.classif_by_coverage["time"],
+    threads: 1
+    shell:
+        """
+        {params.CLASSIF_BY_COVERAGE} --bed {input.CLASSIF_BED} --threshold {params.THRESHOLD} --gene "{params.GENE}" --min_fraction_gene_covered {params.MIN_FRACT} --min_avg_gene_coverage_depth {params.MIN_COVERAGE} --output {output.CLASSIF_CSV} -- {input.COVERAGE}    \
+            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
+        """
+
+
 # 1. Gather coverages into central big file
 localrules:
     coverage_list,
