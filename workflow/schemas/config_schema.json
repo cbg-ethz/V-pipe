@@ -1801,7 +1801,7 @@
                 },
                 "max_days": {
                     "type": "integer",
-                    "default": 365,
+                    "default": 180,
                     "description": "Restrict the analysis to the most recent N days of data."
                 },
                 "horizon": {
