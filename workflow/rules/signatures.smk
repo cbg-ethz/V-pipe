@@ -398,7 +398,7 @@ rule deconvolution_nosmooth:
             config.deconvolution["filters"] if config.deconvolution["filters"] else []
         ),
     output:
-        deconvoluted=cohortdir("deconvoluted_nosmooth.tsv.zst"),
+        deconvoluted=cohortdir("deconvoluted_nosmooth.csv"),
     params:
         LOLLIPOP=config.applications["lollipop"],
         seed="--seed=42",
@@ -416,12 +416,15 @@ rule deconvolution_nosmooth:
     threads: config.deconvolution["threads"]
     shell:
         """
-        {params.COVVFIT} infer \
-            -i "{input.deconvoluted}" \
-            -o "{params.outdir}" \
-            -c "{input.covvfit_conf}" \
-            --max-days "{params.max_days}" \
-            --horizon "{params.horizon}" \
+        {params.LOLLIPOP} deconvolute \
+            "--output={output.deconvoluted}" \
+            "--var={input.var_conf}" \
+            "--vd={input.var_dates}" \
+            "--dec={input.deconv_conf}" \
+            "--filters={input.filters}" \
+            {params.seed} \
+            "--n-cores={threads}" \
+            "{input.tallymut}" \
             2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
