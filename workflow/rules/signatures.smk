@@ -376,6 +376,85 @@ rule deconvolution:
         {params.LOLLIPOP} deconvolute "--output={output.deconvoluted}" "--out-json={output.deconv_json}" "--var={input.var_conf}" "--vd={input.var_dates}" "--dec={input.deconv_conf}" "--filters={input.filters}" {params.out_format} {params.seed} {params.EXTRA} "--n-cores={threads}" "{input.tallymut}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
+rule deconvolution_nosmooth:
+    input:
+        tallymut=(
+            cohortdir("tallycooc.tsv.zst")
+            if config.deconvolution["source"] == "cooc"
+            else cohortdir("tallymut.tsv.zst")
+        ),
+        deconv_conf=config.deconvolution["deconvolution_config"],
+        var_conf=(
+            config.deconvolution["variants_config"]
+            if config.deconvolution["variants_config"]
+            else cohortdir("variants_pangolin.yaml")
+        ),
+        var_dates=(
+            config.deconvolution["variants_dates"]
+            if config.deconvolution["variants_dates"]
+            else []
+        ),
+        filters=(
+            config.deconvolution["filters"] if config.deconvolution["filters"] else []
+        ),
+    output:
+        deconvoluted=cohortdir("deconvoluted_nosmooth.tsv.zst"),
+    params:
+        LOLLIPOP=config.applications["lollipop"],
+        seed="--seed=42",
+    log:
+        outfile=cohortdir("deconvoluted_nosmooth.out.log"),
+        errfile=cohortdir("deconvoluted_nosmooth.err.log"),
+    conda:
+        config.deconvolution["conda"]
+    benchmark:
+        cohortdir("deconvoluted_nosmooth.benchmark")
+    resources:
+        disk_mb=1024,
+        mem_mb=config.deconvolution["mem"],
+        runtime=config.deconvolution["time"],
+    threads: config.deconvolution["threads"]
+    shell:
+        """
+        {params.COVVFIT} infer \
+            -i "{input.deconvoluted}" \
+            -o "{params.outdir}" \
+            -c "{input.covvfit_conf}" \
+            --max-days "{params.max_days}" \
+            --horizon "{params.horizon}" \
+            2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        """
+
+rule covvfit:
+    input:
+        deconvoluted=cohortdir("deconvoluted_nosmooth.csv"),
+        covvfit_conf=config.covvfit["config"],
+    output:
+        results=cohortdir("covvfit/results.yaml"),
+        pairwise=cohortdir("covvfit/pairwise_fitnesses.csv"),
+    params:
+        COVVFIT=config.applications["covvfit"],
+        outdir=lambda w, output: os.path.dirname(output.results),
+        max_days=config.covvfit["max_days"],
+        horizon=config.covvfit["horizon"],
+    log:
+        outfile=cohortdir("covvfit.out.log"),
+        errfile=cohortdir("covvfit.err.log"),
+    conda:
+        config.covvfit["conda"]
+    benchmark:
+        cohortdir("covvfit.benchmark"),
+    resources:
+        disk_mb=1024,
+        mem_mb=config.covvfit["mem"],
+        runtime=config.covvfit["time"],
+    threads: config.covvfit["threads"]
+    shell:
+        """
+        {params.COVVFIT} infer -i "{input.deconvoluted}" -o "params.outdir" -c "{input.covvfit_conf} --max_days {params.max_days} --horizon {params.horizon} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})"
+        """
+
+
 
 def expand_proto(fmtstr, **kwargs):
     return expand(
