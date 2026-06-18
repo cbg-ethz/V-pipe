@@ -450,6 +450,10 @@
                 "lollipop": {
                     "type": "string",
                     "default": "lollipop"
+                },
+                "covvfit": {
+                    "type": "string",
+                    "default": "covvfit"
                 }
             },
             "default": {},
@@ -1821,6 +1825,49 @@
                     "default": "",
                     "description": "Pass additional options to run `lollipop deconvolute` such as, e.g., `--bp` (see [LolliPop README](https://github.com/cbg-ethz/LolliPop)).",
                     "examples": ["--bp 0"]
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
+        "covvfit": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 8192
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Cores for covvfit inference"
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/covvfit.yaml"
+                },
+                "deconvolution_config": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/../resources/covvfit/deconv_config_nosmooth.yaml",
+                    "description": "Lollipop deconvolution config with no smoothing, to prepare unbiased input for covvfit."
+                },
+                "config": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/../resources/covvfit/covvfit_config.yaml",
+                    "description": "covvfit configuration file (variants to track, plot settings)."
+                },
+                "max_days": {
+                    "type": "integer",
+                    "default": 365,
+                    "description": "Restrict the analysis to the most recent N days of data."
+                },
+                "horizon": {
+                    "type": "integer",
+                    "default": 90,
+                    "description": "Number of future days to forecast."
                 }
             },
             "default": {},
