@@ -451,7 +451,7 @@ rule covvfit:
     threads: config.covvfit["threads"]
     shell:
         """
-        {params.COVVFIT} infer -i "{input.deconvoluted}" -o "params.outdir" -c "{input.covvfit_conf} --max_days {params.max_days} --horizon {params.horizon} 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})"
+        {params.COVVFIT} infer -i "{input.deconvoluted}" -o "{params.outdir}" -c "{input.covvfit_conf}" --max-days {params.max_days} --horizon {params.horizon} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
