@@ -383,7 +383,7 @@ rule deconvolution_nosmooth:
             if config.deconvolution["source"] == "cooc"
             else cohortdir("tallymut.tsv.zst")
         ),
-        deconv_conf=config.deconvolution["deconvolution_config"],
+        deconv_conf=config.covvfit["deconvolution_config"],
         var_conf=(
             config.deconvolution["variants_config"]
             if config.deconvolution["variants_config"]
