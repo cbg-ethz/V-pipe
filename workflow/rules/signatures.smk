@@ -511,6 +511,6 @@ rule allCoocReports:
 
 rule allSig:
     input:
-        allCooc,
+        cohortdir("cohort_cooc.{proto}.csv"),
         cohortdir("covvfit"),
-        deconvoluted=cohortdir("deconvoluted.tsv.zst"),
+        cohortdir("deconvoluted.tsv.zst"),
