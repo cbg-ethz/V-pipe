@@ -84,14 +84,13 @@ rule primerstrim:
 
         # iVar will Segfault without this:
         mkdir -p "$(dirname {params.ivar_tmp}"")"
-        {params.IVAR} trim -e -i {input.BAM} {params.MINLEN} -b "{params.BED_PRIMERS}" -p "{params.ivar_tmp}" > {log.outfile} 2> {log.errfile}
+        {params.IVAR} trim -e -i {input.BAM} {params.MINLEN} -b "{params.BED_PRIMERS}" -p "{params.ivar_tmp}" >{log.outfile} 2>{log.errfile}
 
         # samtools complains without that:
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS}  sort -o {output.BAM} -T {params.sort_tmp} {params.ivar_tmp}.bam 2> >(tee -a {log.errfile} >&2)
-        {params.SAMTOOLS}  index {output.BAM} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} sort -o {output.BAM} -T {params.sort_tmp} {params.ivar_tmp}.bam 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} index {output.BAM} 2> >(tee -a {log.errfile} >&2)
         rm -f {params.ivar_tmp}.bam
-
         """
 
 
@@ -128,8 +127,8 @@ rule ampliconclip:
         # samtools complains without that:
         rm -f '{params.sort_tmp}'.[0-9]*.bam
 
-        {params.SAMTOOLS} ampliconclip {params.FILTER_LEN} -b "{params.BED_PRIMERS}" -f "{output.stats}" "{input.BAM}" |
-            {params.SAMTOOLS} sort -o "{output.BAM}" -T "{params.sort_tmp}" 2> >(tee {log.errfile} >&2)
+        {params.SAMTOOLS} ampliconclip {params.FILTER_LEN} -b "{params.BED_PRIMERS}" -f "{output.stats}" "{input.BAM}" \
+            | {params.SAMTOOLS} sort -o "{output.BAM}" -T "{params.sort_tmp}" 2> >(tee {log.errfile} >&2)
         {params.SAMTOOLS} index "{output.BAM}" 2> >(tee -a {log.errfile} >&2)
         """
 

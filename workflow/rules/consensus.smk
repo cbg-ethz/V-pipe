@@ -54,35 +54,35 @@ rule consensus_bcftools:
             --max-idepth {params.max_coverage} \
             --annotate FORMAT/AD,FORMAT/DP,INFO/AD \
             {input.fname_bam} \
-        | {params.bcftools} call \
-            --threads {threads} \
-            -Ou \
-            -mv \
-            --keep-alts \
-        | {params.bcftools} norm \
-            --threads {threads} \
-            -Ou \
-            -f {input.fname_ref} \
-        | {params.bcftools} filter \
-            --threads {threads} \
-            -e 'TYPE="INDEL" & INFO/AD[1]<INFO/AD[0]' \
-            -Ob \
-            --output {output.fname_temp_bcf} \
-            2> >(tee {log.errfile} >&2)
+            | {params.bcftools} call \
+                --threads {threads} \
+                -Ou \
+                -mv \
+                --keep-alts \
+            | {params.bcftools} norm \
+                --threads {threads} \
+                -Ou \
+                -f {input.fname_ref} \
+            | {params.bcftools} filter \
+                --threads {threads} \
+                -e 'TYPE="INDEL" & INFO/AD[1]<INFO/AD[0]' \
+                -Ob \
+                --output {output.fname_temp_bcf} \
+                2> >(tee {log.errfile} >&2)
         #bcftools csq -f {input.fname_ref} -g wheretogetthis.gff3.gz in.vcf -Ob -o out.bcf
 
         {params.gunzip} -c {input.fname_cov} | tail -n +2 \
-        | awk -v base={params.tsvbased} \
-            '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
-        > {output.fname_mask_lowcoverage} \
-            2> >(tee -a {log.errfile} >&2)
+            | awk -v base={params.tsvbased} \
+                '$3 < {params.mask_coverage_threshold} {{printf "%s\\t%d\\t%d\\n", $1, $2 - base, $2 - base + 1}}' \
+                >{output.fname_mask_lowcoverage} \
+                2> >(tee -a {log.errfile} >&2)
 
         # preparations
         {params.enhance_bcf} \
-           {output.fname_temp_bcf} \
-           {output.fname_bcf} \
-           {params.ambiguous_base_coverage_threshold} \
-           2> >(tee -a {log.errfile} >&2)
+            {output.fname_temp_bcf} \
+            {output.fname_bcf} \
+            {params.ambiguous_base_coverage_threshold} \
+            2> >(tee -a {log.errfile} >&2)
 
         {params.bcftools} index {output.fname_bcf} 2> >(tee -a {log.errfile} >&2)
 
@@ -149,13 +149,13 @@ rule cons_bcf_QA:
         IUPAC=IUPAC,
     shell:
         r"""
-        (   \
-          echo '{params.name}:' &&   \
-          printf '  %s: %s\n'   \
-            'consensus_N' "$(grep -E '^[^>]' "{input.fname_fasta}" | tr -cd 'Nn' | wc -c)"   \
-            'consensus_IUPAC' "$(grep -E '^[^>]' "{input.fname_fasta_ambig}" | tr -cd '{params.IUPAC}' | wc -c)"   \
-        ) > "{output.stats}"  \
-          2> >(tee "{log.errfile}" >&2)
+        (
+            echo '{params.name}:' \
+                && printf '  %s: %s\n' \
+                    'consensus_N' "$(grep -E '^[^>]' "{input.fname_fasta}" | tr -cd 'Nn' | wc -c)" \
+                    'consensus_IUPAC' "$(grep -E '^[^>]' "{input.fname_fasta_ambig}" | tr -cd '{params.IUPAC}' | wc -c)"
+        ) >"{output.stats}" \
+            2> >(tee "{log.errfile}" >&2)
         """
 
 
@@ -187,13 +187,10 @@ rule consensus_sequences:
         MIN_FREQ=config.consensus_sequences["min_freq"],
         OUTDIR="{dataset}/references",
         EXTRACT_CONSENSUS=config.applications["extract_consensus"],
+        CONSENSUS_NAME=ID_dash,
     shell:
         """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
-        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N "${{CONSENSUS_NAME}}" -o {params.OUTDIR} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.EXTRACT_CONSENSUS} -i {input.BAM} -f {input.REF} -c {params.MIN_COVERAGE} -n {params.N_COVERAGE} -q {params.QUAL_THRD} -a {params.MIN_FREQ} -N '{params.CONSENSUS_NAME}' -o {params.OUTDIR} >{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -232,14 +229,14 @@ rule consseq_QA:
             echo "pure 'nnnn...' consensus, no possible alignement" | tee {log.outfile}
         fi
 
-        (   \
-          echo '{params.name}:' &&   \
-          printf '  %s: %s\\n'   \
-            'consensus_N' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'Nn' | wc -c)"   \
-            'consensus_lower' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'atcg' | wc -c)"   \
-            'consensus_IUPAC' "$(grep -E '^[^>]' "{input.REF_amb_dels}" | tr -cd '{params.IUPAC}' | wc -c)"   \
-        ) > "{output.stats}"  \
-          2> >(tee -a "{log.errfile}" >&2)
+        (
+            echo '{params.name}:' \
+                && printf '  %s: %s\\n' \
+                    'consensus_N' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'Nn' | wc -c)" \
+                    'consensus_lower' "$(grep -E '^[^>]' "{input.REF_majority_dels}" | tr -cd 'atcg' | wc -c)" \
+                    'consensus_IUPAC' "$(grep -E '^[^>]' "{input.REF_amb_dels}" | tr -cd '{params.IUPAC}' | wc -c)"
+        ) >"{output.stats}" \
+            2> >(tee -a "{log.errfile}" >&2)
         """
 
 

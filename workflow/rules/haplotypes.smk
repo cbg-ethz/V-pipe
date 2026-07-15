@@ -69,7 +69,7 @@ rule haploclique_visualization:
         COMPUTE_MDS=config.applications["compute_mds"],
     shell:
         """
-        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV} > {log.output} 2> >(tee {log.errfile} >&2)
+        {params.COMPUTE_MDS} -q {params.INPREFIX} -s {params.REGION_START} -e {params.REGION_END} {params.USE_MSA} {params.MSA} -p {output.PDF} -o {params.TSV} >{log.output} 2> >(tee {log.errfile} >&2)
         """
 
 

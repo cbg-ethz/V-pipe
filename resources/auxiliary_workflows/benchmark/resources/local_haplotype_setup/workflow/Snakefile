@@ -248,18 +248,17 @@ rule distance_run_haplodmf:
         """
         mkdir -p "{output.dname_work}"
         fname_sam="{output.dname_work}/reads.sam"
-        samtools view  -h "{input.fname_bam}" > "$fname_sam"
+        samtools view -h "{input.fname_bam}" >"$fname_sam"
         cd "{output.dname_work}"
         ls -l
         cd /cluster/work/bewi/members/lfuhrmann/HaploDMF/
         set +e
         /cluster/work/bewi/members/lfuhrmann/HaploDMF/haplodmf.sh -i "$fname_sam" -r "{input.fname_reference}" -o "{output.dname_work}/result" -p prefix
         echo "finished haplodmf"
-        cp  "{output.dname_work}/result/prefix_haplotypes.fasta"  "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
+        cp "{output.dname_work}/result/prefix_haplotypes.fasta" "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
         touch "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result}"
         exitcode=$?
-        if [ $exitcode -eq -1 ]
-        then
+        if [ $exitcode -eq -1 ]; then
             exit 1
         else
             exit 0
@@ -500,18 +499,17 @@ rule realdata_run_haplodmf:
         """
         mkdir -p "{output.dname_work}"
         fname_sam="{output.dname_work}/reads.sam"
-        samtools view  -h "{input.fname_bam}" > "$fname_sam"
+        samtools view -h "{input.fname_bam}" >"$fname_sam"
         cd "{output.dname_work}"
         ls -l
         cd /cluster/work/bewi/members/lfuhrmann/HaploDMF/
         set +e
         /cluster/work/bewi/members/lfuhrmann/HaploDMF/haplodmf.sh -i "$fname_sam" -r "{input.fname_reference}" -o "{output.dname_work}/result" -p prefix
         echo "finished haplodmf"
-        cp  "{output.dname_work}/result/prefix_haplotypes.fasta"  "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
+        cp "{output.dname_work}/result/prefix_haplotypes.fasta" "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result_haplos}"
         touch "/cluster/work/bewi/members/lfuhrmann/viloca_benchmark_clean/V-pipe/resources/auxiliary_workflows/benchmark/resources/local_haplotype_setup/{output.fname_result}"
         exitcode=$?
-        if [ $exitcode -eq -1 ]
-        then
+        if [ $exitcode -eq -1 ]; then
             exit 1
         else
             exit 0

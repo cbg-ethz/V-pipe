@@ -36,5 +36,5 @@ rule create_samples_tsv:
         "samples.tsv",
     shell:
         """
-        cat {input} > {output}
+        cat {input} >{output}
         """

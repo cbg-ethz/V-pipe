@@ -884,6 +884,11 @@ def ID(wildcards):
         return s_rec.sample_id or s_rec.date
 
 
+def ID_dash(wildcards):
+    ID_sep = ID(wildcards)
+    return ID_sep.replace(config.general["id_separator"], "-")
+
+
 def window_lengths(wildcards):
     window_len = []
     for s in sample_list:

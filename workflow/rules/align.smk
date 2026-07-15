@@ -44,12 +44,10 @@ rule initial_vicuna:
         SAMTOOLS=config.applications["samtools"],
         WORK_DIR="{dataset}/initial_consensus",
         FUNCTIONS=functions,
+        CONSENSUS_NAME=ID_dash,
+    # fmt: off[next]
     shell:
         """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
         source {params.FUNCTIONS}
 
         ERRFILE=$(basename {log.errfile})
@@ -65,15 +63,15 @@ rule initial_vicuna:
         {params.BWA} index consensus.fasta 2> >(tee $ERRFILE >&2)
 
         # 3. create initial alignment
-        if [[ {params.PAIRED_BOOL} == "true" ]]; then
-            {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R{{1,2}}.fastq > first_aln.sam 2> >(tee -a $ERRFILE >&2)
+        if [[ {params.PAIRED_BOOL} == 'true' ]]; then
+            {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R{{1,2}}.fastq >first_aln.sam 2> >(tee -a $ERRFILE >&2)
         else
-            {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R1.fastq > first_aln.sam 2> >(tee -a $ERRFILE >&2)
+            {params.BWA} mem -t {threads} consensus.fasta ../preprocessed_data/R1.fastq >first_aln.sam 2> >(tee -a $ERRFILE >&2)
         fi
         rm consensus.fasta.*
 
         # 4. remove unmapped reads
-        {params.SAMTOOLS} view -b -F 4 first_aln.sam > mapped.bam 2> >(tee -a $ERRFILE >&2)
+        {params.SAMTOOLS} view -b -F 4 first_aln.sam >mapped.bam 2> >(tee -a $ERRFILE >&2)
         rm first_aln.sam
 
         # 5. extract reads
@@ -83,8 +81,8 @@ rule initial_vicuna:
 
         # 6. create config file
         # NOTE: Tabs are required below
-        if [[ {params.PAIRED_BOOL} == "true" ]]; then
-            cat > vicuna_config.txt <<- _EOF_
+        if [[ {params.PAIRED_BOOL} == 'true' ]]; then
+            cat >vicuna_config.txt <<-_EOF_
                 minMSize    9
                 maxOverhangSize    2
                 Divergence    8
@@ -96,9 +94,9 @@ rule initial_vicuna:
                 LibSizeUpperBound    800
                 min_output_contig_len    1000
                 outputDIR    ./
-            _EOF_
+            \n_EOF_
         else
-            cat > vicuna_config.txt <<- _EOF_
+            cat >vicuna_config.txt <<-_EOF_
                 minMSize    9
                 maxOverhangSize    2
                 Divergence    8
@@ -108,28 +106,27 @@ rule initial_vicuna:
                 batchSize    100000
                 min_output_contig_len    1000
                 outputDIR    ./
-            _EOF_
+            \n_EOF_
         fi
 
         # 7. VICUNA
-        OMP_NUM_THREADS={threads} {params.VICUNA} vicuna_config.txt > $OUTFILE 2> >(tee -a $ERRFILE >&2)
+        OMP_NUM_THREADS={threads} {params.VICUNA} vicuna_config.txt >$OUTFILE 2> >(tee -a $ERRFILE >&2)
         rm vicuna_config.txt
         rm -r cleaned/
 
         # 8. fix broken header
-        sed -e 's:>dg-\\([[:digit:]]\\+\\)\\s.*:>dg-\\1:g' contig.fasta > contig_clean.fasta
+        sed -e 's:>dg-\\([[:digit:]]\\+\\)\\s.*:>dg-\\1:g' contig.fasta >contig_clean.fasta
 
         # 9. InDelFixer + ConsensusFixer to polish up consensus
-        for i in {{1..3}}
-        do
-                mv consensus.fasta old_consensus.fasta
-                indelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
-                sam2bam {params.SAMTOOLS} reads.sam >> $OUTFILE 2> >(tee $ERRFILE >&2)
-                consensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01 >> $OUTFILE 2> >(tee $ERRFILE >&2)
+        for i in {{1..3}}; do
+            mv consensus.fasta old_consensus.fasta
+            indelFixer {params.INDELFIXER} -i contig_clean.fasta -g old_consensus.fasta >>$OUTFILE 2> >(tee -a $ERRFILE >&2)
+            sam2bam {params.SAMTOOLS} reads.sam >>$OUTFILE 2> >(tee $ERRFILE >&2)
+            consensusFixer {params.CONSENSUSFIXER} -i reads.bam -r old_consensus.fasta -mcc 1 -mic 1 -d -pluralityN 0.01 >>$OUTFILE 2> >(tee $ERRFILE >&2)
         done
 
-        sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" consensus.fasta
-        echo "" >> consensus.fasta
+        sed -i -e 's/>.*/>{params.CONSENSUS_NAME}/' consensus.fasta
+        echo '' >>consensus.fasta
 
         # 10. finally, move into place
         mkdir -p ../references
@@ -159,11 +156,11 @@ rule initial_vicuna_msa:
         REMOVE_GAPS=config.applications["remove_gaps_msa"],
     shell:
         """
-        cat {input} > initial_ALL.fasta
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} initial_ALL.fasta > references/initial_aln.fasta 2> >(tee {log.errfile} >&2)
+        cat {input} >initial_ALL.fasta
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} initial_ALL.fasta >references/initial_aln.fasta 2> >(tee {log.errfile} >&2)
         rm initial_ALL.fasta
 
-        {params.REMOVE_GAPS} references/initial_aln.fasta -o {output} -p 0.5 > {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.REMOVE_GAPS} references/initial_aln.fasta -o {output} -p 0.5 >{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -180,14 +177,11 @@ rule create_vicuna_initial:
         config.create_vicuna_initial["conda"]
     params:
         EXTRACT_SEQ=config.applications["extract_seq"],
+        CONSENSUS_NAME=ID_dash,
     shell:
         """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
         mkdir -p {wildcards.dataset}/references/
-        {params.EXTRACT_SEQ} {input} -o {output} -s "${{CONSENSUS_NAME}}"
+        {params.EXTRACT_SEQ} {input} -o {output} -s '{params.CONSENSUS_NAME}'
         """
 
 
@@ -200,15 +194,13 @@ rule create_simple_initial:
         reference_file,
     output:
         "{dataset}/references/initial_consensus.fasta",
+    params:
+        CONSENSUS_NAME=ID_dash,
     shell:
         """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
         mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
-        sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" {output}
+        sed -i -e 's/>.*/>{params.CONSENSUS_NAME}/' {output}
         """
 
 
@@ -221,15 +213,13 @@ rule create_denovo_initial:
         "{dataset}/references/denovo_consensus.fasta",
     output:
         "{dataset}/references/initial_consensus.fasta",
+    params:
+        CONSENSUS_NAME=ID_dash,
     shell:
         """
-        CONSENSUS_NAME={wildcards.dataset}
-        CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-        CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
         mkdir -p {wildcards.dataset}/references/
         cp {input} {output}
-        sed -i -e "s/>.*/>${{CONSENSUS_NAME}}/" {output}
+        sed -i -e 's/>.*/>{params.CONSENSUS_NAME}/' {output}
         """
 
 
@@ -282,7 +272,7 @@ if config.general["aligner"] == "ngshmmalign":
             GUNZIP=config.applications["gunzip"],
         shell:
             """
-            {params.GUNZIP} -c {input} > {output} 2> >(tee {log.errfile} >&2)
+            {params.GUNZIP} -c {input} >{output} 2> >(tee {log.errfile} >&2)
             """
 
     ruleorder: preproc_gunzip > gunzip
@@ -313,21 +303,18 @@ if config.general["aligner"] == "ngshmmalign":
             EXTRA=config.hmm_align["extra"],
             MAFFT=config.applications["mafft"],
             NGSHMMALIGN=config.applications["ngshmmalign"],
+            CONSENSUS_NAME=ID_dash,
         shell:
             """
-            CONSENSUS_NAME={wildcards.dataset}
-            CONSENSUS_NAME="${{CONSENSUS_NAME#*/}}"
-            CONSENSUS_NAME="${{CONSENSUS_NAME//\\//-}}"
-
             # 1. clean previous run
-            rm -rf   {wildcards.dataset}/alignments
-            rm -f    {wildcards.dataset}/references/ref_ambig.fasta
-            rm -f    {wildcards.dataset}/references/ref_majority.fasta
+            rm -rf {wildcards.dataset}/alignments
+            rm -f {wildcards.dataset}/references/ref_ambig.fasta
+            rm -f {wildcards.dataset}/references/ref_majority.fasta
             mkdir -p {wildcards.dataset}/alignments
             mkdir -p {wildcards.dataset}/references
 
             # 2. perform alignment # -l = leave temps
-            {params.NGSHMMALIGN} -v {params.EXTRA} -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N "${{CONSENSUS_NAME}}" {params.LEAVE_TEMP} {input.FASTQ} > {log.outfile} 2> >(tee {log.errfile} >&2)
+            {params.NGSHMMALIGN} -v {params.EXTRA} -R {input.initial_ref} -o {output.good_aln} -w {output.reject_aln} -t {threads} -N '{params.CONSENSUS_NAME}' {params.LEAVE_TEMP} {input.FASTQ} >{log.outfile} 2> >(tee {log.errfile} >&2)
 
             # 3. move references into place
             mv {wildcards.dataset}/{{alignments,references}}/ref_ambig.fasta
@@ -366,8 +353,8 @@ rule msa:
         MAFFT=config.applications["mafft"],
     shell:
         """
-        cat {input} > ALL_{wildcards.kind}.fasta
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} ALL_{wildcards.kind}.fasta > {output} 2> >(tee {log.errfile} >&2)
+        cat {input} >ALL_{wildcards.kind}.fasta
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} ALL_{wildcards.kind}.fasta >{output} 2> >(tee {log.errfile} >&2)
         rm ALL_{wildcards.kind}.fasta
         """
 
@@ -408,7 +395,7 @@ if config.general["aligner"] == "ngshmmalign":
             CONVERT_REFERENCE=config.applications["convert_reference"],
         shell:
             """
-            {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} > {log.outfile} 2> >(tee {log.errfile} >&2)
+            {params.CONVERT_REFERENCE} -t {params.REF_NAME} -m {input.REF_ambig} -i {input.BAM} -o {output} >{log.outfile} 2> >(tee {log.errfile} >&2)
             """
 
 
@@ -444,8 +431,8 @@ rule sam2bam:
         """
         echo "Writing BAM file"
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}" > {log.outfile} 2> >(tee {log.errfile} >&2)
-        {params.SAMTOOLS} index "{output.BAM}" >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.BAM}" "{input}" >{log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.SAMTOOLS} index "{output.BAM}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -627,7 +614,7 @@ elif config.general["aligner"] == "bowtie":
                 """
                 {params.BOWTIE} -x {input.REF} -U {input.R1} {params.PHRED} {params.PRESET} {params.EXTRA} -p {threads} -S {output.TMP_SAM} 2> >(tee {log.errfile} >&2)
                 # Filter alignments: (1) remove unmapped reads, and (2) remove supplementary aligments
-                {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM} 2> >(tee -a {log.errfile} >&2)
+                {params.SAMTOOLS} view -h {params.FILTER} -F 2048 -o "{output.REF}" "{output.TMP_SAM}" 2> >(tee -a {log.errfile} >&2)
                 """
 
 elif config.general["aligner"] == "minimap":

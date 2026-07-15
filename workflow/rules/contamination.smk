@@ -38,16 +38,16 @@ rule bwa_QA:
 
         # 2. concatenate references
         mkdir -p {wildcards.dataset}/QA_alignments
-        cat {input.patient_ref} {input.virusmix_ref} > {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
+        cat {input.patient_ref} {input.virusmix_ref} >{wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta
 
         # 3. indexing
         {params.BWA} index {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta 2> >(tee {log.errfile} >&2)
 
         # 4. align
-        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.FASTQ} > {output.SAM} 2> >(tee -a {log.errfile} >&2)
+        {params.BWA} mem -t {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta {input.FASTQ} >{output.SAM} 2> >(tee -a {log.errfile} >&2)
 
         # 5. MSA
-        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta > {output.MSA} 2> >(tee -a {log.errfile} >&2)
+        {params.MAFFT} --nuc --preservecase --maxiterate 1000 --localpair --thread {threads} {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta >{output.MSA} 2> >(tee -a {log.errfile} >&2)
 
         # 6. cleanup BWA indices
         rm -f {wildcards.dataset}/QA_alignments/bwa_refs_{wildcards.kind}.fasta.*
@@ -89,5 +89,5 @@ rule coverage_QA:
         # 2. collect coverage stats
         # we only collect statistics in the loop regions
         # of HIV-1 in order
-        {params.COV_STATS} -t {params.TARGET} -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.COV_STATS} -t {params.TARGET} -i {input.BAM} -o {output} -m {input.MSA} --select "${{CONSENSUS_NAME}}" >{log.outfile} 2> >(tee {log.errfile} >&2)
         """

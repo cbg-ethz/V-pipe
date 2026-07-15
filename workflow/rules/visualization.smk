@@ -86,35 +86,33 @@ rule generate_web_visualization:
         # 1) script directive crashes with `VpipeConfig`
         # 2) run directive does not allow conda envs
 
-        if [ ! -z "{params.nwk_file}" ]
-        then
-          # generate phylogenetic tree
-          augur align --sequences {input.phylogeny_data} {input.consensus_file} --output {params.alignment_file}
-          augur tree --alignment {params.alignment_file} --output {params.nwk_file}
+        if [ ! -z "{params.nwk_file}" ]; then
+            # generate phylogenetic tree
+            augur align --sequences {input.phylogeny_data} {input.consensus_file} --output {params.alignment_file}
+            augur tree --alignment {params.alignment_file} --output {params.nwk_file}
         fi
 
         # generate read alignment
-        create_datauri {input.reference_file} > {output.reference_uri_file}
-        create_datauri {input.bam_file} > {output.bam_uri_file}
+        create_datauri {input.reference_file} >{output.reference_uri_file}
+        create_datauri {input.bam_file} >{output.bam_uri_file}
 
         # generate html visualization pages
         python "{params.assemble_visualization_webpage}" \
-            --consensus    "{input.consensus_file}" \
-            --coverage    "{input.coverage_file}" \
+            --consensus "{input.consensus_file}" \
+            --coverage "{input.coverage_file}" \
             --tsvbased "{params.tsvbased}" \
-            --vcf    "{input.vcf_file}" \
-            --gff    "{input.gff_directory}" \
-            --primers    "{input.primers_file}" \
-            --metainfo    "{input.metainfo_file}" \
-            --snv_calling_template    "{params.snv_visualization_template}" \
-            --alignment_template    "{params.alignment_visualization_template}" \
-            --html_out_snv_calling    "{output.snv_html_file}" \
-            --html_out_alignment    "{output.alignment_html_file}" \
-            --wildcards    "{wildcards.dataset}" \
-            --reference    "{input.global_ref}" \
+            --vcf "{input.vcf_file}" \
+            --gff "{input.gff_directory}" \
+            --primers "{input.primers_file}" \
+            --metainfo "{input.metainfo_file}" \
+            --snv_calling_template "{params.snv_visualization_template}" \
+            --alignment_template "{params.alignment_visualization_template}" \
+            --html_out_snv_calling "{output.snv_html_file}" \
+            --html_out_alignment "{output.alignment_html_file}" \
+            --wildcards "{wildcards.dataset}" \
+            --reference "{input.global_ref}" \
             --reference_uri_file "{output.reference_uri_file}" \
             --bam_uri_file "{output.bam_uri_file}" \
             --nwk "{params.nwk_file}" \
-            > {log.outfile} 2> {log.errfile}
-
+            >{log.outfile} 2>{log.errfile}
         """

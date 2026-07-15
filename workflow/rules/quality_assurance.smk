@@ -29,7 +29,7 @@ rule gunzip:
         GUNZIP=config.applications["gunzip"],
     shell:
         """
-        {params.GUNZIP} -c {input} > {output}
+        {params.GUNZIP} -c {input} >{output}
         """
 
 
@@ -54,7 +54,7 @@ rule extract:
     shell:
         # TODO replace with better dedicated software
         """
-        cat {input:q} | paste - - - - | LC_ALL=C sort -s -k1,1 -t " " | tr "\t" "\n" > {output} 2> >(tee {log.errfile} >&2)
+        cat {input:q} | paste - - - - | LC_ALL=C sort -s -k1,1 -t " " | tr "\t" "\n" >{output} 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -85,9 +85,9 @@ if not config.general["preprocessor"] or config.general["preprocessor"] == "skip
             runtime=config.preprocessing["time"],
         shell:
             """
-            echo "Skipping preprocessing and compressing merged/sorted fastq files as-is" > {log.outfile}
+            echo "Skipping preprocessing and compressing merged/sorted fastq files as-is" >{log.outfile}
 
-            gzip -c {input} > {output} 2> >(tee {log.errfile} >&2)
+            gzip -c {input} >{output} 2> >(tee {log.errfile} >&2)
             """
 
 elif config.input["paired"]:
@@ -119,7 +119,7 @@ elif config.input["paired"]:
             PRINSEQ=config.applications["prinseq"],
         shell:
             """
-            echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
+            echo "The length cutoff is: {params.LEN_CUTOFF}" >{log.outfile}
 
             {params.PRINSEQ} -fastq {input.R1} -fastq2 {input.R2} {params.EXTRA} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -min_len {params.LEN_CUTOFF} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 
@@ -167,7 +167,7 @@ else:
             PRINSEQ=config.applications["prinseq"],
         shell:
             """
-            echo "The length cutoff is: {params.LEN_CUTOFF}" > {log.outfile}
+            echo "The length cutoff is: {params.LEN_CUTOFF}" >{log.outfile}
 
             {params.PRINSEQ} -fastq {input.R1} {params.EXTRA} -out_format 3 -out_good {wildcards.dataset}/preprocessed_data/R -out_bad null -min_len {params.LEN_CUTOFF} {params.EXTRA} -log {log.outfile} 2> >(tee {log.errfile} >&2)
 

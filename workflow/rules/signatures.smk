@@ -58,8 +58,8 @@ rule amplicons:
         ),
     shell:
         """
-        vocs=( {input.vocs} )
-        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" "{params.fix_subset}" --out-amplicons="{output.amplicons}"  2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        vocs=({input.vocs})
+        {params.COJAC} cooc-mutbamscan "${{vocs[@]/#/--voc=}}" --bedfile="{input.inserts}" --cooc="{params.mincooc}" "{params.fix_subset}" --out-amplicons="{output.amplicons}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
@@ -98,8 +98,8 @@ rule cooc:
         ),
     shell:
         """
-        {params.COJAC} cooc-mutbamscan --alignments="{input.BAM}" --name="{params.name}" --in-amp="{input.amplicons}" --yaml="{output.cooc_yaml}"   2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.COJAC} cooc-mutbamscan --alignments="{input.BAM}" --name="{params.name}" --in-amp="{input.amplicons}" --yaml="{output.cooc_yaml}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
@@ -147,8 +147,8 @@ rule cohort_cooc:
         ),
     shell:
         """
-        cat {input.YAMLs} > {output.cooc_yaml} 2> >(tee {log.errfile} >&2)
-        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --add-mutations="{input.amplicons}" --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2)  > >(tee {log.outfile})
+        cat {input.YAMLs} >{output.cooc_yaml} 2> >(tee {log.errfile} >&2)
+        {params.COJAC} cooc-tabmut --yaml="{output.cooc_yaml}" --output="{output.cooc_csv}" {params.out_format} --add-mutations="{input.amplicons}" --batchname="{params.sep}" 2> >(tee -a {log.errfile} >&2) > >(tee {log.outfile})
         """
 
 
@@ -176,7 +176,7 @@ rule cohort_cooc_report:
         sep=config.general["id_separator"],
     shell:
         """
-        {params.COJAC} cooc-pubmut --yaml="{input.cooc_yaml}" --amplicons="{input.amplicons}" --vocdir="{params.vocdir}" --output="{output.cooc_report_csv}" --batchname="{params.sep}" 2> >(tee {log.errfile} >&2)  > >(tee {log.outfile})
+        {params.COJAC} cooc-pubmut --yaml="{input.cooc_yaml}" --amplicons="{input.amplicons}" --vocdir="{params.vocdir}" --output="{output.cooc_report_csv}" --batchname="{params.sep}" 2> >(tee {log.errfile} >&2) > >(tee {log.outfile})
         """
 
 
@@ -235,7 +235,7 @@ rule sigmut:
         s_rec=get_s_rec,
     shell:
         """
-        {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" --based "{params.ARRAYBASED}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.LOLLIPOP} getmutations from-basecount --outname "{output.mut}" --samplename "{params.s_rec.sample_id}" --batch "{params.s_rec.date}" -m "{input.mutlist}" --based "{params.ARRAYBASED}" -- "{input.basecnt}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
@@ -293,7 +293,7 @@ rule timeline:
         options=config.timeline["options"],
     shell:
         """
-        {params.maketimeline} {params.regex} {params.locations} {params.out_locations} --output "{output.timeline}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2)  > >(tee -a {log.outfile})
+        {params.maketimeline} {params.regex} {params.locations} {params.out_locations} --output "{output.timeline}" {params.options} -- "{input.samples_tsv}" 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
@@ -322,9 +322,9 @@ rule tallymut:
     shell:
         """
         {params.XSV} join --right {params.selector} {input.times} {params.selector} \
-         <({params.XSV} cat rows --delimiter '\\t' {input.muts} ) \
-         | {params.XSV} fmt --out-delimiter '\\t' \
-         | {params.ZSTD} -o {output.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+            <({params.XSV} cat rows --delimiter '\\t' {input.muts}) \
+            | {params.XSV} fmt --out-delimiter '\\t' \
+            | {params.ZSTD} -o {output.tallymut} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 
@@ -493,9 +493,9 @@ rule tallycooc:
     shell:
         """
         {params.XSV} join --right {params.selector} {input.times} {params.selector} \
-         <({params.XSV} cat rows  --delimiter ',' {input.cooctab} ) \
-         | {params.XSV} fmt --out-delimiter '\\t' \
-         | {params.ZSTD} -o {output.tallycooc} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
+            <({params.XSV} cat rows --delimiter ',' {input.cooctab}) \
+            | {params.XSV} fmt --out-delimiter '\\t' \
+            | {params.ZSTD} -o {output.tallycooc} 2> >(tee -a {log.errfile} >&2) > >(tee -a {log.outfile})
         """
 
 

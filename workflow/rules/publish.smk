@@ -118,18 +118,19 @@ rule unfiltered_cram:
         sort_tmp=temp_prefix("{dataset}/raw_uploads/raw_reads.tmp"),
         # as a param to escape backslashes
         REGEXP=r"s{(?<=\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}{BC:Z:\1}",
+    # fmt: off[next]
     shell:
         """
         # using zcat FILENAME.gz causes issues on Mac, see
         # https://serverfault.com/questions/570024/
         # redirection fixes this:
         unpack_rawreads() {{
-            for fq in "${{@}}"; do
-                zcat -f < "${{fq}}"
-            done
+                for fq in "${{@}}"; do
+                    zcat -f < "${{fq}}"
+                done
         }}
 
-        echo "Compress un-filtered sequences -----------------------------------"
+        echo \'Compress un-filtered sequences -----------------------------------\'
         echo
 
         {params.BWA} mem -t {threads} \
@@ -158,7 +159,7 @@ rule unfiltered_cram:
                                        -o {output.final_cram} \
                                        2> >(tee -a {log.errfile} >&2)
 
-        {params.checksum_type}sum {output.final_cram} > {output.checksum} 2> >(tee -a {log.errfile} >&2)
+        {params.checksum_type}sum {output.final_cram} >{output.checksum} 2> >(tee -a {log.errfile} >&2)
 
         echo
         echo DONE -------------------------------------------------------------
@@ -182,7 +183,7 @@ rule checksum:
         checksum_type=config.general["checksum"],
     shell:
         """
-        {params.checksum_type}sum {input} > {output}
+        {params.checksum_type}sum {input} >{output}
         """
 
 

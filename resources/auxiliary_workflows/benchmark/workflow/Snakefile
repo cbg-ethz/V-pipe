@@ -321,14 +321,14 @@ rule flash:
     shell:
         """
         flash \
-          {input.fname_fastq_R1} \
-          {input.fname_fastq_R2} \
-          -r 250 \
-          -f 400 \
-          -s 40 \
-          --allow-outies \
-          --output-prefix=reads_merged \
-          --output-directory={output.dname_out}
+            {input.fname_fastq_R1} \
+            {input.fname_fastq_R2} \
+            -r 250 \
+            -f 400 \
+            -s 40 \
+            --allow-outies \
+            --output-prefix=reads_merged \
+            --output-directory={output.dname_out}
         """
 
 
@@ -343,7 +343,7 @@ rule alignment_merged:
     shell:
         """
         bwa index {input.fname_reference}
-        bwa mem {input.fname_reference} {input.fname_fastq_merged} > {output.fname_bam}
+        bwa mem {input.fname_reference} {input.fname_fastq_merged} >{output.fname_bam}
         samtools sort -o {output.fname_bam} {output.fname_bam}
         """
 
@@ -382,20 +382,20 @@ rule provide_real_data:
             curl --output-dir "{output.dname_work}" -O "https://raw.githubusercontent.com/cbg-ethz/5-virus-mix/master/data/REF.fasta"
 
             # only keep HXB2 reference
-            sed -ne '3p;4p' "{output.dname_work}/REF.fasta" > "{output.fname_reference}"
+            sed -ne '3p;4p' "{output.dname_work}/REF.fasta" >"{output.fname_reference}"
 
             # download true haplotypes and set frequencies (source: table 1 in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132706/)
             curl --output-dir "{output.dname_work}" -O "https://raw.githubusercontent.com/cbg-ethz/5-virus-mix/master/data/5VM.fasta"
             mv "{output.dname_work}/5VM.fasta" "{output.fname_fasta}"
 
             sed \
-              -i \
-              -e "s/>89.6/>89.6 freq:0.221/" \
-              -e "s/>HXB2/>HXB2 freq:0.112/" \
-              -e "s/>JRCSF/>JRCSF freq:0.28/" \
-              -e "s/>NL43/>NL43 freq:0.273/" \
-              -e "s/>YU2/>YU2 freq:0.111/" \
-              "{output.fname_fasta}"
+                -i \
+                -e "s/>89.6/>89.6 freq:0.221/" \
+                -e "s/>HXB2/>HXB2 freq:0.112/" \
+                -e "s/>JRCSF/>JRCSF freq:0.28/" \
+                -e "s/>NL43/>NL43 freq:0.273/" \
+                -e "s/>YU2/>YU2 freq:0.111/" \
+                "{output.fname_fasta}"
 
             # create ground truth information (TODO)
             cp {params.path_ground_truth} {output.fname_groundtruth}
@@ -410,16 +410,16 @@ rule provide_real_data:
                 -t {threads} \
                 {output.fname_reference} \
                 "{output.dname_work}/SRR961514_1.fastq.gz" "{output.dname_work}/SRR961514_2.fastq.gz" \
-                > {output.fname_bam}
+                >{output.fname_bam}
             samtools sort -o {output.fname_bam} {output.fname_bam}
 
             # subsample
             tmpfile="{output.dname_work}/tmp.bam"
             samtools view \
-              --subsample "$subsample_frac" \
-              --subsample-seed "{wildcards.replicate}" \
-              -o "$tmpfile" \
-              {output.fname_bam}
+                --subsample "$subsample_frac" \
+                --subsample-seed "{wildcards.replicate}" \
+                -o "$tmpfile" \
+                {output.fname_bam}
             mv "$tmpfile" {output.fname_bam}
         fi
         """

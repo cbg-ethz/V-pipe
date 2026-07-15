@@ -34,9 +34,10 @@ rule dh_reuse_alignreject:
         runtime=config.bwa_align["time"],
     params:
         SAMTOOLS=config.applications["samtools"],
+    # fmt: off[next]
     shell:
         """
-        echo "Keep reject  -----------------------------------------------------"
+        echo 'Keep reject  -----------------------------------------------------'
         echo
 
         {params.SAMTOOLS} bam2fq -@ {threads} \
@@ -78,6 +79,7 @@ rule dh_redo_alignreject:
     params:
         BWA=config.applications["bwa"],
         SAMTOOLS=config.applications["samtools"],
+    # fmt: off[next]
     shell:
         """
         echo "Filter out virus' reads  -----------------------------------------"
@@ -86,7 +88,7 @@ rule dh_redo_alignreject:
         {params.BWA} mem -t {threads} \
                          -o {output.tmp_aln} \
                          {input.global_ref} {input.fastq} \
-                         > {log.outfile} 2> >(tee {log.errfile} >&2)
+                         >{log.outfile} 2> >(tee {log.errfile} >&2)
 
         echo
         echo "Keep reject  -----------------------------------------------------"
@@ -145,6 +147,7 @@ rule dh_hostalign:
         runtime=config.dehuman["time"],
     params:
         BWA=config.applications["bwa"],
+    # fmt: off[next]
     shell:
         # create index if not exists:
         # test -f {input.ref_index} || {params.BWA} index {input.host_ref}
@@ -152,9 +155,9 @@ rule dh_hostalign:
         echo "Checking rejects against host's genome  --------------------------"
 
         {params.BWA} mem -t {threads} \
-                         -o {output.host_aln}\
+                         -o {output.host_aln} \
                          {input.host_ref} {input.reject_1} {input.reject_2} \
-                         > {log.outfile} 2> >(tee {log.errfile} >&2)
+                         >{log.outfile} 2> >(tee {log.errfile} >&2)
 
         echo
         """
@@ -204,6 +207,7 @@ rule dh_filter:
         host_aln_cram="{dataset}/alignments/host_aln.cram",
         # set to 1 to trigger matches with human genome (used for testing):
         F=2,
+    # fmt: off[next]
     shell:
         """
         # using zcat FILENAME.gz causes issues on Mac, see
@@ -216,45 +220,44 @@ rule dh_filter:
         }}
 
         echo
-        echo "Count aligned reads ---------------------------------------------"
+        echo 'Count aligned reads ---------------------------------------------'
         echo
 
-        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} -F 2304 {input.host_aln} | tee {output.filter_count} 2> >(tee {log.errfile} >&2) )
+        count=$({params.SAMTOOLS} view -@ {threads} -c -f {params.F} -F 2304 {input.host_aln} | tee {output.filter_count} 2> >(tee {log.errfile} >&2))
 
-        if (( count > 0 )); then
+        if ((count > 0)); then
             echo
-            echo "-----------------------------------------------------------------"
-            echo "Needs special care: ${{count}} potential human reads found"
-            echo "-----------------------------------------------------------------"
+            echo '-----------------------------------------------------------------'
+            echo 'Needs special care: ${{count}} potential human reads found'
+            echo '-----------------------------------------------------------------'
             echo
-            echo "Removing identified host reads from raw reads -------------------"
+            echo 'Removing identified host reads from raw reads -------------------'
             echo
 
             # get list
             {params.SAMTOOLS} view -@ {threads} \
                                    -f {params.F} \
                                    {input.host_aln} \
-                                   | cut -f 1 > {output.filter_list} 2> >(tee -a {log.errfile} >&2)
+                | cut -f 1 >{output.filter_list} 2> >(tee -a {log.errfile} >&2)
 
             unpack_rawreads {input.R1:q} \
-                   | {params.remove_reads_script} {output.filter_list} \
-                   | gzip \
-                   > {output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
+                | {params.remove_reads_script} {output.filter_list} \
+                | gzip \
+                    >{output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
 
             unpack_rawreads {input.R2:q} \
-                   | {params.remove_reads_script} {output.filter_list} \
-                   | gzip \
-                   > {output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
+                | {params.remove_reads_script} {output.filter_list} \
+                | gzip \
+                    >{output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
 
             wait
 
-            if (( {params.keep_host} )); then
+            if (({params.keep_host})); then
                 # keep the rejects for further analysis
 
                 echo
                 echo "Keeping host-aligned virus' rejects ------------------------------"
                 echo
-
 
                 # (we compress reference-less, because the reference size is larger
                 # than the contaminant reads)
@@ -270,18 +273,18 @@ rule dh_filter:
                                     2> >(tee -a {log.errfile} >&2)
 
                 echo
-                echo "Compressing host-depleted raw reads ------------------------------"
+                echo 'Compressing host-depleted raw reads ------------------------------'
                 echo
 
                 {params.SAMTOOLS} index -@ {threads} {params.host_aln_cram} 2> >(tee -a {log.errfile} >&2)
             fi
         else
             echo
-            echo "No potential human reads found -----------------------------------"
-            echo "Copy raw reads file"
+            echo 'No potential human reads found -----------------------------------'
+            echo 'Copy raw reads file'
             echo
-            unpack_rawreads {input.R1} | gzip > {output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
-            unpack_rawreads {input.R2} | gzip > {output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
+            unpack_rawreads {input.R1} | gzip >{output.filtered_1} 2> >(tee -a {log.errfile} >&2) &
+            unpack_rawreads {input.R2} | gzip >{output.filtered_2} 2> >(tee -a {log.errfile} >&2) &
             wait
             touch {output.filter_list}
         fi
@@ -323,6 +326,7 @@ rule dehuman:
         sort_tmp=temp_prefix("{dataset}/raw_uploads/dehuman.tmp"),
         # as a param to escape backslashes
         REGEXP=r"s{(?<=\t)([[:digit:]]:[[:upper:]]:[[:digit:]]:([ATCGN]+(\+[ATCGN]+)?|[[:digit:]]+))$}{BC:Z:\1}",
+    # fmt: off[next]
     shell:
         """
         echo "Compress filtered sequences --------------------------------------"
@@ -332,7 +336,7 @@ rule dehuman:
                          -C \
                          -o {output.cram_sam} \
                          {input.global_ref} {input.filtered_1} {input.filtered_2} \
-                         > {log.outfile} 2> >(tee {log.errfile} >&2)
+                         >{log.outfile} 2> >(tee {log.errfile} >&2)
 
         # HACK handle incompatibilities between:
         #  - Illumina's 'bcl2fastq', which write arbitrary strings
@@ -344,15 +348,15 @@ rule dehuman:
 
         rm -f '{params.sort_tmp}'.[0-9]*.bam
         perl -p -e ${{REGEXP}} {output.cram_sam} \
-              | {params.SAMTOOLS} sort -@ {threads} \
-                                       -T {params.sort_tmp} \
-                                       -M \
-                                       --reference {input.global_ref} \
-                                       --output-fmt ${{FMT}} \
-                                       -o {output.final_cram} \
-                                       2> >(tee -a {log.errfile} >&2)
+            | {params.SAMTOOLS} sort -@ {threads} \
+                                     -T {params.sort_tmp} \
+                                     -M \
+                                     --reference {input.global_ref} \
+                                     --output-fmt ${{FMT}} \
+                                     -o {output.final_cram} \
+                                     2> >(tee -a {log.errfile} >&2)
 
-        {params.checksum_type}sum {output.final_cram} > {output.checksum} 2> >(tee -a {log.errfile} >&2)
+        {params.checksum_type}sum {output.final_cram} >{output.checksum} 2> >(tee -a {log.errfile} >&2)
 
         echo
         echo DONE -------------------------------------------------------------

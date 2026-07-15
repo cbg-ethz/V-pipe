@@ -33,7 +33,7 @@ rule basecounts:
         ARRAYBASED=config.general["tsvbased"],
     shell:
         """
-        {params.ALN2BASECNT} --first "{params.ARRAYBASED}" --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.ALN2BASECNT} --first "{params.ARRAYBASED}" --basecnt "{output.BASECNT}" --coverage "{output.COVERAGE}" --name "{params.NAME}" --stats "{output.STATS}" "{input.BAM}" >{log.outfile} 2> >(tee {log.errfile} >&2)
         """
 
 
@@ -59,7 +59,7 @@ rule chromsize:
     shell:
         r"""
         {params.CHROMSIZE} --accession-only --fasta "{input}" --output "{output.chrom_size}" \
-            > {log.outfile} 2> >(tee -a "{log.errfile}" >&2)
+            >{log.outfile} 2> >(tee -a "{log.errfile}" >&2)
         """
 
 
@@ -95,8 +95,8 @@ rule basecounts_QC:
         ),
     shell:
         """
-        {params.COV_DEPTH_QC} {params.CHROM_SIZE} --depth {params.DEPTHS} --output {output.COV_DEPTH_QC} -- {input.COVERAGE}    \
-            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
+        {params.COV_DEPTH_QC} {params.CHROM_SIZE} --depth {params.DEPTHS} --output {output.COV_DEPTH_QC} -- {input.COVERAGE} \
+            >"{log.outfile}" 2> >(tee "{log.errfile}" >&2)
         """
 
 
@@ -126,8 +126,8 @@ rule classif_by_coverage:
         CLASSIF_BY_COVERAGE=config.applications["classif_by_coverage"],
     shell:
         """
-        {params.CLASSIF_BY_COVERAGE} --bed {input.CLASSIF_BED} --threshold {params.THRESHOLD} --gene "{params.GENE}" --min_fraction_gene_covered {params.MIN_FRACT} --min_avg_gene_coverage_depth {params.MIN_COVERAGE} --output {output.CLASSIF_CSV} -- {input.COVERAGE}    \
-            > "{log.outfile}" 2> >(tee "{log.errfile}" >&2)
+        {params.CLASSIF_BY_COVERAGE} --bed {input.CLASSIF_BED} --threshold {params.THRESHOLD} --gene "{params.GENE}" --min_fraction_gene_covered {params.MIN_FRACT} --min_avg_gene_coverage_depth {params.MIN_COVERAGE} --output {output.CLASSIF_CSV} -- {input.COVERAGE} \
+            >"{log.outfile}" 2> >(tee "{log.errfile}" >&2)
         """
 
 

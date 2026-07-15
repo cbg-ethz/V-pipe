@@ -66,20 +66,20 @@ rule stats:
         SAMPLE_ID="{params.ID}"
 
         # Number of input reads
-        LINECOUNT=$( cat {input.R1} | wc -l )
+        LINECOUNT=$(cat {input.R1} | wc -l)
         let "INPUT=LINECOUNT / {params.FACTOR}"
 
         # Number of reads after QC
         # For portability reason not using zcat
-        {params.GUNZIP} -c {input.R1_QC} > {params.R1_temp}
-        LINECOUNT=$( cat {params.R1_temp} | wc -l )
+        {params.GUNZIP} -c {input.R1_QC} >{params.R1_temp}
+        LINECOUNT=$(cat {params.R1_temp} | wc -l)
         let "READCOUNT=LINECOUNT / {params.FACTOR}"
         rm {params.R1_temp}
 
         # Number of aligned reads
-        ALNCOUNT=$( {params.SAMTOOLS} view {input.BAM} | wc -l )
+        ALNCOUNT=$({params.SAMTOOLS} view {input.BAM} | wc -l)
 
-        echo -e "${{SAMPLE_ID}}\t${{INPUT}}\t${{READCOUNT}}\t${{ALNCOUNT}}" > {output}
+        echo -e "${{SAMPLE_ID}}\t${{INPUT}}\t${{READCOUNT}}\t${{ALNCOUNT}}" >{output}
         """
 
 
@@ -90,7 +90,7 @@ rule aggregate_stats:
         "stats/read_counts.tsv",
     shell:
         """
-        cat {input} > stats/temp
-        echo -e "ID\tInput\tQC\tAlignments" | cat - stats/temp > {output}
+        cat {input} >stats/temp
+        echo -e "ID\tInput\tQC\tAlignments" | cat - stats/temp >{output}
         rm stats/temp
         """

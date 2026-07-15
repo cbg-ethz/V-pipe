@@ -73,7 +73,7 @@ rule aggregate_alignment_bias:
         runtime=config.aggregate["time"],
     shell:
         """
-        awk FNR!=1 {input} > {output}
+        awk FNR!=1 {input} >{output}
         sed -i 1i"SampleID\tHaplotypeID\tDivergence\tPercent-aligned\tPercent-bases-aligne\n" {output}
         """
 
@@ -93,10 +93,10 @@ rule aggregate_beforeSB:
         runtime=20,
     shell:
         """
-        array=( {input} )
-        num_files=( ${{#array[@]}} )
-        cat {input} | sort -nk2 > {output.TXT}
-        cat {output.TXT} | tr '\t' ',' > {output.CSV}
+        array=({input})
+        num_files=(${{#array[@]}})
+        cat {input} | sort -nk2 >{output.TXT}
+        cat {output.TXT} | tr '\t' ',' >{output.CSV}
         sed -i 1i"Chromosome,Pos,Ref,Var,Frq1,Frq2,Frq3,Pst1,Pst2,Pst3,Fvar,Rvar,Ftot,Rtot,Pval" {output.CSV}
         """
 
@@ -147,7 +147,7 @@ rule test_snv:
         """
         if [[ {params.RE_MSA} == "true" ]]; then
             # remove indels
-            sed -e 's/-//g' {input.HAPLOTYPE_SEQS} > {params.HAPLOTYPE_SEQS_AUX}
+            sed -e 's/-//g' {input.HAPLOTYPE_SEQS} >{params.HAPLOTYPE_SEQS_AUX}
             {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} \
                 -s {input.INPUT[0]} \
                 -m {input.REF} \
@@ -231,7 +231,7 @@ rule compare_snv:
         if [[ {params.RE_MSA} == "true" ]]; then
             # remove indels
             cp {params.HAPLOTYPE_SEQS} {params.OUTDIR}/hap_tmp.fasta
-            sed -e 's/-//g' {params.OUTDIR}/hap_tmp.fasta > {params.HAPLOTYPE_SEQS_AUX}
+            sed -e 's/-//g' {params.OUTDIR}/hap_tmp.fasta >{params.HAPLOTYPE_SEQS_AUX}
             {params.TEST_BENCH} -f {params.HAPLOTYPE_SEQS_AUX} \
                 -s {params.SNVs} \
                 -m {input.REF} \
@@ -279,7 +279,7 @@ rule aggregate:
         runtime=config.aggregate["time"],
     shell:
         """
-        awk FNR!=1 {input} > {output}
+        awk FNR!=1 {input} >{output}
         sed -i 1i"ID\tTP\tFP\tFN\tTN" {output}
         """
 
@@ -298,6 +298,6 @@ rule aggregate_kind:
         runtime=config.aggregate["time"],
     shell:
         """
-        awk FNR!=1 {input} > {output}
+        awk FNR!=1 {input} >{output}
         sed -i 1i"ID\tTP\tFP\tFN\tTN" {output}
         """

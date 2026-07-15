@@ -55,14 +55,14 @@ rule coverage_intervals:
         """
         TMPTSV=$(mktemp -t XXXXXXXX_cov.tsv)
         TMPINT=$(mktemp -t XXXXXXXX_int.tsv)
-        {params.GUNZIP} -c {input.TSV} | cut -f'2-' > $TMPTSV
+        {params.GUNZIP} -c {input.TSV} | cut -f'2-' >$TMPTSV
         mkdir -p "$(dirname "{output}")"
         {params.EXTRACT_COVERAGE_INTERVALS} -c "{params.COVERAGE}" -w "{params.WINDOW_LEN}" -s "{params.SHIFT}" -N "{params.NAME}" {params.LIBERAL} -b {params.ARRAYBASED} {params.OVERLAP} -t "{threads}" -o $TMPINT "{input.BAM}" > >(tee {log.outfile}) 2>&1
-        cat $TMPINT >> "{log.outfile}"
-        read name intervals < $TMPINT
-        IFS=',' read -r -a interarray <<< "$intervals"
-        printf "%s\n" "${{interarray[@]}}" > "{output}"
-        rm $TMPTSV $TMPINT
+        cat $TMPINT >>"{log.outfile}"
+        read name intervals <$TMPINT
+        IFS=',' read -r -a interarray <<<"$intervals"
+printf "%s\n" "${{interarray[@]}}" >"{output}"
+rm $TMPTSV $TMPINT
         """
 
 
@@ -117,13 +117,14 @@ rule snv:
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
         let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
 
-        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" > {log.outfile}
-        echo "The window length is: ${{WINDOW_LEN}} bp" >> {log.outfile}
+        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" >{log.outfile}
+        echo "The window length is: ${{WINDOW_LEN}} bp" >>{log.outfile}
 
         # Get absolute path for input files
         CWD=${{PWD}}
         BAM=${{PWD}}/{input.BAM}
-        REF={input.REF}; [[ ${{REF}} =~ ^/ ]] || REF=${{PWD}}/${{REF}}
+        REF={input.REF}
+        [[ ${{REF}} =~ ^/ ]] || REF=${{PWD}}/${{REF}}
         OUTFILE=${{PWD}}/{log.outfile}
         ERRFILE=${{PWD}}/{log.errfile}
         WORK_DIR=${{PWD}}/{params.WORK_DIR}
@@ -137,22 +138,21 @@ rule snv:
 
         # Run ShoRAH in each of the predetermined regions (regions with sufficient coverage)
         LINE_COUNTER=0
-        FILES=( )
-        FILES_VCF=( )
-        while read -r region || [[ -n ${{region}} ]]
-        do
-            echo "Running ShoRAH on region: ${{region}}" >> $OUTFILE
-            (( ++LINE_COUNTER ))
+        FILES=()
+        FILES_VCF=()
+        while read -r region || [[ -n ${{region}} ]]; do
+            echo "Running ShoRAH on region: ${{region}}" >>$OUTFILE
+            ((++LINE_COUNTER))
             # Create directory for running ShoRAH in a corresponding region (if doesn't exist)
             DIR=${{WORK_DIR}}/REGION_${{LINE_COUNTER}}
             if [[ ! -d "${{DIR}}" ]]; then
-                echo "Creating directory ${{DIR}}" >> $OUTFILE
+                echo "Creating directory ${{DIR}}" >>$OUTFILE
                 mkdir -p ${{DIR}}
             else
                 # Results from previous runs
                 if [[ {params.KEEP_FILES} == "true" ]]; then
                     DIR_DST=${{WORK_DIR}}/old
-                    echo "Moving results from a previous run to ${{DIR_DST}}" >> $OUTFILE
+                    echo "Moving results from a previous run to ${{DIR_DST}}" >>$OUTFILE
                     rm -rf ${{DIR_DST}}/REGION_${{LINE_COUNTER}}
                     mkdir -p ${{DIR_DST}}
                     mv -f ${{DIR}} ${{DIR_DST}}
@@ -170,7 +170,7 @@ rule snv:
             fi
 
             # NOTE: Execution command for ShoRAH2 valid from v1.99.0 and above
-            {params.SHORAH} -t {threads} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} {params.seed} -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.SHORAH} -t {threads} -a {params.ALPHA} -w ${{WINDOW_LEN}} -x 100000 {params.IGNORE_INDELS} -p {params.POSTHRESH} -c {params.COVERAGE} -r ${{region}} {params.seed} -b ${{BAM}} -f ${{REF}} >>$OUTFILE 2> >(tee -a $ERRFILE >&2)
             if [[ -n "{params.LOCALSCRATCH}" ]]; then
                 # copyback from localscratch
                 rsync -auq "{params.LOCALSCRATCH}/REGION_${{LINE_COUNTER}}" "${{WORK_DIR}}"
@@ -182,13 +182,13 @@ rule snv:
                 {params.BCFTOOLS} index ${{DIR}}/snv/SNVs_0.010000_final.vcf.gz
                 FILES+=("${{DIR}}/snv/SNVs_0.010000_final.csv")
                 FILES_VCF+=("${{DIR}}/snv/SNVs_0.010000_final.vcf.gz")
-            elif (( {params.COVINT} == 0 && LINE_COUNTER == 1 )) && [[ -f ${{DIR}}/reads.fas && ( ! -s ${{DIR}}/reads.fas ) ]]; then
+            elif (({params.COVINT} == 0 && LINE_COUNTER == 1)) && [[ -f ${{DIR}}/reads.fas && (! -s ${{DIR}}/reads.fas) ]]; then
                 # if we have disabled coverage intervales entirely, the first and only line might have no reads
                 # (e.g.: in negative controls )
 
                 echo "No reads while coverage intervals disabled (possible negative control sample)" 2> >(tee -a $ERRFILE >&2)
                 cd ${{CWD}}
-                (( --LINE_COUNTER )) || true # Strict mode : (( 0 )) = fail
+                ((--LINE_COUNTER)) || true # Strict mode : (( 0 )) = fail
                 break
             else
                 echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a $ERRFILE >&2)
@@ -197,21 +197,24 @@ rule snv:
 
             # Change back to working directory
             cd ${{CWD}}
-        done < {input.TSV}
+        done <{input.TSV}
 
         # Aggregate results from different regions
-        if (( ${{#FILES[@]}} )); then
-            echo "Intermediate csv files: ${{FILES[*]}}" >> {log.outfile}
-            echo "Intermediate vcf files: ${{FILES_VCF[*]}}" >> {log.outfile}
-            (head -n 1 "${{FILES[0]}}"; tail -q -n +2 "${{FILES[@]}}" | sort -t, -nk2) > {output.CSV}
+        if ((${{#FILES[@]}})); then
+            echo "Intermediate csv files: ${{FILES[*]}}" >>{log.outfile}
+            echo "Intermediate vcf files: ${{FILES_VCF[*]}}" >>{log.outfile}
+            (
+                head -n 1 "${{FILES[0]}}"
+                tail -q -n +2 "${{FILES[@]}}" | sort -t, -nk2
+            ) >{output.CSV}
             {params.BCFTOOLS} concat -o ${{WORK_DIR}}/snvs_tmp.vcf "${{FILES_VCF[@]}}"
-            {params.BCFTOOLS} sort ${{WORK_DIR}}/snvs_tmp.vcf  -o {output.VCF}
+            {params.BCFTOOLS} sort ${{WORK_DIR}}/snvs_tmp.vcf -o {output.VCF}
             rm -f ${{WORK_DIR}}/snvs_tmp.vcf
-        elif (( LINE_COUNTER )); then
+        elif ((LINE_COUNTER)); then
             echo "ERROR: unsuccesful execution of ShoRAH" 2> >(tee -a {log.errfile} >&2)
             exit 1
         else
-            echo "No alignment region reports sufficient coverage" >> {log.outfile}
+            echo "No alignment region reports sufficient coverage" >>{log.outfile}
             touch {output.CSV}
             touch {output.VCF}
         fi
@@ -238,7 +241,7 @@ rule samtools_index:
         SAMTOOLS=config.applications["samtools"],
     shell:
         """
-        {params.SAMTOOLS} faidx {input} -o {output} > {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} faidx {input} -o {output} >{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -283,13 +286,13 @@ rule lofreq:
     shell:
         """
         # Add qualities to indels
-        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.LOFREQ} indelqual --dindel -f {input.REF} -o {output.BAM} --verbose {input.BAM} >{log.outfile} 2> >(tee {log.errfile} >&2)
         # Index bam file
         {params.SAMTOOLS} index {output.BAM} 2> >(tee {log.errfile} >&2)
 
         # Run Lofreq
-        echo "Running {params.kind} LoFreq ({params.subcmd})" >> {log.outfile}
-        {params.LOFREQ} "{params.subcmd}" {params.EXTRA} --call-indels {params.threadspar} -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        echo "Running {params.kind} LoFreq ({params.subcmd})" >>{log.outfile}
+        {params.LOFREQ} "{params.subcmd}" {params.EXTRA} --call-indels {params.threadspar} -f {input.REF} -o {output.SNVs} --verbose {output.BAM} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -325,17 +328,17 @@ rule paired_end_read_merger:
     shell:
         """
         ## Preparation
-        {params.SAMTOOLS} view -h -T {input.fname_ref} -t {input.fname_ref_idx} {input.fname_bam} -o {output.fname_sam} > {log.outfile} 2> >(tee {log.errfile} >&2)
+        {params.SAMTOOLS} view -h -T {input.fname_ref} -t {input.fname_ref_idx} {input.fname_bam} -o {output.fname_sam} >{log.outfile} 2> >(tee {log.errfile} >&2)
         ## sort accrording to QNAME
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -O sam -n {output.fname_sam} -o {output.fname_sam_sort} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -O sam -n {output.fname_sam} -o {output.fname_sam_sort} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
         ## run script
-        {params.PAIRED_END_READ_MERGER} {output.fname_sam_sort} {output.fname_sam_merged} {output.fname_sam_nonmerged} {input.fname_ref} >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.PAIRED_END_READ_MERGER} {output.fname_sam_sort} {output.fname_sam_merged} {output.fname_sam_nonmerged} {input.fname_ref} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
         touch {output.fname_sam_nonmerged}
         ## sort
         rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.fname_bam_merged}" "{output.fname_sam_merged}" >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
-        {params.SAMTOOLS} index "{output.fname_bam_merged}" >> {log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.fname_bam_merged}" "{output.fname_sam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} index "{output.fname_bam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
         """
 
 
@@ -378,8 +381,8 @@ rule viloca:
         """
         let "WINDOW_SHIFTS=({params.READ_LEN} * 4/5 + {params.SHIFT}) / {params.SHIFT}"
         let "WINDOW_LEN=WINDOW_SHIFTS * {params.SHIFT}"
-        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" > {log.outfile}
-        echo "The window length is: ${{WINDOW_LEN}} bp" >> {log.outfile}
+        echo "Windows are shifted by: ${{WINDOW_SHIFTS}} bp" >{log.outfile}
+        echo "The window length is: ${{WINDOW_LEN}} bp" >>{log.outfile}
 
         # Get absolute path for input files
         CWD=${{PWD}}
@@ -392,20 +395,20 @@ rule viloca:
         # Create directory for running VILOCA
         DIR="${{WORK_DIR}}"
         if [[ ! -d "${{DIR}}" ]]; then
-            echo "Creating directory ${{DIR}}" >> $OUTFILE
+            echo "Creating directory ${{DIR}}" >>$OUTFILE
             mkdir -p ${{DIR}}
         fi
         # Change to the directory where VILOCA is to be executed
         cd "${{DIR}}"
 
         # Run VILOCA
-        echo "Running VILOCA" >> $OUTFILE
+        echo "Running VILOCA" >>$OUTFILE
         if [[ "{params.INSERT_FILE}" == "None" ]]; then
-            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -w ${{WINDOW_LEN}} -s {params.SHIFT} -b ${{BAM}} -f ${{REF}} >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -w ${{WINDOW_LEN}} -s {params.SHIFT} -b ${{BAM}} -f ${{REF}} >>$OUTFILE 2> >(tee -a $ERRFILE >&2)
         else
             INSERTFILE=${{CWD}}/{params.INSERT_FILE}
-            echo "Insert file used ${{CWD}}/{params.INSERT_FILE}" >> $OUTFILE
-            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -z ${{INSERTFILE}} -b ${{BAM}} -f ${{REF}}  >> $OUTFILE 2> >(tee -a $ERRFILE >&2)
+            echo "Insert file used ${{CWD}}/{params.INSERT_FILE}" >>$OUTFILE
+            {params.VILOCA} {params.EXTRA} -t {threads} --mode {params.MODE} -z ${{INSERTFILE}} -b ${{BAM}} -f ${{REF}} >>$OUTFILE 2> >(tee -a $ERRFILE >&2)
         fi
 
         # rename viloca output  snv/SNVs_0.010000_final.vcf --> snvs.vcf
