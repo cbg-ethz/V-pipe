@@ -436,8 +436,6 @@ rule covvfit:
         covvfit_conf=config.covvfit["config"],
     output:
         outdir=directory(cohortdir("covvfit")),
-        results=cohortdir("covvfit/results.yaml"),
-        pairwise=cohortdir("covvfit/pairwise_fitnesses.csv"),
     log:
         outfile=cohortdir("covvfit.out.log"),
         errfile=cohortdir("covvfit.err.log"),
