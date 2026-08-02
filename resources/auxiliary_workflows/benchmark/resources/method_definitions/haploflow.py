@@ -13,6 +13,7 @@ import subprocess
 from pathlib import Path
 import os
 
+
 def main(
     fname_bam,
     fname_reference,
@@ -27,9 +28,9 @@ def main(
     fname_fastq = str(fname_bam.resolve()).split(".bam")[0] + ".fastq"
 
     contig_len_filter = 240  # default of Haploflow: 500
-    error_rate = 0.0199999996 # default for Illumina
+    error_rate = 0.0199999996  # default for Illumina
     if seq_type != "illumina":
-        error_rate = 0.1 # for long reads
+        error_rate = 0.1  # for long reads
 
     # execute tool
     subprocess.run(
@@ -45,8 +46,8 @@ def main(
             str(contig_len_filter),
             "--error-rate",
             str(error_rate),
-            ]
-                )
+        ]
+    )
 
     fname_haplodmf = dname_work / "contigs.fa"
     os.rename(fname_haplodmf.resolve(), fname_result_haplos.resolve())

@@ -437,7 +437,7 @@ def relative_edit_distance(seq1, seq2):
 
 
 def pr_worker(index, df_group, df_true, thres):
-    (method, params, replicate) = index
+    method, params, replicate = index
 
     tp = 0
     fp = 0

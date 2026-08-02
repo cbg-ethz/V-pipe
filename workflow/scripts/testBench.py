@@ -11,7 +11,6 @@ import sh
 import numpy as np
 import pandas as pd
 
-
 __author__ = "Susana Posada-Cespedes"
 __license__ = "Apache2.0"
 __maintainer__ = "Ivan Topolsky"

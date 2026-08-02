@@ -8,7 +8,6 @@ import math
 from Bio import SeqIO
 import numpy as np
 
-
 RNG_SEED = 42 + int(snakemake.wildcards.replicate)
 np.random.seed(RNG_SEED)
 

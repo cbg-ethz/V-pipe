@@ -4,6 +4,7 @@ Computation of various diversity indices for the underlying sample following the
 review: https://doi.org/10.1016/j.coviro.2021.06.002
 
 """
+
 import sys
 import os
 import vcf

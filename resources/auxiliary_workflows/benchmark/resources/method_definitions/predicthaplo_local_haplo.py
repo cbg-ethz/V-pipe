@@ -25,7 +25,6 @@ module load eth_proxy
 
 """
 
-
 """
 Note: On Illumina samples, we are receiving this error:
 https://github.com/cbg-ethz/PredictHaplo/issues/25

@@ -12,7 +12,6 @@ import matplotlib.pylab as plt
 
 import math
 
-
 BASE_LIST = list("TCGA")
 
 RNG_SEED = 42 + int(snakemake.wildcards.replicate)
