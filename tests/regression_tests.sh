@@ -23,7 +23,7 @@ fi
 VIRUS=$1
 
 CWD=$(pwd)
-# shellcheck disable=SC2317  # ShellCheck may incorrectly believe that code is unreachable if it's invoked in a trap
+# shellcheck disable=SC2329  # ShellCheck may incorrectly believe that code is unreachable if it's invoked in a trap
 function restore_wd {
     cd "${CWD}"
 }
