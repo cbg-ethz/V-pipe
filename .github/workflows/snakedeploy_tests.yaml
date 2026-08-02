@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout test data
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
             sparse-checkout: |
                 tests
@@ -37,7 +37,7 @@ jobs:
             # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           miniforge-variant: Miniforge3
@@ -85,7 +85,7 @@ jobs:
 
       - name: Archive test results
         if: ${{ success() }} || ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test_output_${{ matrix.virus }}
           path: |

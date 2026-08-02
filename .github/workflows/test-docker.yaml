@@ -29,20 +29,20 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and save
         id: docker_build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
@@ -50,7 +50,7 @@ jobs:
           outputs: type=docker,dest=./vpipe-docker.tar.zst,compression=zstd,compression-level=6
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: "( !contains(github.ref, 'master') && !startsWith(github.ref, 'refs/tags') )"
         with:
           name: vpipe-docker

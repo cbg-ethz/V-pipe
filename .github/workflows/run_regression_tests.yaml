@@ -18,12 +18,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
             lfs: false
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           miniforge-variant: Miniforge3
@@ -52,7 +52,7 @@ jobs:
       - name: Snakemake linting
         env:
           PYTHONUNBUFFERED: 1
-        uses: snakemake/snakemake-github-action@v1
+        uses: snakemake/snakemake-github-action@v2
         with:
           directory: lintest/
           snakefile: 'workflow/Snakefile'
@@ -77,13 +77,13 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
             lfs: false
             # NOTE to save on bandwidth costs, GitHub Action will not use GitHub's own LFS
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           miniforge-variant: Miniforge3
@@ -109,7 +109,7 @@ jobs:
 
       - name: Archive code coverage results
         if: ${{ success() }} || ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: regression_test_${{ matrix.os }}_${{ matrix.python-version }}_${{ matrix.virus }}
           path: |

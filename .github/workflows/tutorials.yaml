@@ -24,7 +24,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
             sparse-checkout: |
                 docs
@@ -33,7 +33,7 @@ jobs:
             lfs: false
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           miniforge-variant: Miniforge3
@@ -59,14 +59,14 @@ jobs:
         run: tar --zstd -cvf vpipeinstallation.tar.zst ./docs/vp-analysis
 
       - name: Keep installation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: VPipeInstallation
           path: vpipeinstallation.tar.zst
           if-no-files-found: error
 
       - name: Save notebooks
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: JupyterNotebooks-Install
           path: ./docs/*.ipynb
@@ -95,7 +95,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
             sparse-checkout: |
                 docs
@@ -104,7 +104,7 @@ jobs:
             lfs: false
 
       - name: Reuse installation
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
             name: VPipeInstallation
 
@@ -112,7 +112,7 @@ jobs:
         run: tar --zstd -xvf vpipeinstallation.tar.zst
 
       - name: Install conda environment dependencies
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           miniforge-variant: Miniforge3
@@ -136,7 +136,7 @@ jobs:
 
       - name: Save output
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Tutorial_${{ matrix.virus }}
           path: |
@@ -149,7 +149,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Save notebooks
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: JupyterNotebooks-${{ matrix.virus }}
           path: ./docs/*.ipynb
