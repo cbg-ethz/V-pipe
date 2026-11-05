@@ -296,52 +296,6 @@ rule lofreq:
         """
 
 
-rule paired_end_read_merger:
-    input:
-        fname_bam=alignment_wildcard,
-        fname_ref=(
-            cohortdir("cohort_consensus.fasta")
-            if config.viloca["consensus"]
-            else reference_file
-        ),
-        fname_ref_idx=(
-            cohortdir("cohort_consensus.fasta")
-            if config.viloca["consensus"]
-            else reference_file
-        )
-        + ".fai",
-    output:
-        fname_bam_merged="{dataset}/alignment/REF_aln.merged.bam",
-        fname_sam_merged=temp_with_prefix("{dataset}/alignment/REF_aln.merged.sam"),
-        fname_sam=temp_with_prefix("{dataset}/alignment/REF_aln.sam"),
-        fname_sam_nonmerged="{dataset}/alignment/REF_aln.nonmerged.sam",
-        fname_sam_sort=temp_with_prefix("{dataset}/alignment/REF_aln.sort.sam"),
-    log:
-        outfile="{dataset}/alignment/paired_end_read_merger.out.log",
-        errfile="{dataset}/alignment/paired_end_read_merger.err.log",
-    conda:
-        config.paired_end_read_merger["conda"]
-    params:
-        SAMTOOLS=config.applications["samtools"],
-        PAIRED_END_READ_MERGER=config.applications["paired_end_read_merger"],
-        sort_tmp=temp_prefix("{dataset}.tmp"),
-    shell:
-        """
-        ## Preparation
-        {params.SAMTOOLS} view -h -T {input.fname_ref} -t {input.fname_ref_idx} {input.fname_bam} -o {output.fname_sam} >{log.outfile} 2> >(tee {log.errfile} >&2)
-        ## sort accrording to QNAME
-        rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -O sam -n {output.fname_sam} -o {output.fname_sam_sort} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
-        ## run script
-        {params.PAIRED_END_READ_MERGER} {output.fname_sam_sort} {output.fname_sam_merged} {output.fname_sam_nonmerged} {input.fname_ref} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
-        touch {output.fname_sam_nonmerged}
-        ## sort
-        rm -f '{params.sort_tmp}'.[0-9]*.bam
-        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.fname_bam_merged}" "{output.fname_sam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
-        {params.SAMTOOLS} index "{output.fname_bam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
-        """
-
-
 rule viloca:
     input:
         REF=(

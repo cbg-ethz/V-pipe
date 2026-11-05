@@ -685,6 +685,51 @@ elif config.general["aligner"] == "minimap":
             """
 
 
+rule paired_end_read_merger:
+    input:
+        fname_bam=alignment_wildcard,
+        fname_ref=(
+            cohortdir("cohort_consensus.fasta")
+            if config.viloca["consensus"]
+            else reference_file
+        ),
+        fname_ref_idx=(
+            cohortdir("cohort_consensus.fasta")
+            if config.viloca["consensus"]
+            else reference_file
+        )
+        + ".fai",
+    output:
+        fname_bam_merged="{dataset}/alignments/REF_aln.merged.bam",
+        fname_sam_merged=temp_with_prefix("{dataset}/alignments/REF_aln.merged.sam"),
+        fname_sam_nonmerged="{dataset}/alignments/REF_aln.nonmerged.sam",
+        fname_sam_sort=temp_with_prefix("{dataset}/alignments/REF_aln.sort.sam"),
+    log:
+        outfile="{dataset}/alignments/paired_end_read_merger.out.log",
+        errfile="{dataset}/alignments/paired_end_read_merger.err.log",
+    benchmark:
+        "{dataset}/alignments/paired_end_read_merger.benchmark"
+    conda:
+        config.paired_end_read_merger["conda"]
+    params:
+        SAMTOOLS=config.applications["samtools"],
+        PAIRED_END_READ_MERGER=config.applications["paired_end_read_merger"],
+        sort_tmp=temp_prefix("{dataset}.tmp"),
+    shell:
+        """
+        ## sort accrording to QNAME
+        rm -f '{params.sort_tmp}'.[0-9]*.bam
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -O sam -n {input.fname_bam} --reference {input.fname_ref} -o {output.fname_sam_sort} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
+        ## run script
+        {params.PAIRED_END_READ_MERGER} -o {output.fname_sam_merged} --unpaired {output.fname_sam_nonmerged} -f {input.fname_ref} {output.fname_sam_sort} >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
+        touch {output.fname_sam_nonmerged}
+        ## sort
+        rm -f '{params.sort_tmp}'.[0-9]*.bam
+        {params.SAMTOOLS} sort -T "{params.sort_tmp}" -o "{output.fname_bam_merged}" "{output.fname_sam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
+        {params.SAMTOOLS} index "{output.fname_bam_merged}" >>{log.outfile} 2> >(tee -a {log.errfile} >&2)
+        """
+
+
 # NOTE ngshmmalignb also generate consensus so check there too.
 # if config.general["aligner"] == "ngshmmalign":
 #
