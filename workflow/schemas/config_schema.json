@@ -1873,6 +1873,28 @@
             "default": {},
             "type": "object"
         },
+        "interactive": {
+            "properties": {
+                "mem": {
+                    "type": "integer",
+                    "default": 16384
+                },
+                "time": {
+                    "type": "integer",
+                    "default": 60
+                },
+                "threads": {
+                    "type": "integer",
+                    "default": 4
+                },
+                "conda": {
+                    "type": "string",
+                    "default": "{VPIPE_BASEDIR}/envs/interactive.yaml"
+                }
+            },
+            "default": {},
+            "type": "object"
+        },
         "web_visualization": {
             "properties": {
                 "mem": {

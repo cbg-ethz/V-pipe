@@ -49,6 +49,11 @@ if 1:
     include: "rules/signatures.smk"
 
 
+if 1:
+
+    include: "rules/interactive.smk"
+
+
 if config.output["snv"] or config.output["local"]:
 
     include: "rules/snv.smk"

@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - diamond=2.2.8
+  - smallgenomeutilities=0.5.2
+  - sr2silo=1.9.0
+  - yq=4.4.0
+  - jq=1.8.1
+  - coreutils # [not linux]
