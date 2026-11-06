@@ -47,9 +47,14 @@ rule process_interactive:
         aa_ref="$(yq -r .AA_REF '{params.cfg_file}')"
         full_id='{params.sample_id}'
 
-        nuc_ref="$(cd "$(dirname '{params.cfg_file}' )"; realpath "${{nuc_ref}}")"
-        aa_ref="$(cd "$(dirname '{params.cfg_file}' )"; realpath "${{aa_ref}}")"
-
+        nuc_ref="$(
+    cd "$(dirname '{params.cfg_file}')"
+    realpath "${{nuc_ref}}"
+)"
+        aa_ref="$(
+    cd "$(dirname '{params.cfg_file}')"
+    realpath "${{aa_ref}}"
+)"
 
         sr2silo process-from-vpipe \
             --skip-merge \
